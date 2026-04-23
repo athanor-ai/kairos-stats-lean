@@ -1,35 +1,28 @@
 /-
-HowardBridge.MeasureTheoretic — ATH-512 Option 2 scaffold.
+Kairos.Stats.SubGaussianMG — measure-theoretic sub-Gaussian martingale
+structure + supermartingale + Ville's inequality, built on Mathlib's
+`MeasureTheory.Filtration` and `ProbabilityTheory.HasCondSubgaussianMGF`.
 
-Measure-theoretic rebuild of `SubGaussianMartingale` on Mathlib's
-`MeasureTheory.Filtration`, replacing the vacuous scalar existential
-in `Basic.lean` with a genuine conditional-MGF predicate.
+A sub-Gaussian martingale here is a process `M : ℕ → Ω → ℝ` adapted
+to a filtration `𝓕`, whose increment `M_{t+1} - M_t` has a
+conditional sub-Gaussian MGF bound given `𝓕 t`. From this we derive:
 
-Goal: close the upper sandwich of `MasterSharpSlackAvgUniv` by
-proving Ville's inequality
-    ℙ[∃ t ≤ N, process t ω ≥ τ] ≤ exp(-τ²/(2σ²))
-for a sub-Gaussian martingale in the filtration-adapted sense.
+  1. base martingale property (`SubGaussianMG.martingale`)
+  2. exponential supermartingale `exp(lam·M_t)/exp(lam²·σ²·t/2)`
+  3. Ville's inequality: ℙ[∃ t ≤ N, M_t ≥ τ] ≤ exp(-τ²/(2σ²·N))
+     via Doob's maximal inequality + Chernoff optimisation over `lam`.
 
-Architecture (3-step):
-  Day 1-2 (this file, Stage A): new `SubGaussianMG` structure on a
-          `Filtration ℕ m0`, base martingale property.
-  Day 3-4 (Stage B): exponential supermartingale lemma
-          `exp (lam * process) / exp (lam² σ² t / 2)` is a Supermartingale.
-  Day 5-6 (Stage C): Ville's inequality via Doob's maximal inequality
-          + Chernoff optimization over `lam`.
-
-Mathlib primitives used (all present on pinned `ee3a540`):
+Mathlib primitives used (pinned on `lake-manifest.json`):
   • `MeasureTheory.Filtration`         (Probability/Process/Filtration.lean)
   • `MeasureTheory.Martingale`         (Probability/Martingale/Basic.lean)
   • `ProbabilityTheory.HasCondSubgaussianMGF`
-                                       (Probability/Moments/SubGaussian.lean:549)
+                                       (Probability/Moments/SubGaussian.lean)
   • `MeasureTheory.maximal_ineq` (Doob) (Probability/Martingale/OptionalStopping.lean)
 
 The `StandardBorelSpace Ω` constraint is mandated by
-`HasCondSubgaussianMGF` (Mathlib requires it for the
-`condExpKernel` machinery).
+`HasCondSubgaussianMGF` for its `condExpKernel` machinery.
 
-Axiom-audit target: {propext, Classical.choice, Quot.sound} only.
+Axiom-audit target: {propext, Classical.choice, Quot.sound}.
 -/
 
 import Mathlib
@@ -39,7 +32,7 @@ namespace Kairos.Stats
 open MeasureTheory ProbabilityTheory Filter
 open scoped Classical BigOperators
 
-/-! ## Stage A — structure + base martingale property (Day 1-2) -/
+/-! ## Structure + base martingale property -/
 
 /-- A sub-Gaussian martingale in the measure-theoretic sense:
 a process `M : ℕ → Ω → ℝ` adapted to a filtration `𝓕`, with the
@@ -85,7 +78,7 @@ structure SubGaussianMG
   sigma_pos : 0 < σ
 
 /-
-**Stage A extension** — `SubGaussianMG.martingale`.
+**Base martingale property** — `SubGaussianMG.martingale`.
 
 The underlying process is a martingale under `𝓕` and `μ`. The zero
 conditional mean of increments comes from the `increments_zero_mean`
@@ -118,16 +111,16 @@ theorem SubGaussianMG.martingale
       · exact M.integrable i;
     filter_upwards [ h_cond_exp_split, h_cond_exp_self, h_cond_exp_zero i ] with ω hω₁ hω₂ hω₃ using by aesop;
 
-/-! Stage B (Day 3-4): exponential supermartingale lemma — SORRY'd
+/-! ## Exponential supermartingale
 
 `exp (lam * process t) / exp (lam² σ² t / 2)` is a Supermartingale
 for any `lam ≥ 0`. Uses:
-  • `HasCondSubgaussianMGF.ae_condExp_le` (Mathlib SubGaussian.lean:563+)
+  • `HasCondSubgaussianMGF.ae_condExp_le` (Mathlib SubGaussian.lean)
   • `MeasureTheory.condExp` tower property
   • Jensen / exp-convexity on the ratio
 -/
 
-/-- **Stage B target** (Day 3-4, sorry'd).
+/-- **Exponential supermartingale.**
 
 Claim: for a sub-Gaussian martingale `M` in the measure-theoretic
 sense and any `lam ≥ 0`, the normalised exponential process
@@ -280,7 +273,7 @@ theorem exp_process_is_supermartingale
       ≤ Y t ω * 1 := mul_le_mul_of_nonneg_left hbnd (hY_nonneg t ω)
     _ = Y t ω := mul_one _
 
-/-! Stage C (Day 5-6): Ville's inequality
+/-! ## Ville's inequality
 
 Combine `exp_process_is_supermartingale` with Ville's inequality
 for non-negative supermartingales (via optional stopping)
@@ -432,7 +425,7 @@ lemma ville_supermartingale
   · exact div_nonneg (MeasureTheory.integral_nonneg fun _ => hY_nn _ _) hc.le
 
 /-
-**Stage C target** — Ville's inequality for a sub-Gaussian martingale.
+**Ville's inequality for a sub-Gaussian martingale.**
 
     For `N ≥ 1`, `τ > 0`, and a sub-Gaussian martingale `M` starting at 0:
     `μ { ω | ∃ t ≤ N, M_t ω ≥ τ }  ≤  exp(-τ²/(2σ²N))`.

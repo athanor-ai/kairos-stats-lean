@@ -1,5 +1,6 @@
 -- Kairos-Stats: Lean 4 library for finite-precision statistics.
--- Mathlib-style; internal to athanor-ai. Cherry-pick later.
+-- Mathlib-style supermartingale + Ville + sub-Gaussian concentration
+-- + per-family CS slack rates under bit-width quantization.
 
 import Lake
 open Lake DSL

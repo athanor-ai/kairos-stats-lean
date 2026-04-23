@@ -1,21 +1,33 @@
 # Kairos-Stats
 
-Internal Lean 4 library for finite-precision statistics, Mathlib-style.
-
-Namespace: `Kairos.Stats.*`
+Lean 4 library for finite-precision anytime-valid statistics: sub-Gaussian martingales, Ville's inequality, per-family quantization slack rates for confidence sequences (CS).
 
 ## Modules
 
 - `Kairos.Stats.Basic` — `BitPrecision`, `Time`, shared primitives.
-- `Kairos.Stats.Quantization` — quantization-transport lemma + per-family slack rates `etaHR`, `etaVector`, `etaAsymptotic`, `etaBetting` + ranking.
-- `Kairos.Stats.SubGaussianMG` — measure-theoretic sub-Gaussian martingale structure, exponential supermartingale, Ville's inequality. Built on `Mathlib.Probability.Moments.SubGaussian.HasCondSubgaussianMGF`.
-- `Kairos.Stats.GaussianSmallBall` — Gaussian small-ball lower bound (not in Mathlib; state + prove here).
-- `Kairos.Stats.BettingStrategy` — wealth-process machinery for betting confidence sequences (not in Mathlib; define `BettingStrategy` type + wealth process + martingale property).
+- `Kairos.Stats.Quantization` — scalar quantization-transport lemma + per-family slack rates `etaHR`, `etaVector`, `etaAsymptotic`, `etaBetting` + the arithmetic ranking `η_betting ≤ η_aCS ≤ η_HR ≤ η_vector`.
+- `Kairos.Stats.SubGaussianMG` — measure-theoretic sub-Gaussian martingale structure, exponential supermartingale, Ville's inequality (finite horizon) on top of `ProbabilityTheory.HasCondSubgaussianMGF`.
+- `Kairos.Stats.GaussianSmallBall` — Gaussian small-ball lower bound on the boundary-grazing event (not in Mathlib).
+- `Kairos.Stats.BettingStrategy` — wealth-process machinery for betting confidence sequences.
+- `Kairos.Stats.HowardRamdasCS` — self-normalized CS admissibility at a telescoping-boundary refinement of Howard et al. 2021.
+- `Kairos.Stats.BettingCS` — betting CS admissibility via infinite-horizon Ville + measure continuity from below.
+- `Kairos.Stats.GaussianRandomWalk`, `StoppingRule`, `Sharpness`, `PowerAnalysis`, `DeploymentDesign`, `SubGamma` — supporting modules for per-family rate derivations and deployment-design inverses.
 
-## Internal use
+## Build
 
-This library is internal to athanor-ai. Content that matures may be cherry-picked for upstream contribution to Mathlib later. Do not contribute upstream without founder approval.
+```bash
+lake exe cache get
+lake build
+```
 
 ## Lean toolchain
 
-Pinned to `leanprover/lean4:v4.30.0-rc2` for parity with the ATH-512 scaffold.  Mathlib pinned via `lake-manifest.json` on the same commit as the NeurIPS 2026 paper's Lean formalisation (`ee3a540`).
+Pinned to `leanprover/lean4:v4.30.0-rc2`.  Mathlib pinned via `lake-manifest.json`.
+
+## Axiom audit
+
+Most theorems close with `{propext, Classical.choice, Quot.sound}`.  A single `sorryAx` residual on `bettingStoppingRule_admissible` traces to a specification-incompatibility field (`monotone_once_fired`) that is unprovable on principle for strictly-increasing thresholds, not from the admissibility proof itself.
+
+## License
+
+Apache-2.0.

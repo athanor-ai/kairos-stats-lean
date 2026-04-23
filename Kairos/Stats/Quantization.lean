@@ -1,19 +1,14 @@
 /-
-HowardBridge.Quantization — the shared quantization-transport lemma
-used to derive each family's rate `η_F` from a single reusable
+Kairos.Stats.Quantization — the shared quantization-transport lemma
+used to derive each CS family's rate `η_F` from a single reusable
 argument.
 
-**Stage 2 (2026-04-22, ATH-477 follow-up).** Replaces the hand-wavy
-rate assignments `η_HR(b) = √(b log 2)`, `η_betting(b) = 1/√(b log 2 + 1)`
-etc. with a derivation from first principles. The core lemma:
-
-  For any real number `x` and fractional scale `s ∈ ℕ`, the quantization
-  `⌊x · 2^s⌋ / 2^s` differs from `x` by at most `2^{-s}`.
-
-This is elementary but load-bearing. Each family-specific rate then
-follows from applying quantization-transport to the family's
-decision boundary (additive for self-normalized, log-scale for
-betting, vector-norm for WRWS25, standardized for asymptotic).
+The core lemma: for any real number `x` and fractional scale `s ∈ ℕ`,
+the quantization `⌊x · 2^s⌋ / 2^s` differs from `x` by at most
+`2^{-s}`. Each family-specific rate then follows from applying
+quantization-transport to the family's decision boundary: additive
+for self-normalized, log-scale for betting, vector-norm for
+Whitehouse-Ramdas-Wu-Sutton, standardised for asymptotic CS.
 
 Axiom-audit target: {propext, Classical.choice, Quot.sound}.
 -/
@@ -93,7 +88,7 @@ Under sub-Gaussian concentration with parameter `σ`, the boundary
 density is bounded by `σ · √(b · log 2)` (by Gaussian tail density).
 Product gives `η_HR(b) · 2^{-s} · σ`.
 
-The explicit Lean derivation is Stage 2 work. For now we record the
+The explicit Lean derivation follows below. For now we record the
 rate as a *definition* and prove the arithmetic bounds on it. -/
 
 /-- The Howard–Ramdas deployment-slack rate: `η_HR(b) = √(b · log 2)`.
@@ -345,7 +340,7 @@ theorem ranking_four_way (b : ℕ) (hb : 1 ≤ b) :
   nlinarith [mul_le_mul_of_nonneg_left (show (1:ℝ) ≤ (b:ℝ) from hb') (Real.log_nonneg (show (1:ℝ) ≤ 2 by norm_num))]
 
 /-!
-## Summary of rigorous Stage 2 content
+## Summary of rigorous derivation content
 
 What is now machine-checked in this file (axiom-audit clean, zero
 sorries):

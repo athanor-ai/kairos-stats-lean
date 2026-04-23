@@ -1,0 +1,10 @@
+.lake/
+lake-manifest.json.lock
+*.olean
+build/
+# Aristotle / prover-run artefacts
+*-aristotle.tar.gz
+aristotle_out/
+*_out/
+*_out.tar.gz
+project_aristotle/

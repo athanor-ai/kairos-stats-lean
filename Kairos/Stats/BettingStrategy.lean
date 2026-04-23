@@ -15,6 +15,7 @@ abstractions.  We supply them here.
 -/
 
 import Mathlib
+
 import Kairos.Stats.Basic
 
 namespace Kairos.Stats
@@ -82,6 +83,68 @@ theorem wealthProcess_nonneg
       linarith
     exact mul_nonneg ih h1
 
+/-
+The wealth process is strongly adapted to the filtration.
+-/
+private lemma wealthProcess_stronglyAdapted
+    {𝓕 : Filtration ℕ mΩ} {B : ℝ}
+    (σ : BettingStrategy 𝓕 B) (ξ : ℕ → Ω → ℝ)
+    (h_xi_adapted : Adapted 𝓕 ξ) :
+    StronglyAdapted 𝓕 (wealthProcess σ ξ) := by
+  have := σ.adapted;
+  intro t;
+  induction' t with t ih;
+  · exact stronglyMeasurable_const;
+  · have h_step : StronglyMeasurable[𝓕 (t + 1)] (fun ω => 1 + σ.lam t ω * ξ t ω) := by
+      have h_step : StronglyMeasurable[𝓕 t] (fun ω => σ.lam t ω * ξ t ω) := by
+        exact StronglyMeasurable.mul ( this t |> Measurable.stronglyMeasurable ) ( h_xi_adapted t |> Measurable.stronglyMeasurable );
+      exact StronglyMeasurable.add ( stronglyMeasurable_const ) ( h_step.mono ( 𝓕.mono ( Nat.le_succ _ ) ) );
+    convert ih.mono ( 𝓕.mono ( Nat.le_succ t ) ) |> fun h => h.mul h_step using 1
+
+/-
+One-step martingale property: `wealthProcess σ ξ t =ᵐ[μ] μ[wealthProcess σ ξ (t+1) | 𝓕 t]`.
+-/
+private lemma wealthProcess_condExp_succ
+    {𝓕 : Filtration ℕ mΩ} [IsFiniteMeasure μ] {B : ℝ}
+    (σ : BettingStrategy 𝓕 B) (ξ : ℕ → Ω → ℝ)
+    (h_bound : ∀ t ω, |σ.lam t ω * ξ t ω| < 1)
+    (h_xi_adapted : Adapted 𝓕 ξ)
+    (h_integrable : ∀ t, Integrable (ξ t) μ)
+    (h_wealth_integrable : ∀ t, Integrable (wealthProcess σ ξ t) μ)
+    (h_zero_mean : ∀ t, μ[(ξ t) | 𝓕 t] =ᵐ[μ] 0)
+    (t : ℕ) :
+    wealthProcess σ ξ t =ᵐ[μ] μ[wealthProcess σ ξ (t + 1) | 𝓕 t] := by
+  -- By definition of $W_{t+1}$, we have $W_{t+1} = W_t + W_t \lambda_t \xi_t$.
+  have h_W_succ : ∀ ω, wealthProcess σ ξ (t + 1) ω = wealthProcess σ ξ t ω + (wealthProcess σ ξ t ω * σ.lam t ω * ξ t ω) := by
+    intro ω; rw [ show wealthProcess σ ξ ( t + 1 ) ω = wealthProcess σ ξ t ω * ( 1 + σ.lam t ω * ξ t ω ) by rfl ] ; ring;
+  have h_cond_exp : μ[(wealthProcess σ ξ t) * σ.lam t * ξ t | 𝓕 t] =ᶠ[ae μ] (wealthProcess σ ξ t) * σ.lam t * μ[ξ t | 𝓕 t] := by
+    apply_rules [ MeasureTheory.condExp_mul_of_stronglyMeasurable_left ];
+    · refine' StronglyMeasurable.mul _ _;
+      · have := wealthProcess_stronglyAdapted σ ξ h_xi_adapted;
+        exact this t;
+      · have := σ.adapted t;
+        exact this.stronglyMeasurable;
+    · have h_integrable_prod : Integrable (wealthProcess σ ξ (t + 1)) μ := by
+        exact h_wealth_integrable _;
+      convert h_integrable_prod.sub ( h_wealth_integrable t ) using 1 ; ext ω ; aesop;
+  have h_cond_exp : μ[wealthProcess σ ξ (t + 1) | 𝓕 t] =ᵐ[μ] μ[wealthProcess σ ξ t | 𝓕 t] + μ[(wealthProcess σ ξ t) * σ.lam t * ξ t | 𝓕 t] := by
+    rw [ show wealthProcess σ ξ ( t + 1 ) = wealthProcess σ ξ t + wealthProcess σ ξ t * σ.lam t * ξ t from funext h_W_succ ];
+    apply_rules [ MeasureTheory.condExp_add ];
+    have h_integrable_prod : Integrable (wealthProcess σ ξ (t + 1)) μ := by
+      exact h_wealth_integrable _;
+    convert h_integrable_prod.sub ( h_wealth_integrable t ) using 1 ; ext ω ; simp +decide [ h_W_succ ];
+    ring;
+  have h_cond_exp : μ[wealthProcess σ ξ t | 𝓕 t] =ᵐ[μ] wealthProcess σ ξ t := by
+    have h_cond_exp : StronglyMeasurable[𝓕 t] (wealthProcess σ ξ t) := by
+      have := wealthProcess_stronglyAdapted σ ξ h_xi_adapted;
+      exact this t;
+    rw [ MeasureTheory.condExp_of_stronglyMeasurable ];
+    · exact h_cond_exp;
+    · exact h_wealth_integrable t;
+  have h_cond_exp : μ[(wealthProcess σ ξ t) * σ.lam t * ξ t | 𝓕 t] =ᵐ[μ] 0 := by
+    filter_upwards [ ‹μ[wealthProcess σ ξ t * σ.lam t * ξ t | 𝓕 t] =ᶠ[ae μ] wealthProcess σ ξ t * σ.lam t * μ[ξ t | 𝓕 t]›, h_zero_mean t ] with ω hω₁ hω₂ using by aesop;
+  filter_upwards [ ‹μ[wealthProcess σ ξ ( t + 1 ) | 𝓕 t] =ᶠ[ae μ] μ[wealthProcess σ ξ t | 𝓕 t] + μ[wealthProcess σ ξ t * σ.lam t * ξ t | 𝓕 t]›, ‹μ[wealthProcess σ ξ t | 𝓕 t] =ᶠ[ae μ] wealthProcess σ ξ t›, h_cond_exp ] with ω hω₁ hω₂ hω₃ using by aesop;
+
 /-- Under the null hypothesis (zero conditional mean of `ξ_t` given
 `𝓕_t`) the wealth process is a martingale.  Proof uses the pull-out
 property of conditional expectation on the `𝓕_t`-measurable factor
@@ -95,7 +158,10 @@ theorem wealthProcess_martingale
     (h_wealth_integrable : ∀ t, Integrable (wealthProcess σ ξ t) μ)
     (h_zero_mean : ∀ t, μ[(ξ t) | 𝓕 t] =ᵐ[μ] 0) :
     Martingale (wealthProcess σ ξ) 𝓕 μ := by
-  sorry
+  exact martingale_nat
+    (wealthProcess_stronglyAdapted σ ξ h_xi_adapted)
+    h_wealth_integrable
+    (wealthProcess_condExp_succ σ ξ h_bound h_xi_adapted h_integrable h_wealth_integrable h_zero_mean)
 
 /-- Log-wealth is the natural object for the Ville-type anytime-valid
 bound.  `logWealthProcess σ ξ t ω := Real.log (wealthProcess σ ξ t ω)`

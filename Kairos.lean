@@ -4,3 +4,4 @@ import Kairos.Stats.Quantization
 import Kairos.Stats.SubGaussianMG
 import Kairos.Stats.GaussianSmallBall
 import Kairos.Stats.BettingStrategy
+import Kairos.Stats.GaussianRandomWalk

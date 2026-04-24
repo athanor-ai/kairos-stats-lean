@@ -31,12 +31,13 @@ structure StoppingRule
     decide m t = true → decide m (t + 1) = true
 
 /-- Induced stopping time: the first `t` at which the rule fires
-on the given trajectory. -/
+on the given trajectory. Returns `none` if the rule never fires. -/
 noncomputable def StoppingRule.firstHit
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
     {𝓕 : MeasureTheory.Filtration ℕ mΩ}
     (r : StoppingRule 𝓕) (m : ℕ → ℝ) : Option ℕ :=
-  Nat.find? (fun t => r.decide m t = true)
+  open scoped Classical in
+  if h : ∃ t, r.decide m t = true then some (Nat.find h) else none
 
 /-- Admissibility condition (Ramdas et al. 2022): the stopping rule
 applied to any sub-Gaussian martingale in the admissible class must

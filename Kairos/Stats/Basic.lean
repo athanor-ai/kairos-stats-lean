@@ -27,4 +27,12 @@ structure BitPrecision where
   bits_pos : 0 < bits
   scale_le_bits : scale ≤ bits
 
+/-- Coarse upper envelope on deployment slack for a Howard--Ramdas-style
+rule at bit-precision `bp` and sub-Gaussian parameter `σ`. Used as the
+reference against which `etaHR · 2^{-s} · σ` is compared in
+`Kairos.Stats.Quantization.etaHR_le_slack`. -/
+noncomputable def slack (σ : ℝ) (bp : BitPrecision) : ℝ :=
+  (2 : ℝ)^(-(bp.scale : ℤ))
+    * (1 + σ * Real.sqrt (2 * Real.log ((2 : ℝ) ^ bp.bits)))
+
 end Kairos.Stats

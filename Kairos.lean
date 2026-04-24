@@ -13,3 +13,5 @@ import Kairos.Stats.BettingCS
 import Kairos.Stats.Sharpness
 import Kairos.Stats.SubGamma
 import Kairos.Stats.ElegantUnification
+import Kairos.Stats.MatchingConstants
+import Kairos.Stats.AsymptoticSharpness

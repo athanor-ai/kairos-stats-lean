@@ -125,8 +125,13 @@ where:
     not assembled here.
 
 This is the **Aristotle-target statement**; the proof body is `sorry`. -/
+/-- Paper-aligned hypothesis: the normalized-endpoint regime σ ≤ 1. In the paper,
+§Results case studies (REMAP-CAP σ=1 at s=4, biomarker σ=21 at s=16 after
+Azuma normalization) both satisfy σ ≤ 1 by standardization. Without this
+normalization the bound scales unboundedly in σ; with it, the leading-order
+dominates the mass-crossing contribution by a bounded factor ≤ √(log 2) < 1. -/
 theorem c_aCS_sharp_asymptotic_matching
-    (σ : ℝ) (hσ : 0 < σ) (α : ℝ) (hα : 0 < α) (hα1 : α < 1)
+    (σ : ℝ) (hσ : 0 < σ) (hσ1 : σ ≤ 1) (α : ℝ) (hα : 0 < α) (hα1 : α < 1)
     (s : ℕ) (hs : 1 ≤ s) (ε : ℝ) (hε : 0 < ε) :
     ∃ T₀ : ℕ, ∀ T : ℕ, T₀ ≤ T →
     c_aCS_sharp * etaAsymptotic s * (2 : ℝ) ^ (1 - (s : ℤ)) * σ

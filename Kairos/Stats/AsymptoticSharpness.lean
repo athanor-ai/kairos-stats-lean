@@ -129,22 +129,15 @@ theorem c_aCS_sharp_asymptotic_matching
     (σ : ℝ) (hσ : 0 < σ) (α : ℝ) (hα : 0 < α) (hα1 : α < 1)
     (s : ℕ) (hs : 1 ≤ s) (ε : ℝ) (hε : 0 < ε) :
     ∃ T₀ : ℕ, ∀ T : ℕ, T₀ ≤ T →
-    α + c_aCS_sharp * etaAsymptotic s * (2 : ℝ) ^ (1 - (s : ℤ)) * σ
+    c_aCS_sharp * etaAsymptotic s * (2 : ℝ) ^ (1 - (s : ℤ)) * σ
       - 2 * ((2 : ℝ) ^ (-(s : ℤ))) ^ 2 - ε
     ≤
-    -- The coverage lower bound: P[Gaussian walk stays below aCS boundary]
-    -- approximated by the CLT Gaussian measure at the quantization window.
-    -- Full formal expression would reference the walk's coverage probability;
-    -- we state the inequality as an existence claim on T₀.
+    -- The coverage excess over α under the scaled-Gaussian adversary:
+    -- P[walk lies in near-boundary window] approximated by the CLT Gaussian
+    -- measure at the quantization window, plus the ε-slack from weak convergence.
     (ProbabilityTheory.gaussianReal 0 (Real.toNNReal (σ ^ 2))).real
       (Set.Icc (-(σ * (2 : ℝ) ^ (1 - (s : ℤ)))) 0)
     + ε := by
-  /- Aristotle target -/
-  -- Proof sketch:
-  -- Step 1: tendstoInDistribution_inv_sqrt_mul_sum_sub gives the CLT weak convergence.
-  -- Step 2: gaussian_adversary_lower_bound_constant bounds the window mass.
-  -- Step 3: gaussian_density_at_zero + c_aCS_sharp definition close the arithmetic.
-  -- Step 4: ε-approximation selects T₀ from the weak-convergence ε/2 bound.
   sorry
 
 /-! ## Arithmetic corollaries (locally closable) -/

@@ -124,4 +124,70 @@ theorem phi_transform_hr_admissible
   have : 1 / (1 / alpha) = alpha := by field_simp
   rw [this]
 
+/-! ## Vector-case Phi-transform (Aristotle target A) -/
+
+/-- Vector-family optimised tilt: same algebraic shape as `phiTilt`
+but scaled for `c_vector(t) = sigma * sqrt(4 t log(T/alpha))`. Factor
+√2 vs `phiTilt` matches the √2 in the ranking
+`etaVector = √2 · etaHR`. -/
+noncomputable def phiTiltVector (sigma : ℝ) (alpha : ℝ) (T : ℕ) : ℝ :=
+  if T = 0 then 0 else
+    Real.sqrt (4 * Real.log ((T : ℝ) / alpha) / (sigma^2 * T))
+
+noncomputable def phiProcessVector
+    (sigma : ℝ) (alpha : ℝ) (T : ℕ)
+    {Ω : Type*} (M : ℕ → Ω → ℝ) :
+    ℕ → Ω → ℝ :=
+  fun t ω =>
+    let lam := phiTiltVector sigma alpha T
+    Real.exp (lam * M t ω - lam^2 * sigma^2 * t / 2)
+
+/-- **Phi-transform preserves admissibility, vector case.** Vector-
+family analogue of `phi_transform_hr_admissible`: the exp-transform
+at `phiTiltVector` preserves admissibility at `alpha`. -/
+theorem phi_transform_vector_admissible
+    (sigma : ℝ) (hσ : 0 < sigma)
+    (alpha : ℝ) (halpha : 0 < alpha ∧ alpha < 1)
+    (b : ℕ) (hb : 2 ≤ b)
+    {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
+    {𝓕 : Filtration ℕ mΩ} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (M : SubGaussianMG sigma 𝓕 μ)
+    (hM0 : M.process 0 =ᵐ[μ] 0) :
+    μ {ω | ∃ t ≤ 2^b,
+            phiProcessVector sigma alpha (2^b) M.process t ω
+              ≥ 1 / alpha}
+      ≤ ENNReal.ofReal alpha := by
+  sorry
+
+/-! ## aCS-case Phi-transform (Aristotle target B) -/
+
+/-- aCS-family optimised tilt: `c_aCS(t) = sigma * sqrt(2 t log(1/alpha))`
+has `t`-invariant log term, so the tilt is `sqrt(2 log(1/alpha)/(σ²T))`. -/
+noncomputable def phiTiltACS (sigma : ℝ) (alpha : ℝ) (T : ℕ) : ℝ :=
+  if T = 0 then 0 else
+    Real.sqrt (2 * Real.log (1 / alpha) / (sigma^2 * T))
+
+noncomputable def phiProcessACS
+    (sigma : ℝ) (alpha : ℝ) (T : ℕ)
+    {Ω : Type*} (M : ℕ → Ω → ℝ) :
+    ℕ → Ω → ℝ :=
+  fun t ω =>
+    let lam := phiTiltACS sigma alpha T
+    Real.exp (lam * M t ω - lam^2 * sigma^2 * t / 2)
+
+/-- **Phi-transform preserves admissibility, aCS case.** -/
+theorem phi_transform_acs_admissible
+    (sigma : ℝ) (hσ : 0 < sigma)
+    (alpha : ℝ) (halpha : 0 < alpha ∧ alpha < 1)
+    (b : ℕ) (hb : 2 ≤ b)
+    {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
+    {𝓕 : Filtration ℕ mΩ} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (M : SubGaussianMG sigma 𝓕 μ)
+    (hM0 : M.process 0 =ᵐ[μ] 0) :
+    μ {ω | ∃ t ≤ 2^b,
+            phiProcessACS sigma alpha (2^b) M.process t ω
+              ≥ 1 / alpha}
+      ≤ ENNReal.ofReal alpha := by
+  sorry
+
 end Kairos.Stats

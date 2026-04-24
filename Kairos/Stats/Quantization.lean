@@ -341,6 +341,71 @@ theorem ranking_four_way (b : ℕ) (hb : 1 ≤ b) :
   nlinarith [mul_le_mul_of_nonneg_left (show (1:ℝ) ≤ (b:ℝ) from hb') (Real.log_nonneg (show (1:ℝ) ≤ 2 by norm_num))]
 
 /-!
+## HR rate derivation from Ville boundary
+
+The main result: for the Howard–Ramdas boundary `c_HR(t) = σ √(2t log(t/α))`,
+the pointwise bound `σ √(2t log(t/α)) ≤ C √(b log 2) · t` holds for all
+`t ∈ [1, 2^b]`, with `C = σ √(2(1 − log α/(b log 2)))`. This extracts
+`η_HR(b) = √(b log 2)` as the leading-order deployment rate.
+-/
+
+/-
+For `1 ≤ t`, `Real.sqrt t ≤ t`.
+-/
+theorem Real.sqrt_le_self_of_one_le {t : ℝ} (ht : 1 ≤ t) :
+    Real.sqrt t ≤ t := by
+      rw [ Real.sqrt_le_left ] <;> nlinarith
+
+/-
+Monotonicity of `log` applied to a ratio bound: if `1 ≤ t ≤ T`
+and `0 < α`, then `log(t/α) ≤ log(T/α)`.
+-/
+theorem Real.log_div_le_of_le {t T alpha : ℝ}
+    (ht : 1 ≤ t) (hT : t ≤ T) (halpha : 0 < alpha) :
+    Real.log (t / alpha) ≤ Real.log (T / alpha) := by
+      gcongr
+
+/-
+`log(2^b / alpha) = b * log 2 - log alpha` for `0 < alpha`.
+-/
+theorem Real.log_pow_div {b : ℕ} {alpha : ℝ} (halpha : 0 < alpha) :
+    Real.log ((2 : ℝ)^b / alpha) = ↑b * Real.log 2 - Real.log alpha := by
+      rw [ Real.log_div ( by positivity ) ( by positivity ), Real.log_pow ]
+
+theorem etaHR_derivation_from_ville_boundary
+    (b s : ℕ) (hb : 2 ≤ b) (_hs : 1 ≤ s) (sigma : ℝ) (hsigma : 0 < sigma)
+    (alpha : ℝ) (halpha : 0 < alpha ∧ alpha < 1) :
+    -- For the HR boundary c_HR(t) = sigma * sqrt(2 * t * log(t / alpha)),
+    -- the leading-order deployment slack is eta_HR(b) * 2^(-s) * sigma
+    -- where eta_HR(b) = sqrt(b * log 2).
+    ∃ C : ℝ, C > 0 ∧
+      ∀ t : ℝ, 1 ≤ t → t ≤ (2 : ℝ)^b →
+        sigma * Real.sqrt (2 * t * Real.log (t / alpha))
+          ≤ C * Real.sqrt (↑b * Real.log 2) * t := by
+            -- Let $C = \sigma \cdot \sqrt{2 \cdot \left(1 - \frac{\log \alpha}{b \log 2}\right)}$.
+            use sigma * Real.sqrt (2 * (1 - Real.log alpha / (b * Real.log 2)));
+            refine' ⟨ mul_pos hsigma ( Real.sqrt_pos.mpr _ ), _ ⟩;
+            · exact mul_pos zero_lt_two ( sub_pos_of_lt ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.log_le_sub_one_of_pos halpha.1, Real.log_pos one_lt_two, show ( b : ℝ ) ≥ 2 by norm_cast ] ) );
+            · intro t ht₁ ht₂
+              have h_log : Real.log (t / alpha) ≤ b * Real.log 2 - Real.log alpha := by
+                rw [ ← Real.log_rpow, ← Real.log_div ] <;> norm_num <;> try linarith;
+                gcongr;
+                · exact div_pos ( by linarith ) ( by linarith );
+                · linarith;
+              -- Substitute the bound for $\log(t / \alpha)$ into the inequality.
+              have h_subst : Real.sqrt (2 * t * Real.log (t / alpha)) ≤ Real.sqrt (2 * t * (b * Real.log 2 - Real.log alpha)) := by
+                exact Real.sqrt_le_sqrt <| mul_le_mul_of_nonneg_left h_log <| by positivity;
+              -- Simplify the right-hand side of the inequality.
+              have h_simplify : Real.sqrt (2 * t * (b * Real.log 2 - Real.log alpha)) ≤ Real.sqrt (2 * (1 - Real.log alpha / (b * Real.log 2))) * Real.sqrt (b * Real.log 2) * t := by
+                rw [ ← Real.sqrt_mul <| by exact mul_nonneg zero_le_two <| sub_nonneg.mpr <| by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.log_le_sub_one_of_pos halpha.1, Real.log_pos one_lt_two, show ( b : ℝ ) ≥ 2 by norm_cast ] ];
+                rw [ Real.sqrt_le_iff ];
+                rw [ mul_pow, Real.sq_sqrt ];
+                · field_simp;
+                  exact ⟨ by positivity, le_mul_of_one_le_right ( sub_nonneg.mpr <| by nlinarith [ Real.log_le_sub_one_of_pos halpha.1, Real.log_pos one_lt_two, show ( b : ℝ ) ≥ 2 by norm_cast ] ) ht₁ ⟩;
+                · exact mul_nonneg ( mul_nonneg zero_le_two ( sub_nonneg.2 <| div_le_one_of_le₀ ( by nlinarith [ Real.log_le_sub_one_of_pos halpha.1, Real.log_pos one_lt_two, show ( b : ℝ ) ≥ 2 by norm_cast ] ) <| by positivity ) ) <| by positivity;
+              simpa only [ mul_assoc ] using mul_le_mul_of_nonneg_left ( h_subst.trans h_simplify ) hsigma.le
+
+/-!
 ## Summary of rigorous derivation content
 
 What is now machine-checked in this file (axiom-audit clean, zero

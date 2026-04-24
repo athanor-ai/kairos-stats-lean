@@ -86,10 +86,12 @@ theorem quantization_transport_input
     |x - quantizeReal s x| ≤ (2 : ℝ)^(-(s : ℤ)) := by
   exact quantizeReal_error s x
 
-/-- **B2 coverage-error form (sorry):** the probability that the input-
+/-
+**B2 coverage-error form (sorry):** the probability that the input-
 quantized boundary check differs from the true boundary check is
 bounded by the boundary density at the stopping time times the
-quantization scale `2^(-s)`. -/
+quantization scale `2^(-s)`.
+-/
 theorem quantization_transport_input_coverage
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
     {σ : ℝ} {s : ℕ} {𝓕 : Filtration ℕ mΩ} {μ : Measure Ω} [IsFiniteMeasure μ]
@@ -97,8 +99,13 @@ theorem quantization_transport_input_coverage
     (T : ℕ) (hT : 0 < T) :
     μ {ω | ∃ t ≤ T, M.toSubGaussianMG.process t ω ≥ τ
           ∧ M.observed_process t ω < τ - (2 : ℝ)^(-(s : ℤ))}
-      ≤ 0 := by sorry
-
+      ≤ 0 := by
+        -- To prove the measure is zero, it suffices to show the set is empty.
+        suffices h : {ω | ∃ t ≤ T, M.process t ω ≥ τ ∧ M.observed_process t ω < τ - (2 : ℝ)^(-(s : ℤ))} = ∅ by
+          rw [ h, MeasureTheory.measure_empty ];
+        ext ω;
+        simp;
+        intro t ht hτ; have := M.observation_error t ω; rw [ abs_le ] at this; norm_num at *; linarith
 
 /-! ## B3. Input-quantized slack rate
 

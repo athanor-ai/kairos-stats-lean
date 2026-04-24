@@ -15,6 +15,7 @@ Axiom-audit target: {propext, Classical.choice, Quot.sound}.
 
 
 import Mathlib
+import Kairos.Stats.Basic
 
 namespace Kairos.Stats
 

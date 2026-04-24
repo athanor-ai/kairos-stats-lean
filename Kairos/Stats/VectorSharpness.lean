@@ -76,9 +76,13 @@ theorem one_d_marginal_reduction_tight
     (hAdapted : Adapted 𝓕 M)
     (hIntegrable : ∀ t, Integrable (M t) μ)
     (hMarginal : ∀ t : ℕ, HasCondSubgaussianMGF (𝓕 t) (𝓕.le t)
-      (fun ω => M (t + 1) ω - M t ω) (Real.toNNReal (σ^2)) μ) :
+      (fun ω => M (t + 1) ω - M t ω) (Real.toNNReal (σ^2)) μ)
+    (hIntegrableExp : ∀ t : ℕ, ∀ lam : ℝ,
+      Integrable (fun ω => Real.exp (lam * M t ω)) μ)
+    (hZeroMean : ∀ t,
+      μ[fun ω => M (t + 1) ω - M t ω | 𝓕 t] =ᵐ[μ] 0) :
     ∃ (M' : SubGaussianMG σ 𝓕 μ), M'.process = M := by
-  sorry
+  exact ⟨⟨M, hAdapted, hIntegrable, hIntegrableExp, hMarginal, hZeroMean, hσ⟩, rfl⟩
 
 /-- **A1-arithmetic corollary:** the variance proxy σ² in the 1-d
 marginal reduction is *sharp* in the sense that the inequality
@@ -115,6 +119,7 @@ theorem gaussian_boundary_density_vector
       Real.sqrt 2 * (Real.sqrt ((b : ℝ) * Real.log 2) * sigma) := by
   rw [show (2 * (b:ℝ) * Real.log 2 : ℝ) = 2 * ((b:ℝ) * Real.log 2) from by ring,
       Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 2)]
+  ring
 
 /-- **A2-corollary:** the matching-lower-bound constant for the
 vector family is `√2 · c_HR_sharp`, identifying the `√2` residue as a

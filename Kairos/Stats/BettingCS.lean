@@ -69,7 +69,7 @@ lemma ville_supermartingale_infinite
       exact ⟨ fun ⟨ t, ht ⟩ => ⟨ t, t, le_rfl, ht ⟩, fun ⟨ i, t, ht, ht' ⟩ => ⟨ t, ht' ⟩ ⟩;
     · infer_instance;
     · exact fun n m hnm ω hω => by obtain ⟨ t, ht, ht' ⟩ := hω; exact ⟨ t, le_trans ht hnm, ht' ⟩ ;
-  exact h_contra <| le_of_tendsto_of_tendsto' h_lim tendsto_const_nhds fun N => ville_supermartingale hY hY_nn hc N
+  exact h_contra <| le_of_tendsto_of_tendsto' h_lim tendsto_const_nhds fun N => ville_supermartingale_finite hY hY_nn hc N
 
 /-
 The betting stopping rule event is contained in the wealth-threshold event.

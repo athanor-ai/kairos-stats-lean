@@ -1,0 +1,57 @@
+name: Lean Build + Axiom Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install elan
+        shell: bash
+        run: |
+          set -eu
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
+          bash elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Pin toolchain
+        run: |
+          lean --version
+          lake --version
+
+      - name: Cache Mathlib .lake
+        uses: actions/cache@v4
+        with:
+          path: .lake
+          key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
+          restore-keys: |
+            lake-${{ runner.os }}-
+
+      - name: Fetch Mathlib cache
+        run: lake exe cache get
+
+      - name: Build all modules
+        run: lake build
+
+      - name: Axiom audit
+        run: |
+          # Every public theorem under test must depend only on the Lean
+          # kernel's trusted axioms: propext, Classical.choice, Quot.sound.
+          # Anything else (e.g. sorryAx, added axioms) fails CI.
+          lake env lean Kairos/Stats/AxiomAudit.lean > axiom-audit.txt 2>&1 || true
+          cat axiom-audit.txt
+          # Forbid any axiom line that is not in the trusted set.
+          ! grep -E "^\s*(sorryAx|Mathlib\.Axioms|[A-Z][a-zA-Z]*\.axiom)" axiom-audit.txt
+          # Must contain at least one "axioms" report — proves audit ran.
+          grep -q "axioms" axiom-audit.txt

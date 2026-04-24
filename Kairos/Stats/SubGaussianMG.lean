@@ -350,7 +350,7 @@ Ville's inequality for non-negative supermartingales:
     `∫ stoppedValue Y τ_hit ≥ c * μ.real(event)`. Combining:
     `c * μ.real(event) ≤ ∫ Y 0`, hence the result.
 -/
-lemma ville_supermartingale
+lemma ville_supermartingale_finite
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
     {Y : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ mΩ} {μ : Measure Ω}
     [IsProbabilityMeasure μ]
@@ -448,7 +448,7 @@ theorem ville_ineq
   have h_exp_process : Supermartingale (fun t ω => Real.exp ((τ / (σ ^ 2 * N)) * M.process t ω) / Real.exp ((τ / (σ ^ 2 * N)) ^ 2 * σ ^ 2 * t / 2)) 𝓕 μ := by
     convert exp_process_is_supermartingale M ( τ / ( σ ^ 2 * N ) ) ( by positivity ) using 1;
   refine' le_trans h_replace _;
-  convert ville_supermartingale h_exp_process _ _ _ using 1;
+  convert ville_supermartingale_finite h_exp_process _ _ _ using 1;
   · rw [ MeasureTheory.integral_congr_ae ( hM0.mono fun ω hω => by rw [ hω ] ) ] ; norm_num;
     rw [ ← Real.exp_neg ] ; ring;
     grind;

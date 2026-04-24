@@ -15,3 +15,5 @@ import Kairos.Stats.SubGamma
 import Kairos.Stats.ElegantUnification
 import Kairos.Stats.VectorSharpness
 import Kairos.Stats.InputQuantization
+import Kairos.Stats.BenchDefs
+import Kairos.Stats.AristotleT0T1T2Bench

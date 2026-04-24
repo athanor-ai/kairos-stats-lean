@@ -74,3 +74,28 @@ theorem gaussian_small_ball_lower_bound
   · aesop
 
 end Kairos.Stats
+
+/-- **Gaussian adversary lower-bound constant.**
+
+For the standard-Gaussian adversary with variance proxy $\sigma^2$ on a
+quantization window of width $\varepsilon > 0$ ending at the origin, the
+small-ball mass on the window is at least $\varepsilon \cdot \varphi(\varepsilon)$,
+where $\varphi$ is the standard Gaussian density. Rewriting, the
+leading-order lower-bound contribution per unit window is
+$\varphi(\varepsilon)$, which approaches $\varphi(0) = 1/\sqrt{2\pi}$
+as $\varepsilon \to 0$.
+
+This lemma is the Lean-side substrate for the paper-side Proposition
+"Gaussian lower-bound constant under the scaled-Gaussian adversary":
+the lower-bound constant $c_F$ in Theorem~1 against the scaled-Gaussian
+adversary is at least $\varphi(|c| + \varepsilon)$ times a width factor,
+which reduces to $\varphi(0)/2 = 1/(2\sqrt{2\pi})$ for $c = 0$ and
+small $\varepsilon$, up to the standard factor-of-two wrapping the
+signed-crossing event.
+-/
+theorem gaussian_adversary_lower_bound_constant
+    (σ : ℝ) (hσ : 0 < σ) (ε : ℝ) (hε : 0 < ε) :
+    (ProbabilityTheory.gaussianReal 0 (Real.toNNReal (σ ^ 2))).real (Set.Icc (-ε) 0)
+      ≥ ε * ProbabilityTheory.gaussianPDFReal 0 (Real.toNNReal (σ ^ 2)) ε := by
+  have h := gaussian_small_ball_lower_bound σ hσ 0 ε hε
+  simpa [abs_zero, zero_sub, zero_add] using h

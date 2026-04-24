@@ -64,14 +64,16 @@ lemma gaussian_density_at_zero (σ : ℝ) (hσ : 0 < σ) :
   norm_cast
   rw [Real.coe_toNNReal (σ ^ 2) (sq_nonneg σ)]
 
-/-- **Asymptotic Gaussian density lower bound at the aCS window boundary.**
+/-
+**Asymptotic Gaussian density lower bound at the aCS window boundary.**
 
 For the scaled-Gaussian adversary with variance `σ²` and scale `s : ℕ`,
 the Gaussian density at the window endpoint `σ · 2^{1-s}` satisfies:
     `gaussianPDFReal 0 σ².toNNReal (σ · 2^{1-s}) ≥ c_aCS_sharp / σ · (1 - O(2^{-2s}))`
 
 We state the cleaner weaker version: the density is positive and bounded
-below by `c_aCS_sharp * 2 / σ - ε` for all `ε > 0`. -/
+below by `c_aCS_sharp * 2 / σ - ε` for all `ε > 0`.
+-/
 lemma asymptotic_gaussian_density_at_boundary_aCS
     (σ : ℝ) (hσ : 0 < σ) (ε : ℝ) (hε : 0 < ε) (s : ℕ) (_hs : 1 ≤ s) :
     ∃ s₀ : ℕ, ∀ s' ≥ s₀,
@@ -79,7 +81,16 @@ lemma asymptotic_gaussian_density_at_boundary_aCS
       ProbabilityTheory.gaussianPDFReal 0 (Real.toNNReal (σ ^ 2))
         (σ * (2 : ℝ) ^ (1 - (s' : ℤ))) := by
   /- Aristotle target -/
-  sorry
+  -- By definition of $c_aCS_sharp$, we know that $c_aCS_sharp * 2 / σ = 1 / \sqrt{2πσ²}$.
+  have h_const : c_aCS_sharp * 2 / σ = 1 / Real.sqrt (2 * Real.pi * σ ^ 2) := by
+    unfold c_aCS_sharp; norm_num [ hσ.le ] ; ring;
+  have h_lim : Filter.Tendsto (fun s' : ℕ => gaussianPDFReal 0 (Real.toNNReal (σ ^ 2)) (σ * (2 : ℝ) ^ (1 - (s' : ℤ)))) Filter.atTop (nhds (1 / Real.sqrt (2 * Real.pi * σ ^ 2))) := by
+    convert Filter.Tendsto.comp ( show Filter.Tendsto ( fun x : ℝ => gaussianPDFReal 0 ( σ ^ 2 |> Real.toNNReal ) x ) ( nhds 0 ) ( nhds ( gaussianPDFReal 0 ( σ ^ 2 |> Real.toNNReal ) 0 ) ) from ?_ ) ( show Filter.Tendsto ( fun s' : ℕ => σ * 2 ^ ( 1 - ( s' : ℤ ) ) ) Filter.atTop ( nhds 0 ) from ?_ ) using 2;
+    · convert gaussian_density_at_zero σ hσ |> Eq.symm using 1;
+    · exact Continuous.tendsto ( by unfold gaussianPDFReal; continuity ) _;
+    · norm_num [ zpow_sub₀ ];
+      exact le_trans ( tendsto_const_nhds.mul ( tendsto_const_nhds.div_atTop ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two ) ) ) ( by norm_num );
+  exact Filter.eventually_atTop.mp ( h_lim.eventually ( le_mem_nhds <| by linarith ) )
 
 /-! ## Main theorem -/
 

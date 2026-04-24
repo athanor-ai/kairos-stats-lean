@@ -26,13 +26,41 @@ statement required a real-valued extension of etaHR that we do not have
 natively in the library. Monotonicity is the paper-actionable content.) -/
 theorem etaHR_monotone (b₁ b₂ : ℕ) (h : b₁ ≤ b₂) :
     etaHR b₁ ≤ etaHR b₂ := by
-  sorry
+  unfold etaHR
+  apply Real.sqrt_le_sqrt
+  have hlog : (0 : ℝ) ≤ Real.log 2 := Real.log_nonneg (by norm_num)
+  have : (b₁ : ℝ) ≤ (b₂ : ℝ) := by exact_mod_cast h
+  exact mul_le_mul_of_nonneg_right this hlog
 
 /-- **etaBetting is upper-bounded by etaHR at every b.**
 Deployment-slack ranking: betting never exceeds HR. -/
 theorem etaBetting_upper_bound_etaHR (b : ℕ) (hb : 1 ≤ b) :
     etaBetting b ≤ etaHR b := by
-  sorry
+  unfold etaBetting etaHR
+  -- Goal: 1 / sqrt(b * log 2 + 1) ≤ sqrt(b * log 2)
+  have hlog : (0 : ℝ) < Real.log 2 := Real.log_pos (by norm_num)
+  have hb_pos : (0 : ℝ) < (b : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp hb)
+  have hx : (0 : ℝ) < (b : ℝ) * Real.log 2 := mul_pos hb_pos hlog
+  have hx1 : (0 : ℝ) < (b : ℝ) * Real.log 2 + 1 := by linarith
+  -- Key: 1 ≤ (b*log 2) * (b*log 2 + 1), so 1/(b*log2+1) ≤ b*log 2
+  -- For b ≥ 1 and log 2 > 0.69, we have b*log 2 ≥ 0.69 and b*log 2 + 1 ≥ 1.69;
+  -- but we need 1 ≤ b*log 2 * (b*log 2 + 1) which requires b*log 2 ≥ 1/(b*log 2 + 1).
+  -- Since b*log 2 + 1 > 1 and b*log 2 > 0: if b*log 2 ≥ 1, trivially done. If b*log 2 < 1,
+  -- then 1/(b*log 2 + 1) > 1/2 and b*log 2 < 1, so need b*log 2 * (b*log 2 + 1) ≥ 1.
+  -- b=1: (log 2)(log 2 + 1) ≈ 0.693 * 1.693 ≈ 1.174 ≥ 1. ✓
+  -- This requires a numerical bound on log 2; leave as inequality chain via sqrt.
+  have key : 1 ≤ ((b : ℝ) * Real.log 2) * ((b : ℝ) * Real.log 2 + 1) := by
+    nlinarith [Real.log_pos (show (1 : ℝ) < 2 by norm_num), hb_pos,
+               sq_nonneg ((b : ℝ) * Real.log 2 - 1)]
+  -- From key: 1/(b*log2+1) ≤ b*log 2
+  have step1 : 1 / ((b : ℝ) * Real.log 2 + 1) ≤ (b : ℝ) * Real.log 2 := by
+    rw [div_le_iff hx1]; linarith
+  -- Now both sides non-negative, apply sqrt.
+  calc 1 / Real.sqrt ((b : ℝ) * Real.log 2 + 1)
+      = Real.sqrt (1 / ((b : ℝ) * Real.log 2 + 1)) := by
+        rw [Real.sqrt_div_self', Real.one_div, ← Real.sqrt_inv]
+        ring
+    _ ≤ Real.sqrt ((b : ℝ) * Real.log 2) := Real.sqrt_le_sqrt step1
 
 /-- **The asymptotic CS rate is the limiting HR rate.**
 etaAsymptotic equals the b=1 value of etaHR (both reduce to sqrt(log 2)). -/

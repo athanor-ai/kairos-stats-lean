@@ -55,16 +55,14 @@ This connects the abstract small-ball bound to the explicit paper constant
 lemma gaussian_density_at_zero (σ : ℝ) (hσ : 0 < σ) :
     ProbabilityTheory.gaussianPDFReal 0 (Real.toNNReal (σ ^ 2)) 0 =
       1 / Real.sqrt (2 * Real.pi * σ ^ 2) := by
-  rw [gaussianPDFReal]
-  simp only [sub_zero, ne_eq]
-  have hσ2 : (0 : ℝ) < σ ^ 2 := sq_pos_of_pos hσ
-  have hnn : Real.toNNReal (σ ^ 2) ≠ 0 := by
-    rw [Ne, Real.toNNReal_eq_zero.not.mpr.mt (by push_neg; exact hσ2.le) |>.symm.symm]
-    simp [hσ2.ne']
-  rw [Real.toNNReal_coe_eq_self (hσ2.le)]
-  simp [Real.exp_zero, Real.sqrt_mul (by positivity : (0:ℝ) ≤ 2 * Real.pi)]
-  ring_nf
-  rw [Real.sqrt_mul (by positivity : (0:ℝ) ≤ 2 * Real.pi)]
+  unfold gaussianPDFReal
+  simp only [sub_self, neg_zero, zero_pow, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+             zero_div, Real.exp_zero, mul_one]
+  rw [one_div]
+  congr 1
+  -- Goal: √(2 * π * ↑(toNNReal σ²)) = √(2 * π * σ²)
+  norm_cast
+  rw [Real.coe_toNNReal (σ ^ 2) (sq_nonneg σ)]
 
 /-- **Asymptotic Gaussian density lower bound at the aCS window boundary.**
 
@@ -144,8 +142,9 @@ theorem c_aCS_sharp_asymptotic_matching
 Arithmetic identity used in the density extraction step. -/
 lemma c_aCS_sharp_times_two : 2 * c_aCS_sharp = 1 / Real.sqrt (2 * Real.pi) := by
   unfold c_aCS_sharp
+  have hpi : (0 : ℝ) < Real.pi := Real.pi_pos
+  have hsqrt : Real.sqrt (2 * Real.pi) ≠ 0 := by positivity
   field_simp
-  ring
 
 /-- **c_aCS_sharp is positive** (re-export for local use). -/
 lemma c_aCS_sharp_pos' : 0 < c_aCS_sharp := c_aCS_sharp_pos
@@ -159,13 +158,23 @@ lemma aCS_window_pos (σ : ℝ) (hσ : 0 < σ) (s : ℕ) :
 For all s ≥ 1, `2 * (2^{-s})^2 = 2^{1-2s} ≤ 1/2`. -/
 lemma aCS_error_term_le_half (s : ℕ) (hs : 1 ≤ s) :
     2 * ((2 : ℝ) ^ (-(s : ℤ))) ^ 2 ≤ 1 / 2 := by
-  have hs1 : (1 : ℤ) ≤ (s : ℤ) := by exact_mod_cast hs
-  have h2s : 0 < (2 : ℝ) ^ (s : ℤ) := zpow_pos (by norm_num) _
-  rw [← zpow_natCast, ← zpow_mul, ← zpow_neg]
-  norm_num
-  rw [show (-1 : ℤ) * 2 = -2 by ring, zpow_neg, zpow_ofNat]
-  rw [div_le_div_iff (by positivity) (by norm_num)]
-  nlinarith [sq_nonneg (s : ℝ), Nat.one_le_iff_ne_zero.mp hs,
-             pow_pos (show (0:ℝ) < 2 by norm_num) (2 * s)]
+  -- Strategy: show 4 ≤ 2^(2s) (as ℕ), convert to ℝ, derive the bound.
+  have h4 : (4 : ℕ) ≤ 2 ^ (2 * s) := by
+    calc (4 : ℕ) = 2 ^ 2 := by norm_num
+      _ ≤ 2 ^ (2 * s) := Nat.pow_le_pow_right (by norm_num) (by linarith)
+  have h4r : (4 : ℝ) ≤ (2 : ℝ) ^ (2 * s) := by exact_mod_cast h4
+  have hpow_pos : (0 : ℝ) < (2 : ℝ) ^ (2 * s) := by positivity
+  -- Rewrite the zpow square to nat pow inverse
+  have hrw : ((2 : ℝ) ^ (-(s : ℤ))) ^ 2 = ((2 : ℝ) ^ (2 * s))⁻¹ := by
+    have h1 : ((2 : ℝ) ^ (-(s : ℤ))) ^ 2 = (2 : ℝ) ^ (-(2 * (s : ℤ))) := by
+      rw [← zpow_natCast ((2 : ℝ) ^ (-(s : ℤ))) 2, ← zpow_mul]
+      congr 1; ring
+    have h2 : (2 : ℝ) ^ (-(2 * (s : ℤ))) = ((2 : ℝ) ^ (2 * (s : ℤ)))⁻¹ := by
+      rw [zpow_neg]
+    have h3 : ((2 : ℝ) ^ (2 * (s : ℤ))) = ((2 : ℝ) ^ (2 * s)) := by
+      norm_cast
+    rw [h1, h2, h3]
+  rw [hrw, mul_inv_le_iff₀ hpow_pos]
+  linarith
 
 end Kairos.Stats

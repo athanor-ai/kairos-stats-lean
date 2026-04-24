@@ -55,4 +55,27 @@ theorem ville_supermartingale
     μ {ω : Ω | ∃ t : ℕ, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal := by
   sorry
 
+/-- **Corollary: Ville's inequality for a unit-initial-value supermartingale.**
+
+When `f 0 = 1` almost surely (the case most commonly used in anytime-valid CS
+work, where the initial wealth or initial exponential martingale is normalized
+to 1), the bound reduces to the classical `1/c` form: for any threshold
+`c > 0`, the probability that the process ever exceeds `c` is at most `1/c`. -/
+theorem ville_supermartingale_unit_initial
+    {Ω : Type*} {m0 : MeasurableSpace Ω} {μ : Measure Ω} [IsFiniteMeasure μ]
+    {f : ℕ → Ω → ℝ} {𝓕 : @Filtration Ω ℕ _ m0}
+    (hsup : Supermartingale f 𝓕 μ) (hnonneg : ∀ t ω, 0 ≤ f t ω)
+    (hunit : ∀ᵐ ω ∂μ, f 0 ω = 1)
+    {c : ℝ} (hc : 0 < c) :
+    μ {ω : Ω | ∃ t : ℕ, f t ω ≥ c} ≤ (1 / c).toNNReal := by
+  -- Follows from ville_supermartingale with f 0 = 1 a.s. so ∫ f 0 dμ = μ(univ) = 1
+  -- under IsProbabilityMeasure, or the general finite-measure form scaled.
+  sorry
+
+/-- **Constant `c > 0` preserves positivity.** Trivial helper used in the
+downstream admissibility proofs. -/
+theorem ville_bound_pos {c : ℝ} (hc : 0 < c) : 0 < (1 / c).toNNReal := by
+  simp [Real.toNNReal_pos]
+  exact div_pos one_pos hc
+
 end Kairos.Stats

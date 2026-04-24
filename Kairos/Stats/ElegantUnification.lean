@@ -52,13 +52,12 @@ theorem etaVector_is_sqrt_2_shannon_entropy (b : ℕ) :
     etaVector b = Real.sqrt (2 * shannon_entropy_of_bits b) := by
   unfold etaVector shannon_entropy_of_bits
   ring_nf
-  rfl
 
 /-- **The asymptotic CS slack rate is the sqrt of the single-bit Shannon entropy.** -/
 theorem etaAsymptotic_is_sqrt_bit_entropy (b : ℕ) :
     etaAsymptotic b = Real.sqrt (shannon_entropy_of_bits 1) := by
   unfold etaAsymptotic shannon_entropy_of_bits
-  simp
+  simp [Nat.cast_one]
 
 /-- **The betting rate is the reciprocal sqrt of one-plus the Shannon bit-entropy.**
 

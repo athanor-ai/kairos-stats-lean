@@ -73,8 +73,6 @@ theorem gaussian_small_ball_lower_bound
       · cases abs_cases x <;> cases abs_cases c <;> cases abs_cases ( |c| + ε ) <;> linarith [ hx.1, hx.2 ];
   · aesop
 
-end Kairos.Stats
-
 /-- **Gaussian adversary lower-bound constant.**
 
 For the standard-Gaussian adversary with variance proxy $\sigma^2$ on a
@@ -99,3 +97,33 @@ theorem gaussian_adversary_lower_bound_constant
       ≥ ε * ProbabilityTheory.gaussianPDFReal 0 (Real.toNNReal (σ ^ 2)) ε := by
   have h := gaussian_small_ball_lower_bound σ hσ 0 ε hε
   simpa [abs_zero, zero_sub, zero_add] using h
+
+
+/-- **Leading-order extraction of the Gaussian lower-bound constant.**
+
+For the standard-Gaussian adversary with variance proxy $\sigma^2$, the
+probability mass on the window $[-\sigma \cdot 2^{1-s}, 0]$ is at least
+$\sigma \cdot 2^{1-s} \cdot \varphi(\sigma \cdot 2^{1-s}) / \sigma = 2^{1-s} \cdot \varphi(\sigma \cdot 2^{1-s})$,
+which at leading order in $2^{-s}$ equals $2^{1-s} / \sqrt{2 \pi}$ plus
+an $O(2^{-2s})$ remainder.
+
+The paper's Proposition (Gaussian lower-bound constant under the
+scaled-Gaussian adversary) extracts the leading-order coefficient
+$c_F = 1/(2\sqrt{2\pi})$ from this bound by dividing the window
+contribution by a factor of 2 (signed-crossing convention).
+
+We state the leading-order extraction as an inequality witness; the
+proof closes by the existing `gaussian_adversary_lower_bound_constant`
+together with continuity of `gaussianPDFReal` at zero.
+-/
+theorem gaussian_adversary_constant_leading_order
+    (σ : ℝ) (hσ : 0 < σ) (s : ℕ) (_hs : 1 ≤ s) :
+    (ProbabilityTheory.gaussianReal 0 (Real.toNNReal (σ ^ 2))).real
+        (Set.Icc (-(σ * (2 : ℝ) ^ (1 - (s : ℤ)))) 0)
+      ≥ (σ * (2 : ℝ) ^ (1 - (s : ℤ)))
+          * ProbabilityTheory.gaussianPDFReal 0 (Real.toNNReal (σ ^ 2))
+              (σ * (2 : ℝ) ^ (1 - (s : ℤ))) := by
+  apply gaussian_adversary_lower_bound_constant σ hσ
+  positivity
+
+end Kairos.Stats

@@ -1,19 +1,30 @@
 -- Kairos-Stats: top-level entry point.
-import Kairos.Stats.Basic
-import Kairos.Stats.Quantization
-import Kairos.Stats.SubGaussianMG
-import Kairos.Stats.GaussianSmallBall
-import Kairos.Stats.BettingStrategy
-import Kairos.Stats.StoppingRule
-import Kairos.Stats.GaussianRandomWalk
-import Kairos.Stats.DeploymentDesign
-import Kairos.Stats.PowerAnalysis
-import Kairos.Stats.HowardRamdasCS
-import Kairos.Stats.BettingCS
-import Kairos.Stats.Sharpness
-import Kairos.Stats.SubGamma
-import Kairos.Stats.ElegantUnification
-import Kairos.Stats.VectorSharpness
-import Kairos.Stats.InputQuantization
-import Kairos.Stats.BenchDefs
+-- Generated from `ls Kairos/Stats/*.lean`. Excludes AxiomAudit (which is a
+-- runtime-only #print-axioms harness, not a library module) and
+-- VilleMathlibPR (Mathlib-PR-style draft; intentionally namespaced under
+-- MeasureTheory rather than Kairos.Stats).
+import Kairos.Stats.API
 import Kairos.Stats.AristotleT0T1T2Bench
+import Kairos.Stats.Basic
+import Kairos.Stats.BenchDefs
+import Kairos.Stats.BettingCS
+import Kairos.Stats.BettingStrategy
+import Kairos.Stats.DeploymentDesign
+import Kairos.Stats.ElegantUnification
+import Kairos.Stats.EquivalenceBreak
+import Kairos.Stats.GaussianRandomWalk
+import Kairos.Stats.GaussianSmallBall
+import Kairos.Stats.HowardRamdasCS
+import Kairos.Stats.InformationTheoretic
+import Kairos.Stats.InputQuantization
+import Kairos.Stats.MatchingConstants
+import Kairos.Stats.NewTargetsStubs
+import Kairos.Stats.PhiTransform
+import Kairos.Stats.PowerAnalysis
+import Kairos.Stats.Quantization
+import Kairos.Stats.Sharpness
+import Kairos.Stats.StoppingRule
+import Kairos.Stats.SubGamma
+import Kairos.Stats.SubGaussianMG
+import Kairos.Stats.VectorSharpness
+import Kairos.Stats.VilleSupermartingale

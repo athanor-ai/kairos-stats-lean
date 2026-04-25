@@ -92,6 +92,38 @@ and [`examples/`](examples/) for copy-paste-ready files.
 | understand the multi-tier theorem plan | [`ROADMAP.md`](ROADMAP.md) |
 | set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
 
+## Roadmap: cross-prover hammer (Z3, Dafny, EBMC, CBMC)
+
+Pythia v0.7.0 will ship a **cross-prover hammer** that routes
+statistical proof obligations to the right external solver — but with
+every closure replayed back into native Lean tactics, so the Lean 4
+kernel always has the final word. No claim escapes the Lean kernel.
+
+| Goal shape | Backend used as oracle | Why |
+|------------|-----------------------|-----|
+| nonlinear arithmetic over reals + transcendentals (sub-Gaussian, sub-gamma, Bernstein MGF chains) | **Z3 / CVC5** (SMT) | discharges in milliseconds where `linarith`/`nlinarith` time out |
+| bounded-horizon Ville bounds, finite-time CS verification at fixed precision (b, s) | **EBMC** (k-induction) | exhaustively explores the state space up to the horizon; pythia lifts the bounded result to all horizons via induction |
+| stochastic-algorithm reference implementations match the Lean spec (Telos pattern) | **CBMC** (software bounded model checking) | finds adversarial inputs separating the reference impl from spec |
+| pre/post specifications on user-supplied tactics | **Dafny** (VC-driven) | extracts verification conditions; Dafny calls Z3; pythia reconstructs the proof |
+| first-order goals over decidable theories | **Vampire / E** (ATPs) | mature first-order superposition provers complement SMT |
+
+The architectural rule: external solvers are **oracles**, not trusted
+provers. Each backend produces a certificate (refutation, witness,
+counterexample) that pythia's reconstruction layer turns into a Lean
+4 tactic script. The Lean 4 kernel checks the script against
+`{propext, Classical.choice, Quot.sound}` — same axiom budget as
+Mathlib itself. If the reconstruction step fails, the goal is left
+open with a `Try this:` hint, never accepted on the external prover's
+say-so. CoqHammer (Czajka & Kaliszyk, JAR 2018) is the canonical
+template for this discipline; we adapt it for Lean 4's CIC.
+
+This brings the *speed* of a heavy-duty SMT/ATP/BMC stack to a Lean
+library while preserving the *trust* properties of the Lean kernel.
+The same trick that made [Sledgehammer for
+Isabelle](https://isabelle.in.tum.de/dist/Isabelle/sledgehammer)
+indispensable, applied to a stats-domain Lean library. Tracked as
+[ATH-633](https://linear.app/athanor-ai/issue/ATH-633).
+
 ## Quick tour
 
 Foundations:

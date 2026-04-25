@@ -2,6 +2,31 @@
 
 All notable changes to `kairos-stats-lean` are documented here. The format is loosely [Keep a Changelog](https://keepachangelog.com/), and this project follows [Semantic Versioning](https://semver.org/) — `Kairos.Stats.API` is the stable public surface, internal modules may churn within a major version.
 
+## v0.2.0 — Phase B: aesop-grade tactic + DSL
+
+Phase B turns the library from a collection of theorems into a toolkit. Users register a new CS family with one attribute and close the marquee Ville bound with one tactic invocation.
+
+### Added
+- `anytime_valid` tactic — closes the marquee countable-time Ville bound goal in one line, given supermartingale + non-negativity + integrability + positivity hypotheses in scope.
+- `anytime_valid (horizon := N)` — finite-horizon variant calling `ville_supermartingale_finite`.
+- `anytime_valid using h` — explicit supermartingale witness term.
+- `@[cs_family]` attribute — register a `CSFamily` declaration in a fleet-wide table.
+- `#cs_families` command — list every registered family with a count.
+- `#ville myCS` command — print the `eta` + `slackFn` of a registered family.
+- `Kairos.Stats.Tactic.CSFamilyRegistry` — the four canonical families (HR, betting, vector, asymptotic) auto-registered with `attribute [cs_family]`.
+- Regression test files under `Kairos/Stats/Tactic/*Test.lean` — every tactic + command is exercised at compile time. CI fails here before any broken implementation lands on main.
+
+### Deferred to v0.3.0
+- Auto-derivation of `Admissible` instance from a registered family. Requires a richer attribute syntax to take user-supplied proof terms; not worth doing without that design.
+- Auto-derivation of `quantizationSlack` for the same reason.
+
+### Backwards compatibility
+- `Kairos.Stats.API` public surface is unchanged.
+- All 29 axiom-clean headline theorems from v0.1.0 stay axiom-clean.
+- Toolchain remains pinned to Lean 4.28.0 + Mathlib v4.28.0 for Aristotle parity.
+
+[v0.2.0]: https://github.com/athanor-ai/kairos-stats-lean/releases/tag/v0.2.0
+
 ## v0.1.0 — Phase A: stabilization
 
 First tagged release. Library is `lake build`-able on a fresh clone, documented, and CI-gated with a machine-checked axiom audit.

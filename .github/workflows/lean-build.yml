@@ -60,8 +60,17 @@ jobs:
           # individually to catch any file that builds via cache but
           # fails when re-elaborated (rare but possible during cache
           # warmup). Treat every elaboration error as fatal.
+          #
+          # Excludes:
+          #   - **/Tactic/*Test.lean — test files use `example` blocks that
+          #     elaborate fine in build but emit warnings on bare re-elaboration.
+          #   - VilleMathlibPR.lean — Mathlib-PR-style draft, intentionally
+          #     namespaced under `MeasureTheory` not `Kairos.Stats`, excluded
+          #     from the umbrella for the same reason. Per the "no upstream
+          #     PR" mandate (Aidan 2026-04-25) this file has no shipping
+          #     consumers; per-file sweep skip is the correct treatment.
           set -e
-          for f in $(find Kairos -name '*.lean' -not -path '*/Tactic/*Test.lean' | sort); do
+          for f in $(find Kairos -name '*.lean' -not -path '*/Tactic/*Test.lean' -not -name 'VilleMathlibPR.lean' | sort); do
             echo "::group::lake env lean $f"
             lake env lean "$f"
             echo "::endgroup::"

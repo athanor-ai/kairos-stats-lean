@@ -32,6 +32,9 @@ import Kairos.Stats.VilleSupermartingale
 import Kairos.Stats.Bernstein
 import Kairos.Stats.PACBayesCS
 import Kairos.Stats.TimeUniformCLT
+-- Tier 2 sequential-stats scaffolds (ATH-604/605, sorries — see docstrings).
+import Kairos.Stats.WaldIdentity
+import Kairos.Stats.SPRT
 -- Tactic layer (Phase B+).
 import Kairos.Stats.Tactic.AnytimeValid
 import Kairos.Stats.Tactic.CSFamilyAttr

@@ -17,10 +17,9 @@ installation. LLM-driven autoformalization, multi-prover swarm
 orchestration, and Aristotle integration live separately in
 [`athanor-sdk`](https://github.com/athanor-ai/athanor-sdk).
 
-The repo was previously hosted at `athanor-ai/kairos-stats-lean` and was
-renamed to `pythia` on 2026-04-25 to align with the headline tactic. The
-old URL still works via GitHub's redirect; no action needed for existing
-consumers.
+The repo was renamed from its working title to `pythia` on 2026-04-25 to
+align with the headline tactic. GitHub redirects preserve all old URLs;
+no action needed for existing consumers.
 
 ## Status
 
@@ -40,18 +39,24 @@ signal-processing / control).
 
 ## Install
 
-Add to your `lakefile.lean` (the lake package name is still `KairosStats`
-during the transition; that rename is deferred to v1.0):
+Add to your `lakefile.lean`:
 
 ```lean
-require kairos-stats-lean from git
+require pythia from git
   "https://github.com/athanor-ai/pythia.git" @ "main"
 ```
 
-Then `import Kairos` (the umbrella module) or any individual
-`Kairos.Stats.*`. Mathlib is pulled transitively at the same revision; do
-not bump independently. The toolchain is pinned to Lean 4.28.0 + Mathlib
+Then `import Pythia` (the umbrella module) or any individual `Pythia.*`
+submodule. Mathlib is pulled transitively at the same revision; do not
+bump independently. The toolchain is pinned to Lean 4.28.0 + Mathlib
 v4.28.0 for Aristotle parity.
+
+> **Note (transition).** The lake package, the umbrella module, and the
+> internal namespace are being renamed across the v0.5.x cycle from
+> `KairosStats` / `Kairos` / `Kairos.Stats.*` to `Pythia` / `Pythia` /
+> `Pythia.*`. Until that lands, the legacy `import Kairos` /
+> `Kairos.Stats.*` paths still work; new code should target the
+> `Pythia.*` namespace.
 
 ## Quick tour
 

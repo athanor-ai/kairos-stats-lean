@@ -105,6 +105,19 @@ statistical proof obligations to the right external solver — but with
 every closure replayed back into native Lean tactics, so the Lean 4
 kernel always has the final word. No claim escapes the Lean kernel.
 
+**Phase 1 (shipped — `z3_check`):** the entry-point tactic
+[`Kairos.Stats.Tactic.Z3Check`](Kairos/Stats/Tactic/Z3Check.lean)
+dispatches linear-real-arithmetic goals to a local `z3` binary,
+reads back the `unsat` verdict, and then asks Lean's `linarith` to
+independently reconstruct the proof term. Z3 is treated strictly as
+a ranking / filter oracle — its verdict never closes a goal. If
+`z3` is unavailable on the build machine, the tactic falls through
+to `linarith` directly, so CI is independent of the SMT install.
+See [`Kairos.Stats.Tactic.Z3CheckTest`](Kairos/Stats/Tactic/Z3CheckTest.lean)
+for worked examples. Phase 2 expands to nonlinear (Z3 + nlinarith)
+and adds CVC5 as an alternate backend; Phase 3 wires in EBMC, CBMC,
+Dafny, and Vampire / E.
+
 | Goal shape | Backend used as oracle | Why |
 |------------|-----------------------|-----|
 | nonlinear arithmetic over reals + transcendentals (sub-Gaussian, sub-gamma, Bernstein MGF chains) | **Z3 / CVC5** (SMT) | discharges in milliseconds where `linarith`/`nlinarith` time out |

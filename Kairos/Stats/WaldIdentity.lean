@@ -36,6 +36,7 @@ References
 -/
 import Mathlib
 import Kairos.Stats.Basic
+import Kairos.Stats.MeasureTheory.OptionalStoppingUnbounded
 
 namespace Kairos.Stats
 
@@ -125,6 +126,41 @@ theorem wald_identity_centered
   have h := wald_identity 𝓕 X 0 hX_int hX_mean
     (by simpa using hX_mart) τ hτ hτ_int
   simpa using h
+
+/-- **Wald's identity (centered) via uniform integrability — ℕ∞ form.**
+
+A direct application of `Kairos.Stats.MTUnbounded.optional_stopping_unbounded`
+to the centered partial-sum martingale. This variant takes the stopping
+time as `τ : Ω → ℕ∞` (matching the form `optional_stopping_unbounded`
+consumes), with `τ < ∞ a.s.` as a hypothesis rather than a coercion
+artifact. Used internally; the `Ω → ℕ` ergonomic wrapper
+`wald_identity_centered_via_UI` lives below.
+
+For a martingale `S_n = partialSum X n` (`S_0 = 0`), an a.s.-finite
+stopping time `τ : Ω → ℕ∞`, and uniform integrability of the stopped
+process, we get `E[stoppedValue S τ] = 0`. -/
+theorem wald_identity_centered_via_optional_stopping
+    [IsProbabilityMeasure μ]
+    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
+    (X : ℕ → Ω → ℝ)
+    (hS_mart : Martingale (fun n ω => partialSum X n ω) 𝓕 μ)
+    (τ : Ω → ℕ∞)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 τ)
+    (hτ_finite : ∀ᵐ ω ∂μ, τ ω ≠ ⊤)
+    (hUI : MeasureTheory.UniformIntegrable
+              (fun n : ℕ =>
+                MeasureTheory.stoppedProcess
+                  (fun n ω => partialSum X n ω) τ n)
+              1 μ) :
+    ∫ ω, MeasureTheory.stoppedValue
+            (fun n ω => partialSum X n ω) τ ω ∂μ = 0 := by
+  -- `optional_stopping_unbounded` says ∫ stoppedValue S τ = ∫ S 0.
+  have hOS :=
+    Kairos.Stats.MTUnbounded.optional_stopping_unbounded
+      (M := fun n ω => partialSum X n ω) hS_mart hτ hτ_finite hUI
+  -- And ∫ S 0 = ∫ 0 = 0 by `partialSum_zero`.
+  rw [hOS]
+  simp [partialSum_zero]
 
 /-- **Wald's identity, second moment.**
 

@@ -30,6 +30,7 @@ import Kairos.Stats.VectorSharpness
 import Kairos.Stats.VilleSupermartingale
 -- Phase C scaffolds (sorries — see module docstrings for status).
 import Kairos.Stats.Bernstein
+import Kairos.Stats.BernsteinTest
 import Kairos.Stats.PACBayesCS
 import Kairos.Stats.TimeUniformCLT
 -- Tier 2 sequential-stats scaffolds (ATH-604/605, sorries — see docstrings).
@@ -50,7 +51,13 @@ import Kairos.Stats.Tactic.StatsIneqRegistry
 import Kairos.Stats.Tactic.ProbSimp
 import Kairos.Stats.Tactic.ProbSimpRegistry
 import Kairos.Stats.Tactic.ProbSimpTest
+-- Cross-prover hammer Phase 1 — z3_check (ATH-633).
+import Kairos.Stats.Tactic.Z3Check
+import Kairos.Stats.Tactic.Z3CheckTest
 -- Information theory (ATH-634-fallback: Bretagnolle-Huber binary form).
 import Kairos.Stats.InfoTheory.BretagnolleHuberBinary
 -- Measure theory infra (own-implement Mathlib gap, ATH-642).
 import Kairos.Stats.MeasureTheory.OptionalStoppingUnbounded
+-- Tier 7 scaffold — Tropp matrix Bernstein (sorries; see module
+-- docstring for Lieb / Klein / matrix-MGF dependency roadmap).
+import Kairos.Stats.MatrixBernstein

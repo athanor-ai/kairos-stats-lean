@@ -116,7 +116,7 @@ theorem phi_transform_hr_admissible
   have h_nn : ∀ t ω, 0 ≤ phiProcess sigma alpha (2^b) M.process t ω :=
     phiProcess_nonneg sigma alpha (2^b) M.process
   have h_c_pos : (0 : ℝ) < 1 / alpha := div_pos one_pos halpha.1
-  have h_ville := ville_supermartingale h_sm h_nn h_c_pos (2^b)
+  have h_ville := ville_supermartingale_finite h_sm h_nn h_c_pos (2^b)
   refine le_trans h_ville ?_
   -- Step 3: Simplify ∫ Y 0 / (1/alpha) = 1 / (1/alpha) = alpha
   rw [integral_phiProcess_zero_eq_one sigma alpha (2^b) M.process hM0]
@@ -209,7 +209,7 @@ theorem phi_transform_vector_admissible
   have h_nn : ∀ t ω, 0 ≤ phiProcessVector sigma alpha (2^b) M.process t ω :=
     phiProcessVector_nonneg sigma alpha (2^b) M.process
   have h_c_pos : (0 : ℝ) < 1 / alpha := div_pos one_pos halpha.1
-  have h_ville := ville_supermartingale h_sm h_nn h_c_pos (2^b)
+  have h_ville := ville_supermartingale_finite h_sm h_nn h_c_pos (2^b)
   refine le_trans h_ville ?_
   -- Step 3: Simplify ∫ Y 0 / (1/alpha) = 1 / (1/alpha) = alpha
   rw [integral_phiProcessVector_zero_eq_one sigma alpha (2^b) M.process hM0]
@@ -299,7 +299,7 @@ theorem phi_transform_acs_admissible
   have h_nn : ∀ t ω, 0 ≤ phiProcessACS sigma alpha (2^b) M.process t ω :=
     phiProcessACS_nonneg sigma alpha (2^b) M.process
   have h_c_pos : (0 : ℝ) < 1 / alpha := div_pos one_pos halpha.1
-  have h_ville := ville_supermartingale h_sm h_nn h_c_pos (2^b)
+  have h_ville := ville_supermartingale_finite h_sm h_nn h_c_pos (2^b)
   refine le_trans h_ville ?_
   -- Step 3: Simplify ∫ Y 0 / (1/alpha) = 1 / (1/alpha) = alpha
   rw [integral_phiProcessACS_zero_eq_one sigma alpha (2^b) M.process hM0]

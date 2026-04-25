@@ -19,16 +19,34 @@ namespace Kairos.Stats
 open MeasureTheory ProbabilityTheory
 
 /-- Betting stopping rule: fire when the log-wealth first exceeds
-`log(1 / alpha)`.  The log-wealth is tracked via `logWealthProcess`
-of a given `BettingStrategy`. -/
+`log(1 / alpha)`, and stay fired forever after (a true stopping rule).
+The decision at time `t` is `true` iff there exists some `s ≤ t` with
+`m s ≥ log(1 / alpha)`. -/
 noncomputable def bettingStoppingRule
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
     {𝓕 : Filtration ℕ mΩ} {B : ℝ}
     (σ : BettingStrategy 𝓕 B) (ξ : ℕ → Ω → ℝ)
     (alpha : ℝ) : StoppingRule 𝓕 where
-  decide m t := decide (m t ≥ Real.log (1 / alpha))
+  decide m t := decide (∃ s, s ≤ t ∧ m s ≥ Real.log (1 / alpha))
   monotone_once_fired := by
-    sorry
+    intro m t ht
+    simp only [decide_eq_true_eq] at ht ⊢
+    obtain ⟨s, hle, hge⟩ := ht
+    exact ⟨s, by omega, hge⟩
+
+/-- The event `∃ t, decide m t = true` under the existential
+definition is equivalent to the simpler `∃ t, m t ≥ log(1/alpha)`. -/
+private lemma bettingStoppingRule_exists_iff
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {𝓕 : Filtration ℕ mΩ} {B : ℝ}
+    (σ : BettingStrategy 𝓕 B) (ξ : ℕ → Ω → ℝ)
+    (alpha : ℝ) (m : ℕ → ℝ) :
+    (∃ t, (bettingStoppingRule σ ξ alpha).decide m t = true) ↔
+    (∃ t, m t ≥ Real.log (1 / alpha)) := by
+  simp only [bettingStoppingRule, decide_eq_true_eq]
+  constructor
+  · rintro ⟨t, s, _, hs⟩; exact ⟨s, hs⟩
+  · rintro ⟨t, ht⟩; exact ⟨t, t, le_refl _, ht⟩
 
 /-
 Ville's inequality for non-negative supermartingales, infinite horizon:
@@ -45,14 +63,13 @@ lemma ville_supermartingale_infinite
     μ {ω | ∃ t, c ≤ Y t ω} ≤
       ENNReal.ofReal ((∫ ω, Y 0 ω ∂μ) / c) := by
   by_contra h_contra;
-  -- Taking the limit as $N$ approaches infinity, we get the desired inequality.
   have h_lim : Filter.Tendsto (fun N => μ {ω | ∃ t ≤ N, c ≤ Y t ω}) Filter.atTop (nhds (μ {ω | ∃ t, c ≤ Y t ω})) := by
     convert MeasureTheory.tendsto_measure_iUnion_atTop _;
     · ext ω; simp [Set.mem_iUnion];
       exact ⟨ fun ⟨ t, ht ⟩ => ⟨ t, t, le_rfl, ht ⟩, fun ⟨ i, t, ht, ht' ⟩ => ⟨ t, ht' ⟩ ⟩;
     · infer_instance;
     · exact fun n m hnm ω hω => by obtain ⟨ t, ht, ht' ⟩ := hω; exact ⟨ t, le_trans ht hnm, ht' ⟩ ;
-  exact h_contra <| le_of_tendsto_of_tendsto' h_lim tendsto_const_nhds fun N => ville_supermartingale hY hY_nn hc N
+  exact h_contra <| le_of_tendsto_of_tendsto' h_lim tendsto_const_nhds fun N => ville_supermartingale_finite hY hY_nn hc N
 
 /-
 The betting stopping rule event is contained in the wealth-threshold event.
@@ -66,20 +83,14 @@ lemma betting_event_subset_wealth
     {ω | ∃ t, (bettingStoppingRule σ ξ alpha).decide
                  (fun t => logWealthProcess σ ξ t ω) t = true} ⊆
     {ω | ∃ t, (1 / alpha) ≤ wealthProcess σ ξ t ω} := by
-  intro ω hω
-  obtain ⟨t, ht⟩ := hω
-  use t
-  simp [logWealthProcess] at ht ⊢
-  exact (by
-  have h_wealth_nonneg : 0 ≤ wealthProcess σ ξ t ω := by
-    exact wealthProcess_nonneg σ ξ h_bound t ω;
-  have h_wealth_pos : 0 < wealthProcess σ ξ t ω := by
-    contrapose! ht;
-    simp +decide [ bettingStoppingRule, show wealthProcess σ ξ t ω = 0 by linarith ];
-    exact Real.log_neg halpha.1 halpha.2;
-  have h_wealth_pos : Real.log (wealthProcess σ ξ t ω) ≥ Real.log (1 / alpha) := by
-    unfold bettingStoppingRule at ht; aesop;
-  rw [ ge_iff_le, Real.log_le_log_iff ] at h_wealth_pos <;> aesop)
+  intro ω;
+  simp +decide only [bettingStoppingRule_exists_iff, Set.mem_setOf_eq];
+  rintro ⟨ t, ht ⟩;
+  contrapose! ht;
+  refine' Real.log_lt_log _ ( ht t );
+  induction' t with t ih;
+  · exact zero_lt_one;
+  · exact mul_pos ih ( by nlinarith [ abs_lt.mp ( h_bound t ω ) ] )
 
 /-
 Integral of the wealth process at time 0 equals 1.
@@ -93,15 +104,7 @@ lemma wealthProcess_integral_zero
   simp [wealthProcess]
 
 /-
-Admissibility of the betting rule: for every wealth-process
-martingale (bounded strategy against a zero-conditional-mean centred
-increment), the induced stopping rule has stopping probability at
-most `alpha`.  Proof via Ville's inequality applied to the wealth
-supermartingale at threshold `1 / alpha`.
-
-Note: we assume the martingale property as a hypothesis since
-`wealthProcess_martingale` is currently sorry'd (being proved
-in a separate job).
+Admissibility of the betting rule.
 -/
 theorem bettingStoppingRule_admissible
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
@@ -118,17 +121,12 @@ theorem bettingStoppingRule_admissible
     μ {ω | ∃ t, (bettingStoppingRule σ ξ alpha).decide
                  (fun t => logWealthProcess σ ξ t ω) t = true} ≤
       ENNReal.ofReal alpha := by
-  convert ville_supermartingale_infinite ( h_martingale.supermartingale ) ( fun t ω => ?_ ) ?_ using 1;
-  any_goals exact one_div_pos.mpr halpha.1;
-  · congr! 1;
-    convert betting_event_subset_wealth σ ξ h_bound alpha halpha |> Set.Subset.antisymm <| ?_ using 1;
-    intro ω hω
-    obtain ⟨t, ht⟩ := hω
-    use t
-    simp [bettingStoppingRule];
-    rw [ ← Real.log_inv ];
-    exact Real.log_le_log ( inv_pos.mpr halpha.1 ) ( by simpa using ht );
-  · rw [ wealthProcess_integral_zero, one_div_one_div ];
-  · exact wealthProcess_nonneg σ ξ h_bound t ω
+  have h_admissible : μ {ω | ∃ t, (1 / alpha) ≤ wealthProcess σ ξ t ω} ≤ ENNReal.ofReal alpha := by
+    have h_admissible : μ {ω | ∃ t, (1 / alpha) ≤ wealthProcess σ ξ t ω} ≤ ENNReal.ofReal ((∫ ω, wealthProcess σ ξ 0 ω ∂μ) / (1 / alpha)) := by
+      have := @ville_supermartingale_infinite;
+      exact this ( h_martingale.supermartingale ) ( fun t ω => wealthProcess_nonneg σ ξ h_bound t ω ) ( one_div_pos.mpr halpha.1 );
+    convert h_admissible using 2 ; norm_num [ wealthProcess_integral_zero ];
+  refine' le_trans ( MeasureTheory.measure_mono _ ) h_admissible;
+  exact betting_event_subset_wealth σ ξ h_bound alpha halpha
 
 end Kairos.Stats

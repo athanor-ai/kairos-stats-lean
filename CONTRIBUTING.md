@@ -4,6 +4,9 @@ Thanks for your interest. Pythia is the Lean 4 stats automation library
 that wants to be aesop-comparable for everything statistics. Every PR
 should make a working statistician's day faster.
 
+By participating, you agree to abide by the
+[Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## What pythia is, and is not
 
 **Pythia is** an Apache-2.0 Lean 4 + Mathlib v4.28.0 library:

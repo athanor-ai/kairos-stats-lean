@@ -37,6 +37,7 @@ import Kairos.Stats.WaldIdentity
 import Kairos.Stats.SPRT
 -- Tactic layer (Phase B+).
 import Kairos.Stats.Tactic.AnytimeValid
+import Kairos.Stats.Tactic.AnytimeValidRegistry
 import Kairos.Stats.Tactic.CSFamilyAttr
 import Kairos.Stats.Tactic.CSFamilyRegistry
 import Kairos.Stats.Tactic.VilleCmd
@@ -49,3 +50,7 @@ import Kairos.Stats.Tactic.StatsIneqRegistry
 import Kairos.Stats.Tactic.ProbSimp
 import Kairos.Stats.Tactic.ProbSimpRegistry
 import Kairos.Stats.Tactic.ProbSimpTest
+-- Information theory (ATH-634-fallback: Bretagnolle-Huber binary form).
+import Kairos.Stats.InfoTheory.BretagnolleHuberBinary
+-- Measure theory infra (own-implement Mathlib gap, ATH-642).
+import Kairos.Stats.MeasureTheory.OptionalStoppingUnbounded

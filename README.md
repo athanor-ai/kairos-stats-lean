@@ -1,5 +1,11 @@
 # pythia
 
+[![CI](https://github.com/athanor-ai/pythia/actions/workflows/lean-build.yml/badge.svg)](https://github.com/athanor-ai/pythia/actions/workflows/lean-build.yml)
+[![Lean](https://img.shields.io/badge/Lean-4.28.0-blue.svg)](https://github.com/leanprover/lean4/releases/tag/v4.28.0)
+[![Mathlib](https://img.shields.io/badge/Mathlib-v4.28.0-blue.svg)](https://github.com/leanprover-community/mathlib4/releases/tag/v4.28.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+[![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Kairos/Stats/AxiomAudit.lean)
+
 > *Aesop-grade automation for statistics in Lean 4.*
 
 `pythia` is the headline tactic of a Lean 4 library that wants to be the

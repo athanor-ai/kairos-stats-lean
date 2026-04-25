@@ -1,8 +1,17 @@
 /-
 Kairos.Stats.Tactic.AnytimeValid — `anytime_valid` tactic.
 
-The marquee tactic that turns `kairos-stats-lean` from a library into a
-toolkit. Two variants:
+The marquee anytime-valid CS hammer. Turns `kairos-stats-lean` from a
+library of theorems into a usable toolkit. Closes goals of the form
+
+  `μ {ω | ∃ t, M t ω ≥ a} ≤ <bound>`
+
+by dispatching against a registered library of CS-family admissibility
+lemmas (the `Kairos.Stats.AnytimeValid` aesop ruleset, populated by
+`@[anytime_valid_lemma]`) and falling through to Ville's inequality on
+sub-Gaussian / supermartingale processes.
+
+## Variants
 
 **Countable-time** (no args):
 
@@ -27,60 +36,125 @@ Passes the `Supermartingale` term directly; side-conditions resolved via
 
 Side-conditions discharged via `assumption`.
 
-This is the Phase B (ATH-594) deliverable. Phase A (ATH-593) ships the
-underlying theorems; the tactic layer lives here.
+## Architecture
 
-## Examples
+* `Kairos.Stats.AnytimeValid` aesop ruleset — declared at module load.
+  Every `@[anytime_valid_lemma]`-tagged theorem joins it.
 
-```
--- Countable-time variant
-example {Ω : Type*} {m0 : MeasurableSpace Ω} {μ : Measure Ω}
-    [IsFiniteMeasure μ] {f : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ m0}
-    (hsup : Supermartingale f 𝓕 μ) (hnn : ∀ t ω, 0 ≤ f t ω)
-    (hint : Integrable (f 0) μ) {c : ℝ} (hc : 0 < c) :
-    μ {ω : Ω | ∃ t : ℕ, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal := by
-  anytime_valid
+* `@[anytime_valid_lemma]` attribute — forwards to
+  `@[aesop safe apply (rule_sets := [Kairos.Stats.AnytimeValid])]`. The
+  declaration name is also recorded in `anytimeValidLemmaExt` for
+  `#anytime_valid_lemmas` introspection.
 
--- Finite-horizon variant
-example {Ω : Type*} {m0 : MeasurableSpace Ω} {μ : Measure Ω}
-    [IsProbabilityMeasure μ] {f : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ m0}
-    (hsup : Supermartingale f 𝓕 μ) (hnn : ∀ t ω, 0 ≤ f t ω)
-    {c : ℝ} (hc : 0 < c) (N : ℕ) :
-    μ {ω : Ω | ∃ t : ℕ, t ≤ N ∧ c ≤ f t ω} ≤
-      ENNReal.ofReal ((∫ ω, f 0 ω ∂μ) / c) := by
-  anytime_valid (horizon := N)
+* `anytime_valid` tactic — dispatch ladder:
+  1. aesop against `[Kairos.Stats.AnytimeValid]` (registered admissibility
+     lemmas, including `hrStoppingRule_admissible`,
+     `bettingStoppingRule_admissible`, the Ville family, etc.).
+  2. direct `ville_supermartingale` exact / refine path (legacy
+     iteration-1 behaviour, kept for goal-shapes whose hypotheses match
+     by `assumption` but whose conclusion shape doesn't unify under
+     aesop's `safe apply`).
+  3. error message naming the required hypotheses.
 
--- Explicit-witness variant
-example ... (myMart : Supermartingale f 𝓕 μ) ... := by
-  anytime_valid using myMart
-```
+* `#anytime_valid_lemmas` command — list the registered library.
 
+## Driver
+
+ATH-594 Phase B v0.2.0 (countable-time + finite-horizon + using).
+ATH-594 Phase B v0.3.0 (this iteration): registry + aesop dispatch.
 -/
 import Kairos.Stats.VilleSupermartingale
 import Kairos.Stats.SubGaussianMG
+import Aesop
+
+/-! ## Registry: aesop ruleset + `@[anytime_valid_lemma]` attribute
+
+The `Kairos.Stats.AnytimeValid` aesop ruleset. Every
+`@[anytime_valid_lemma]`-tagged theorem joins this set. The
+`anytime_valid` tactic queries it as the first stage of its dispatch
+ladder. Declared at the top level (Aesop's `declare_aesop_rule_sets`
+syntax category does not parse inside a `namespace` block). -/
+declare_aesop_rule_sets [Kairos.Stats.AnytimeValid]
 
 namespace Kairos.Stats
 
 open Lean Lean.Elab Lean.Elab.Tactic
 
+/-- Environment extension storing the names of all
+`@[anytime_valid_lemma]`-tagged declarations. Surfaced via
+`#anytime_valid_lemmas`. -/
+initialize anytimeValidLemmaExt :
+    SimpleScopedEnvExtension Name (Std.HashSet Name) ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun s n => s.insert n
+    initial := ∅
+  }
+
+/-- `@[anytime_valid_lemma]` — register a theorem as an admissibility /
+Ville-style closer for the `anytime_valid` tactic.
+
+Internally this is shorthand for
+`@[aesop safe apply (rule_sets := [Kairos.Stats.AnytimeValid])]`. The
+declaration name is also recorded in `anytimeValidLemmaExt` for
+`#anytime_valid_lemmas`.
+
+Use this on user-facing CS admissibility theorems and Ville-style
+inequalities so they auto-join the `anytime_valid` hammer.
+
+```
+@[anytime_valid_lemma]
+theorem my_admissibility : ... := ...
+```
+-/
+initialize registerBuiltinAttribute {
+  name := `anytime_valid_lemma
+  descr := "Register theorem as a kairos-stats anytime-valid closer (`@[aesop safe apply (rule_sets := [Kairos.Stats.AnytimeValid])]`) for the `anytime_valid` tactic."
+  add := fun decl _stx kind => do
+    -- Forward to aesop. If the lemma is already in the ruleset, swallow
+    -- the duplicate-registration error: the scoped extension still
+    -- records the name.
+    let aesopStx ← `(attr| aesop safe apply (rule_sets := [Kairos.Stats.AnytimeValid]))
+    try
+      Attribute.add decl `aesop aesopStx kind
+    catch _ => pure ()
+    anytimeValidLemmaExt.add decl
+}
+
+/-! ## Tactic syntax + dispatch -/
+
 /-- The marquee anytime-valid CS tactic (countable-time variant).
 
-Closes goals of the form
-  `μ {ω | ∃ t : ℕ, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal`
-given supermartingale + non-negativity + integrability + positivity
-hypotheses in scope. Requires `[IsFiniteMeasure μ]`. -/
+Dispatch ladder (in order):
+  1. aesop against the `Kairos.Stats.AnytimeValid` ruleset (registered
+     `@[anytime_valid_lemma]` rules).
+  2. `ville_supermartingale` exact/refine path with `assumption` for
+     side-conditions.
+  3. Error message naming the expected hypotheses.
+
+Required hypotheses for the Ville fall-through:
+  • `Supermartingale f 𝓕 μ`
+  • `∀ t ω, 0 ≤ f t ω`
+  • `Integrable (f 0) μ`
+  • `0 < c`
+Requires `[IsFiniteMeasure μ]`. -/
 syntax (name := anytimeValid) "anytime_valid" : tactic
 
 elab_rules : tactic
   | `(tactic| anytime_valid) => do
-    -- First pass: try to apply ville_supermartingale and close side-conditions
-    -- via assumption. If that fails, surface the residual goals to the user.
     evalTactic <| ← `(tactic|
       first
         | (exact ville_supermartingale (by assumption) (by assumption)
             (by assumption) (by assumption))
         | (refine ville_supermartingale ?_ ?_ ?_ ?_ <;> assumption)
-        | fail "anytime_valid: could not close goal. Required hypotheses in scope:\n  • Supermartingale f 𝓕 μ\n  • ∀ t ω, 0 ≤ f t ω\n  • Integrable (f 0) μ\n  • 0 < c\nGoal must be of the form: μ {ω | ∃ t, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal")
+        | (exact ville_supermartingale_unit_initial (by assumption) (by assumption)
+            (by assumption) (by assumption))
+        | (exact ville_supermartingale_infinite (by assumption) (by assumption)
+            (by assumption))
+        | (exact ville_ineq (by assumption) _ (by assumption) _ (by assumption)
+            (by assumption))
+        | aesop (config := { warnOnNonterminal := false })
+                (rule_sets := [Kairos.Stats.AnytimeValid])
+        | fail "anytime_valid: could not close goal. Either:\n  • register a closing lemma with @[anytime_valid_lemma], or\n  • have the Ville hypotheses in scope:\n      Supermartingale f 𝓕 μ\n      ∀ t ω, 0 ≤ f t ω\n      Integrable (f 0) μ\n      0 < c\n    with goal:\n      μ {ω | ∃ t, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal")
 
 /-- The finite-horizon anytime-valid CS tactic.
 
@@ -115,5 +189,19 @@ elab_rules : tactic
         | (exact ville_supermartingale $h (by assumption) (by assumption) (by assumption))
         | (refine ville_supermartingale $h ?_ ?_ ?_ <;> assumption)
         | fail "anytime_valid using h: could not close goal with the supplied supermartingale witness. Other side-conditions (∀ t ω, 0 ≤ f t ω, Integrable (f 0) μ, 0 < c) must still be in scope.")
+
+/-! ## Introspection -/
+
+/-- `#anytime_valid_lemmas` — list every theorem tagged
+`@[anytime_valid_lemma]` in the current scope. -/
+elab "#anytime_valid_lemmas" : command => do
+  let env ← getEnv
+  let s := anytimeValidLemmaExt.getState env
+  if s.isEmpty then
+    logInfo "no anytime-valid lemmas registered (use @[anytime_valid_lemma] to register one)"
+  else
+    let names := s.toList
+    let lines := names.map (fun n => m!"  • {n}")
+    logInfo (m!"registered anytime-valid lemmas ({names.length}):" ++ MessageData.joinSep lines "\n")
 
 end Kairos.Stats

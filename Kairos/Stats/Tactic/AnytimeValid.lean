@@ -18,6 +18,13 @@ and `0 < c`. Requires `[IsFiniteMeasure μ]`.
 given `Supermartingale f 𝓕 μ`, `∀ t ω, 0 ≤ f t ω`, and `0 < c`.
 Requires `[IsProbabilityMeasure μ]`. No `Integrable` hypothesis needed.
 
+**Explicit-witness** (`using h`):
+
+    anytime_valid using myMart
+
+Passes the `Supermartingale` term directly; side-conditions resolved via
+`assumption`.
+
 Side-conditions discharged via `assumption`.
 
 This is the Phase B (ATH-594) deliverable. Phase A (ATH-593) ships the
@@ -42,6 +49,10 @@ example {Ω : Type*} {m0 : MeasurableSpace Ω} {μ : Measure Ω}
     μ {ω : Ω | ∃ t : ℕ, t ≤ N ∧ c ≤ f t ω} ≤
       ENNReal.ofReal ((∫ ω, f 0 ω ∂μ) / c) := by
   anytime_valid (horizon := N)
+
+-- Explicit-witness variant
+example ... (myMart : Supermartingale f 𝓕 μ) ... := by
+  anytime_valid using myMart
 ```
 
 -/

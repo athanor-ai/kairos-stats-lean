@@ -42,3 +42,6 @@ import Kairos.Stats.Tactic.CSFamilyRegistry
 import Kairos.Stats.Tactic.VilleCmd
 -- Tier 8 headline tactic (ATH-608, v0.6.0 in flight).
 import Kairos.Stats.Tactic.Pythia
+-- Domain inequality hammer (ATH-628).
+import Kairos.Stats.Tactic.StatsIneq
+import Kairos.Stats.Tactic.StatsIneqRegistry

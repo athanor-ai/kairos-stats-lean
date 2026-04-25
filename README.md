@@ -1,29 +1,147 @@
-# kairos-stats-lean
+# pythia
 
-A Lean 4 library for anytime-valid confidence sequences (CS): a machine-checked
-formalization reference for non-negative supermartingales, Ville's inequality,
-and four CS families (Howard-Ramdas self-normalized, Waudby-Smith/Ramdas
-betting, vector, asymptotic) together with finite-precision quantization
-slack rates and per-family sharp constants. Unlike a plain Mathlib extension,
-every CS-admissibility result in this repo is delivered as a single
-end-to-end theorem on a measure-theoretic filtered probability space, with
-the family parameters exposed at the top of the signature so downstream
-projects can instantiate them without re-deriving the wealth-process or
-stopping-time scaffolding. Aesop-grade in the sense that proofs close
-under the standard Mathlib axiom set and survive a downstream
-`#print axioms` audit.
+[![CI](https://github.com/athanor-ai/pythia/actions/workflows/lean-build.yml/badge.svg)](https://github.com/athanor-ai/pythia/actions/workflows/lean-build.yml)
+[![Lean](https://img.shields.io/badge/Lean-4.28.0-blue.svg)](https://github.com/leanprover/lean4/releases/tag/v4.28.0)
+[![Mathlib](https://img.shields.io/badge/Mathlib-v4.28.0-blue.svg)](https://github.com/leanprover-community/mathlib4/releases/tag/v4.28.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+[![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Kairos/Stats/AxiomAudit.lean)
+
+> *Aesop-grade automation for statistics in Lean 4.*
+
+`pythia` is the headline tactic of a Lean 4 library that wants to be the
+canonical machine-checked reference for the statistical territory Mathlib
+does not yet cover — anytime-valid inference, sequential statistics,
+empirical processes, stochastic approximation, and the cross-domain
+results practitioners in quant / actuarial / physics / biology / ML reach
+for. Like `aesop` for general math, `pythia` closes domain-specific goals
+in one tactic call, backed by a registered lemma library, a stats-domain
+`grind` simp set, and a published aesop ruleset.
+
+This repository is the Lean library only. **No LLMs, no cloud, no fleet
+machinery.** The library works offline against any Lean 4 / Mathlib
+installation. LLM-driven autoformalization, multi-prover swarm
+orchestration, and Aristotle integration live separately in
+[`athanor-sdk`](https://github.com/athanor-ai/athanor-sdk).
+
+The repo was renamed from its working title to `pythia` on 2026-04-25 to
+align with the headline tactic. GitHub redirects preserve all old URLs;
+no action needed for existing consumers.
+
+## Status
+
+| Block | Tag | Status |
+|-------|-----|:------:|
+| Phase A — toolchain + CI + axiom-audit | `v0.1.0` | ✅ |
+| Phase B — `anytime_valid` tactic + `@[cs_family]` attribute | `v0.2.0` | ✅ |
+| Phase C — sub-gamma, time-uniform CLT, PAC-Bayes | `v0.3.0` | ⚠ partial |
+| Tier 1 — Bernstein / Bennett / Freedman / sub-exp | `v0.4.0` | scaffolds in flight |
+| Tier 2 — SPRT / Wald's identity / e-detector | `v0.5.0` | scaffolds landed (PR #11) |
+| **Tier 8 — `pythia` headline tactic + `@[stat_lemma]` ruleset + `#stat_lemmas`** | `v0.6.0` | **shipping** |
+| Tier 8 — `kairos_grind` + `kairos_aesop` ruleset + `#concentration` | `v0.6.x` | design in flight |
+| Tier 3 / 4 / 5 / 6 / 7 + cross-domain candidates | `v0.7.0+` | roadmapped |
+
+See [`ROADMAP.md`](ROADMAP.md) for the full multi-tier plan and the
+cross-domain candidate pool (quant / actuarial / physics / biology / ML /
+signal-processing / control).
 
 ## Install
 
 Add to your `lakefile.lean`:
 
 ```lean
-require kairos-stats-lean from git
-  "https://github.com/athanor-ai/kairos-stats-lean.git" @ "main"
+require pythia from git
+  "https://github.com/athanor-ai/pythia.git" @ "main"
 ```
 
-Then `import Kairos` (the umbrella module) or any individual `Kairos.Stats.*`.
-Mathlib is pulled transitively at the same revision; do not bump independently.
+Then `import Pythia` (the umbrella module) or any individual `Pythia.*`
+submodule. Mathlib is pulled transitively at the same revision; do not
+bump independently. The toolchain is pinned to Lean 4.28.0 + Mathlib
+v4.28.0 for Aristotle parity.
+
+> **Note (transition).** The lake package, the umbrella module, and the
+> internal namespace are being renamed across the v0.5.x cycle from
+> `KairosStats` / `Kairos` / `Kairos.Stats.*` to `Pythia` / `Pythia` /
+> `Pythia.*`. Until that lands, the legacy `import Kairos` /
+> `Kairos.Stats.*` paths still work; new code should target the
+> `Pythia.*` namespace.
+
+## Hello, pythia
+
+The shortest possible exposure to the headline tactic:
+
+```lean
+import Kairos.Stats.Tactic.Pythia
+
+open Kairos.Stats
+
+@[stat_lemma]
+theorem nonneg_sum (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by
+  linarith
+
+example (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by pythia
+```
+
+Tag a theorem with `@[stat_lemma]` to register it into the `pythia`
+lemma library. Then `pythia` closes goals that match — falling
+through to Mathlib's standard `aesop` automation when no kairos rule
+applies. See [`demo/`](demo/) for the 5-minute end-to-end walkthrough
+and [`examples/`](examples/) for copy-paste-ready files.
+
+## Where to look
+
+| If you want to… | Look at |
+|-----------------|---------|
+| run the headline `pythia` tactic | [`examples/01_pythia_smoke.lean`](examples/01_pythia_smoke.lean) |
+| close a Ville-bound goal in 1 tactic call | [`examples/02_anytime_valid_smoke.lean`](examples/02_anytime_valid_smoke.lean) |
+| introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
+| go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |
+| understand the multi-tier theorem plan | [`ROADMAP.md`](ROADMAP.md) |
+| set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
+
+## Roadmap: cross-prover hammer (Z3, Dafny, EBMC, CBMC)
+
+Pythia v0.7.0 will ship a **cross-prover hammer** that routes
+statistical proof obligations to the right external solver — but with
+every closure replayed back into native Lean tactics, so the Lean 4
+kernel always has the final word. No claim escapes the Lean kernel.
+
+**Phase 1 (shipped — `z3_check`):** the entry-point tactic
+[`Kairos.Stats.Tactic.Z3Check`](Kairos/Stats/Tactic/Z3Check.lean)
+dispatches linear-real-arithmetic goals to a local `z3` binary,
+reads back the `unsat` verdict, and then asks Lean's `linarith` to
+independently reconstruct the proof term. Z3 is treated strictly as
+a ranking / filter oracle — its verdict never closes a goal. If
+`z3` is unavailable on the build machine, the tactic falls through
+to `linarith` directly, so CI is independent of the SMT install.
+See [`Kairos.Stats.Tactic.Z3CheckTest`](Kairos/Stats/Tactic/Z3CheckTest.lean)
+for worked examples. Phase 2 expands to nonlinear (Z3 + nlinarith)
+and adds CVC5 as an alternate backend; Phase 3 wires in EBMC, CBMC,
+Dafny, and Vampire / E.
+
+| Goal shape | Backend used as oracle | Why |
+|------------|-----------------------|-----|
+| nonlinear arithmetic over reals + transcendentals (sub-Gaussian, sub-gamma, Bernstein MGF chains) | **Z3 / CVC5** (SMT) | discharges in milliseconds where `linarith`/`nlinarith` time out |
+| bounded-horizon Ville bounds, finite-time CS verification at fixed precision (b, s) | **EBMC** (k-induction) | exhaustively explores the state space up to the horizon; pythia lifts the bounded result to all horizons via induction |
+| stochastic-algorithm reference implementations match the Lean spec (Telos pattern) | **CBMC** (software bounded model checking) | finds adversarial inputs separating the reference impl from spec |
+| pre/post specifications on user-supplied tactics | **Dafny** (VC-driven) | extracts verification conditions; Dafny calls Z3; pythia reconstructs the proof |
+| first-order goals over decidable theories | **Vampire / E** (ATPs) | mature first-order superposition provers complement SMT |
+
+The architectural rule: external solvers are **oracles**, not trusted
+provers. Each backend produces a certificate (refutation, witness,
+counterexample) that pythia's reconstruction layer turns into a Lean
+4 tactic script. The Lean 4 kernel checks the script against
+`{propext, Classical.choice, Quot.sound}` — same axiom budget as
+Mathlib itself. If the reconstruction step fails, the goal is left
+open with a `Try this:` hint, never accepted on the external prover's
+say-so. CoqHammer (Czajka & Kaliszyk, JAR 2018) is the canonical
+template for this discipline; we adapt it for Lean 4's CIC.
+
+This brings the *speed* of a heavy-duty SMT/ATP/BMC stack to a Lean
+library while preserving the *trust* properties of the Lean kernel.
+The same trick that made [Sledgehammer for
+Isabelle](https://isabelle.in.tum.de/dist/Isabelle/sledgehammer)
+indispensable, applied to a stats-domain Lean library. Tracked as
+[ATH-633](https://linear.app/athanor-ai/issue/ATH-633).
 
 ## Quick tour
 
@@ -161,6 +279,35 @@ axiom-audit clean (`#print axioms` reports only `propext`, `Classical.choice`,
 `Quot.sound`) before merge, and the repo packaging matches Aristotle's
 tarball convention so any reviewer can drop a contribution into a fresh
 Aristotle worktree for a frictionless sanity-check.
+
+## Acknowledgments
+
+This library would not exist in its current form without
+**[Harmonic](https://harmonic.fun)** and the **Aristotle** automated
+theorem-proving system. Aristotle closed many of the hardest theorems in
+this repository — including the Ville-supermartingale machine-check
+(`d2755ea2`), the T3 Gaussian small-ball lower bound (`54614669`), the
+T4 wealth-process martingale property (`ca5f0a75`), the deployment-design
+trio (`4d9266c7`), the Type-II power-loss bound (`a03602a5`), the
+Howard-Ramdas CS admissibility (`e0ca7af5`), the betting CS
+admissibility (`82321bad`), the sub-gamma martingale + Bennett-Bernstein
+maximal inequality (`f254e362`), and the PAC-Bayes Radon-Nikodym KL
+divergence (`ff1832e6`) — all axiom-clean against
+`{propext, Classical.choice, Quot.sound}`.
+
+Several of those closures replaced sorry'd scaffolds that humans could
+state cleanly but not prove without weeks of manual effort. Aristotle
+reduced that to hours per theorem with full axiom-audit transparency on
+every closure. The library is positioned, in part, around what is
+*Aristotle-tractable* — the partnership shapes which territory we
+formalize first.
+
+The library is also indebted to the Lean 4 + Mathlib community
+(particularly the `Mathlib.Probability.Moments.SubGaussian` and
+`MeasureTheory.Martingale.OptionalStopping` machinery), and to the
+`anytime-valid inference` research lineage (Howard-Ramdas-McAuliffe-
+Sekhon 2021, Waudby-Smith-Ramdas 2024, Ramdas-Grünwald-Vovk-Shafer 2023,
+Chugg-Wang-Ramdas 2024).
 
 ## License
 

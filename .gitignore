@@ -8,3 +8,9 @@ aristotle_out/
 *_out/
 *_out.tar.gz
 project_aristotle/
+
+# Built distribution artifacts (sdist + wheel)
+python/dist/
+python/build/
+python/*.egg-info/
+

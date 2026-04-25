@@ -1,8 +1,13 @@
 name: Lean Build + Axiom Audit
 
+# Aidan 2026-04-25 mainline-protection mandate: every push (every branch,
+# not just main) must lake-build clean. A broken Lean compile cannot land
+# anywhere — not on main, not on a feature branch. This trigger fires on
+# every branch push so that a broken push fails CI immediately and the
+# branch tip is visibly red on the PR/branch view.
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -41,8 +46,35 @@ jobs:
       - name: Fetch Mathlib cache
         run: lake exe cache get
 
-      - name: Build all modules
-        run: lake build
+      - name: Build all modules (full Lean sweep — gate)
+        run: |
+          # Per Aidan 2026-04-25 mandate: a single broken Lean file fails
+          # the build, which fails this CI step, which marks the branch
+          # tip red. No further steps run. This is the mainline-protection
+          # gate.
+          lake build
+
+      - name: Per-file Lean sweep (defense-in-depth)
+        run: |
+          # Even if `lake build` succeeded, run each top-level Lean file
+          # individually to catch any file that builds via cache but
+          # fails when re-elaborated (rare but possible during cache
+          # warmup). Treat every elaboration error as fatal.
+          #
+          # Excludes:
+          #   - **/Tactic/*Test.lean — test files use `example` blocks that
+          #     elaborate fine in build but emit warnings on bare re-elaboration.
+          #   - VilleMathlibPR.lean — Mathlib-PR-style draft, intentionally
+          #     namespaced under `MeasureTheory` not `Kairos.Stats`, excluded
+          #     from the umbrella for the same reason. Per the "no upstream
+          #     PR" mandate (Aidan 2026-04-25) this file has no shipping
+          #     consumers; per-file sweep skip is the correct treatment.
+          set -e
+          for f in $(find Kairos -name '*.lean' -not -path '*/Tactic/*Test.lean' -not -name 'VilleMathlibPR.lean' | sort); do
+            echo "::group::lake env lean $f"
+            lake env lean "$f"
+            echo "::endgroup::"
+          done
 
       - name: Axiom audit
         run: |

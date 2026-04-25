@@ -1,29 +1,57 @@
-# kairos-stats-lean
+# pythia
 
-A Lean 4 library for anytime-valid confidence sequences (CS): a machine-checked
-formalization reference for non-negative supermartingales, Ville's inequality,
-and four CS families (Howard-Ramdas self-normalized, Waudby-Smith/Ramdas
-betting, vector, asymptotic) together with finite-precision quantization
-slack rates and per-family sharp constants. Unlike a plain Mathlib extension,
-every CS-admissibility result in this repo is delivered as a single
-end-to-end theorem on a measure-theoretic filtered probability space, with
-the family parameters exposed at the top of the signature so downstream
-projects can instantiate them without re-deriving the wealth-process or
-stopping-time scaffolding. Aesop-grade in the sense that proofs close
-under the standard Mathlib axiom set and survive a downstream
-`#print axioms` audit.
+> *Aesop-grade automation for statistics in Lean 4.*
+
+`pythia` is the headline tactic of a Lean 4 library that wants to be the
+canonical machine-checked reference for the statistical territory Mathlib
+does not yet cover — anytime-valid inference, sequential statistics,
+empirical processes, stochastic approximation, and the cross-domain
+results practitioners in quant / actuarial / physics / biology / ML reach
+for. Like `aesop` for general math, `pythia` closes domain-specific goals
+in one tactic call, backed by a registered lemma library, a stats-domain
+`grind` simp set, and a published aesop ruleset.
+
+This repository is the Lean library only. **No LLMs, no cloud, no fleet
+machinery.** The library works offline against any Lean 4 / Mathlib
+installation. LLM-driven autoformalization, multi-prover swarm
+orchestration, and Aristotle integration live separately in
+[`athanor-sdk`](https://github.com/athanor-ai/athanor-sdk).
+
+The repo was previously hosted at `athanor-ai/kairos-stats-lean` and was
+renamed to `pythia` on 2026-04-25 to align with the headline tactic. The
+old URL still works via GitHub's redirect; no action needed for existing
+consumers.
+
+## Status
+
+| Block | Tag | Status |
+|-------|-----|:------:|
+| Phase A — toolchain + CI + axiom-audit | `v0.1.0` | ✅ |
+| Phase B — `anytime_valid` tactic + `@[cs_family]` attribute | `v0.2.0` | ✅ |
+| Phase C — sub-gamma, time-uniform CLT, PAC-Bayes | `v0.3.0` | ⚠ partial |
+| Tier 1 — Bernstein / Bennett / Freedman / sub-exp | `v0.4.0` | scaffolds in flight |
+| Tier 2 — SPRT / Wald's identity / e-detector | `v0.5.0` | scaffolds landed (PR #11) |
+| Tier 8 — `pythia` + `kairos_grind` + `kairos_aesop` ruleset + `#concentration` | `v0.6.0` | design in flight |
+| Tier 3 / 4 / 5 / 6 / 7 + cross-domain candidates | `v0.7.0+` | roadmapped |
+
+See [`ROADMAP.md`](ROADMAP.md) for the full multi-tier plan and the
+cross-domain candidate pool (quant / actuarial / physics / biology / ML /
+signal-processing / control).
 
 ## Install
 
-Add to your `lakefile.lean`:
+Add to your `lakefile.lean` (the lake package name is still `KairosStats`
+during the transition; that rename is deferred to v1.0):
 
 ```lean
 require kairos-stats-lean from git
-  "https://github.com/athanor-ai/kairos-stats-lean.git" @ "main"
+  "https://github.com/athanor-ai/pythia.git" @ "main"
 ```
 
-Then `import Kairos` (the umbrella module) or any individual `Kairos.Stats.*`.
-Mathlib is pulled transitively at the same revision; do not bump independently.
+Then `import Kairos` (the umbrella module) or any individual
+`Kairos.Stats.*`. Mathlib is pulled transitively at the same revision; do
+not bump independently. The toolchain is pinned to Lean 4.28.0 + Mathlib
+v4.28.0 for Aristotle parity.
 
 ## Quick tour
 
@@ -161,6 +189,35 @@ axiom-audit clean (`#print axioms` reports only `propext`, `Classical.choice`,
 `Quot.sound`) before merge, and the repo packaging matches Aristotle's
 tarball convention so any reviewer can drop a contribution into a fresh
 Aristotle worktree for a frictionless sanity-check.
+
+## Acknowledgments
+
+This library would not exist in its current form without
+**[Harmonic](https://harmonic.fun)** and the **Aristotle** automated
+theorem-proving system. Aristotle closed many of the hardest theorems in
+this repository — including the Ville-supermartingale machine-check
+(`d2755ea2`), the T3 Gaussian small-ball lower bound (`54614669`), the
+T4 wealth-process martingale property (`ca5f0a75`), the deployment-design
+trio (`4d9266c7`), the Type-II power-loss bound (`a03602a5`), the
+Howard-Ramdas CS admissibility (`e0ca7af5`), the betting CS
+admissibility (`82321bad`), the sub-gamma martingale + Bennett-Bernstein
+maximal inequality (`f254e362`), and the PAC-Bayes Radon-Nikodym KL
+divergence (`ff1832e6`) — all axiom-clean against
+`{propext, Classical.choice, Quot.sound}`.
+
+Several of those closures replaced sorry'd scaffolds that humans could
+state cleanly but not prove without weeks of manual effort. Aristotle
+reduced that to hours per theorem with full axiom-audit transparency on
+every closure. The library is positioned, in part, around what is
+*Aristotle-tractable* — the partnership shapes which territory we
+formalize first.
+
+The library is also indebted to the Lean 4 + Mathlib community
+(particularly the `Mathlib.Probability.Moments.SubGaussian` and
+`MeasureTheory.Martingale.OptionalStopping` machinery), and to the
+`anytime-valid inference` research lineage (Howard-Ramdas-McAuliffe-
+Sekhon 2021, Waudby-Smith-Ramdas 2024, Ramdas-Grünwald-Vovk-Shafer 2023,
+Chugg-Wang-Ramdas 2024).
 
 ## License
 

@@ -5,7 +5,7 @@ this repository. Once configured, an MCP-aware client (Claude Code, Cursor,
 VSCode) gets sub-second LSP feedback (`lean_goal`, `lean_diagnostic_messages`)
 and can run `lean_multi_attempt` on candidate tactic scripts in parallel.
 
-This is the **prerequisite layer** for `kairos_hammer` (ATH-608),
+This is the **prerequisite layer** for `pythia` (ATH-608),
 `kairos_grind` (ATH-609), `kairos_aesop` (ATH-610), `concentration_search`
 (ATH-611), and the `kairos.fleet.LeanProver` multi-agent closer (ATH-615).
 Without LSP the cycle engine reduces to manual `lake build` (30-60s/edit),
@@ -89,7 +89,7 @@ brew install ripgrep        # macOS
 
 ## Tool catalog (1.27.0)
 
-### Core LSP — used by `kairos_hammer` Phase 1
+### Core LSP — used by `pythia` Phase 1
 
 | Tool | What it does |
 |------|--------------|
@@ -98,7 +98,7 @@ brew install ripgrep        # macOS
 | `lean_hover_info(file, line, col)` | Type signature + docs |
 | `lean_completions(file, line, col)` | IDE-style completions |
 
-### Tactic exploration — used by `kairos_hammer` Phase 2
+### Tactic exploration — used by `pythia` Phase 2
 
 | Tool | What it does |
 |------|--------------|
@@ -170,5 +170,5 @@ That means the search ran but found no results. Try a different query shape (NL 
 - [oOo0oOo/lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) — upstream
 - ATH-616 — this ticket (kairos-stats-lean integration + self-hosting)
 - ATH-615 — kairos.fleet.LeanProver (uses lean-lsp-mcp as substrate)
-- ATH-608 — `kairos_hammer` (cycle engine built on top)
+- ATH-608 — `pythia` (cycle engine built on top)
 - `cameronfreer/lean4-skills` — the cycle-engine model we adopt

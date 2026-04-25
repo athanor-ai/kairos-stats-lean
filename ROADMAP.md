@@ -81,7 +81,7 @@ The differentiator that makes kairos-stats-lean a *household name* in the
 Lean / Mathlib community, not just another open-source library. Aesop is
 "a household name" because of the *tactic*, not its lemma count.
 
-- [ ] **`kairos_hammer`** — domain hammer over the kairos+mathlib lemma library, modeled on the lean4-skills 6-phase cycle engine (Plan → Work → Checkpoint → Review → Replan → Continue/Stop). Filed as ATH-608. Architecture in `docs/lean_lsp_mcp_setup.md`.
+- [ ] **`pythia`** — domain hammer over the kairos+mathlib lemma library, modeled on the lean4-skills 6-phase cycle engine (Plan → Work → Checkpoint → Review → Replan → Continue/Stop). Filed as ATH-608. Architecture in `docs/lean_lsp_mcp_setup.md`.
 - [ ] **`kairos_grind`** — stats-domain extension of Mathlib's `grind` with normal forms for sub-Gaussian / sub-gamma / KL / MGF expressions and standard concentration-inequality unfolds. Filed as ATH-609.
 - [ ] **`kairos_aesop`** — published aesop ruleset so users who never import kairos directly can opt in. Filed as ATH-610.
 - [ ] **`#concentration` search command** — given a goal shape, return the tightest applicable concentration inequality (parallel to `#cs_families` / `#ville`). Filed as ATH-611.
@@ -135,7 +135,7 @@ where Mathlib gaps make it hard.
 - v0.3.0 (Phase C): Time-uniform CLT + PAC-Bayes + heavy-tailed (sub-gamma part DONE). ⚠ partial
 - v0.4.0 (Tier 1): Bernstein + sub-exponential family.
 - v0.5.0 (Tier 2): SPRT + Wald's identity + e-detector. ⚠ scaffold landed PR #11; closure in flight.
-- v0.6.0 (Tier 8): tactic library — `kairos_hammer` / `kairos_grind` / `kairos_aesop` / `#concentration` / per-inequality apply tactics. The moat.
+- v0.6.0 (Tier 8): tactic library — `pythia` / `kairos_grind` / `kairos_aesop` / `#concentration` / per-inequality apply tactics. The moat.
 - v0.7.0 (Tier 9): multi-agent infra — `kairos.fleet.LeanProver` + Aristotle-with-kairos-context bundle + lean-lsp-mcp self-hosted backends. The runtime.
 - v0.8.0+ (Tier 3-7): empirical processes, stochastic approximation, divergences, Bayesian, adaptive CS extensions; cross-domain candidates promoted from the pool above as practitioner demand surfaces.
 

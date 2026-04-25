@@ -45,3 +45,7 @@ import Kairos.Stats.Tactic.Pythia
 -- Domain inequality hammer (ATH-628).
 import Kairos.Stats.Tactic.StatsIneq
 import Kairos.Stats.Tactic.StatsIneqRegistry
+-- Probability normalization simp-set (ATH-630).
+import Kairos.Stats.Tactic.ProbSimp
+import Kairos.Stats.Tactic.ProbSimpRegistry
+import Kairos.Stats.Tactic.ProbSimpTest

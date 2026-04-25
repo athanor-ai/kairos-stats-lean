@@ -28,3 +28,7 @@ import Kairos.Stats.SubGamma
 import Kairos.Stats.SubGaussianMG
 import Kairos.Stats.VectorSharpness
 import Kairos.Stats.VilleSupermartingale
+-- Tactic layer (Phase B+).
+import Kairos.Stats.Tactic.AnytimeValid
+import Kairos.Stats.Tactic.CSFamilyAttr
+import Kairos.Stats.Tactic.CSFamilyRegistry

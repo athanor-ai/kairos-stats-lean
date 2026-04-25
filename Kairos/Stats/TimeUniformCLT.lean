@@ -34,6 +34,7 @@ import Kairos.Stats.SubGaussianMG
 namespace Kairos.Stats
 
 open MeasureTheory ProbabilityTheory
+open scoped ENNReal NNReal
 
 /-- Standardised partial sum: `S_n / √(n σ²)`. The classical CLT
 shows this converges in distribution to `N(0, 1)`. -/
@@ -41,12 +42,12 @@ noncomputable def standardisedPartialSum
     (X : ℕ → ℝ) (sigma : ℝ) (n : ℕ) : ℝ :=
   (Finset.range n).sum X / Real.sqrt (n * sigma^2)
 
-/-- The Lévy-Prokhorov metric on Borel probability measures on ℝ.
-Stated as a placeholder; Mathlib's `MeasureTheory.LevyProkhorov`
-covers the construction but the time-uniform extension we need for
-WSSR24 lives downstream. -/
-noncomputable def levyProkhorov (μ ν : Measure ℝ) : ℝ :=
-  sorry
+/-- The Lévy-Prokhorov edistance between two measures, as supplied
+by `Mathlib.MeasureTheory.Measure.LevyProkhorovMetric`. Re-exported
+here as the local synonym `levyProkhorov` for use in WSSR24
+statements below. -/
+noncomputable abbrev levyProkhorov (μ ν : Measure ℝ) : ℝ≥0∞ :=
+  MeasureTheory.levyProkhorovEDist μ ν
 
 /-- **Time-uniform CLT** (WSSR24 Theorem 2.1).
 

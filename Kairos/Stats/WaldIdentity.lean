@@ -66,44 +66,27 @@ uses for `IsStoppingTime`. -/
 noncomputable def liftStoppingTime (τ : Ω → ℕ) : Ω → WithTop ℕ :=
   fun ω => (τ ω : WithTop ℕ)
 
-/-- **Wald's identity** (first moment, centered case).
-
-For an iid integrable sequence `X_i` with `E[X_1] = 0` adapted to a
-filtration `𝓕`, and a stopping time `τ` of `𝓕` with `E[τ] < ∞`,
-
-  E[S_τ] = 0
-
-where `S_n = Σ_{i < n} X_i` is the partial-sum process.
-
-Closure plan (local, no Aristotle):
-  1. Show `partialSum X` is a martingale w.r.t. `𝓕` using the
-     iid-mean-zero hypothesis (telescoping conditional expectations).
-  2. Apply `Submartingale.expectation_stoppedValue_le_expectation`
-     bidirectionally (martingale = both sub and super).
-  3. The integrability hypothesis `E[τ] < ∞` controls boundary terms.
--/
-theorem wald_identity_centered
-    [IsProbabilityMeasure μ]
-    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
-    (X : ℕ → Ω → ℝ)
-    (_hX_int : ∀ i, Integrable (X i) μ)
-    (_hX_mean : ∀ i, ∫ ω, X i ω ∂μ = 0)
-    (_hX_mart : Martingale (fun n ω => partialSum X n ω) 𝓕 μ)
-    (τ : Ω → ℕ)
-    (_hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
-    (_hτ_int : Integrable (fun ω => (τ ω : ℝ)) μ) :
-    ∫ ω, partialSum X (τ ω) ω ∂μ = 0 := by
-  sorry
-
-/-- **Wald's identity** (first moment, general mean).
+/-- **Wald's identity** (first moment, m-parameterized).
 
 For an iid integrable sequence `X_i` with `E[X_1] = m` and a stopping
 time `τ` with `E[τ] < ∞`,
 
   E[S_τ] = m · E[τ].
 
-Reduction: subtract the mean from each `X_i`, apply the centered
-version, expand. -/
+The centered version `m = 0` is `wald_identity_centered` below (a
+1-line corollary). Unifying both into one m-parameterized theorem per
+peer-review feedback (PR #11): the centered form is what's used
+internally, the m-form is what practitioners reach for, and shipping
+the general theorem with a corollary is the Mathlib-upstream-friendly
+shape.
+
+Closure plan (local, no Aristotle):
+  1. Show `partialSum X - m·n` is a martingale w.r.t. `𝓕` using the
+     iid-mean hypothesis (telescoping conditional expectations).
+  2. Apply `Submartingale.expectation_stoppedValue_le_expectation`
+     bidirectionally (martingale = both sub and super).
+  3. The integrability hypothesis `E[τ] < ∞` controls boundary terms.
+-/
 theorem wald_identity
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -117,6 +100,31 @@ theorem wald_identity
     (_hτ_int : Integrable (fun ω => (τ ω : ℝ)) μ) :
     ∫ ω, partialSum X (τ ω) ω ∂μ = m * ∫ ω, (τ ω : ℝ) ∂μ := by
   sorry
+
+/-- **Wald's identity** (centered corollary, m = 0).
+
+The classical statement: for centered iid `X_i` with `E[X_1] = 0` and
+finite-mean stopping time τ,
+
+  E[S_τ] = 0.
+
+Direct corollary of `wald_identity` at `m = 0`. Kept as a separate
+declaration for prose clarity in the user-facing API; Mathlib upstream
+will see the unified `wald_identity` only. -/
+theorem wald_identity_centered
+    [IsProbabilityMeasure μ]
+    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
+    (X : ℕ → Ω → ℝ)
+    (hX_int : ∀ i, Integrable (X i) μ)
+    (hX_mean : ∀ i, ∫ ω, X i ω ∂μ = 0)
+    (hX_mart : Martingale (fun n ω => partialSum X n ω) 𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
+    (hτ_int : Integrable (fun ω => (τ ω : ℝ)) μ) :
+    ∫ ω, partialSum X (τ ω) ω ∂μ = 0 := by
+  have h := wald_identity 𝓕 X 0 hX_int hX_mean
+    (by simpa using hX_mart) τ hτ hτ_int
+  simpa using h
 
 /-- **Wald's identity, second moment.**
 
@@ -166,10 +174,10 @@ theorem wald_identity_exp
                 ∫ ω, Real.exp (lam * X i ω) ∂μ ≤ Real.exp (σSq * lam ^ 2 / 2))
     (_hExp_super :
       ∀ lam,
-        Submartingale
+        Supermartingale
           (fun n ω =>
-            -(Real.exp (lam * partialSum X n ω
-                       - (n : ℝ) * (σSq * lam ^ 2 / 2))))
+            Real.exp (lam * partialSum X n ω
+                       - (n : ℝ) * (σSq * lam ^ 2 / 2)))
           𝓕 μ)
     (τ : Ω → ℕ)
     (_hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ)) (lam : ℝ) :

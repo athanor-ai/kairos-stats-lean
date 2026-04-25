@@ -125,8 +125,8 @@ theorem error_rates
       ∀ i, ∫ ω, Real.exp (S.logLR (Y i ω)) ∂μ ≤ 1)
     -- The exp-LR process forms a non-negative supermartingale.
     (_hExpLR_super :
-      Submartingale
-        (fun n ω => -(Real.exp (cumLogLR S Y n ω)))
+      Supermartingale
+        (fun n ω => Real.exp (cumLogLR S Y n ω))
         𝓕 μ) :
     μ {ω | ∃ n, S.A ≤ cumLogLR S Y n ω} ≤ ENNReal.ofReal (Real.exp (-S.A)) := by
   sorry
@@ -154,9 +154,9 @@ theorem wald_approximation
     (_hY_adapted : ∀ i, Measurable[𝓕 i] (Y i))
     (_hLR_under_H0 : ∀ i, ∫ ω, Real.exp (logLR (Y i ω)) ∂μ ≤ 1)
     (_hExpLR_super :
-      Submartingale
-        (fun n ω => -(Real.exp ((Finset.range n).sum
-          (fun i => logLR (Y i ω)))))
+      Supermartingale
+        (fun n ω => Real.exp ((Finset.range n).sum
+          (fun i => logLR (Y i ω))))
         𝓕 μ) :
     μ {ω | ∃ n, Real.log ((1 - β) / α)
                   ≤ (Finset.range n).sum (fun i => logLR (Y i ω))}

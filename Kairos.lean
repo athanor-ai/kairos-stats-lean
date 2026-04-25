@@ -32,3 +32,4 @@ import Kairos.Stats.VilleSupermartingale
 import Kairos.Stats.Tactic.AnytimeValid
 import Kairos.Stats.Tactic.CSFamilyAttr
 import Kairos.Stats.Tactic.CSFamilyRegistry
+import Kairos.Stats.Tactic.VilleCmd

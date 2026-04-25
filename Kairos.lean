@@ -40,3 +40,5 @@ import Kairos.Stats.Tactic.AnytimeValid
 import Kairos.Stats.Tactic.CSFamilyAttr
 import Kairos.Stats.Tactic.CSFamilyRegistry
 import Kairos.Stats.Tactic.VilleCmd
+-- Tier 8 headline tactic (ATH-608, v0.6.0 in flight).
+import Kairos.Stats.Tactic.Pythia

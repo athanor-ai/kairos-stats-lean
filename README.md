@@ -30,7 +30,8 @@ no action needed for existing consumers.
 | Phase C — sub-gamma, time-uniform CLT, PAC-Bayes | `v0.3.0` | ⚠ partial |
 | Tier 1 — Bernstein / Bennett / Freedman / sub-exp | `v0.4.0` | scaffolds in flight |
 | Tier 2 — SPRT / Wald's identity / e-detector | `v0.5.0` | scaffolds landed (PR #11) |
-| Tier 8 — `pythia` + `kairos_grind` + `kairos_aesop` ruleset + `#concentration` | `v0.6.0` | design in flight |
+| **Tier 8 — `pythia` headline tactic + `@[stat_lemma]` ruleset + `#stat_lemmas`** | `v0.6.0` | **shipping** |
+| Tier 8 — `kairos_grind` + `kairos_aesop` ruleset + `#concentration` | `v0.6.x` | design in flight |
 | Tier 3 / 4 / 5 / 6 / 7 + cross-domain candidates | `v0.7.0+` | roadmapped |
 
 See [`ROADMAP.md`](ROADMAP.md) for the full multi-tier plan and the
@@ -57,6 +58,39 @@ v4.28.0 for Aristotle parity.
 > `Pythia.*`. Until that lands, the legacy `import Kairos` /
 > `Kairos.Stats.*` paths still work; new code should target the
 > `Pythia.*` namespace.
+
+## Hello, pythia
+
+The shortest possible exposure to the headline tactic:
+
+```lean
+import Kairos.Stats.Tactic.Pythia
+
+open Kairos.Stats
+
+@[stat_lemma]
+theorem nonneg_sum (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by
+  linarith
+
+example (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by pythia
+```
+
+Tag a theorem with `@[stat_lemma]` to register it into the `pythia`
+lemma library. Then `pythia` closes goals that match — falling
+through to Mathlib's standard `aesop` automation when no kairos rule
+applies. See [`demo/`](demo/) for the 5-minute end-to-end walkthrough
+and [`examples/`](examples/) for copy-paste-ready files.
+
+## Where to look
+
+| If you want to… | Look at |
+|-----------------|---------|
+| run the headline `pythia` tactic | [`examples/01_pythia_smoke.lean`](examples/01_pythia_smoke.lean) |
+| close a Ville-bound goal in 1 tactic call | [`examples/02_anytime_valid_smoke.lean`](examples/02_anytime_valid_smoke.lean) |
+| introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
+| go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |
+| understand the multi-tier theorem plan | [`ROADMAP.md`](ROADMAP.md) |
+| set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
 
 ## Quick tour
 

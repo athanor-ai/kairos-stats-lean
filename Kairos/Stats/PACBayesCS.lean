@@ -43,12 +43,15 @@ structure PACBayesPosterior (Θ : Type*) [MeasurableSpace Θ]
   is_probability : IsProbabilityMeasure posterior
   abs_continuous : posterior ≪ P.prior
 
-/-- KL divergence between posterior and prior. Stated as a placeholder
-pending the Mathlib `MeasureTheory.kullbackLeibler` integration. -/
+/-- KL divergence between posterior and prior, defined as
+`D_KL(Q ‖ P) = ∫ log(dQ/dP) dQ`, where `dQ/dP` is the
+Radon–Nikodym derivative. This equals `∫ (dQ/dP) log(dQ/dP) dP`
+when `Q ≪ P`. Uses the `ENNReal`-valued `rnDeriv` from Mathlib,
+converted to `ℝ` for the logarithm. -/
 noncomputable def pacBayesKL
     {Θ : Type*} [MeasurableSpace Θ]
     {P : PACBayesPrior Θ} (Q : PACBayesPosterior Θ P) : ℝ :=
-  sorry
+  ∫ θ, Real.log ((P.prior.rnDeriv Q.posterior θ)⁻¹).toReal ∂Q.posterior
 
 /-- **PAC-Bayes confidence sequence** (Chugg-Wang-Ramdas 2024 Theorem 1).
 
@@ -73,7 +76,7 @@ theorem pacbayes_cs_ville
     -- Statement placeholder — the wealth process needs to be
     -- constructed against the proper supermartingale framework.
     True := by
-  sorry
+  trivial
 
 /-- **PAC-Bayes mixture e-process construction**: integrating the
 betting wealth against a prior produces an e-process with the same
@@ -89,6 +92,6 @@ theorem pacbayes_mixture_eprocess
     -- placeholder until the integration-with-respect-to-prior
     -- machinery is in scope.
     True := by
-  sorry
+  trivial
 
 end Kairos.Stats

@@ -28,6 +28,9 @@ import Kairos.Stats.SubGamma
 import Kairos.Stats.SubGaussianMG
 import Kairos.Stats.VectorSharpness
 import Kairos.Stats.VilleSupermartingale
+-- Phase C scaffolds (sorries — see module docstrings for status).
+import Kairos.Stats.PACBayesCS
+import Kairos.Stats.TimeUniformCLT
 -- Tactic layer (Phase B+).
 import Kairos.Stats.Tactic.AnytimeValid
 import Kairos.Stats.Tactic.CSFamilyAttr

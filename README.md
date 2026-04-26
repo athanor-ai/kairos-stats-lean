@@ -81,7 +81,7 @@ v4.28.0.
 
 ## Hello, pythia
 
-The shortest possible exposure to the headline tactic:
+The shortest possible exposure to the `pythia` tactic:
 
 ```lean
 import Pythia.Tactic.Pythia

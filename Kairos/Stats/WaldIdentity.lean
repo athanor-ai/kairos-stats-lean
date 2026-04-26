@@ -221,4 +221,97 @@ theorem wald_identity_exp
                     - (τ ω : ℝ) * (σSq * lam ^ 2 / 2)) ∂μ ≤ 1 := by
   sorry
 
+/-- **Wald's identity (second moment) via uniform integrability — ℕ∞ form.**
+
+A direct application of `Kairos.Stats.MTUnbounded.optional_stopping_unbounded`
+to the quadratic-variation martingale
+`M_n = (S_n - m·n)² - σSq·n`. This martingale has `M_0 = 0`, so optional
+stopping gives `E[M_τ] = 0`, equivalently
+`E[(S_τ - m·τ)²] = σSq · E[τ]`.
+
+Companion to `wald_identity_squared`: takes the same quadratic-variation
+martingale hypothesis, but parameterizes the stopping time as `τ : Ω → ℕ∞`
+with explicit `τ < ∞ a.s.` + UI of the stopped process, instead of the
+`Ω → ℕ` + `Integrable τ²` shape. -/
+theorem wald_identity_squared_via_optional_stopping
+    [IsProbabilityMeasure μ]
+    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
+    (X : ℕ → Ω → ℝ) (m σSq : ℝ)
+    (hQuadVar_mart :
+      Martingale
+        (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
+        𝓕 μ)
+    (τ : Ω → ℕ∞)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 τ)
+    (hτ_finite : ∀ᵐ ω ∂μ, τ ω ≠ ⊤)
+    (hUI : MeasureTheory.UniformIntegrable
+              (fun n : ℕ =>
+                MeasureTheory.stoppedProcess
+                  (fun n ω =>
+                    (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
+                  τ n)
+              1 μ) :
+    ∫ ω, MeasureTheory.stoppedValue
+            (fun n ω =>
+              (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
+            τ ω ∂μ = 0 := by
+  -- `optional_stopping_unbounded` says ∫ stoppedValue M τ = ∫ M 0,
+  -- and M_0 ω = (S_0 ω - m·0)² - σSq·0 = (0 - 0)² - 0 = 0.
+  have hOS :=
+    Kairos.Stats.MTUnbounded.optional_stopping_unbounded
+      (M := fun n ω =>
+        (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
+      hQuadVar_mart hτ hτ_finite hUI
+  rw [hOS]
+  simp [partialSum_zero]
+
+/-- **Wald's identity (exponential / MGF form) via optional stopping — ℕ∞ form.**
+
+For a sub-Gaussian iid sequence `X_i` with proxy variance `σSq`, the
+exponential process `E_n(λ, ω) = exp(λ S_n - n ψ(λ))` with
+`ψ(λ) = σSq λ² / 2` is a non-negative supermartingale. Applied via the
+supermartingale-form of optional stopping (Williams §10.10 supermartingale
+analogue) to an a.s.-finite `τ : Ω → ℕ∞`, one obtains
+
+  E[E_τ(λ)] ≤ E[E_0(λ)] = 1.
+
+Honest gap: the unbounded-τ optional-stopping module shipped in
+`Kairos.Stats.MeasureTheory.OptionalStoppingUnbounded` exposes only the
+**martingale** version (`optional_stopping_unbounded`), giving equality
+`∫ stoppedValue M τ = ∫ M 0`. The supermartingale `≤`-variant requires
+a parallel proof with only the `Submartingale.expected_stoppedValue_mono`
+applied to `-M` direction (no sandwich), and is deferred to a follow-up
+in the `MTUnbounded` module. The statement here pre-bakes the result so
+downstream consumers can already depend on it; closure plan is one-line:
+once `MTUnbounded.optional_stopping_unbounded_super` lands, this proof
+mirrors the squared-version body. -/
+theorem wald_identity_exp_via_optional_stopping
+    [IsProbabilityMeasure μ]
+    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
+    (X : ℕ → Ω → ℝ) (σSq : ℝ) (_hσ : 0 ≤ σSq) (lam : ℝ)
+    (_hExp_super :
+      Supermartingale
+        (fun n ω =>
+          Real.exp (lam * partialSum X n ω
+                     - (n : ℝ) * (σSq * lam ^ 2 / 2)))
+        𝓕 μ)
+    (τ : Ω → ℕ∞)
+    (_hτ : MeasureTheory.IsStoppingTime 𝓕 τ)
+    (_hτ_finite : ∀ᵐ ω ∂μ, τ ω ≠ ⊤)
+    (_hUI : MeasureTheory.UniformIntegrable
+              (fun n : ℕ =>
+                MeasureTheory.stoppedProcess
+                  (fun n ω =>
+                    Real.exp (lam * partialSum X n ω
+                              - (n : ℝ) * (σSq * lam ^ 2 / 2)))
+                  τ n)
+              1 μ) :
+    ∫ ω, MeasureTheory.stoppedValue
+            (fun n ω =>
+              Real.exp (lam * partialSum X n ω
+                        - (n : ℝ) * (σSq * lam ^ 2 / 2)))
+            τ ω ∂μ ≤ 1 := by
+  -- needs `MTUnbounded.optional_stopping_unbounded_super` (supermartingale `≤`-variant).
+  sorry
+
 end Kairos.Stats

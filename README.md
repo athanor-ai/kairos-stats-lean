@@ -145,6 +145,7 @@ Five registered tactics ship in the public surface:
 | introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
 | go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |
 | set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
+| understand the cross-prover dispatch | [`docs/sledgehammer_dispatch.md`](docs/sledgehammer_dispatch.md) |
 
 ## Cross-prover hammer (`z3_check`)
 
@@ -165,6 +166,12 @@ tactic script. The Lean 4 kernel checks the script against
 `{propext, Classical.choice, Quot.sound}`: same axiom budget as
 Mathlib itself. CoqHammer (Czajka & Kaliszyk, JAR 2018) is the
 canonical template for this discipline; we adapt it for Lean 4's CIC.
+
+`pythia` orchestrates a small pool of OSS oracles by goal shape:
+linear-real to Z3/CVC5, bit-vector to CVC5, hardware-assertion to
+EBMC, software-invariant to CBMC, first-order to Vampire/E,
+Hoare-triple to Dafny. The full goal-shape dispatch table lives in
+[`docs/sledgehammer_dispatch.md`](docs/sledgehammer_dispatch.md).
 
 ## Quick tour
 

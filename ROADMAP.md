@@ -25,6 +25,15 @@ same way they reach for `aesop` or `Mathlib.Probability.Martingale`.
 - **PAC-Bayes confidence sequences**: scaffolded; KL-divergence implementation via Mathlib `Measure.rnDeriv`. Statement upgrade pending. (`Kairos/Stats/PACBayesCS.lean`)
 - **Universal aCS-sharp** (no σ ≤ 1 restriction): depends on time-uniform CLT.
 
+### Already shipped (v0.6.0, axiom-clean) — 2026-04-25 + 2026-04-26 batches
+- **Tier 8 tactic suite (5 tactics)**: `pythia` headline domain hammer + `stats_ineq` inequality hammer + `prob_simp` / `pdf_simp` probability normalization + `anytime_valid` Ville-closer hammer + `z3_check` cross-prover Phase 1 (Z3 oracle + linarith reconstruction). All tactics use the `@[X_lemma]` registry pattern.
+- **Three Mathlib v4.28 gap closures (own-implementation)**: `OptionalStoppingUnbounded` (Williams §10.10 unbounded-τ), `BretagnolleHuberBinary` (binary-form, skips Pinsker), `AnytimeValid` Ville-closer hammer.
+- **Tier 1 Bernstein** (`bernstein_of_subGamma`): closed via subGamma reparametrise; `@[stat_lemma]`-registered.
+- **Tier 2 Wald-identity centered** (`wald_identity_centered_via_optional_stopping`) and **squared** (`wald_identity_squared_via_optional_stopping`): both axiom-clean, both apply OptionalStoppingUnbounded module.
+- **Tier 7 matrix Bernstein scaffold**: Tropp's matrix Bernstein statement + 5-step dependency roadmap (HermitianFunctionalCalculus → Klein → Lieb → MGF → MatrixBernstein), excluded from AxiomAudit per honest-scaffold rule.
+- **Cross-prover hammer Phase 1** (`Z3Check`): Z3 oracle + linarith reconstruction. Phase 2 (CVC5, EBMC, CBMC, Dafny, Vampire) roadmapped.
+- **CI gate + community files**: per-branch lake build + per-file Lean sweep + axiom audit + CONTRIBUTING.md + CODE_OF_CONDUCT.md + README badges.
+
 ## Mathlib gaps we plan to cover
 
 The following are statistical territory that Mathlib does not
@@ -33,10 +42,11 @@ stats-lean library. Priority order = decreasing community-utility
 ratio (utility per closure effort).
 
 ### Tier 1 — direct extensions of existing Mathlib infrastructure
-- [ ] **Bernstein's inequality** for bounded random variables. Mathlib has Hoeffding (`measure_sum_ge_le_of_iIndepFun` in `Mathlib.Probability.Moments.SubGaussian`) but not the variance-aware Bernstein form. Sharper than Hoeffding when variance is small.
-- [ ] **Sub-exponential class** + matrix Bernstein. Generalises the sub-gamma extension to operator-valued martingales.
-- [ ] **Freedman's inequality** (martingale Bernstein variant).
-- [ ] **Bennett's inequality** (refined Bernstein for bounded RVs with explicit variance and range).
+- [x] **Bernstein's inequality** for bounded random variables, in the `bernstein_of_subGamma` reparametrise form (v0.6.0). `@[stat_lemma]`-registered so `pythia` dispatches.
+- [ ] **Bennett's inequality** (refined Bernstein for bounded RVs with explicit variance and range) — in flight via subagent against the bounded-implies-subGamma MGF Taylor-remainder bridge.
+- [ ] **Freedman's inequality** (martingale Bernstein variant) — closure follows Bennett's bridge.
+- [ ] **Bernstein-iid** + **Bernstein-martingale** — same bridge dependency.
+- [ ] **Sub-exponential class** + **matrix Bernstein** (v0.7.0 Tier 7 scaffold exists with 5-step dependency roadmap).
 - [ ] **Azuma-Hoeffding for unbounded but conditionally-bounded** martingales (Mathlib has the bounded case via `HasCondSubgaussianMGF`).
 
 ### Tier 2 — sequential statistics (Mathlib has nothing)

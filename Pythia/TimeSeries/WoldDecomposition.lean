@@ -298,12 +298,12 @@ theorem innovation_partial_sum_le (U : H →ₗᵢ[ℝ] H) (x : H) (N : ℕ) :
     · simp +decide;
     · induction' N + 1 with N ih <;> simp_all +decide [ Finset.sum_range_succ ];
       rw [ @norm_add_sq ℝ ];
-      simp_all +decide [ inner_sum, sum_inner ];
+      simp_all +decide [sum_inner];
       exact Finset.sum_eq_zero fun i hi => h_orthogonal i N ( ne_of_lt ( Finset.mem_range.mp hi ) );
   rw [ ← h_pyth, h_sum ];
   rw [ @norm_sub_sq ℝ ];
   have := ( M U N ).starProjection_inner_eq_zero x;
-  specialize this ( ( M U N ).orthogonalProjection x ) ; simp_all +decide [ inner_sub_left, inner_sub_right ];
+  specialize this ( ( M U N ).orthogonalProjection x ) ; simp_all +decide [inner_sub_left];
   linarith [ sq_nonneg ‖ ( M U N ).starProjection x‖ ]
 
 /-
@@ -380,7 +380,7 @@ theorem adjoint_unitarySubspace_invariant (U : H →ₗᵢ[ℝ] H) (d : H)
       intro k
       obtain ⟨z, hz⟩ : ∃ z : H, y k = (U.toLinearMap ^ (n + 1)) z := by
         simpa [ eq_comm ] using hy.1 k;
-      simp +decide [ hz, pow_succ', LinearMap.comp_apply ];
+      simp +decide [hz, pow_succ'];
       use z;
       refine' ext_inner_right ℝ _;
       simp +decide [ ContinuousLinearMap.adjoint_inner_left ];

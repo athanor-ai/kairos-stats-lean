@@ -6,20 +6,64 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
-> *Aesop-grade automation for statistics in Lean 4.*
+A Lean 4 tactic library for closing proofs in probability and statistics.
 
-`pythia` is the headline tactic of a Lean 4 library that wants to be the
-canonical machine-checked reference for the statistical territory Mathlib
-does not yet cover — anytime-valid inference, sequential statistics,
-empirical processes, stochastic approximation, and the cross-domain
-results practitioners reach for. Like `aesop` for general math, `pythia`
-closes domain-specific goals in one tactic call, backed by a registered
-lemma library, a stats-domain `grind` simp set, and a published aesop
-ruleset.
+Mathlib supplies the foundations — measures, martingales, sub-Gaussian
+machinery, the optional-stopping theorem. Closing a goal still takes
+the kind of by-hand chase that ends with measurability obligations,
+ENNReal arithmetic, and a stopping-time induction. `pythia` is what
+the standard automation (`simp`, `linarith`, `aesop`, `bound`,
+`measurability`) looks like once you specialize it for statistical
+reasoning. A goal like
 
-This repository is the Lean library only. **No LLMs, no cloud, no fleet
-machinery.** The library works offline against any Lean 4 / Mathlib
-installation.
+```lean
+example
+    {Ω : Type*} {μ : Measure Ω} [IsFiniteMeasure μ]
+    {f : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ _}
+    (hsup : Supermartingale f 𝓕 μ) (hnn : ∀ t ω, 0 ≤ f t ω)
+    (hint : Integrable (f 0) μ) {c : ℝ} (hc : 0 < c) :
+    μ {ω | ∃ t, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal := by
+  anytime_valid
+```
+
+closes in one line.
+
+## What it does
+
+- Five tactics — `pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
+  `z3_check` — covering general stats hammering, inequality closure,
+  probability normalization, anytime-valid Ville bounds, and
+  SMT-oracle dispatch.
+- A registry layer — tag your own theorem with `@[stat_lemma]` /
+  `@[stats_ineq]` / `@[prob_simp]` and the hammers pick it up at
+  elaboration time. The same shape as `@[simp]`, `@[gcongr]`,
+  `@[bound]`. No fork, no config file.
+- A growing theorem library covering anytime-valid confidence
+  sequences (Howard-Ramdas, betting CS, vector + asymptotic
+  families), Bernstein / Bennett / sub-gamma concentration, optional
+  stopping for unbounded τ, and information-theoretic bounds
+  (Bretagnolle-Huber binary, PAC-Bayes Radon-Nikodym). All public
+  theorems are axiom-clean against `{propext, Classical.choice,
+  Quot.sound}`.
+- A Z3 oracle (`z3_check`) that reconstructs every closure into a
+  Lean tactic script — Z3's verdict never closes a goal on its own.
+  Same axiom budget as Mathlib. Pattern adapted from CoqHammer
+  (Czajka-Kaliszyk, JAR 2018).
+
+## Why a separate library
+
+Lean 4 + Mathlib already has strong general-purpose automation —
+`aesop`, `simp`, `linarith`, `polyrith`, `nlinarith`, `positivity`,
+`measurability`, `bound`, `gcongr`. They close a lot. They stop being
+useful right when statistical reasoning starts: the moment a goal
+mentions `Supermartingale`, an MGF chain, or a stopping time, the
+generic hammers have nothing to apply.
+
+Pythia is the closure layer — Bernstein-shaped lemmas, Ville's
+inequality, Wald identities, e-detectors, the four canonical CS
+families — registered so a domain-specialised hammer finds them.
+Tactics read like Lean syntax (`by pythia`), not like library calls.
+Error messages match Mathlib's tone.
 
 ## Install
 

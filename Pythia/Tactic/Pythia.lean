@@ -50,13 +50,8 @@ Future iterations:
 * Hammer-style premise selection: for goals aesop times out on, query
   the registered lemma DB by goal-pattern matching and surface the
   top-3 candidates as `Try this:` suggestions.
-* Cycle integration: in the SDK side (athanor-pythia / athanor-pythia
-  package), wrap pythia in the lean4-skills 6-phase Plan→Work→
-  Checkpoint cycle for autonomous closure of scaffold sorries.
-
-The cycle/swarm part is OUT OF SCOPE here — pythia is
-pure-math (Aidan 2026-04-25 directive); LLM-driven orchestration lives
-SDK-side. Pythia itself is fully offline.
+Pythia itself is fully offline; LLM-driven orchestration is out of
+scope for this library.
 
 ## Driver
 

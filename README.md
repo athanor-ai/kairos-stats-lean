@@ -336,3 +336,17 @@ are axiom-clean against `{propext, Classical.choice, Quot.sound}`.
 ## License
 
 Apache-2.0. See `LICENSE`.
+
+## Citation
+
+If you use pythia in your research, please cite:
+
+```bibtex
+@misc{pythia2026,
+  title  = {Pythia: A Lean 4 Tactic Library for Statistics and Applied Math},
+  author = {Yang, Aidan Z. H. and {Athanor-AI}},
+  year   = {2026},
+  url    = {https://github.com/athanor-ai/pythia},
+  note   = {Apache-2.0}
+}
+```

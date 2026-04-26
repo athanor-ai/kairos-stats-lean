@@ -69,3 +69,6 @@ import Pythia.MatrixBernstein
 import Pythia.Queueing.ErlangB
 import Pythia.MeasureTheory.PathMeasureRN
 import Pythia.MatrixBernsteinFull
+import Pythia.Control.LyapunovDiscrete
+import Pythia.Queueing.LittlesLaw
+import Pythia.MatrixLieb

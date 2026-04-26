@@ -98,7 +98,7 @@ SMT-encoding cost.
 | 2     | CVC5 oracle (QF_BV + QF_LRA backup)          | shipped (`Pythia.Tactic.CVC5Check`)        |
 | 3     | EBMC oracle (hardware assertion)             | adapter pending                             |
 | 4     | CBMC oracle (software invariant)             | adapter pending                             |
-| 5     | Vampire / E oracle (FOL without arithmetic)  | adapter pending                             |
+| 5     | Vampire / E oracle (FOL without arithmetic)  | shipped (`Pythia.Tactic.{VampireCheck,ECheck}`) |
 | 6     | Dafny oracle (Hoare triple)                  | adapter pending                             |
 
 The phase-0 dispatcher in `Pythia.Tactic.Pythia` runs the existing

@@ -177,6 +177,8 @@ syntax (name := pythiaVerbose) "pythia?" : tactic
         "closed by prob_simp (probability rewriting)"),
       (← `(tactic| (z3_check; done)),
         "closed by z3_check (QF_LRA over ℝ via Z3 + linarith reconstruction)"),
+      (← `(tactic| (cvc5_check; done)),
+        "closed by cvc5_check (QF_BV via CVC5 + bv_decide / QF_LRA backup via linarith)"),
       (← `(tactic| (vampire_check; done)),
         "closed by vampire_check (FOL via Vampire + aesop reconstruction)"),
       (← `(tactic| (e_check; done)),

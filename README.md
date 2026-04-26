@@ -27,6 +27,19 @@ The repo was renamed from its working title to `pythia` on 2026-04-25 to
 align with the headline tactic. GitHub redirects preserve all old URLs;
 no action needed for existing consumers.
 
+**v0.6.0 highlights** (shipped 2026-04-25, commit `ef89f6d`): five
+registered tactics (`pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
+`z3_check`) covering Tier 8; three Mathlib v4.28 gap closures
+(Bretagnolle-Huber binary, optional-stopping for unbounded τ,
+anytime-valid Ville hammer), all axiom-clean against the trusted
+kernel triple `{propext, Classical.choice, Quot.sound}`; Tier 1
+Bernstein closed (sub-gamma reparametrise) + `@[stat_lemma]` registered
+so `pythia` dispatches to it; Wald-identity centered closed via the
+new optional-stopping module; Tier 7 matrix Bernstein scaffold + 5-step
+dependency roadmap. CI gate enforces lake build + per-file Lean sweep
+on every branch push. **Tier 8 is shipped.** Next on the roadmap is
+Tier 3 (e-detectors + spawn-control).
+
 ## Status
 
 | Block | Tag | Status |
@@ -34,11 +47,17 @@ no action needed for existing consumers.
 | Phase A — toolchain + CI + axiom-audit | `v0.1.0` | ✅ |
 | Phase B — `anytime_valid` tactic + `@[cs_family]` attribute | `v0.2.0` | ✅ |
 | Phase C — sub-gamma, time-uniform CLT, PAC-Bayes | `v0.3.0` | ⚠ partial |
-| Tier 1 — Bernstein / Bennett / Freedman / sub-exp | `v0.4.0` | scaffolds in flight |
-| Tier 2 — SPRT / Wald's identity / e-detector | `v0.5.0` | scaffolds landed (PR #11) |
-| **Tier 8 — `pythia` headline tactic + `@[stat_lemma]` ruleset + `#stat_lemmas`** | `v0.6.0` | **shipping** |
-| Tier 8 — `kairos_grind` + `kairos_aesop` ruleset + `#concentration` | `v0.6.x` | design in flight |
-| Tier 3 / 4 / 5 / 6 / 7 + cross-domain candidates | `v0.7.0+` | roadmapped |
+| Tier 1 — Bernstein closed via subGamma reparametrise + `@[stat_lemma]` | `v0.4.0` | ✅ shipped |
+| Tier 1 — Bennett / Freedman / Bernstein-iid / -martingale | `v0.4.x` | scaffolds in flight |
+| Tier 2 — Wald centered closed via OptionalStoppingUnbounded | `v0.5.0` | ✅ shipped |
+| Tier 2 — Wald (general / squared / exp) / SPRT / e-detector | `v0.5.x` | scaffolds in flight |
+| Mathlib gap closures (own-implementation, axiom-clean) — Bretagnolle-Huber binary, optional stopping for unbounded τ, anytime-valid Ville hammer | `v0.6.0` | ✅ shipped |
+| **Tier 8 — `pythia` + `stats_ineq` + `prob_simp` + `anytime_valid` + `z3_check` (5 tactics)** | `v0.6.0` | **✅ shipped** |
+| Tier 7 — Tropp matrix Bernstein + dependency roadmap (Lieb concavity → Klein → matrix MGF) | `v0.7.0` | scaffold + roadmap |
+| Cross-prover hammer Phase 1 — `z3_check` (Z3 oracle + linarith reconstruction) | `v0.6.0` | ✅ shipped |
+| Cross-prover hammer Phase 2/3 — CVC5, EBMC, CBMC, Dafny, Vampire | `v0.7.0+` | roadmapped |
+| Tier 3 — e-detectors + spawn-control | `v0.8.0` | next |
+| Tier 4 / 5 / 6 + cross-domain candidates | `v0.9.0+` | roadmapped |
 
 See [`ROADMAP.md`](ROADMAP.md) for the full multi-tier plan and the
 cross-domain candidate pool (quant / actuarial / physics / biology / ML /

@@ -249,7 +249,8 @@ theorem exp_eprocess_subgaussian
   -- Then martingale_eprocess_iff gives ∫ stoppedValue M τ ≤ 1.
   sorry
 
-/-- **Combining e-processes by averaging**.
+/-
+**Combining e-processes by averaging**.
 
 If M and N are e-processes under the same filtration and null measure μ,
 then their average `(M + N) / 2` is also an e-process.
@@ -265,7 +266,8 @@ Closure plan: linearity of the integral gives
   `∫ stoppedValue ((M + N)/2) τ = (∫ stoppedValue M τ + ∫ stoppedValue N τ) / 2`
 and by `M.e_bound`, `N.e_bound` both integrals are ≤ 1, so the sum / 2 ≤ 1.
 This is a 10-line local proof once the `stoppedValue` linearity lemmas are
-identified (likely `stoppedValue_add` + `integral_add` in Mathlib). -/
+identified (likely `stoppedValue_add` + `integral_add` in Mathlib).
+-/
 theorem combine_eprocesses_avg
     (M N : EProcess 𝓕 μ) :
     -- The averaged process satisfies the e-process bound.
@@ -274,6 +276,12 @@ theorem combine_eprocesses_avg
   intro τ hτ K hτK
   -- closure plan: stoppedValue_add + integral_add give linearity;
   -- then M.e_bound + N.e_bound + (a + b)/2 ≤ 1 when a, b ≤ 1.
-  sorry
+  -- By linearity of the integral, we can split the integral into the sum of two integrals.
+  have h_split : ∫ ω, stoppedValue (fun t ω => (M.process t ω + N.process t ω) / 2) τ ω ∂μ = (∫ ω, stoppedValue M.process τ ω ∂μ + ∫ ω, stoppedValue N.process τ ω ∂μ) / 2 := by
+    rw [ ← MeasureTheory.integral_add, ← MeasureTheory.integral_div ];
+    · congr;
+    · exact integrable_stoppedValue ℕ hτ M.integrable hτK;
+    · exact integrable_stoppedValue ℕ hτ N.integrable hτK;
+  linarith [ M.e_bound τ hτ K hτK, N.e_bound τ hτ K hτK ]
 
 end Pythia

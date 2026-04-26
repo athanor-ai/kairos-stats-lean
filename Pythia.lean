@@ -67,6 +67,9 @@ import Pythia.Tactic.ECheckTest
 -- bound at concrete parameters. Goes beyond a closure tactic; this
 -- is a domain calculator.
 import Pythia.Tactic.TightTail
+-- Counterexample-finder tactic — disprove (Phase 1, dual of z3_check).
+import Pythia.Tactic.Disprove
+import Pythia.Tactic.DisproveTest
 -- Information theory (Bretagnolle-Huber binary form).
 import Pythia.InfoTheory.BretagnolleHuberBinary
 -- Measure theory infra (own-implement Mathlib gap).

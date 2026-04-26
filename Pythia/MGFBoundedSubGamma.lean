@@ -1,217 +1,187 @@
 /-
-Pythia.MGFBoundedSubGamma — MGF bound for bounded centred random variables.
+Pythia.MGFBoundedSubGamma — Bernstein-Bennett MGF bound for bounded RVs.
 
-## Main result
+# Main result
 
-`mgf_le_subGamma_of_bounded`: for `X : Ω → ℝ` with `|X| ≤ b` a.s.,
-`μ[X] = 0`, `μ[X²] ≤ σ²`, and `0 ≤ lam` with `b * lam < 3`,
+`mgf_le_subGamma_of_bounded`: For `X : Ω → ℝ` measurable with
+`|X| ≤ b` a.s., `∫ X ∂μ = 0` (centered), `∫ X² ∂μ ≤ σ²` (bounded
+second moment), `λ ≥ 0`, and `b·λ < 3`:
 
-    mgf X μ lam  ≤  exp(σ² * lam² / (2 * (1 - b * lam / 3))).
+    mgf X μ λ ≤ exp(σ² λ² / (2(1 − bλ/3))).
 
-This is the sub-gamma envelope with parameters `(ν, c) = (σ², b/3)`:
+This is the textbook Bernstein–Bennett MGF bound — the missing piece
+blocking `bennett_iid`, `bernstein_iid`, `bernstein_martingale`,
+`freedman` in `Pythia/Bernstein.lean`.
 
-    mgf X μ lam  ≤  exp(ν * lam² / (2 * (1 - c * lam)))
+# Proof overview
 
-with `c * lam = (b/3) * lam < 1`.
+1. **Pointwise Taylor bound** (`exp_le_one_add_add_sq_div`):
+   For `|x| ≤ b`, `λ ≥ 0`, `bλ < 3`:
+   `exp(λx) ≤ 1 + λx + (λx)² / (2(1 − bλ/3))`.
 
-This bridge lemma connects `Pythia.bernstein_iid` to the sub-gamma
-machinery in `Pythia.SubGamma` by constructing a `SubGammaMG σ² (b/3) 𝓕 μ`
-from iid bounded centred random variables.
+2. **Integration**: using `E[X] = 0` and `E[X²] ≤ σ²`,
+   `E[exp(λX)] ≤ 1 + σ²λ² / (2(1 − bλ/3))`.
 
-## Proof structure
+3. **exp closure**: `1 + u ≤ exp(u)` gives the final bound.
 
-The key analytical step is pointwise: for `u ∈ ℝ` with `|u| < 3`,
-
-    exp u  ≤  1 + u + u² / (2 * (1 - |u|/3)).                 (*)
-
-Proof of (*): expand `exp u = Σ u^k/k!` and bound term-by-term.
-For k ≥ 2: `u^k/k! ≤ (u²/2) * (|u|/3)^(k-2)` since `2 * 3^(k-2) ≤ k!`.
-Summing the geometric series gives the right-hand side.
-
-The integral step:
-    μ[exp(lam * X)] ≤ μ[1 + lam*X + (lam*X)²/(2(1-b*lam/3))]
-                    = 1 + lam·μ[X] + lam²·μ[X²]/(2(1-b*lam/3))
-                    ≤ 1 + lam²·σ²/(2(1-b*lam/3))   (using μ[X]=0, μ[X²]≤σ²)
-                    ≤ exp(lam²·σ²/(2(1-b*lam/3)))   (using 1+t ≤ exp(t))
-
-## Mathlib v4.28 gaps
-
-The term-by-term geometric bound `2 * 3^(k-2) ≤ k!` (k ≥ 2) and its
-summation to a geometric series requires `Nat.factorial` reasoning and
-`tsum` convergence. Until a self-contained Lean proof is verified, the
-key analytical helper `exp_le_bernstein_pointwise` is marked `sorry`
-with this explicit closure plan:
-
-Closure plan for `exp_le_bernstein_pointwise`:
-  1. `h_factorial : ∀ k : ℕ, 2 ≤ k → 2 * 3^(k-2) ≤ k.factorial`
-       Proof: induction on k; base k=2: 2*1=2=2!; k=3: 2*3=6=3!;
-       step k+1: 2*3^(k-1) ≤ (k+1)! follows since 2*3*3^(k-2) ≤ (k+1)*k!
-       holds for k ≥ 3 because k+1 ≥ 4 > 3 and 2*3^(k-2) ≤ k!.
-  2. Pointwise: `u^k / k! ≤ u^2 / 2 * (u/3)^(k-2)` follows from h_factorial.
-  3. `hasSum (fun k => u^k/k!) (exp u)` — from `Real.exp_hasSum`.
-  4. Split sum at k=2; bound tail by geometric series via `tsum_geometric_of_lt_one`.
-  5. Conclude (*) from `hasSum` + tsum inequality.
-
-The rest of the file (`mgf_le_subGamma_of_bounded`, `mgf_iid_increment_subGamma`)
-is scaffolded as honest sorries, each reducing to `exp_le_bernstein_pointwise`
-once that is available.
+The pointwise bound decomposes into:
+- `exp_sub_one_sub_le_sq_div_nonneg`: for `0 ≤ u < 3`,
+  `exp(u) − 1 − u ≤ u²/(2(1 − u/3))`.
+- `exp_sub_one_sub_le_sq_nonpos`: for `u ≤ 0`,
+  `exp(u) − 1 − u ≤ u²/2`.
 -/
+
 import Mathlib
 import Pythia.Basic
-import Pythia.SubGamma
 
 namespace Pythia
 
-open MeasureTheory ProbabilityTheory Real
-open scoped ENNReal NNReal
+open MeasureTheory ProbabilityTheory
 
-/-! ## §1  Pointwise analytic bound -/
+/-! ## Pointwise exponential Taylor bounds -/
 
-/-- **Key analytical helper (scaffold).**
+/-
+For `0 ≤ u < 3`: `exp(u) − 1 − u ≤ u² / (2(1 − u/3))`.
 
-For any `u : ℝ` with `0 ≤ u` and `u < 3`,
-`exp u  ≤  1 + u + u^2 / (2 * (1 - u / 3))`.
-
-Equivalently: `exp u - 1 - u ≤ u^2 / (2 * (1 - u/3))`.
-
-This is the Bernstein MGF pointwise bound. The proof is a
-term-by-term comparison of Taylor series:
-  `Σ_{k≥2} u^k/k! ≤ (u²/2) · Σ_{k≥0} (u/3)^k`
-using `2 * 3^(k-2) ≤ k!` for every `k ≥ 2`.
-
-**Closure plan**: see module docstring §"Mathlib v4.28 gaps". The proof
-uses `Real.exp_hasSum`, `Nat.factorial` induction, and `tsum_geometric_of_lt_one`.
-No new Mathlib upstream is needed; all ingredients are in Mathlib v4.28.
+Proof: The Taylor series gives `exp(u) − 1 − u = Σ_{k≥2} uᵏ/k!`.
+For `k ≥ 2` and `u ≥ 0`, `uᵏ/k! ≤ u² · (u/3)^{k−2}/2` (since
+`2 · 3^{k−2} ≤ k!` for `k ≥ 2`). Summing the geometric series:
+`Σ ≤ (u²/2) · 1/(1 − u/3) = u²/(2(1 − u/3))`.
 -/
-lemma exp_le_bernstein_pointwise (u : ℝ) (hu0 : 0 ≤ u) (hu3 : u < 3) :
-    Real.exp u ≤ 1 + u + u ^ 2 / (2 * (1 - u / 3)) := by
-  -- Closure plan: Taylor series term comparison. See module docstring.
-  sorry
+lemma exp_sub_one_sub_le_sq_div_nonneg {u : ℝ} (hu : 0 ≤ u) (hu3 : u < 3) :
+    Real.exp u - 1 - u ≤ u ^ 2 / (2 * (1 - u / 3)) := by
+  -- We'll use the exponential property to simplify the expression. Note that $e^u = \sum_{k=0}^{\infty} \frac{u^k}{k!}$.
+  have h_exp : Real.exp u = ∑' k, u^k / Nat.factorial k := by
+    simp +decide [ Real.exp_eq_exp_ℝ, NormedSpace.exp_eq_tsum_div ];
+  -- We'll use the fact that $\sum_{k=2}^{\infty} \frac{u^k}{k!} \leq \frac{u^2}{2} \sum_{k=0}^{\infty} \left(\frac{u}{3}\right)^k$.
+  have h_sum_bound : ∑' k, u^k / Nat.factorial k - 1 - u ≤ u^2 / 2 * ∑' k, (u / 3)^k := by
+    have h_sum_bound : ∑' k, u^k / Nat.factorial k - 1 - u = ∑' k, u^(k+2) / Nat.factorial (k+2) := by
+      rw [ ← Summable.sum_add_tsum_nat_add 2 ];
+      · norm_num [ Finset.sum_range_succ ] ; ring;
+      · exact Real.summable_pow_div_factorial u;
+    rw [ h_sum_bound, ← tsum_mul_left ];
+    refine' Summable.tsum_le_tsum _ _ _;
+    · intro i; rw [ div_pow ] ; rw [ div_mul_div_comm ] ; rw [ div_le_div_iff₀ ] <;> first | positivity | ring_nf;
+      -- We'll use the fact that $3^i * 2 \leq (2 + i)!$ for all $i \geq 0$.
+      have h_factorial : ∀ i : ℕ, 3^i * 2 ≤ (2 + i).factorial := by
+        intro i; induction i <;> simp_all +decide [ Nat.factorial, pow_succ' ];
+        nlinarith [ pow_pos ( by decide : 0 < 3 ) ‹_› ];
+      nlinarith only [ show 0 ≤ u ^ 2 * u ^ i by positivity, show ( 3 ^ i * 2 : ℝ ) ≤ ( 2 + i ).factorial by exact_mod_cast h_factorial i ];
+    · exact Real.summable_pow_div_factorial _ |> Summable.comp_injective <| Nat.succ_injective.comp <| Nat.succ_injective;
+    · exact Summable.mul_left _ ( summable_geometric_of_lt_one ( by positivity ) ( by linarith ) );
+  rw [ tsum_geometric_of_lt_one ( by positivity ) ( by linarith ) ] at h_sum_bound ; rw [ ← div_div ] ; aesop;
 
-/-- Combined: for `|u| < 3`,
-`exp u ≤ 1 + u + u^2 / (2 * (1 - |u| / 3))`.
+/-
+For `u ≤ 0`: `exp(u) − 1 − u ≤ u²/2`.
 
-For `u ≥ 0`: direct from `exp_le_bernstein_pointwise`.
-For `u < 0` with `-3 < u`: use `exp u ≤ 1 + u + u²/(2(1-|u|/3))`.
-The term `u²/(2(1-|u|/3))` dominates the negative `1+u` for most `u ≤ 0`.
-Full case analysis in the closure plan.
-
-**Closure plan**: case split on `0 ≤ u` vs `u < 0`. For `u ≥ 0`, apply
-`exp_le_bernstein_pointwise` (with `|u| = u`). For `u < 0`, show separately
-that `exp u ≤ 1 + u + u²/(2*(1+u/3))` using the `u < 0` Taylor analysis:
-`exp u = 1 + u + u²/2 · g(u)` where `g(u) = 2(exp u - 1 - u)/u² ≤ 1/(1-|u|/3)`.
-Since `g` is an even function of the series `Σ u^(k-2)·2/k!` and each term
-satisfies `2/k! ≤ (1/3)^(k-2)` for `k ≥ 2`, the bound holds uniformly in sign.
+Proof: Let `f(u) = exp(u) − 1 − u − u²/2`. Then `f(0) = 0`,
+`f'(u) = exp(u) − 1 − u`, and for `u ≤ 0`, `f'(u) ≥ 0` (since
+`exp(u) ≥ 1 + u`), so `f` is increasing on `(−∞, 0]`, hence
+`f(u) ≤ f(0) = 0`.
 -/
-lemma exp_le_bernstein_abs (u : ℝ) (hu : |u| < 3) :
-    Real.exp u ≤ 1 + u + u ^ 2 / (2 * (1 - |u| / 3)) := by
-  -- Closure plan: case split on sign of u, use exp_le_bernstein_pointwise for u ≥ 0.
-  sorry
+lemma exp_sub_one_sub_le_sq_nonpos {u : ℝ} (hu : u ≤ 0) :
+    Real.exp u - 1 - u ≤ u ^ 2 / 2 := by
+  -- Let $f(u) = \exp(u) - 1 - u - \frac{u^2}{2}$.
+  set f : ℝ → ℝ := fun u => Real.exp u - 1 - u - u^2 / 2;
+  -- We'll use the fact that $f(u)$ is differentiable and that its derivative is non-negative on $(-\infty, 0]$.
+  have h_deriv_nonneg : ∀ u ≤ 0, 0 ≤ deriv f u := by
+    norm_num +zetaDelta at *;
+    exact fun u hu => by linarith [ Real.add_one_le_exp u ] ;
+  by_contra h_contra;
+  -- Apply the mean value theorem to $f$ on the interval $[u, 0]$.
+  obtain ⟨c, hc⟩ : ∃ c ∈ Set.Ioo u 0, deriv f c = (f 0 - f u) / (0 - u) := by
+    apply_rules [ exists_deriv_eq_slope ];
+    · exact hu.lt_of_ne ( by rintro rfl; norm_num at h_contra );
+    · fun_prop;
+    · fun_prop;
+  norm_num +zetaDelta at *;
+  rw [ eq_div_iff ] at hc <;> nlinarith [ h_deriv_nonneg c hc.1.2.le ]
 
-/-! ## §2  MGF bound from bounded support -/
+/-
+Combined pointwise bound for the Bernstein–Bennett MGF argument:
+for `|x| ≤ b`, `λ ≥ 0`, `bλ < 3`:
+`exp(λx) ≤ 1 + λx + (λx)² / (2(1 − bλ/3))`.
+-/
+lemma exp_mul_le_one_add_add_sq_div {x b lam : ℝ}
+    (hb : 0 ≤ b) (hx : |x| ≤ b) (hlam : 0 ≤ lam) (hbl : b * lam < 3) :
+    Real.exp (lam * x) ≤
+      1 + lam * x + (lam * x) ^ 2 / (2 * (1 - b * lam / 3)) := by
+  by_cases h_case : lam * x ≥ 0;
+  · have := exp_sub_one_sub_le_sq_div_nonneg h_case ?_;
+    · rw [ le_div_iff₀ ] at *;
+      · rw [ add_div', le_div_iff₀ ] <;> nlinarith [ mul_le_mul_of_nonneg_left ( show x ≤ b by linarith [ abs_le.mp hx ] ) hlam ];
+      · nlinarith [ abs_le.mp hx ];
+    · nlinarith [ abs_le.mp hx ];
+  · have := exp_sub_one_sub_le_sq_nonpos ( by linarith : lam * x ≤ 0 );
+    rw [ add_div', le_div_iff₀ ] <;> nlinarith [ mul_nonneg hlam ( sq_nonneg ( lam * x ) ) ]
 
-/-- **MGF bound for bounded centred random variables.**
+/-! ## Integration step -/
 
-If `X : Ω → ℝ` satisfies
-- `h_bdd : ∀ᵐ ω ∂μ, |X ω| ≤ b`  (where `0 < b`)
-- `h_mean : ∫ ω, X ω ∂μ = 0`
-- `h_var : ∫ ω, (X ω)^2 ∂μ ≤ σ_sq`
-- `hlam0 : 0 ≤ lam`  and  `hblam : b * lam < 3`
+/-
+Integrability of `exp(λ X)` for bounded `X` on a probability space.
+-/
+lemma integrable_exp_mul_of_bounded
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {X : Ω → ℝ} {b lam : ℝ}
+    (hX_meas : Measurable X)
+    (h_bounded : ∀ᵐ ω ∂μ, |X ω| ≤ b) :
+    Integrable (fun ω => Real.exp (lam * X ω)) μ := by
+  refine' MeasureTheory.Integrable.mono' ( MeasureTheory.integrable_const ( Real.exp ( |lam| * b ) ) ) _ _;
+  · exact Real.continuous_exp.comp_aestronglyMeasurable ( hX_meas.aestronglyMeasurable.const_mul _ );
+  · filter_upwards [ h_bounded ] with ω hω using by simpa using Real.exp_le_exp.2 ( by cases abs_cases lam <;> nlinarith [ abs_le.mp hω ] ) ;
 
-then `mgf X μ lam ≤ exp(σ_sq * lam^2 / (2 * (1 - b * lam / 3)))`.
+/-! ## Main theorem -/
 
-## Proof sketch (three steps)
+/-
+**Bernstein–Bennett MGF bound.**
 
-**Step 1 (pointwise)**:  since `|X ω| ≤ b` a.s. and `b * lam < 3`, we have
-`|lam * X ω| ≤ b * lam < 3` a.s., so by `exp_le_bernstein_abs`:
-  `exp(lam * X ω) ≤ 1 + lam * X ω + (lam * X ω)^2 / (2*(1-|lam*X ω|/3))`
-  `              ≤ 1 + lam * X ω + lam^2 * (X ω)^2 / (2*(1-b*lam/3))`
-(the denominator: `1 - |lam * X ω|/3 ≥ 1 - b*lam/3 > 0` since `|X ω| ≤ b`).
+For `X : Ω → ℝ` measurable with `|X| ≤ b` a.s., `∫ X ∂μ = 0`,
+`∫ X² ∂μ ≤ σ²`, `λ ≥ 0`, and `b · λ < 3`:
 
-**Step 2 (integrate)**:
-  `mgf X μ lam = ∫ exp(lam * X ω) ∂μ`
-  `           ≤ 1 + lam * ∫ X ω ∂μ + lam^2/(2*(1-b*lam/3)) * ∫ (X ω)^2 ∂μ`
-  `           = 1 + 0 + lam^2/(2*(1-b*lam/3)) * ∫ (X ω)^2 ∂μ`    (h_mean)
-  `           ≤ 1 + σ_sq * lam^2 / (2*(1-b*lam/3))`.              (h_var)
-
-**Step 3 (close with `1 + t ≤ exp t`)**:
-  `mgf X μ lam ≤ 1 + σ_sq * lam^2 / (2*(1-b*lam/3)) ≤ exp(σ_sq * lam^2 / (2*(1-b*lam/3)))`.
-  Uses `Real.add_one_le_exp`.
-
-**Blocking**: Step 1 requires `exp_le_bernstein_abs` (§1, currently sorry).
-Steps 2-3 use `MeasureTheory.integral_mono`, `Integrable.const_mul`, and
-`Real.add_one_le_exp` — all in Mathlib v4.28.
+    mgf X μ λ ≤ exp(σ² · λ² / (2 · (1 − b · λ / 3))).
 -/
 theorem mgf_le_subGamma_of_bounded
-    {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
-    [IsProbabilityMeasure μ]
-    {X : Ω → ℝ} {b σ_sq lam : ℝ}
-    (hb : 0 < b) (hσ_sq : 0 ≤ σ_sq)
-    (hlam0 : 0 ≤ lam) (hblam : b * lam < 3)
-    (h_meas : AEMeasurable X μ)
-    (h_int : Integrable (fun ω => Real.exp (lam * X ω)) μ)
-    (h_sq_int : Integrable (fun ω => (X ω) ^ 2) μ)
-    (h_bdd : ∀ᵐ ω ∂μ, |X ω| ≤ b)
-    (h_mean : ∫ ω, X ω ∂μ = 0)
-    (h_var : ∫ ω, (X ω) ^ 2 ∂μ ≤ σ_sq) :
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {X : Ω → ℝ} {b σ_sq : ℝ}
+    (hX_meas : Measurable X)
+    (hb : 0 ≤ b)
+    (h_bounded : ∀ᵐ ω ∂μ, |X ω| ≤ b)
+    (h_centered : ∫ ω, X ω ∂μ = 0)
+    (h_var : ∫ ω, (X ω) ^ 2 ∂μ ≤ σ_sq)
+    {lam : ℝ} (hlam : 0 ≤ lam) (hbl : b * lam < 3) :
     mgf X μ lam ≤ Real.exp (σ_sq * lam ^ 2 / (2 * (1 - b * lam / 3))) := by
-  -- The denominator is positive since b * lam < 3.
-  have hd_pos : 0 < 1 - b * lam / 3 := by linarith
-  -- The exponent t := σ_sq * lam^2 / (2*(1-b*lam/3)) is non-negative.
-  have ht_nonneg : 0 ≤ σ_sq * lam ^ 2 / (2 * (1 - b * lam / 3)) :=
-    div_nonneg (mul_nonneg hσ_sq (sq_nonneg lam))
-      (mul_nonneg two_pos.le hd_pos.le)
-  -- Blocking: steps 1–3 above. Unblocked once exp_le_bernstein_abs closes.
-  sorry
-
-/-! ## §3  Sub-gamma increment bound for iid bounded centred RVs -/
-
-/-- **Sub-gamma MGF increment bound for iid bounded centred RVs (scaffold).**
-
-Given `X : ℕ → Ω → ℝ` iid with `|X i| ≤ b` a.s., `E[X i] = 0`,
-`E[(X i)²] ≤ σ_sq`, and `(b/3) * |lam| < 1`, the conditional MGF of
-the increment `X (t+1)` (independent of `𝓕 t`) satisfies:
-
-  `E[exp(lam * X (t+1)) | 𝓕 t]`
-  `= E[exp(lam * X (t+1))]`        (by independence of X(t+1) from 𝓕_t)
-  `= mgf (X (t+1)) μ lam`
-  `≤ exp(σ_sq * lam^2 / (2*(1-(b/3)*lam)))`    (by mgf_le_subGamma_of_bounded)
-
-This is the `SubGammaMG σ_sq (b/3)` increment condition with `ν = σ_sq`, `c = b/3`.
-
-**Closure plan** (once `mgf_le_subGamma_of_bounded` is available):
-  1. The partial-sum increment `S_{t+1} - S_t = X (t+1)` is independent
-     of `𝓕 t = σ(X 0, …, X t)` by the iid hypothesis.
-  2. Conditional expectation of a `𝓕_t`-independent integrand equals the
-     unconditional expectation: apply `ProbabilityTheory.condExp_of_indepFun`
-     or an analogous Mathlib lemma for measurable functions.
-  3. Apply `mgf_le_subGamma_of_bounded` to get `mgf (X (t+1)) μ lam ≤ exp(...)`.
-  4. Conclude the a.s. bound via `ae_of_all` + step 2.
-
-**Status**: honest-sorry. Blocking on `mgf_le_subGamma_of_bounded` (§2).
--/
-theorem mgf_iid_increment_subGamma
-    {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
-    [IsProbabilityMeasure μ]
-    {X : ℕ → Ω → ℝ} {b σ_sq : ℝ}
-    (hb : 0 < b) (hσ_sq : 0 ≤ σ_sq)
-    (h_bdd : ∀ i, ∀ᵐ ω ∂μ, |X i ω| ≤ b)
-    (h_mean : ∀ i, ∫ ω, X i ω ∂μ = 0)
-    (h_var : ∀ i, ∫ ω, (X i ω) ^ 2 ∂μ ≤ σ_sq)
-    (h_meas : ∀ i, Measurable (X i))
-    (h_int_exp : ∀ (i : ℕ) (lam : ℝ), (b / 3) * |lam| < 1 →
-      Integrable (fun ω => Real.exp (lam * X i ω)) μ)
-    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
-    (h_adapt : ∀ i, Measurable[𝓕 i] (X i))
-    -- X (t+1) is independent of X 0, used as a proxy for filtration independence
-    (h_indep : ∀ t, ProbabilityTheory.IndepFun
-      (fun ω => X (t + 1) ω) (fun ω => X 0 ω) μ)
-    (t : ℕ) (lam : ℝ) (hlam : (b / 3) * |lam| < 1) :
-    ∀ᵐ ω ∂μ,
-      (μ[fun ω' => Real.exp (lam * X (t + 1) ω') | 𝓕 t]) ω ≤
-        Real.exp (σ_sq * lam ^ 2 / (2 * (1 - (b / 3) * lam))) := by
-  -- Blocking on mgf_le_subGamma_of_bounded (§2) and conditional-expectation
-  -- independence. See closure plan in docstring.
-  sorry
+  refine' le_trans _ ( Real.add_one_le_exp _ );
+  -- Apply the pointwise bound `exp_mul_le_one_add_add_sq_div` to each term in the integral.
+  have h_integral_bound : ∫ ω, Real.exp (lam * X ω) ∂μ ≤ ∫ ω, (1 + lam * X ω + (lam * X ω) ^ 2 / (2 * (1 - b * lam / 3))) ∂μ := by
+    refine' MeasureTheory.integral_mono_of_nonneg _ _ _;
+    · exact Filter.Eventually.of_forall fun ω => Real.exp_nonneg _;
+    · apply_rules [ MeasureTheory.Integrable.add, MeasureTheory.Integrable.div_const, MeasureTheory.Integrable.const_mul ];
+      · norm_num;
+      · refine' MeasureTheory.Integrable.mono' _ _ _;
+        exacts [ fun ω => b, MeasureTheory.integrable_const _, hX_meas.aestronglyMeasurable, h_bounded ];
+      · refine' MeasureTheory.Integrable.mono' _ _ _;
+        refine' fun ω => ( lam * b ) ^ 2;
+        · fun_prop;
+        · exact MeasureTheory.AEStronglyMeasurable.pow ( MeasureTheory.AEStronglyMeasurable.const_mul ( hX_meas.aestronglyMeasurable ) _ ) _;
+        · filter_upwards [ h_bounded ] with ω hω using by simpa [ abs_mul, abs_of_nonneg hlam ] using pow_le_pow_left₀ ( by positivity ) ( mul_le_mul_of_nonneg_left hω hlam ) 2;
+    · filter_upwards [ h_bounded ] with ω hω using exp_mul_le_one_add_add_sq_div hb hω hlam hbl;
+  refine' le_trans h_integral_bound _;
+  rw [ MeasureTheory.integral_add, MeasureTheory.integral_add ] <;> norm_num [ MeasureTheory.integral_const_mul, h_centered ];
+  · simp +decide [ mul_pow, MeasureTheory.integral_div, MeasureTheory.integral_const_mul, add_comm ];
+    exact div_le_div_of_nonneg_right ( by nlinarith ) ( mul_nonneg zero_le_two ( by nlinarith ) );
+  · refine' MeasureTheory.Integrable.const_mul _ _;
+    refine' MeasureTheory.Integrable.mono' _ _ _;
+    exacts [ fun ω => b, MeasureTheory.integrable_const _, hX_meas.aestronglyMeasurable, h_bounded ];
+  · refine' MeasureTheory.Integrable.const_mul _ _;
+    refine' MeasureTheory.Integrable.mono' _ _ _;
+    exacts [ fun ω => b, MeasureTheory.integrable_const _, hX_meas.aestronglyMeasurable, h_bounded ];
+  · refine' MeasureTheory.Integrable.div_const _ _;
+    refine' MeasureTheory.Integrable.mono' _ _ _;
+    refine' fun ω => ( lam * b ) ^ 2;
+    · exact MeasureTheory.integrable_const _;
+    · exact MeasureTheory.AEStronglyMeasurable.pow ( MeasureTheory.AEStronglyMeasurable.const_mul ( hX_meas.aestronglyMeasurable ) _ ) _;
+    · filter_upwards [ h_bounded ] with ω hω using by simpa [ abs_mul, abs_of_nonneg hlam ] using pow_le_pow_left₀ ( by positivity ) ( mul_le_mul_of_nonneg_left hω hlam ) 2;
 
 end Pythia

@@ -86,3 +86,9 @@ import Pythia.Asymptotics.DeltaMethod
 import Pythia.Asymptotics.DeltaMethodMulti
 import Pythia.TimeSeries.WoldDecomposition
 import Pythia.Risk.CVaR
+
+-- MiniPythia benchmark suite (anytime-valid analogue of MiniF2F).
+-- 30 theorems each closed by a single pythia tactic call. See
+-- `Pythia/Bench/README.md` for the section breakdown and add-a-bench
+-- recipe.
+import Pythia.Bench.MiniPythia

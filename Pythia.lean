@@ -70,6 +70,9 @@ import Pythia.Tactic.ECheckTest
 -- bound at concrete parameters. Goes beyond a closure tactic; this
 -- is a domain calculator.
 import Pythia.Tactic.TightTail
+-- LLM-defense layer (ATH-718 Layer 3): lemma-existence guard.
+import Pythia.Tactic.ValidateInvokedLemmas
+import Pythia.Tactic.ValidateInvokedLemmasTest
 -- Counterexample-finder tactic — disprove (Phase 1, dual of z3_check).
 import Pythia.Tactic.Disprove
 import Pythia.Tactic.DisproveTest

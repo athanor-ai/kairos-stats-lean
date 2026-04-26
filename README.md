@@ -149,6 +149,8 @@ Eight registered tactics ship in the public surface:
 | introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
 | see the full pythia dispatch ladder in action | [`examples/04_pythia_full_dispatch.lean`](examples/04_pythia_full_dispatch.lean) |
 | pick the sharpest tail bound for your parameters | [`examples/05_tight_tail_calculator.lean`](examples/05_tight_tail_calculator.lean) |
+| find a counterexample to a candidate stats claim | [`examples/06_disprove_smoke.lean`](examples/06_disprove_smoke.lean) |
+| dispatch to the OSS cross-prover hammer chain | [`examples/07_cross_prover_smoke.lean`](examples/07_cross_prover_smoke.lean) |
 | pick the right pythia tactic for your goal shape | [`docs/concentration_cookbook.md`](docs/concentration_cookbook.md) |
 | run the MiniPythia benchmark | [`Pythia/Bench/README.md`](Pythia/Bench/README.md) |
 | go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |

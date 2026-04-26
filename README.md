@@ -126,7 +126,7 @@ and [`examples/`](examples/) for copy-paste-ready files.
 
 ## Tactics
 
-Five registered tactics ship in the public surface:
+Eight registered tactics ship in the public surface:
 
 | Tactic | Closes |
 |--------|--------|

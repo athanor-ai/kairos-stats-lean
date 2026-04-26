@@ -133,6 +133,7 @@ Five registered tactics ship in the public surface:
 | `pythia` | shape-dispatching orchestrator: routes to `anytime_valid` / `stats_ineq` / `prob_simp` / `z3_check` / `vampire_check` / `e_check` by goal shape, then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain |
 | `vampire_check` | first-order-logic goals via Vampire ATP + Lean `aesop` reconstruction |
 | `e_check` | first-order-logic goals via E theorem prover + Lean `aesop` reconstruction (Vampire backup) |
+| `pythia?` | verbose `pythia`: same dispatch ladder, prints which rung closed the goal (Lean convention: `apply?`, `rw?`, `simp?`, `aesop?`) |
 | `stats_ineq` | scalar inequalities arising in concentration / tail bounds |
 | `prob_simp` | probability-theoretic rewriting (measure pushforwards, conditional expectations) |
 | `anytime_valid` | Ville-bound goals on non-negative supermartingales |

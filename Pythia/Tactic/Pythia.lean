@@ -76,6 +76,11 @@ open Lean Elab Meta Tactic
 -- `[Pythia, default]` together.
 declare_aesop_rule_sets [Pythia]
 
+-- Trace class for `pythia?` verbose mode. Always emits when the
+-- tactic runs; the user can route the output via the standard
+-- `set_option trace.Pythia.Verbose true` mechanism.
+initialize registerTraceClass `Pythia.Verbose
+
 /-- `@[stat_lemma]` — register a theorem as part of the `pythia` lemma
 library. Internally this is shorthand for `@[aesop safe apply
 (rule_sets := [Pythia])]`. Use this on user-facing statistical
@@ -115,6 +120,16 @@ concentration, KL divergence, MGF identities, and CS admissibility.
 -/
 syntax (name := pythia) "pythia" : tactic
 
+/-- `pythia?` — verbose pythia. Same dispatch ladder as `pythia`,
+but prints which rung actually closed the goal. Useful when you
+want to know whether the close came from `anytime_valid`,
+`z3_check`, an aesop rule from the registry, or the generic
+Mathlib chain.
+
+Following Lean convention: `apply?`, `rw?`, `simp?`, `aesop?` —
+adding `?` to a closure tactic asks for an explanation. -/
+syntax (name := pythiaVerbose) "pythia?" : tactic
+
 @[tactic pythia] def evalPythia : Tactic := fun stx => do
   match stx with
   | `(tactic| pythia) =>
@@ -143,6 +158,48 @@ syntax (name := pythia) "pythia" : tactic
         -- Aesop default ruleset, last resort.
         | aesop (config := { warnOnNonterminal := false }))
     evalTactic cascade
+  | _ => throwUnsupportedSyntax
+
+@[tactic pythiaVerbose] def evalPythiaVerbose : Tactic := fun stx => do
+  match stx with
+  | `(tactic| pythia?) =>
+    -- Try each rung in order; the first to fully close the goal logs
+    -- a message naming the rung. If none close, fail with the
+    -- standard `pythia` error.
+    let rungs : List (Syntax × String) := [
+      (← `(tactic| (anytime_valid; done)),
+        "closed by anytime_valid (Ville-bound shape)"),
+      (← `(tactic| (stats_ineq; done)),
+        "closed by stats_ineq (concentration tail)"),
+      (← `(tactic| (prob_simp; done)),
+        "closed by prob_simp (probability rewriting)"),
+      (← `(tactic| (z3_check; done)),
+        "closed by z3_check (QF_LRA over ℝ via Z3 + linarith reconstruction)"),
+      (← `(tactic| (vampire_check; done)),
+        "closed by vampire_check (FOL via Vampire + aesop reconstruction)"),
+      (← `(tactic| (e_check; done)),
+        "closed by e_check (FOL via E theorem prover + aesop reconstruction)"),
+      (← `(tactic|
+            (aesop (config := { warnOnNonterminal := false })
+                   (rule_sets := [Pythia]); done)),
+        "closed by aesop on the @[stat_lemma] ruleset"),
+      (← `(tactic|
+            ((try simp) <;> (try omega) <;> (try linarith)
+                <;> (try positivity); done)),
+        "closed by the generic Mathlib chain (simp; omega; linarith; positivity)"),
+      (← `(tactic| (aesop (config := { warnOnNonterminal := false }); done)),
+        "closed by the default aesop ruleset (last resort)")
+    ]
+    let mut closed := false
+    for (rung, msg) in rungs do
+      if closed then break
+      try
+        evalTactic rung
+        logInfo msg
+        closed := true
+      catch _ => pure ()
+    unless closed do
+      throwError "pythia?: no rung closed the goal."
   | _ => throwUnsupportedSyntax
 
 /-- `#stat_lemmas` — list every theorem tagged `@[stat_lemma]` in the

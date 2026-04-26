@@ -8,7 +8,7 @@
 
 A Lean 4 tactic library for closing proofs in probability and statistics.
 
-Mathlib supplies the foundations — measures, martingales, sub-Gaussian
+Mathlib supplies the foundations: measures, martingales, sub-Gaussian
 machinery, the optional-stopping theorem. Closing a goal still takes
 the kind of by-hand chase that ends with measurability obligations,
 ENNReal arithmetic, and a stopping-time induction. `pythia` is what
@@ -30,11 +30,11 @@ closes in one line.
 
 ## What it does
 
-- Five tactics — `pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
-  `z3_check` — covering general stats hammering, inequality closure,
-  probability normalization, anytime-valid Ville bounds, and
-  SMT-oracle dispatch.
-- A registry layer — tag your own theorem with `@[stat_lemma]` /
+- Five tactics (`pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
+  `z3_check`) covering general stats hammering, inequality closure,
+  probability normalization, anytime-valid Ville bounds, and SMT-oracle
+  dispatch.
+- A registry layer: tag your own theorem with `@[stat_lemma]` /
   `@[stats_ineq]` / `@[prob_simp]` and the hammers pick it up at
   elaboration time. The same shape as `@[simp]`, `@[gcongr]`,
   `@[bound]`. No fork, no config file.
@@ -46,22 +46,22 @@ closes in one line.
   theorems are axiom-clean against `{propext, Classical.choice,
   Quot.sound}`.
 - A Z3 oracle (`z3_check`) that reconstructs every closure into a
-  Lean tactic script — Z3's verdict never closes a goal on its own.
+  Lean tactic script: Z3's verdict never closes a goal on its own.
   Same axiom budget as Mathlib. Pattern adapted from CoqHammer
   (Czajka-Kaliszyk, JAR 2018).
 
 ## Why a separate library
 
-Lean 4 + Mathlib already has strong general-purpose automation —
+Lean 4 + Mathlib already has strong general-purpose automation:
 `aesop`, `simp`, `linarith`, `polyrith`, `nlinarith`, `positivity`,
 `measurability`, `bound`, `gcongr`. They close a lot. They stop being
 useful right when statistical reasoning starts: the moment a goal
 mentions `Supermartingale`, an MGF chain, or a stopping time, the
 generic hammers have nothing to apply.
 
-Pythia is the closure layer — Bernstein-shaped lemmas, Ville's
+Pythia is the closure layer (Bernstein-shaped lemmas, Ville's
 inequality, Wald identities, e-detectors, the four canonical CS
-families — registered so a domain-specialised hammer finds them.
+families) registered so a domain-specialised hammer finds them.
 Tactics read like Lean syntax (`by pythia`), not like library calls.
 Error messages match Mathlib's tone.
 
@@ -96,7 +96,7 @@ example (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by pythia
 ```
 
 Tag a theorem with `@[stat_lemma]` to register it into the `pythia`
-lemma library. Then `pythia` closes goals that match — falling
+lemma library. Then `pythia` closes goals that match: falling
 through to Mathlib's standard `aesop` automation when no pythia rule
 applies. See [`demo/`](demo/) for the 5-minute end-to-end walkthrough
 and [`examples/`](examples/) for copy-paste-ready files.
@@ -117,7 +117,7 @@ Five registered tactics ship in the public surface:
 
 | If you want to… | Look at |
 |-----------------|---------|
-| run the headline `pythia` tactic | [`examples/01_pythia_smoke.lean`](examples/01_pythia_smoke.lean) |
+| run the `pythia` tactic | [`examples/01_pythia_smoke.lean`](examples/01_pythia_smoke.lean) |
 | close a Ville-bound goal in 1 tactic call | [`examples/02_anytime_valid_smoke.lean`](examples/02_anytime_valid_smoke.lean) |
 | introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
 | go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |
@@ -128,7 +128,7 @@ Five registered tactics ship in the public surface:
 `z3_check` dispatches linear-real-arithmetic goals to a local `z3`
 binary, reads back the `unsat` verdict, and then asks Lean's `linarith`
 to independently reconstruct the proof term. Z3 is treated strictly as
-a ranking / filter oracle — its verdict never closes a goal. If `z3`
+a ranking / filter oracle: its verdict never closes a goal. If `z3`
 is unavailable on the build machine, the tactic falls through to
 `linarith` directly, so CI is independent of the SMT install. See
 [`Pythia.Tactic.Z3Check`](Pythia/Tactic/Z3Check.lean) and
@@ -139,7 +139,7 @@ The architectural rule: external solvers are **oracles**, not trusted
 provers. Each backend produces a certificate (refutation, witness,
 counterexample) that pythia's reconstruction layer turns into a Lean 4
 tactic script. The Lean 4 kernel checks the script against
-`{propext, Classical.choice, Quot.sound}` — same axiom budget as
+`{propext, Classical.choice, Quot.sound}`: same axiom budget as
 Mathlib itself. CoqHammer (Czajka & Kaliszyk, JAR 2018) is the
 canonical template for this discipline; we adapt it for Lean 4's CIC.
 
@@ -147,36 +147,36 @@ canonical template for this discipline; we adapt it for Lean 4's CIC.
 
 Foundations:
 
-- `Pythia.Basic` — `BitPrecision`, `Time := ℕ`, the `slack` envelope.
-- `Pythia.SubGaussianMG` — measure-theoretic sub-Gaussian martingale + exponential supermartingale + finite-horizon Ville.
-- `Pythia.VilleSupermartingale` — Ville's inequality for non-negative supermartingales: `μ{∃ t, f t ≥ c} ≤ E[f 0] / c`.
-- `Pythia.StoppingRule` — `StoppingRule` primitive with `monotone_once_fired`.
-- `Pythia.BettingStrategy` — bounded adaptive strategy + wealth process `W_t = ∏ (1 + λ_s ξ_s)`.
-- `Pythia.PhiTransform` — exponential betting-transform from self-normalized to wealth form.
-- `Pythia.SubGamma` — sub-gamma tail-class generalization of `SubGaussianMG`.
+- `Pythia.Basic`: `BitPrecision`, `Time := ℕ`, the `slack` envelope.
+- `Pythia.SubGaussianMG`: measure-theoretic sub-Gaussian martingale + exponential supermartingale + finite-horizon Ville.
+- `Pythia.VilleSupermartingale`: Ville's inequality for non-negative supermartingales: `μ{∃ t, f t ≥ c} ≤ E[f 0] / c`.
+- `Pythia.StoppingRule`: `StoppingRule` primitive with `monotone_once_fired`.
+- `Pythia.BettingStrategy`: bounded adaptive strategy + wealth process `W_t = ∏ (1 + λ_s ξ_s)`.
+- `Pythia.PhiTransform`: exponential betting-transform from self-normalized to wealth form.
+- `Pythia.SubGamma`: sub-gamma tail-class generalization of `SubGaussianMG`.
 
 CS families:
 
-- `Pythia.HowardRamdasCS` — admissibility of the telescoping HR boundary `σ √(2 t log(t(t+1)/α))`.
-- `Pythia.BettingCS` — admissibility of the betting CS via infinite-horizon Ville + log-wealth threshold.
-- `Pythia.GaussianRandomWalk` — sub-Gaussian random-walk crossing scaffold for vector + asymptotic families.
-- `Pythia.GaussianSmallBall` — Gaussian small-ball lower bound on the boundary-grazing event.
+- `Pythia.HowardRamdasCS`: admissibility of the telescoping HR boundary `σ √(2 t log(t(t+1)/α))`.
+- `Pythia.BettingCS`: admissibility of the betting CS via infinite-horizon Ville + log-wealth threshold.
+- `Pythia.GaussianRandomWalk`: sub-Gaussian random-walk crossing scaffold for vector + asymptotic families.
+- `Pythia.GaussianSmallBall`: Gaussian small-ball lower bound on the boundary-grazing event.
 
 Constants and rates:
 
-- `Pythia.Quantization` — scalar quantization-transport lemma + `etaHR`, `etaVector`, `etaAsymptotic`, `etaBetting` + family ranking.
-- `Pythia.MatchingConstants` — closed-form sharp constants `c_vector_sharp = 1/(2√π)`, `c_aCS_sharp = 1/(2√(2π))`.
-- `Pythia.Sharpness` — boundary-hugging adversaries that saturate `η_F · 2^{-s} · σ`.
-- `Pythia.VectorSharpness` — sharp-constant upgrade for the vector family.
-- `Pythia.PowerAnalysis` — Type-II / power-loss analogue of the slack theorem.
-- `Pythia.DeploymentDesign` — inverse: minimal `s` for a target coverage deviation `δ`.
+- `Pythia.Quantization`: scalar quantization-transport lemma + `etaHR`, `etaVector`, `etaAsymptotic`, `etaBetting` + family ranking.
+- `Pythia.MatchingConstants`: closed-form sharp constants `c_vector_sharp = 1/(2√π)`, `c_aCS_sharp = 1/(2√(2π))`.
+- `Pythia.Sharpness`: boundary-hugging adversaries that saturate `η_F · 2^{-s} · σ`.
+- `Pythia.VectorSharpness`: sharp-constant upgrade for the vector family.
+- `Pythia.PowerAnalysis`: Type-II / power-loss analogue of the slack theorem.
+- `Pythia.DeploymentDesign`: inverse: minimal `s` for a target coverage deviation `δ`.
 
 Quantization variants:
 
-- `Pythia.InputQuantization` — input-quantized variant (process observed at finite precision; exact boundary).
-- `Pythia.InformationTheoretic` — channel-capacity reformulation of the slack rate.
-- `Pythia.EquivalenceBreak` — finite-precision equivalence-breaking between self-normalized and betting CS.
-- `Pythia.ElegantUnification` — three structural unifications across families.
+- `Pythia.InputQuantization`: input-quantized variant (process observed at finite precision; exact boundary).
+- `Pythia.InformationTheoretic`: channel-capacity reformulation of the slack rate.
+- `Pythia.EquivalenceBreak`: finite-precision equivalence-breaking between self-normalized and betting CS.
+- `Pythia.ElegantUnification`: three structural unifications across families.
 
 ## Examples
 
@@ -243,8 +243,8 @@ example
 Semantic versioning. The `Pythia.API` surface (the umbrella `Pythia`
 module plus the public theorem names listed in the Quick tour) is stable
 within a major version: signature changes go through a deprecation cycle.
-Internal modules — names starting with a lowercase helper prefix or
-declared `private` — may churn on any release. Mathlib revision pin is
+Internal modules: names starting with a lowercase helper prefix or
+declared `private`: may churn on any release. Mathlib revision pin is
 treated as part of the public surface; bumping it is a major-version
 event.
 
@@ -275,12 +275,12 @@ axiom-audit clean (`#print axioms` reports only `propext`, `Classical.choice`,
 This library would not exist in its current form without
 **[Harmonic](https://harmonic.fun)** and the **Aristotle** automated
 theorem-proving system. Aristotle closed many of the hardest theorems in
-this repository — including the Ville-supermartingale machine-check, the
+this repository: including the Ville-supermartingale machine-check, the
 T3 Gaussian small-ball lower bound, the T4 wealth-process martingale
 property, the deployment-design trio, the Type-II power-loss bound, the
 Howard-Ramdas CS admissibility, the betting CS admissibility, the
 sub-gamma martingale + Bennett-Bernstein maximal inequality, and the
-PAC-Bayes Radon-Nikodym KL divergence — all axiom-clean against
+PAC-Bayes Radon-Nikodym KL divergence: all axiom-clean against
 `{propext, Classical.choice, Quot.sound}`.
 
 The library is also indebted to the Lean 4 + Mathlib community

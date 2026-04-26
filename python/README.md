@@ -1,6 +1,5 @@
 # athanor-pythia
 
-> *Aesop-grade automation for statistics in Lean 4.*
 
 This is the Python-side companion to the
 [`pythia`](https://github.com/athanor-ai/pythia) Lean 4 statistics

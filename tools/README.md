@@ -2,7 +2,7 @@
 
 Repo-local developer scripts.
 
-## `md_lint.py` — anti-LLM-slop README linter
+## `md_lint.py`: anti-LLM-slop README linter
 
 A single-file linter for Markdown READMEs. Flags the patterns
 LLM-generated prose disproportionately produces vs. human-written
@@ -23,13 +23,13 @@ Exit codes: `0` clean, `1` error-level finding, `2` bad invocation.
 
 | Rule | Severity | Catches |
 |------|----------|---------|
-| `vocabulary` | error / warn | High-register filler ("cutting-edge", "harness", "leverage", "load-bearing", "transformative", "delve", ...) and discourse markers ("crucially,", "notably,", "moreover,", ...) |
+| `vocabulary` | error / warn | High-register filler (`cutting-edge`, `harness`, `leverage`, `load-bearing`, `transformative`, `delve`, ...) and discourse markers (`crucially,`, `notably,`, `moreover,`, ...) |
 | `tagline_opener` | error | Italic-blockquote one-liner taglines: `> *Aesop-grade automation for ...*` |
-| `intent_hedge` | error | "wants to be the canonical X" / "aims to be the leading Y" / "is designed to be the standard Z" |
-| `like_analogy` | warn | "Like X for Y, Z is..." analogy lead-ins |
-| `marquee_label` | error | "headline / marquee / flagship tactic / library / tool / feature / product" |
-| `field_opener` | warn | Paragraph opens on field-level abstraction ("Modern X", "In recent years", "The field of...") |
-| `we_present_library` | warn | Paper voice in a README: "We present X, a library that..." |
+| `intent_hedge` | error | `wants to be the canonical X` / `aims to be the leading Y` / `is designed to be the standard Z` |
+| `like_analogy` | warn | `Like X for Y, Z is...` analogy lead-ins |
+| `marquee_label` | error | `headline` / `marquee` / `flagship` modifying tactic / library / tool / feature / product |
+| `field_opener` | warn | Paragraph opens on field-level abstraction (`Modern X`, `In recent years`, `The field of...`) |
+| `we_present_library` | warn | Paper voice in a README: `We present X, a library that...` |
 
 ### CI integration
 

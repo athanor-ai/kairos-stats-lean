@@ -10,14 +10,14 @@ By participating, you agree to abide by the
 ## What pythia is, and is not
 
 **Pythia is** an Apache-2.0 Lean 4 + Mathlib v4.28.0 library:
-- Theorems Mathlib doesn't (yet) cover — anytime-valid CS, sequential
+- Theorems Mathlib doesn't (yet) cover: anytime-valid CS, sequential
   testing, e-detectors, Bernstein/Bennett/Freedman, empirical processes,
   stochastic approximation, info-theoretic divergences, modern
   high-dim probability, conformal prediction.
-- Tactics for stats reasoning — `pythia` (domain hammer), `stats_ineq`
+- Tactics for stats reasoning: `pythia` (domain hammer), `stats_ineq`
   (inequality hammer), `prob_simp` (probability normalization),
   `anytime_valid` (Ville closer), `z3_check` (Z3 oracle + reconstruction).
-- Attributes + commands for discoverability — `@[stat_lemma]`,
+- Attributes + commands for discoverability: `@[stat_lemma]`,
   `@[cs_family]`, `@[stats_ineq]`, `@[prob_simp]`, `#stat_lemmas`,
   `#cs_families`.
 
@@ -42,12 +42,12 @@ ln -s ../../tools/pre-push.sh .git/hooks/pre-push
 
 CI runs the same check on every branch push, so a broken push fails
 status visibly. Fix the build before pushing again. Don't push and
-"hope CI catches it later" — that pattern is what the hook prevents.
+"hope CI catches it later": that pattern is what the hook prevents.
 
 ### 2. Axiom-clean against the trusted triple
 
 Every theorem that joins `Pythia.API` must depend only on
-`{propext, Classical.choice, Quot.sound}` — the standard Lean kernel
+`{propext, Classical.choice, Quot.sound}`: the standard Lean kernel
 axiom set. Anything else (a lingering `sorryAx`, a custom `axiom Foo`
 declaration, a `@[implemented_by]` shortcut on theorem-level defs)
 fails the audit. Audit a single theorem with:
@@ -63,13 +63,13 @@ Sorries on scaffold files (clearly flagged in the module docstring +
 excluded from the audit's import list) are acceptable as in-flight
 markers, *with a tracking issue and an active path to closure*.
 Indefinite sorries decay into lies as readers forget the provisional
-status — close them or remove them.
+status: close them or remove them.
 
 ### 3. No fake closures, no vacuous lemmas
 
 If a tactic fires `rfl` / `unfold; grind` / `decide` and closes the
 goal, the goal might have been trivial as stated. Don't ship the
-proof — restate the lemma as a *by-construction invariant* or raise
+proof: restate the lemma as a *by-construction invariant* or raise
 the claim. We've been bitten by this before; reviewers will push back.
 
 ### 4. No LLM coupling in the library
@@ -94,7 +94,7 @@ The bar is `aesop` / `simp` / `linarith`. Examples of what we mean:
 - ❌ `@[Pythia.Tactic.Decoration.statLemma]` (reads like a Java
   classpath)
 
-Error messages match Mathlib's tone — terse, actionable, no
+Error messages match Mathlib's tone: terse, concrete, no
 project-specific jargon. Documentation goes in `docs/` mirroring the
 Mathlib `Mathlib/Tactic/Foo.lean` ↔ `docs/foo.md` convention.
 
@@ -131,9 +131,9 @@ Same as theorems, plus:
 
 ## Reading list
 
-- [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) — sub-second LSP feedback for serious users.
-- [`demo/README.md`](demo/README.md) — 5-minute walkthrough.
-- [`examples/`](examples/) — copy-paste user code.
+- [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md): sub-second LSP feedback for serious users.
+- [`demo/README.md`](demo/README.md): 5-minute walkthrough.
+- [`examples/`](examples/): copy-paste user code.
 
 ## License
 

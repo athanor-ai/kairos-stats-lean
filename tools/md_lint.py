@@ -215,6 +215,17 @@ _WE_PRESENT_LIBRARY = re.compile(
     re.IGNORECASE,
 )
 
+# Em-dash (U+2014), en-dash (U+2013), and triple-hyphen prose dash. All
+# three are LLM-fingerprint punctuation; human-written technical docs
+# use periods, colons, commas, or parens instead.
+_EM_DASH = re.compile(r"—")
+_EN_DASH = re.compile(r"–")
+_TRIPLE_HYPHEN = re.compile(r"(?<![-\w])---(?![-\w])")
+
+# Markdown inline code span: backtick-delimited. Scrub before dash checks
+# so CLI flags like `--help` or `--no-verify` don't trigger.
+_INLINE_CODE = re.compile(r"`[^`\n]+`")
+
 
 # ---------------------------------------------------------------------------
 # Rules.
@@ -376,6 +387,40 @@ def check_we_present_library(text: str) -> list[Finding]:
     return out
 
 
+def check_dashes(text: str) -> list[Finding]:
+    """Em-dashes (—), en-dashes (–), and triple-hyphen `---` prose dashes
+    are LLM punctuation fingerprints. Human-written technical docs use
+    periods, colons, commas, or parens instead.
+
+    Scrubs Markdown inline code spans (backtick-delimited) first so CLI
+    flags like `--help` and `--no-verify` are not flagged."""
+    # Replace inline code spans with equal-width spaces to preserve column
+    # offsets. Code-block fenced segments are already stripped upstream.
+    def blank(m: re.Match) -> str:
+        return " " * (m.end() - m.start())
+
+    scrubbed = _INLINE_CODE.sub(blank, text)
+
+    out: list[Finding] = []
+    for pattern, name, char_label in (
+        (_EM_DASH, "em-dash", "U+2014 (—)"),
+        (_EN_DASH, "en-dash", "U+2013 (–)"),
+        (_TRIPLE_HYPHEN, "triple-hyphen", "---"),
+    ):
+        for m in pattern.finditer(scrubbed):
+            line, col = _line_col(text, m.start())
+            out.append(Finding(
+                rule="no_dashes",
+                severity="error",
+                line=line,
+                col=col,
+                text=_snippet(text, m, pad=40),
+                reason=f"{name} ({char_label}) in prose. LLM punctuation tell.",
+                suggestion="Use a period, comma, colon, or parens.",
+            ))
+    return out
+
+
 _RULES = {
     "vocabulary": check_vocabulary,
     "tagline_opener": check_tagline_opener,
@@ -384,6 +429,7 @@ _RULES = {
     "marquee_label": check_marquee_label,
     "field_opener": check_field_opener,
     "we_present_library": check_we_present_library,
+    "no_dashes": check_dashes,
 }
 
 
@@ -438,6 +484,12 @@ def main(argv: list[str] | None = None) -> int:
 
     raw = path.read_text(encoding="utf-8", errors="replace")
     text = _strip_code_blocks(raw)
+    # Scrub inline code spans (`x`) globally so quoted example words in
+    # docs that talk about banned vocabulary do not false-positive. Width-
+    # preserving so column reporting stays accurate.
+    def _blank_inline(m: re.Match) -> str:
+        return " " * (m.end() - m.start())
+    text = _INLINE_CODE.sub(_blank_inline, text)
 
     if args.rules == "all":
         rules = list(_RULES.keys())

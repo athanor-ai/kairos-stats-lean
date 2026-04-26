@@ -1,4 +1,4 @@
-# Demo — pythia in 5 minutes
+# Demo: pythia in 5 minutes
 
 A guided walkthrough that takes a fresh Lean 4 user from "I just heard
 of pythia" to "I closed a confidence-sequence admissibility goal in
@@ -73,7 +73,7 @@ example
   anytime_valid
 ```
 
-`lake build` — proof closed in one tactic call.
+`lake build`: proof closed in one tactic call.
 
 This is Ville's inequality on a non-negative supermartingale. With
 `pythia` and `anytime_valid`, every confidence-sequence
@@ -94,12 +94,12 @@ list.
 
 ## 5. Where to go next
 
-* `examples/` — copy-paste examples for every public tactic.
-* `ROADMAP.md` — the full multi-tier theorem plan (Bernstein, SPRT,
+* `examples/`: copy-paste examples for every public tactic.
+* `ROADMAP.md`: the full multi-tier theorem plan (Bernstein, SPRT,
   e-detector, Glivenko-Cantelli, Robbins-Monro, etc.).
-* `docs/lean_lsp_mcp_setup.md` — sub-second proof feedback via the
+* `docs/lean_lsp_mcp_setup.md`: sub-second proof feedback via the
   lean-lsp-mcp MCP server (recommended for any serious user).
-* `Pythia.API` — the curated public theorem index.
+* `Pythia.API`: the curated public theorem index.
 
 ## Honest limitations
 

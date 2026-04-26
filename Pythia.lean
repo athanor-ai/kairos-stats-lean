@@ -4,7 +4,7 @@
 -- VilleMathlibPR (Mathlib-PR-style draft; intentionally namespaced under
 -- MeasureTheory rather than Pythia).
 import Pythia.API
-import Pythia.AristotleT0T1T2Bench
+import Pythia.BenchTargets
 import Pythia.Basic
 import Pythia.BenchDefs
 import Pythia.BettingCS
@@ -65,7 +65,7 @@ import Pythia.MeasureTheory.OptionalStoppingUnbounded
 -- docstring for Lieb / Klein / matrix-MGF dependency roadmap).
 import Pythia.MatrixBernstein
 
--- Tier 7 + queueing + path-measure additions (Aristotle 2026-04-26)
+-- Tier 7 + queueing + path-measure additions
 import Pythia.Queueing.ErlangB
 import Pythia.MeasureTheory.PathMeasureRN
 import Pythia.MatrixBernsteinFull

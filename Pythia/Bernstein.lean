@@ -66,7 +66,7 @@ This requires:
 The Taylor remainder is the only genuine gap. The path is either
 (a) prove `g_bound : ∀ x, |x| ≤ r → g(x) ≤ 1 / (1 - r/3)` directly via
     the sum identity, or
-(b) Aristotle / DSPv2 hammer once it's online for SubGamma.lean
+(b) external-prover hammer once it's online for SubGamma.lean
     completion (Aidan 2026-04-25 directive: "local Mathlib closure first").
 
 Tagging the wrapper `bernstein_of_subGamma` with `@[stat_lemma]`

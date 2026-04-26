@@ -142,6 +142,4 @@ Apache-2.0 to the project.
 
 ## Acknowledgments
 
-This library would not exist in its current form without
-[Harmonic](https://harmonic.fun) and the Aristotle theorem prover.
-See the README "Acknowledgments" section for details.
+See the README "Acknowledgments" section.

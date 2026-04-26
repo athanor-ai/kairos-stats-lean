@@ -124,7 +124,7 @@ theorem phi_transform_hr_admissible
   have : 1 / (1 / alpha) = alpha := by field_simp
   rw [this]
 
-/-! ## Vector-case Phi-transform (Aristotle target A) -/
+/-! ## Vector-case Phi-transform (open target A) -/
 
 /-- Vector-family optimised tilt: same algebraic shape as `phiTilt`
 but scaled for `c_vector(t) = sigma * sqrt(4 t log(T/alpha))`. Factor
@@ -217,7 +217,7 @@ theorem phi_transform_vector_admissible
   have : 1 / (1 / alpha) = alpha := by field_simp
   rw [this]
 
-/-! ## aCS-case Phi-transform (Aristotle target B) -/
+/-! ## aCS-case Phi-transform (open target B) -/
 
 /-- aCS-family optimised tilt: `c_aCS(t) = sigma * sqrt(2 t log(1/alpha))`
 has `t`-invariant log term, so the tilt is `sqrt(2 log(1/alpha)/(σ²T))`. -/

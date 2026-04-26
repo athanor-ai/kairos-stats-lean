@@ -9,7 +9,7 @@ adversary.  Here we build the random-walk object itself: a sum of
 iid standard Gaussian increments on `ℝ^ℕ` with the canonical product
 measure and canonical filtration.
 
-Target lemmas (all scaffolded with sorries, Aristotle closes):
+Target lemmas (all scaffolded with sorries, external prover closes):
 - `gaussianWalk_subGaussianMG`: the iid-Gaussian random walk is a
   `SubGaussianMG σ 𝓕 μ`.
 - `gaussianWalk_crossing_prob_lower`: for a strictly-increasing

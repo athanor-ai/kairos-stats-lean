@@ -8,7 +8,7 @@ Research + regulator-facing formula: "to guarantee coverage within
 δ of stated α under family F, deploy at scale s ≥ log₂(η_F(b) · σ
 / δ), given some fixed b."
 
-Target lemmas (Aristotle closures):
+Target lemmas (external-prover closures):
 - `deploymentScale_bound_HR`: for HR family, the minimal scale s
   is `s ≥ (log₂ b + log b log 2 + log₂(σ/δ))/2`.
 - `deploymentScale_bound_Betting`: for betting, vanishing-rate
@@ -38,7 +38,7 @@ For the Howard-Ramdas (self-normalized) family: given a deployment
 spec, the minimal fractional scale `s` such that the predicted slack
 $\eta_\mathrm{HR}(b) \cdot 2^{-s} \cdot \sigma \leq \delta$ is
 `s ≥ ⌈(1/2) log₂(b · log 2) + log₂(σ / δ)⌉`.  Stated as an inequality
-that Aristotle can close by arithmetic + positivity.
+closeable by arithmetic + positivity.
 -/
 theorem deploymentScale_bound_HR
     (ds : DeploymentSpec) (b : ℕ) (hb : 0 < b) (s : ℕ)

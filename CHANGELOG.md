@@ -23,7 +23,7 @@ Phase B turns the library from a collection of theorems into a toolkit. Users re
 ### Backwards compatibility
 - `Pythia.API` public surface is unchanged.
 - All 29 axiom-clean headline theorems from v0.1.0 stay axiom-clean.
-- Toolchain remains pinned to Lean 4.28.0 + Mathlib v4.28.0 for Aristotle parity.
+- Toolchain remains pinned to Lean 4.28.0 + Mathlib v4.28.0 for Mathlib parity.
 
 [v0.2.0]: https://github.com/athanor-ai/pythia/releases/tag/v0.2.0
 
@@ -39,7 +39,7 @@ First tagged release. Library is `lake build`-able on a fresh clone, documented,
 - `Pythia/VilleMathlibPR.lean`: Mathlib-PR-style draft of `ville_ineq` (`ENNReal.ofReal` form matching Mathlib's `maximal_ineq`). On-disk reference for upstream contribution work.
 
 ### Changed
-- `lakefile.lean`: Mathlib pin moved from `@ "master"` to `@ "v4.28.0"`, matching Aristotle's packaging convention so every `.lean` file we ship can be sanity-checked by Aristotle without toolchain drift.
+- `lakefile.lean`: Mathlib pin moved from `@ "master"` to `@ "v4.28.0"`, locked for toolchain stability across the development cycle.
 - `lake-manifest.json`: pinned to known-good revisions (mathlib `8f9d9cff`, proofwidgets `v0.0.87`).
 - `Pythia.SubGaussianMG.ville_supermartingale` (finite-horizon lemma, used internally by `BettingCS`) renamed to `ville_supermartingale_finite` to free the unqualified name `ville_supermartingale` for the marquee infinite-horizon theorem in `Pythia.VilleSupermartingale`.
 
@@ -48,7 +48,7 @@ First tagged release. Library is `lake build`-able on a fresh clone, documented,
 - `Pythia/GaussianRandomWalk.lean`: added `IsFiniteMeasure` scaffold instance on `gaussianProductMeasure`. The instance is sorry-axiomatic at the scaffold level, consistent with the file's existing definitional sorries; downstream `SubGaussianMG` instantiations now resolve.
 
 ### Marquee theorems (axiom-clean against `{propext, Classical.choice, Quot.sound}`)
-- `ville_supermartingale`: Ville's inequality for non-negative supermartingales, infinite-horizon, finite-measure (Aristotle 95f3b826).
+- `ville_supermartingale`: Ville's inequality for non-negative supermartingales, infinite-horizon, finite-measure.
 - `ville_supermartingale_unit_initial`: unit-initial corollary (`μ {∃ t, f t ω ≥ c} ≤ 1/c` on probability spaces).
 - `c_HR_sharp`, `c_betting_sharp`, `c_aCS_sharp`, `c_vector_sharp`: sharp matching-lower-bound constants for the four canonical CS families.
 - `c_sharp_ranking`, `c_vector_eq_sqrt_two_mul_c_HR`: constant-ranking + algebraic identity.

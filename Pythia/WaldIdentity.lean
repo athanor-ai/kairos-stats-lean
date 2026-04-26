@@ -21,7 +21,7 @@ statements:
 Status (2026-04-25): scaffolded with full statements + closure
 plan in each proof body. Sorries are flagged here and the module is
 **excluded from `Pythia.AxiomAudit`** until closures land. Closure
-path is direct local Mathlib — no Aristotle needed; each theorem fits in
+path is direct local Mathlib — no external prover needed; each theorem fits in
 <30 lean lines once the right `OptionalSampling.*` lemma is identified.
 
 The hypotheses are stated with the abstract martingale/iid properties as
@@ -81,7 +81,7 @@ internally, the m-form is what practitioners reach for, and shipping
 the general theorem with a corollary is the Mathlib-upstream-friendly
 shape.
 
-Closure plan (local, no Aristotle):
+Closure plan (local, local closure):
   1. Show `partialSum X - m·n` is a martingale w.r.t. `𝓕` using the
      iid-mean hypothesis (telescoping conditional expectations).
   2. Apply `Submartingale.expectation_stoppedValue_le_expectation`

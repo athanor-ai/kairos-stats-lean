@@ -25,7 +25,7 @@ The two helper claims:
       √2 factor the matching constant needs.
 
 Status: all sorries. Start with DSPv2 on A2's arithmetic (positivity,
-sqrt manipulation, density evaluation). Aristotle on A1's structural
+sqrt manipulation, density evaluation). External-prover targets on A1 structural
 reduction (it touches the `HasCondSubgaussianMGF` typeclass and needs
 Cauchy-Schwarz on the inner product).
 -/

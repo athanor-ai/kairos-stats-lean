@@ -55,7 +55,7 @@ explicit `export` list.
   * `Pythia.SubGamma`               — has structural sorries; not
                                             yet paper-targeted.
   * `Pythia.NewTargetsStubs`        — scaffolding.
-  * `Pythia.AristotleT0T1T2Bench`   — scaffolding.
+  * `Pythia.BenchTargets`   — scaffolding.
 
 ## Resolved name-collision note
 

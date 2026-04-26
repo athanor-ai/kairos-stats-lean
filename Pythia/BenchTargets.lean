@@ -1,6 +1,6 @@
 /-
-AristotleT0T1T2Bench — Aristotle-testable stubs for the 48-target drafter
-slate. Each `bench_<tid>` restates a target as `sorry` so Aristotle can
+BenchTargets — test-fixture stubs for the 48-target drafter
+slate. Each `bench_<tid>` restates a target as `sorry` so an external prover can
 independently prove it without leaning on the library's existing proof.
 
 Naming: `bench_` prefix to avoid shadowing library theorems.

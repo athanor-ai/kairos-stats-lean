@@ -21,7 +21,7 @@ Mathlib has zero formalization of SPRT. We ship four headline theorems:
 * `SPRT.wald_wolfowitz_optimal` — *the* optimality theorem: SPRT
                                   minimizes E[τ | H_0] and E[τ | H_1]
                                   among all sequential tests with the
-                                  same error rates. Aristotle-class.
+                                  same error rates. structural.
 * `SPRT.expected_sample_size`  — closed-form E[τ | H_i] in terms of KL
                                   divergences D(p_i ‖ p_{1-i}).
 
@@ -30,7 +30,7 @@ Status (2026-04-26):
   wald_approximation — honest-sorry: single-measure signature insufficient;
     needs two-measure extension (μ₀ + μ₁) + Wald 2×2 algebra. Sharpened
     closure plan in docstring.
-  wald_wolfowitz_optimal — honest-sorry: Aristotle-class (Wald-Wolfowitz 1948
+  wald_wolfowitz_optimal — honest-sorry: structural (Wald-Wolfowitz 1948
     §326–339; Lehmann-Romano TSH §3.7). Three Mathlib v4.28 gaps: path-measure
     RN derivative chain for infinite products, minimax sequential test
     characterization, inf-integral interchange. Sharpened in docstring.
@@ -265,7 +265,7 @@ achieves
 
 This is the original Wald-Wolfowitz 1948 optimality theorem.
 
-honest-sorry (2026-04-26): Aristotle-class. The original proof appears in
+honest-sorry (2026-04-26): structural. The original proof appears in
   Wald, A. & Wolfowitz, J. (1948). Optimum character of the sequential
   probability ratio test. *Ann. Math. Statist.* 19(3), 326–339.
 The standard textbook treatment is Lehmann & Romano (2005),
@@ -332,7 +332,7 @@ theorem wald_wolfowitz_optimal
                        ∨ cumLogLR S Y (sprtStop ω) ω ≤ S.B)
     (_hτ_int : Integrable (fun ω => (sprtStop ω : ℝ)) μ) :
     ∫ ω, (sprtStop ω : ℝ) ∂μ ≤ ∫ ω, (σ ω : ℝ) ∂μ := by
-  -- honest-sorry: Aristotle-class, three Mathlib v4.28 gaps (see docstring).
+  -- honest-sorry: structural, three Mathlib v4.28 gaps (see docstring).
   sorry
 
 /-- **Expected sample size** in closed form.

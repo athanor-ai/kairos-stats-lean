@@ -1,5 +1,5 @@
 /-
-Pythia.BenchDefs — definitions needed by AristotleT0T1T2Bench
+Pythia.BenchDefs — definitions needed by BenchTargets
 that are not yet in the main library.
 -/
 

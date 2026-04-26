@@ -145,7 +145,7 @@ export LEAN_REPL=true
 ```
 
 The `repl` package needs to be pinned to the same Lean version as
-pythia (currently 4.28.0 per Aristotle parity).
+pythia (currently 4.28.0 per Mathlib parity).
 
 ## Troubleshooting
 

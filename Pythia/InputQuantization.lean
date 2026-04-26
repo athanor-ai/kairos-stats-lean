@@ -23,7 +23,7 @@ The three helper claims:
       a modified rate reflecting the different operator composition.
 
 Status: all sorries. The structural layer (B1) and the main rate
-statement (B3) are Aristotle targets. The transport lemma (B2) has
+statement (B3) are open targets. The transport lemma (B2) has
 an arithmetic core that tracks the quantizeReal_error lemma in
 Quantization.lean and should be DSPv2-closeable once fully unfolded.
 -/

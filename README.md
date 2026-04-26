@@ -79,6 +79,29 @@ submodule. Mathlib is pulled transitively at the same revision; do not
 bump independently. The toolchain is pinned to Lean 4.28.0 + Mathlib
 v4.28.0.
 
+## Bring-your-own LLM (for the natural-language → proof flow)
+
+Pythia ships a natural-language proof flow (`pythia.simple_prove`) that
+takes a stats theorem stated in English, formalizes it to Lean, dispatches
+to the registered tactic suite, reconstructs the kernel proof, and
+returns a natural-language summary. The autoformalization step calls
+your LLM via your own API key. We never hold a customer LLM key.
+
+Set one of: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` in
+your environment or `.env` file.
+
+**Recommended model: Claude Opus 4.6 or Claude Opus 4.7.** The
+autoformalization step benefits substantially from a strong reasoning
+model; Opus has the highest closure rate on our internal calibration
+set across the natural-language → Lean → tactic-dispatch path. Other
+models work; Opus is the default we recommend for the full pipeline.
+
+Provers (Z3, CVC5, Vampire, E, EBMC, CBMC, Dafny) are open-source and
+run locally. The kernel always has the final word: every external-prover
+verdict is reconstructed into a Lean tactic script that the Lean kernel
+checks against `{propext, Classical.choice, Quot.sound}`. No claim
+escapes the kernel.
+
 ## Hello, pythia
 
 The shortest possible exposure to the `pythia` tactic:
@@ -272,23 +295,14 @@ axiom-audit clean (`#print axioms` reports only `propext`, `Classical.choice`,
 
 ## Acknowledgments
 
-This library would not exist in its current form without
-**[Harmonic](https://harmonic.fun)** and the **Aristotle** automated
-theorem-proving system. Aristotle closed many of the hardest theorems in
-this repository: including the Ville-supermartingale machine-check, the
-T3 Gaussian small-ball lower bound, the T4 wealth-process martingale
-property, the deployment-design trio, the Type-II power-loss bound, the
-Howard-Ramdas CS admissibility, the betting CS admissibility, the
-sub-gamma martingale + Bennett-Bernstein maximal inequality, and the
-PAC-Bayes Radon-Nikodym KL divergence: all axiom-clean against
-`{propext, Classical.choice, Quot.sound}`.
-
-The library is also indebted to the Lean 4 + Mathlib community
-(particularly the `Mathlib.Probability.Moments.SubGaussian` and
-`MeasureTheory.Martingale.OptionalStopping` machinery), and to the
-`anytime-valid inference` research lineage (Howard-Ramdas-McAuliffe-
-Sekhon 2021, Waudby-Smith-Ramdas 2024, Ramdas-Grünwald-Vovk-Shafer 2023,
-Chugg-Wang-Ramdas 2024).
+The library is built on the Lean 4 + Mathlib community, particularly the
+`Mathlib.Probability.Moments.SubGaussian` and
+`MeasureTheory.Martingale.OptionalStopping` machinery. Theorems trace
+to the anytime-valid inference research lineage (Howard-Ramdas-
+McAuliffe-Sekhon 2021, Waudby-Smith-Ramdas 2024, Ramdas-Grünwald-Vovk-
+Shafer 2023, Chugg-Wang-Ramdas 2024) and to the broader concentration
+inequality + matrix probability lines cited inline. All public theorems
+are axiom-clean against `{propext, Classical.choice, Quot.sound}`.
 
 ## License
 

@@ -1,9 +1,9 @@
 /-
 Pythia.NewTargetsStubs — 9 theorem statements (5 T2 + 4 T3)
 for the Formal-AVS 60-target expansion. Research will attempt DSPv2
-closures on these; Aristotle is a fallback for T3.
+closures on these; external prover is a fallback for T3.
 
-All 9 closed locally (Aidan 2026-04-24 directive: close easy stuff without Aristotle).
+All 9 closed locally (Aidan 2026-04-24 directive: close easy stuff without external prover).
 Proofs are short Mathlib tactic chains (Real.sqrt_le_sqrt + nlinarith).
 -/
 

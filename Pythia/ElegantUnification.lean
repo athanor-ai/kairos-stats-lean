@@ -13,7 +13,7 @@ Per Aidan 2026-04-24 "try all 3 directions":
 
 This module states the three theorems; direct proofs are attempted
 via Mathlib + the pythia infrastructure where possible,
-otherwise delegated to Aristotle.
+otherwise deferred.
 -/
 
 import Mathlib

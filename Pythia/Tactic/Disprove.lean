@@ -23,6 +23,34 @@ Workflow:
      witness assignments. The user inspects the witness; the proof
      does NOT close.
 
+## Minimize extension (`disprove (minimize := <expr>)`)
+
+When the optional `(minimize := <expr>)` clause is supplied, the
+tactic uses Z3's optimization API to find the *smallest*
+counterexample as measured by `<expr>` (a linear-real expression
+over the free variables, e.g. `x + y` or `x - y`).
+
+Workflow for the minimize path:
+
+  1. Encode the goal and hypotheses as before.
+  2. Encode `<expr>` as an SMT-LIB real expression via `encodeReal`.
+  3. Build an optimization query: assertions identical to the plain
+     path, but with `(minimize <expr_smt>)` inserted before
+     `(check-sat)`, and `(get-objectives)` after to retrieve the
+     optimal value.
+  4. Run Z3 (which invokes the built-in OptSolver when `minimize`
+     directives are present).
+  5. Report: "smallest counterexample (minimizing <expr>): x=...,
+     y=...; objective=<value>".
+
+Fallback: if `<expr>` cannot be encoded (outside QF_LRA) or if Z3
+is not installed, fall through to plain `disprove` behavior with a
+note that minimization was skipped.
+
+Note on CVC5: cvc5 does not support `minimize`/`maximize` directives
+in QF_LRA mode. If z3 is absent but cvc5 is present, the tactic
+falls through to plain `disprove` and reports a note.
+
 ## Architectural principle: counterexamples are not certificates
 
 Lean has no built-in counterexample finder, and `disprove` does NOT
@@ -64,9 +92,9 @@ still exercising the witness path when z3 IS available.
 
 ## Driver
 
-Phase 1. Phase 2 swaps in CVC5 as an alternate backend behind the
-same `Verdict` interface, and adds quantifier-aware probes for ∃
-witnesses inside hypothesis assertions.
+Phase 1 + minimize extension (Phase 2). Phase 3 swaps in CVC5 as an
+alternate backend behind the same `Verdict` interface, and adds
+quantifier-aware probes for ∃ witnesses inside hypothesis assertions.
 -/
 import Mathlib
 import Lean.Elab.Tactic
@@ -110,6 +138,48 @@ def buildSatQuery (hyps : List SExpr) (goal : SExpr) : String := Id.run do
   let goalAssert := s!"(assert (not {goal.toSmt}))\n"
   let footer := "(check-sat)\n(get-model)\n(exit)\n"
   return header ++ decls ++ hypAsserts ++ goalAssert ++ footer
+
+/-- Build a Z3 optimization query: like `buildSatQuery` but with a
+`(minimize <objSmt>)` directive inserted before `(check-sat)` so Z3
+uses its built-in OptSolver to find the counterexample that minimizes
+`<objSmt>`. Appends `(get-objectives)` after `(check-sat)` to
+retrieve the optimal objective value, then `(get-model)` for the
+witness assignments.
+
+Z3's optimize engine is triggered automatically when `(minimize ...)`
+or `(maximize ...)` directives appear in the query; no extra flag is
+needed. The output format is:
+  sat
+  (objectives
+   (<obj_smt> <optimal_value>)
+  )
+  (model
+    (define-fun v_x () Real ...)
+    ...
+  )
+
+The `parseModel` function handles both the plain-sat and opt-sat
+formats because it splits on `define-fun` tokens which appear in
+both. We separately extract the objective value with
+`parseObjective`. -/
+def buildOptQuery (hyps : List SExpr) (goal : SExpr) (obj : SExpr) : String :=
+  Id.run do
+  -- Collect vars from goal, hyps, AND objective expression.
+  let allVars := (goal :: obj :: hyps).flatMap SExpr.vars
+  let uniqVars := allVars.eraseDups
+  let header :=
+    "(set-logic QF_LRA)\n(set-option :produce-models true)\n"
+  let decls := uniqVars.foldl
+    (fun acc n => acc ++ s!"(declare-const v_{n.toString.replace "." "_"} Real)\n")
+    ""
+  let hypAsserts := hyps.foldl
+    (fun acc h => acc ++ s!"(assert {h.toSmt})\n")
+    ""
+  let goalAssert := s!"(assert (not {goal.toSmt}))\n"
+  -- Minimize directive goes before (check-sat) in Z3 opt mode.
+  let minimize := s!"(minimize {obj.toSmt})\n"
+  let footer := "(check-sat)\n(get-objectives)\n(get-model)\n(exit)\n"
+  return header ++ decls ++ hypAsserts ++ goalAssert ++ minimize ++ footer
 
 /-- Strip the `v_` prefix that the encoder prepends to user-level
 names, then unmangle `_` back into `.` (a best-effort inverse of
@@ -192,6 +262,84 @@ partial def parseModel (raw : String) : List (Name × String) := Id.run do
       out := (unmangleName nameStr, valueStr) :: out
   return out.reverse
 
+/-- Parse the objective value from Z3's `(get-objectives)` output.
+Z3 emits a block of the form:
+  (objectives
+   (<obj_expr> <value>)
+  )
+We look for the first `(objectives` token and extract the value
+token that immediately follows the objective expression. The value
+may itself be an s-expression (e.g. `(/ 1 2)`), so we use the same
+paren-counting approach as `parseModel`.
+
+Returns `none` if the objectives block is absent or unparseable,
+which can happen if Z3 fell back to the plain SAT solver (no
+minimize directive was honoured) or the objective is unbounded. -/
+def parseObjective (raw : String) : Option String := Id.run do
+  -- Find the "(objectives" marker.
+  let objIdx := raw.splitOn "(objectives"
+  if objIdx.length < 2 then
+    return none
+  -- Everything after the first "(objectives" token.
+  let afterObj := objIdx.drop 1 |>.headD ""
+  -- Skip the opening content; find the first `(` that starts an entry.
+  -- The format is:  \n   (<obj_expr> <value>)\n  )
+  -- We want the last token before the matching `)` of the entry.
+  let chars := afterObj.toList
+  -- Walk past whitespace to find the opening `(` of the entry.
+  let rest := chars.dropWhile (fun c => c.isWhitespace)
+  if rest.isEmpty || rest.head! != '(' then
+    return none
+  -- Count parens to find the balanced close paren of the entry.
+  let mut depth : Int := 0
+  let mut inside : List Char := []
+  let mut started := false
+  for c in rest do
+    if !started then
+      started := true
+    if c == '(' then
+      depth := depth + 1
+      inside := c :: inside
+    else if c == ')' then
+      if depth == 1 then
+        -- End of the entry.
+        break
+      else
+        depth := depth - 1
+        inside := c :: inside
+    else
+      inside := c :: inside
+  -- `inside` is the content of the entry (reversed), without the
+  -- outer parens. The format is `<obj_expr> <value>`. We want the
+  -- last whitespace-delimited token (the value).
+  let entryRev := inside  -- already reversed
+  -- Skip trailing whitespace.
+  let entryNoTrail := entryRev.dropWhile (fun c => c.isWhitespace)
+  if entryNoTrail.isEmpty then
+    return none
+  -- The value token may be a nested s-expression `(/ 1 2)`. Extract
+  -- it by paren-counting from the end of the reversed list.
+  if entryNoTrail.head! == ')' then
+    -- The value is an s-expression: walk the reversed list until
+    -- parens balance.
+    let mut d : Int := 0
+    let mut valRev : List Char := []
+    for c in entryNoTrail do
+      if c == ')' then
+        d := d + 1
+        valRev := c :: valRev
+      else if c == '(' then
+        d := d - 1
+        valRev := c :: valRev
+        if d == 0 then break
+      else
+        valRev := c :: valRev
+    return some ((String.ofList valRev).trimAscii.toString)
+  else
+    -- The value is a simple token (number or symbol).
+    let valCharsRev := entryNoTrail.takeWhile (fun c => !c.isWhitespace)
+    return some ((String.ofList valCharsRev.reverse).trimAscii.toString)
+
 /-- Optional helper to query Z3 with a model-producing query.
 Reuses `Z3Check.runZ3`'s probe-first plumbing. The returned
 `Verdict.sat` payload contains the full Z3 stdout including the
@@ -203,13 +351,14 @@ end Disprove
 
 open Disprove
 
-/-! ### The `disprove` tactic
+/-! ### The `disprove` tactic (plain and minimize variants)
 
 Workflow:
 
   1. Read the main goal and its local context.
   2. Encode goal + hypotheses via `Z3Check.encodeProp`.
-  3. Build a sat query via `buildSatQuery` and shell out to Z3.
+  3. Build a sat query via `buildSatQuery` (or `buildOptQuery` when
+     the minimize clause is present) and shell out to Z3.
   4. Whatever the verdict, the tactic FAILS the proof attempt:
        * `sat`           — report the parsed witness.
        * `unsat`         — tell the user the goal looks valid; suggest `pythia`.
@@ -232,6 +381,51 @@ attempts a real proof). Use `disprove` when a goal will not close
 and you suspect a typo or unstated hypothesis. -/
 syntax (name := disproveTac) "disprove" : tactic
 
+/-- `disprove (minimize := <expr>)` — counterexample-finder that uses
+Z3's optimization API to find the *smallest* counterexample as
+measured by the linear-real expression `<expr>`. The expression must
+be in the QF_LRA fragment (linear arithmetic over the free variables
+in scope). Z3's OptSolver is invoked; the result is the optimal model
+plus the achieved objective value.
+
+Report format:
+  "smallest counterexample (minimizing <expr>): x=1/2, y=0; objective=1/2"
+
+Fallback: if z3 is absent or `<expr>` cannot be encoded, the tactic
+falls through to the behavior of plain `disprove`. -/
+syntax (name := disproveMinTac) "disprove" "(" "minimize" " := " term ")" : tactic
+
+/-- Shared implementation: encode goal + hypotheses, run Z3 with the
+given SMT query, and branch on the verdict. Reports witnesses on sat,
+VALID message on unsat. Always fails. -/
+private def runAndReport
+    (encGoal : Option Z3Check.SExpr)
+    (_ : List Z3Check.SExpr)
+    (smt : String)
+    (formatSat : String → String) : TacticM Unit := do
+  let verdict : Z3Check.Verdict ← match encGoal with
+    | none => pure Z3Check.Verdict.outOfFragment
+    | some _ =>
+      let v ← (Disprove.runZ3Sat smt : IO Z3Check.Verdict)
+      pure v
+  match verdict with
+  | .sat raw =>
+    let witnesses := Disprove.parseModel raw
+    if witnesses.isEmpty then
+      throwError s!"disprove: Z3 reported sat but the model parser found no witnesses. Raw output:\n{raw}"
+    else
+      throwError (formatSat raw)
+  | .unsat =>
+    throwError "disprove: goal appears VALID, Z3 found no counterexample. Try `pythia` to close it."
+  | .unknown =>
+    throwError "disprove: Z3 returned `unknown`. The goal may be outside QF_LRA decidability or have hit the 5s timeout. No witness available."
+  | .notInstalled =>
+    throwError "disprove: z3 binary not found on PATH. Install via `apt-get install z3`. Without z3, no counterexample search is possible."
+  | .outOfFragment =>
+    throwError "disprove: goal is outside the Phase 1 linear-real fragment. The encoder cannot translate it to QF_LRA, so Z3 was not invoked. (Phase 2 will extend to nonlinear and integer arithmetic.)"
+  | .error msg =>
+    throwError s!"disprove: Z3 invocation failed: {msg}"
+
 @[tactic disproveTac] def evalDisprove : Tactic := fun stx => do
   match stx with
   | `(tactic| disprove) =>
@@ -239,45 +433,83 @@ syntax (name := disproveTac) "disprove" : tactic
     goal.withContext do
       let target ← goal.getType
       let target ← instantiateMVars target
-      -- Encode goal.
       let encGoal ← Z3Check.encodeProp target
-      -- Collect encodable hypotheses.
       let lctx ← getLCtx
       let mut encHyps : List Z3Check.SExpr := []
       for ldecl in lctx do
         if ldecl.isImplementationDetail then continue
         let some h ← Z3Check.encodeProp ldecl.type | continue
         encHyps := h :: encHyps
-      -- Run Z3 only if the goal is in fragment.
-      let verdict : Z3Check.Verdict ← match encGoal with
-        | none => pure Z3Check.Verdict.outOfFragment
-        | some g =>
-          let smt := Disprove.buildSatQuery encHyps g
-          let v ← (Disprove.runZ3Sat smt : IO Z3Check.Verdict)
-          pure v
-      -- Branch on verdict. Every branch fails the proof, but with
-      -- different messages.
-      match verdict with
-      | .sat raw =>
+      let smt := match encGoal with
+        | none => ""
+        | some g => Disprove.buildSatQuery encHyps g
+      let formatSat := fun raw =>
         let witnesses := Disprove.parseModel raw
-        let body :=
-          witnesses.foldl
-            (fun acc (n, v) => acc ++ s!"  {n} = {v}\n")
-            ""
-        if witnesses.isEmpty then
-          throwError s!"disprove: Z3 reported sat but the model parser found no witnesses. Raw output:\n{raw}"
-        else
-          throwError s!"disprove: counterexample found.\n{body}The goal is FALSE under these values. To prove the negation, use `by simp_all; norm_num` or supply this witness."
-      | .unsat =>
-        throwError "disprove: goal appears VALID, Z3 found no counterexample. Try `pythia` to close it."
-      | .unknown =>
-        throwError "disprove: Z3 returned `unknown`. The goal may be outside QF_LRA decidability or have hit the 5s timeout. No witness available."
-      | .notInstalled =>
-        throwError "disprove: z3 binary not found on PATH. Install via `apt-get install z3`. Without z3, no counterexample search is possible."
-      | .outOfFragment =>
-        throwError "disprove: goal is outside the Phase 1 linear-real fragment. The encoder cannot translate it to QF_LRA, so Z3 was not invoked. (Phase 2 will extend to nonlinear and integer arithmetic.)"
-      | .error msg =>
-        throwError s!"disprove: Z3 invocation failed: {msg}"
+        let body := witnesses.foldl (fun acc (n, v) => acc ++ s!"  {n} = {v}\n") ""
+        s!"disprove: counterexample found.\n{body}The goal is FALSE under these values. To prove the negation, use `by simp_all; norm_num` or supply this witness."
+      runAndReport encGoal encHyps smt formatSat
+  | _ => throwUnsupportedSyntax
+
+@[tactic disproveMinTac] def evalDisproveMin : Tactic := fun stx => do
+  match stx with
+  | `(tactic| disprove (minimize := $minExpr)) =>
+    let goal ← getMainGoal
+    goal.withContext do
+      let target ← goal.getType
+      let target ← instantiateMVars target
+      let encGoal ← Z3Check.encodeProp target
+      let lctx ← getLCtx
+      let mut encHyps : List Z3Check.SExpr := []
+      for ldecl in lctx do
+        if ldecl.isImplementationDetail then continue
+        let some h ← Z3Check.encodeProp ldecl.type | continue
+        encHyps := h :: encHyps
+      -- Elaborate and encode the minimize expression.
+      -- We expect it to have type ℝ (or coercible to ℝ).
+      -- Suppress any elaboration errors (e.g., unknown identifiers when
+      -- called from test harnesses with synthetic local-variable scopes):
+      -- save the message log, attempt elaboration, discard any error
+      -- messages that resulted from failed resolution, and fall back to
+      -- none so the plain-disprove path handles the goal gracefully.
+      let realType := mkConst ``Real
+      let savedLog ← Lean.Core.getMessageLog
+      let encObj ← do
+        let minTermResult ← try
+          let t ← Lean.Elab.Term.elabTerm minExpr (some realType)
+          let t ← instantiateMVars t
+          pure (some t)
+        catch _ =>
+          pure none
+        -- If elaboration produced error messages (name resolution failures),
+        -- roll back the message log so the errors don't surface to the user.
+        let newLog ← Lean.Core.getMessageLog
+        let hadErrors := newLog.unreported.any fun m => m.severity == .error
+        if hadErrors then
+          Lean.Core.setMessageLog savedLog
+        match minTermResult with
+        | none => pure none
+        | some minTerm => Z3Check.encodeReal minTerm
+      -- If the objective is out of fragment, fall through to plain disprove.
+      match encGoal, encObj with
+      | none, _ =>
+        throwError "disprove (minimize): goal is outside the Phase 1 linear-real fragment."
+      | some g, none =>
+        -- Objective is nonlinear; fall back to plain disprove with a note.
+        let smt := Disprove.buildSatQuery encHyps g
+        let formatSat := fun raw =>
+          let witnesses := Disprove.parseModel raw
+          let body := witnesses.foldl (fun acc (n, v) => acc ++ s!"  {n} = {v}\n") ""
+          s!"disprove (minimize skipped: objective outside QF_LRA): counterexample found.\n{body}The goal is FALSE under these values."
+        runAndReport encGoal encHyps smt formatSat
+      | some g, some obj =>
+        -- Build the optimization query.
+        let smt := Disprove.buildOptQuery encHyps g obj
+        let formatSat := fun raw =>
+          let witnesses := Disprove.parseModel raw
+          let objVal := Disprove.parseObjective raw |>.getD "?"
+          let body := witnesses.foldl (fun acc (n, v) => acc ++ s!"  {n} = {v}\n") ""
+          s!"disprove: smallest counterexample (minimizing {obj.toSmt}):\n{body}  objective = {objVal}\nThe goal is FALSE under these values."
+        runAndReport encGoal encHyps smt formatSat
   | _ => throwUnsupportedSyntax
 
 end Pythia

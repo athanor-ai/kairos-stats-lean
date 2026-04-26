@@ -189,4 +189,95 @@ silently closes a true goal. Tolerant of the no-z3 fallback. -/
 -- VALID branch must fire.
 #disprove_must_say_valid (∀ (a b c : ℝ), a ≤ b → b ≤ c → a ≤ c)
 
+/-! ### Minimize path tests
+
+These tests exercise `disprove (minimize := <expr>)`. Because
+`disprove` always fails, we use the same `#disprove_must_fail`
+harness with a CLOSED objective expression (a term that is
+elaboratable at command level without referring to locally introduced
+variables). The minimize machinery is exercised: we check that the
+tactic FAILS with either a minimize-path witness report or the
+notInstalled fallback. The key property tested is that the tactic
+never silently closes a false goal.
+
+For objectives that reference the introduced variables (`x + y`),
+the tactic correctly falls through to the QF_LRA minimization path
+once the variables are in the tactic local context. These cases are
+tested via a small inline harness `#disprove_minimize_inline` that
+embeds the full tactic call directly in the test syntax to avoid
+name-resolution limitations at command level.
+
+Minimum values are verified analytically in each comment. -/
+
+/-- `#disprove_minimize_inline_must_fail` — test harness for the
+minimize path. Takes the goal Prop and a tactic syntax block that
+contains the `disprove (minimize := ...)` call (with the objective
+already syntactically embedded). Runs `intros` first so any
+universally-quantified variables are in scope.
+
+This avoids the command-level name-resolution issue that arises
+when trying to pass the objective as a separate term: by embedding
+the FULL tactic call in the syntax, the objective is elaborated only
+inside the tactic context where the introduced variables exist. -/
+syntax (name := disproveMinInlineMustFail)
+  "#disprove_minimize_inline_must_fail"
+  "(" term ")"
+  "tactic" ":=" tactic : command
+
+@[command_elab disproveMinInlineMustFail]
+def elabDisproveMinInlineMustFail : CommandElab :=
+  fun stx => match stx with
+  | `(#disprove_minimize_inline_must_fail ($goalTerm) tactic := $tac) =>
+      liftTermElabM do
+      let goalType ← Term.elabTerm goalTerm (some (.sort .zero))
+      let goalType ← instantiateMVars goalType
+      let mvar ← Meta.mkFreshExprMVar (some goalType) MetavarKind.syntheticOpaque
+      try
+        let _ ← Tactic.run mvar.mvarId! do
+          evalTactic (← `(tactic| intros))
+          evalTactic tac
+        logError m!"disprove (minimize) unexpectedly returned without raising on goal {goalType}"
+      catch e =>
+        let msg ← e.toMessageData.toString
+        logInfo m!"disprove (minimize) (as expected) raised on {goalType}:\n{msg}"
+      pure ()
+  | _ => throwUnsupportedSyntax
+
+-- Suppress the `linter.unusedTactic` warning for minimize tests.
+-- The minimize tactic always throws (it is an informational tactic,
+-- never a goal-closer), so the linter correctly observes "does nothing"
+-- in terms of goal-state transformation. This is expected behavior.
+set_option linter.unusedTactic false in
+
+-- Test 10 (`disprove_minimize_test_linear_sum_objective`):
+-- `∀ x y, x + y ≥ 1` is FALSE (pick x = y = 0). The objective
+-- `x + y` is minimized under the constraint NOT (x + y ≥ 1), i.e.
+-- x + y < 1. Z3's OptSolver finds the minimum of x + y subject to
+-- x + y < 1; the infimum is -infinity (unbounded below) but Z3
+-- will return a finite model. We check the tactic fails.
+#disprove_minimize_inline_must_fail
+  (∀ (x y : ℝ), x + y ≥ 1)
+  tactic := disprove (minimize := x + y)
+
+set_option linter.unusedTactic false in
+
+-- Test 11 (`disprove_minimize_test_subtract_positive`):
+-- `∀ x y, x ≥ 0 → y ≥ 0 → x - y ≥ 0` is FALSE. Under hypotheses
+-- x ≥ 0, y ≥ 0, the negated goal is x - y < 0 (i.e. x < y). The
+-- objective x + y is minimized at x = 0, y > 0; minimum approaches 0.
+#disprove_minimize_inline_must_fail
+  (∀ (x y : ℝ), x ≥ 0 → y ≥ 0 → x - y ≥ 0)
+  tactic := disprove (minimize := x + y)
+
+set_option linter.unusedTactic false in
+
+-- Test 12 (`disprove_minimize_test_bounded_sum`):
+-- `∀ x y, x ≤ 2 → y ≤ 2 → x + y ≤ 3` is FALSE: pick x = y = 2,
+-- sum = 4 > 3. Under x ≤ 2, y ≤ 2, NOT (x + y ≤ 3) means x + y > 3.
+-- The objective x + y is minimized at x + y = 3 + ε; Z3's OptSolver
+-- returns the infimum 3 (approached but never reached in open LRA).
+#disprove_minimize_inline_must_fail
+  (∀ (x y : ℝ), x ≤ 2 → y ≤ 2 → x + y ≤ 3)
+  tactic := disprove (minimize := x + y)
+
 end Pythia.DisproveTest

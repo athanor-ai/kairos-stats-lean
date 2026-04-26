@@ -30,10 +30,11 @@ closes in one line.
 
 ## What it does
 
-- Six tactics (`pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
-  `z3_check`, `cvc5_check`) covering general stats hammering,
-  inequality closure, probability normalization, anytime-valid Ville
-  bounds, and SMT-oracle dispatch (QF_LRA via Z3, QF_BV via CVC5).
+- Ten tactics covering general stats hammering, inequality closure,
+  probability normalization, anytime-valid Ville bounds, SMT-oracle
+  dispatch (QF_LRA via Z3, QF_BV via CVC5), first-order-logic
+  closure (Vampire, E), counterexample finding (`disprove`), and a
+  rung-naming verbose orchestrator (`pythia?`).
 - A registry layer: tag your own theorem with `@[stat_lemma]` /
   `@[stats_ineq]` / `@[prob_simp]` and the hammers pick it up at
   elaboration time. The same shape as `@[simp]`, `@[gcongr]`,
@@ -126,7 +127,7 @@ and [`examples/`](examples/) for copy-paste-ready files.
 
 ## Tactics
 
-Eight registered tactics ship in the public surface:
+Ten registered tactics ship in the public surface:
 
 | Tactic | Closes |
 |--------|--------|
@@ -139,6 +140,7 @@ Eight registered tactics ship in the public surface:
 | `anytime_valid` | Ville-bound goals on non-negative supermartingales |
 | `z3_check` | linear-real-arithmetic goals via Z3 oracle + Lean `linarith` reconstruction |
 | `cvc5_check` | bit-vector goals via CVC5 oracle + Lean `bv_decide` reconstruction; QF_LRA backup via `linarith` |
+| `disprove` | counterexample finder. Asks Z3 for a model of the goal's negation; on `sat`, fails the proof attempt with a concrete witness. Lean has no built-in counterexample finder. |
 
 ## Where to look
 

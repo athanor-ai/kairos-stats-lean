@@ -77,6 +77,7 @@ helper) can close their Bernstein goal with `pythia`.
 import Mathlib
 import Pythia.Basic
 import Pythia.SubGamma
+import Pythia.MGFBoundedSubGamma
 import Pythia.Tactic.Pythia
 
 namespace Pythia
@@ -171,7 +172,17 @@ theorem bernstein_iid
     (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
     μ {ω | (Finset.range n).sum (fun i => X i ω) ≥ eps} ≤
       ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (n * sigma_sq + b * eps / 3)))) := by
-  -- needs: bounded-implies-subGamma MGF embedding (Mathlib v4.28 gap)
+  -- Closure plan (blocking on Pythia.MGFBoundedSubGamma):
+  --   1. Build SubGammaMG (n * sigma_sq / n) (b / 3) 𝓕 μ from the iid hypotheses,
+  --      using mgf_le_subGamma_of_bounded (in Pythia.MGFBoundedSubGamma) for the
+  --      increment MGF bound. Requires StandardBorelSpace Ω (add to hypotheses).
+  --   2. The partial-sum process S_t = Σ_{i<t} X_i is adapted to 𝓕_t = σ(X_0,...,X_{t-1}).
+  --   3. Apply bernstein_of_subGamma with V := n * sigma_sq, hN := hn, τ := eps.
+  --   4. The rate exponent matches: exp(-eps²/(2*(n*sigma_sq + b*eps/3)))
+  --      = exp(-eps²/(2*(V + b*eps/3))) with V = n*sigma_sq.
+  --   5. Structural detail: need iIndepFun hypothesis (stronger than h_iid) to construct
+  --      the filtration and independence correctly. Current h_iid uses pairwise IndepFun.
+  -- Unblocked once exp_le_bernstein_abs closes in MGFBoundedSubGamma.lean (§1).
   sorry
 
 /-- **Bennett's inequality**: refined Bernstein with explicit
@@ -216,7 +227,16 @@ theorem bernstein_martingale
     (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
     μ {ω | M n ω ≥ eps} ≤
       ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
-  -- needs: bounded-conditional-increments-implies-subGamma MGF embedding
+  -- Closure plan (structural work beyond MGFBoundedSubGamma):
+  --   1. Derive conditional MGF bound from h_bounded_increments and h_predictable_var:
+  --      E[exp(lam * (M_{t+1} - M_t)) | 𝓕_t] ≤ exp(V_n/(t+1) * lam² / (2*(1-b*lam/3))) a.s.
+  --      This uses mgf_le_subGamma_of_bounded applied conditionally (conditional Jensen).
+  --   2. Construct SubGammaMG (V_n/n) (b/3) 𝓕 μ from M.
+  --   3. Apply bernstein_of_subGamma to get the MAXIMAL inequality form,
+  --      then extract the fixed-time bound P(M_n ≥ eps) by set monotonicity
+  --      ({M_n ≥ eps} ⊆ {∃ t ≤ n, M_t ≥ eps}).
+  -- Blocking: (a) conditional MGF application requires conditional Jensen in Mathlib,
+  -- (b) non-iid martingale increments need a different independence argument.
   sorry
 
 /-- **Freedman's inequality**: the maximal-inequality form of
@@ -237,7 +257,18 @@ theorem freedman
     (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
     μ {ω | ∃ t : ℕ, t ≤ n ∧ M t ω ≥ eps} ≤
       ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
-  -- needs: bounded-conditional-increments-implies-subGamma MGF embedding
+  -- Closure plan (requires SubGammaMG instance from bounded martingale increments):
+  --   1. From h_bounded_increments, apply mgf_le_subGamma_of_bounded conditionally
+  --      to each increment (M_{t+1} - M_t) given 𝓕_t, using the a.s. bound on
+  --      E[(M_{t+1}-M_t)²|𝓕_t] ≤ V_n (from h_mart + h_bounded_increments via
+  --      conditional Jensen on the bounded increment: E[ΔM²|𝓕_t] ≤ b²).
+  --      The predictable variance h_predictable_var gives exact control of
+  --      the conditional second moment, enabling the tighter Bernstein rate.
+  --   2. Construct M' : SubGammaMG (V_n / n) (b / 3) 𝓕 μ from M and h_mart.
+  --   3. Apply bernstein_of_subGamma hN M' hM0 heps directly to conclude.
+  --   Note: M.process 0 = 0 a.s. is a standard assumption; needs to be added
+  --   to the hypotheses or derived from h_mart + martingale initialization.
+  -- Blocking: conditional MGF bound step (same as bernstein_martingale above).
   sorry
 
 end Pythia

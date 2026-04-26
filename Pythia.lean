@@ -29,6 +29,7 @@ import Pythia.SubGaussianMG
 import Pythia.VectorSharpness
 import Pythia.VilleSupermartingale
 -- Phase C scaffolds (sorries — see module docstrings for status).
+import Pythia.MGFBoundedSubGamma
 import Pythia.Bernstein
 import Pythia.BernsteinTest
 import Pythia.PACBayesCS

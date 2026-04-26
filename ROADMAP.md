@@ -53,7 +53,7 @@ ratio (utility per closure effort).
 - [x] **Wald's SPRT** scaffold landed (ATH-604, PR #11). 4 statements: error_rates, wald_approximation, wald_wolfowitz_optimal (Aristotle-class), expected_sample_size.
 - [x] **Wald's identity** scaffold landed (ATH-605, PR #11). 4 statements: m-parameterized + centered corollary closed locally + squared + exp form.
 - [ ] **Sequential change detection** (CUSUM, Shewhart, Page's test).
-- [ ] **E-detector framework** (Shin-Ramdas-Rinaldo 2024) — ATH-606 ticket filed.
+- [~] **E-detector framework** (Shin-Ramdas-Rinaldo 2024) — scaffold landed at Kairos/Stats/EDetector.lean (5 statements, sorries flagged with closure plans). ATH-606.
 
 ### Tier 3 — empirical processes (Mathlib has fragments)
 - [ ] **Glivenko-Cantelli theorem** in full generality (Mathlib has only narrow forms).

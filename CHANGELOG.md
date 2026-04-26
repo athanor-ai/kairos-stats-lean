@@ -2,6 +2,28 @@
 
 All notable changes to `pythia` are documented here. The format is loosely [Keep a Changelog](https://keepachangelog.com/), and this project follows [Semantic Versioning](https://semver.org/): `Pythia.API` is the stable public surface, internal modules may churn within a major version.
 
+## Unreleased: Phase 0+5 Sledgehammer
+
+### Added
+- *Phase-0 dispatcher.* `pythia` is now a shape-dispatching orchestrator instead of a thin aesop wrapper: the tactic routes by goal shape to `anytime_valid` (Ville bounds), `stats_ineq` (concentration), `prob_simp` (measure rewriting), `z3_check` (QF_LRA), `vampire_check` and `e_check` (FOL), then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain. Each branch is gated by `done` so partial-closure inner tactics cannot capture the cascade.
+- `pythia?`: verbose variant that prints which rung closed the goal. Lean convention `apply?` / `rw?` / `simp?` / `aesop?`.
+- *Vampire + E FOL adapters.* `Pythia.Tactic.{TPTPEncode, VampireCheck, ECheck}` plus the matching test files. Vampire is the primary FOL backend; E is the backup. Both reconstruct via aesop with hypotheses promoted; the kernel never trusts the prover's verdict.
+- `Pythia.Tactic.TightTail` (the tail-bound calculator). `TightTail.report (σ := …) (b := …) (n := …) (ε := …)` evaluates Hoeffding, Bernstein, sub-Gaussian, sub-gamma, Markov, Chebyshev numerically and prints them sorted, with the sharpest labeled. This is the kind of question Lean+Mathlib's standard automation does not answer: tactics close proofs of bounds; this picks the bound.
+- `Pythia/Bench/MiniPythia.lean`: 30-theorem benchmark suite covering the six dispatch rungs. `#bench_summary` prints the section breakdown.
+- `examples/04_pythia_full_dispatch.lean` and `examples/05_tight_tail_calculator.lean`.
+- `docs/sledgehammer_dispatch.md`: the routing table for every OSS oracle.
+- `docs/reflective_oracles.md`: design constraint for EBMC / CBMC / Dafny adapters (kernel-clean reconstruction via Lean shadow + reflective decision procedure).
+- `docs/concentration_cookbook.md`: quick reference mapping stats goal shapes to the right pythia tactic + the inequality the tactic actually invokes.
+- README BYO-LLM section recording the bring-your-own-LLM scope. Customer's LLM key, our SDK; pythia (this repo) is the Lean library only. Recommended model: Claude Opus 4.6 or Claude Opus 4.7 for the natural-language to Lean to tactic-dispatch path.
+
+### Removed
+- `python/` sidecar directory: stale dist artifacts from an early pip-package experiment. Pythia ships as a Lean-only library following aesop's Lake-only model.
+
+### Backwards compatibility
+- `Pythia.API` public surface is unchanged.
+- All existing tests pass against the upgraded `pythia` cascade.
+- Toolchain remains pinned to Lean 4.28.0 + Mathlib v4.28.0.
+
 ## v0.2.0: Phase B: aesop-grade tactic + DSL
 
 Phase B turns the library from a collection of theorems into a toolkit. Users register a new CS family with one attribute and close the marquee Ville bound with one tactic invocation.

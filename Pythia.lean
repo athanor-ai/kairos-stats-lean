@@ -57,6 +57,12 @@ import Pythia.Tactic.ProbSimpTest
 -- Cross-prover hammer Phase 1 — z3_check.
 import Pythia.Tactic.Z3Check
 import Pythia.Tactic.Z3CheckTest
+-- Cross-prover hammer Phase 5 — vampire_check / e_check (FOL oracles).
+import Pythia.Tactic.TPTPEncode
+import Pythia.Tactic.VampireCheck
+import Pythia.Tactic.VampireCheckTest
+import Pythia.Tactic.ECheck
+import Pythia.Tactic.ECheckTest
 -- Information theory (Bretagnolle-Huber binary form).
 import Pythia.InfoTheory.BretagnolleHuberBinary
 -- Measure theory infra (own-implement Mathlib gap).

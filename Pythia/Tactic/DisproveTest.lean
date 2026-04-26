@@ -79,6 +79,52 @@ syntax (name := disproveMustFail)
       pure ()
   | _ => throwUnsupportedSyntax
 
+/-- `#disprove_must_say_valid`: like `#disprove_must_fail`, but
+additionally asserts the error message contains `VALID` or `no
+counterexample`, the markers for the unsat-verdict path. We tolerate
+the `notInstalled` fallback (`z3 binary not found on PATH`) so the
+test still passes on machines without z3, where the tactic raises
+for a different reason but we still don't want a soundness regression
+where disprove silently SUCCEEDS on a true goal. The point of this
+command is to lock in the "true goals get reported as VALID" contract
+when z3 IS available.
+
+If neither marker appears AND the message also does not mention
+`not found on PATH`, the test fails loudly: disprove either raised
+the wrong error or (worse) closed a true goal. -/
+syntax (name := disproveMustSayValid)
+  "#disprove_must_say_valid" "(" term ")" : command
+
+@[command_elab disproveMustSayValid] def elabDisproveMustSayValid :
+    CommandElab := fun stx => match stx with
+  | `(#disprove_must_say_valid ($t)) => liftTermElabM do
+      let goalType ← Term.elabTerm t (some (.sort .zero))
+      let goalType ← instantiateMVars goalType
+      let mvar ← Meta.mkFreshExprMVar (some goalType) MetavarKind.syntheticOpaque
+      try
+        let _ ← Tactic.run mvar.mvarId! do
+          evalTactic (← `(tactic| intros))
+          evalTactic (← `(tactic| disprove))
+        -- This is the soundness regression: disprove RETURNED on a
+        -- TRUE goal. It must always fail.
+        logError m!"disprove unexpectedly closed a TRUE goal: {goalType}"
+      catch e =>
+        let msg ← e.toMessageData.toString
+        let hasValid : Bool := (msg.splitOn "VALID").length > 1
+        let hasNoCex : Bool := (msg.splitOn "no counterexample").length > 1
+        let hasNotInstalled : Bool :=
+          (msg.splitOn "not found on PATH").length > 1
+        if hasValid || hasNoCex then
+          logInfo m!"disprove (as expected) reported VALID on TRUE goal {goalType}:\n{msg}"
+        else if hasNotInstalled then
+          -- Acceptable on machines without z3; the soundness contract
+          -- (no kernel close) is still honoured.
+          logInfo m!"disprove fell through to notInstalled on {goalType}:\n{msg}"
+        else
+          logError m!"disprove raised an unexpected error on TRUE goal {goalType}: message contains neither `VALID`, `no counterexample`, nor `not found on PATH`. Got:\n{msg}"
+      pure ()
+  | _ => throwUnsupportedSyntax
+
 /-! ### Test cases
 
 Each goal is FALSE under stated hypotheses. `disprove` must fail
@@ -103,5 +149,44 @@ failure occurred. -/
 -- positivity is not transitive across subtraction. `x ≥ 0 ∧ y ≥ 0`
 -- does NOT entail `x - y ≥ 0`. Counterexample: x = 0, y = 1.
 #disprove_must_fail (∀ (x y : ℝ), x ≥ 0 → y ≥ 0 → x - y ≥ 0)
+
+-- Test 5 (`disprove_test_pseudo_squared_lower_bound`): the
+-- statement `∀ x y, x * x ≥ y` looks tautological at first
+-- glance (squares are nonneg) but is FALSE: pick `x = 0, y = 1`.
+-- This is the classic "tautological-looking-but-false" trap.
+-- The encoder linearises `x * x` with a fresh placeholder; the
+-- LRA assignment finds a witness against the bare `x_sq ≥ y`
+-- inequality even though the algebraic relation is dropped.
+#disprove_must_fail (∀ (x y : ℝ), x * x ≥ y)
+
+-- Test 6 (`disprove_test_boolean_predicate_over_reals`):
+-- a Boolean predicate that LOOKS true but isn't. The claim "any
+-- two reals satisfying `x < y` also satisfy `2 * x < y`" is a
+-- false strengthening: counterexample `x = 0.1, y = 0.2`.
+#disprove_must_fail (∀ (x y : ℝ), x < y → 2 * x < y)
+
+-- Test 7 (`disprove_test_universally_quantified_falsehood`):
+-- a flatly false universally-quantified arithmetic claim. There
+-- are no hypotheses to relax: `∀ x, x ≥ 1` is false at any
+-- `x < 1`.
+#disprove_must_fail (∀ (x : ℝ), x ≥ 1)
+
+/-! ### TRUE-statement regression tests
+
+These cases assert that `disprove` on a TRUE goal reports the
+goal-appears-VALID message instead of producing a witness. The
+companion `#disprove_must_say_valid` command checks the error
+message contents to detect a soundness regression where disprove
+silently closes a true goal. Tolerant of the no-z3 fallback. -/
+
+-- Test 8 (`disprove_test_true_reflexivity`): `∀ x, x ≤ x` is the
+-- canonical TRUE statement under QF_LRA. z3 returns unsat;
+-- disprove must raise with VALID / no-counterexample wording.
+#disprove_must_say_valid (∀ (x : ℝ), x ≤ x)
+
+-- Test 9 (`disprove_test_true_transitivity`): a textbook TRUE
+-- statement: ≤-transitivity. z3 returns unsat under disprove; the
+-- VALID branch must fire.
+#disprove_must_say_valid (∀ (a b c : ℝ), a ≤ b → b ≤ c → a ≤ c)
 
 end Pythia.DisproveTest

@@ -57,6 +57,9 @@ import Pythia.Tactic.ProbSimpTest
 -- Cross-prover hammer Phase 1 — z3_check.
 import Pythia.Tactic.Z3Check
 import Pythia.Tactic.Z3CheckTest
+-- Cross-prover hammer Phase 2 — cvc5_check (QF_BV primary, QF_LRA backup).
+import Pythia.Tactic.CVC5Check
+import Pythia.Tactic.CVC5CheckTest
 -- Cross-prover hammer Phase 5 — vampire_check / e_check (FOL oracles).
 import Pythia.Tactic.TPTPEncode
 import Pythia.Tactic.VampireCheck

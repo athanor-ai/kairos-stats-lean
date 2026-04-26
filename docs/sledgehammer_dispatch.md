@@ -63,7 +63,7 @@ elaborated `Expr` of the goal and the local context, in order:
    `MeasureTheory.lintegral`. Routed to `prob_simp`.
 4. **Pure linear real arithmetic**: every leaf is `ℝ`, every operator
    is `+`, `-`, `*` (with at least one literal factor), `≤ < = ≥ >`.
-   Routed to `z3_check`. (CVC5 backup once `cvc5_check` lands.)
+   Routed to `z3_check`, with `cvc5_check` as the backup.
 5. **Pure linear integer / natural arithmetic**: every leaf is `ℤ` or
    `ℕ`. Routed to `omega` directly (Lean's built-in is usually faster
    than the Z3 round-trip).
@@ -71,7 +71,7 @@ elaborated `Expr` of the goal and the local context, in order:
    a multiplication of two non-literal subterms. Routed to `polyrith`,
    then `nlinarith`. Phase 3 adds Z3 with the QF_NRA logic.
 7. **Bit-vector**: target has `BitVec n` or `UInt8/16/32/64` operands.
-   Routed to `cvc5_check` (Phase 4 adds the adapter).
+   Routed to `cvc5_check` with `bv_decide` reconstruction.
 8. **Hardware**: target lives under the `Kairos.SV` namespace or has a
    clocked-signal hypothesis. Routed to `ebmc_check` (paid-tier
    adapter; OSS).
@@ -95,7 +95,7 @@ SMT-encoding cost.
 |-------|----------------------------------------------|--------------------------------------------|
 | 0     | `pythia` cascade dispatcher                  | shipped (`Pythia.Tactic.Pythia`)           |
 | 1     | Z3 oracle (QF_LRA)                           | shipped (`Pythia.Tactic.Z3Check`)          |
-| 2     | CVC5 oracle (QF_BV + QF_LRA backup)          | qa scaffolding (`Pythia.Tactic.CVC5Check`) |
+| 2     | CVC5 oracle (QF_BV + QF_LRA backup)          | shipped (`Pythia.Tactic.CVC5Check`)        |
 | 3     | EBMC oracle (hardware assertion)             | adapter pending                             |
 | 4     | CBMC oracle (software invariant)             | adapter pending                             |
 | 5     | Vampire / E oracle (FOL without arithmetic)  | adapter pending                             |
@@ -103,10 +103,11 @@ SMT-encoding cost.
 
 The phase-0 dispatcher in `Pythia.Tactic.Pythia` runs the existing
 specialized tactics (`anytime_valid`, `stats_ineq`, `prob_simp`,
-`z3_check`) as a `first`-cascade gated by `done`, then falls through
-to the `Pythia` aesop ruleset, the generic Mathlib chain, and finally
-the default aesop ruleset. New oracles slot into the cascade by name
-as their adapters land.
+`z3_check`, `cvc5_check`, `vampire_check`, `e_check`) as a
+`first`-cascade gated by `done`, then falls through to the `Pythia`
+aesop ruleset, the generic Mathlib chain, and finally the default
+aesop ruleset. New oracles slot into the cascade by name as their
+adapters land.
 
 Phases 3-6 follow the Z3Check template: SMT/TPTP/asgn encoding,
 then `IO.Process.run`, then verdict parsing, then Lean reconstruction.

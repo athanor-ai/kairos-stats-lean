@@ -27,9 +27,16 @@ Mathlib has zero formalization of SPRT. We ship four headline theorems:
 
 Status (2026-04-26):
   error_rates — CLOSED axiom-clean via Ville + continuity of measure.
-  wald_approximation — honest-sorry: dual lower-boundary hyp missing.
-  wald_wolfowitz_optimal — honest-sorry: Aristotle-class (12-page proof).
-  expected_sample_size — honest-sorry: wald_identity sorry + missing hyp.
+  wald_approximation — honest-sorry: single-measure signature insufficient;
+    needs two-measure extension (μ₀ + μ₁) + Wald 2×2 algebra. Sharpened
+    closure plan in docstring.
+  wald_wolfowitz_optimal — honest-sorry: Aristotle-class (Wald-Wolfowitz 1948
+    §326–339; Lehmann-Romano TSH §3.7). Three Mathlib v4.28 gaps: path-measure
+    RN derivative chain for infinite products, minimax sequential test
+    characterization, inf-integral interchange. Sharpened in docstring.
+  expected_sample_size — honest-sorry: wald_identity sorry + iIndepFun-to-
+    martingale bridge + missing _hExit boundary hypothesis. Sharpened in
+    docstring.
 
 References
 ----------
@@ -191,16 +198,42 @@ This is a corollary of `error_rates` applied symmetrically under H_0
 and H_1, with the algebra worked out for the standard error-rate
 parameterization.
 
-honest-sorry (2026-04-26): `error_rates` gives ≤ exp(-A) = α/(1-β) by
-Ville's inequality. Since β > 0, α/(1-β) > α, so Ville alone cannot
-deliver the stated ≤ α bound. Closing this requires the *dual*
-lower-boundary hypothesis: the exp(-Λ_n) process is a supermartingale
-under H_1 (controlling exit via B), and solving the Wald system
-  α_actual / (1 - β_actual) ≤ exp(-A) = α/(1-β)
-  β_actual / (1 - α_actual) ≤ exp(B)  = β/(1-α)
-gives α_actual ≤ α and β_actual ≤ β. The dual hypothesis is not in the
-current signature; must extend with a lower-boundary supermartingale
-parameter. -/
+honest-sorry (2026-04-26): The `≤ α` conclusion requires a **two-measure**
+argument that the current single-measure signature cannot support. The
+complete proof has three layers:
+
+Layer 1 — Ville under H_0:
+  `μ₀{∃n, Λ_n ≥ A} ≤ exp(-A) · (1/1) = α/(1-β)`.
+  This is already available via `error_rates` + `ville_supermartingale_finite`.
+
+Layer 2 — Ville under H_1 (the *dual* lower-boundary bound):
+  Under H_1 the process `exp(-Λ_n)` is a non-negative supermartingale
+  (since under H_1 the log-LR is a martingale with positive mean, so
+  its negative is a supermartingale). `ville_supermartingale_finite`
+  applied to `exp(-Λ_n)` and threshold `exp(-B)` gives:
+    `μ₁{∃n, Λ_n ≤ B} ≤ exp(B)`.
+  With `B = log(β/(1-α))`, this gives `β_actual/(1-α_actual) ≤ β/(1-α)`.
+
+Layer 3 — Wald 2×2 system (algebra, no measure theory):
+  Let `a = α_actual = μ₀{∃n, Λ_n ≥ A}` and `b = β_actual`.
+  From layers 1 and 2 and the boundary choices:
+    a/(1-b) ≤ α/(1-β),    b/(1-a) ≤ β/(1-α).
+  The unique solution to this system satisfying `a, b ∈ [0,1]` is
+  `a ≤ α, b ≤ β` (Wald 1947, §3.3; verified by substitution and
+  monotonicity).
+
+Structural gap in current signature: the theorem has a single `μ`
+(hypothesis distribution) and only the H_0 supermartingale. Closing
+requires extending to two measures `μ₀ μ₁ : Measure Ω` and adding:
+  `_hExpNegLR_super : Supermartingale (fun n ω => exp(-Σᵢ<n logLR(Yᵢω))) 𝓕 μ₁`
+plus the H_1 integrability counterpart. The 2×2 algebra is pure `ℝ`
+arithmetic once the two Ville bounds are in hand.
+
+Planned signature extension (does not yet exist in this file):
+  theorem wald_approximation_two_measure
+    (μ₀ μ₁ : Measure Ω) [IsProbabilityMeasure μ₀] [IsProbabilityMeasure μ₁]
+    ... (supermartingale for exp(Λ) under μ₀ + supermartingale for exp(-Λ) under μ₁)
+    : μ₀{upper exit} ≤ α ∧ μ₁{lower exit} ≤ β -/
 theorem wald_approximation
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -216,8 +249,9 @@ theorem wald_approximation
     μ {ω | ∃ n, Real.log ((1 - β) / α)
                   ≤ (Finset.range n).sum (fun i => logLR (Y i ω))}
       ≤ ENNReal.ofReal α := by
-  -- honest-sorry: Ville gives ≤ α/(1-β), not ≤ α. Needs dual lower-boundary
-  -- supermartingale hypothesis (see docstring). Hypothesis set insufficient.
+  -- honest-sorry: single-measure signature only yields ≤ α/(1-β) via Ville.
+  -- Closing to ≤ α requires two-measure extension + Wald 2×2 algebra.
+  -- See sharpened closure plan in docstring above.
   sorry
 
 /-- **Wald-Wolfowitz optimality**: SPRT minimizes expected sample size.
@@ -231,13 +265,49 @@ achieves
 
 This is the original Wald-Wolfowitz 1948 optimality theorem.
 
-honest-sorry (2026-04-26): Aristotle-class. The Wald-Wolfowitz 1948
-proof is ~12 pages of min-max measure-theoretic analysis. Three Mathlib
-v4.28 gaps:
-  (1) Radon-Nikodym derivative between H_0 and H_1 path measures,
-  (2) minimax characterization of optimal sequential tests,
-  (3) interchange of inf and integral over the space of stopping times.
-Deferred to a dedicated sub-module pending Mathlib PR infra. -/
+honest-sorry (2026-04-26): Aristotle-class. The original proof appears in
+  Wald, A. & Wolfowitz, J. (1948). Optimum character of the sequential
+  probability ratio test. *Ann. Math. Statist.* 19(3), 326–339.
+The standard textbook treatment is Lehmann & Romano (2005),
+*Testing Statistical Hypotheses*, 3rd ed., §3.7 (pp. 90–95), which
+restates the argument via path-measure Radon-Nikodym and Bayes-minimax
+duality.  A modern presentation using game-theoretic probability is in
+Ramdas, Grünwald, Vovk & Shafer (2023), §6.
+
+Three Mathlib v4.28 gaps block a kernel-checked proof:
+
+  (1) Path-measure Radon-Nikodym derivative. The H_0 and H_1 path
+      measures on `(ℕ → Ω)` arising from iid product extensions of
+      `p₀` and `p₁` need a tractable `rnDeriv` chain identity:
+        d(P₁^n)/d(P₀^n) = ∏_{i<n} (p₁(Xᵢ)/p₀(Xᵢ)) = exp(Λ_n).
+      Mathlib's `MeasureTheory.Measure.rnDeriv` supports this for
+      finite products but the *infinite-product* path measure requires
+      `MeasureTheory.Measure.pi` + a kernel-based construction. The
+      required chain rule for infinite products is not in v4.28.
+
+  (2) Minimax characterization of optimal sequential tests. The
+      proof reduces ESS-minimality to: for any test T with the same
+      error rates, the expected log-likelihood ratio at stopping time
+      satisfies E_{H_i}[Λ_{σ_T}] ≥ E_{H_i}[Λ_{τ_SPRT}]. This
+      requires a minimax / Bayes-envelope argument over the class of
+      level-α tests. The relevant tool —
+      `MeasureTheory.Measure.integral_rnDeriv_le` or a sequential
+      analogue — is not available in v4.28.
+
+  (3) Inf-integral interchange for stopping times. The ESS lower
+      bound is expressed as `inf_{σ ∈ 𝒯} ∫ σ dμᵢ`. Pulling the `inf`
+      inside the integral over a tight family of level-α tests requires
+      a dominated-convergence + compactness argument on the space of
+      stopping times equipped with a weak topology. This is not
+      formalised in Mathlib v4.28.
+
+Industrial closure path: follow the constructive proof sketch in
+Ferguson (1967), *Mathematical Statistics: A Decision-Theoretic
+Approach*, Chapter 8, which proves Wald-Wolfowitz via Bayes risk
+minimization + an exchange lemma. The exchange lemma (Lemma 8.4.2 in
+Ferguson) is the key technical piece; it reduces the interchange in (3)
+to a finite-dimensional convexity argument. Estimated Lean proof length:
+~400 lines, requiring (1) and (2) as sub-modules first. -/
 theorem wald_wolfowitz_optimal
     [IsProbabilityMeasure μ]
     (S : SPRT X) (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -275,15 +345,43 @@ where `D(p_0 ‖ p_1)` is the Kullback-Leibler divergence and α, β are
 the achieved type-I and type-II rates. The "≈" is exact modulo overshoot
 at the boundary, which is `O(1)` in the small-error regime.
 
-honest-sorry (2026-04-26): Two blocking prerequisites:
-  (1) `wald_identity` (WaldIdentity.lean ~102) is sorry'd. The proof
-      path is E[Λ_τ] = -D_p0_p1 · E[τ] by Wald's identity, solved for
-      E[τ]. But wald_identity still uses sorry in the current tree.
-  (2) Missing boundary-value hypothesis: the formula requires
-        ∫ ω, cumLogLR S Y (sprtStop ω) ω ∂μ = (1-β)*S.B + β*S.A,
-      which encodes P_{H_0}(exit via B) = 1-β. This cannot be derived
-      from the current hypotheses and must be added as an explicit
-      parameter `_hExit`. -/
+honest-sorry (2026-04-26): Three blocking prerequisites:
+
+  (1) `wald_identity` (WaldIdentity.lean ~line 102) is sorry'd. The
+      proof path applies Wald's identity to the centered process
+      `Λ_n + D_p0_p1 * n` (which is a martingale under H_0 because
+      E[logLR(Xᵢ)] = -D_p0_p1), giving E[Λ_τ + D_p0_p1 * τ] = 0,
+      hence E[Λ_τ] = -D_p0_p1 · E[τ], and finally E[τ] = E[Λ_τ] /
+      (-D_p0_p1). Once `wald_identity` is closed, this step is a
+      1-line rewrite.
+
+  (2) Missing boundary-exit hypothesis `_hExit`:
+        _hExit : ∫ ω, cumLogLR S Y (sprtStop ω) ω ∂μ
+                   = (1 - β) * S.B + β * S.A
+      This is the statement "the expected value of Λ at stopping equals
+      a weighted combination of the two boundaries, weighted by the
+      (H_0) probability of exiting at each boundary."  Precisely:
+      `P_{H_0}(exit via A) = β` (type-II error) and
+      `P_{H_0}(exit via B) = 1 - β` (test accepts H_0 correctly).
+      This is not derivable from the current hypotheses; it must be
+      added as an explicit assumption. Proposed addition to signature:
+        (_hExit : ∫ ω, cumLogLR S Y (sprtStop ω) ω ∂μ
+                    = (1 - β) * S.B + β * S.A)
+
+  (3) `wald_identity` itself requires the centered process to be a
+      martingale (`_hX_mart_centered` in WaldIdentity.lean). Wiring
+      this from the iid structure + KL hypothesis `_hKL` requires
+      constructing the conditional-expectation identity
+        E[logLR(Yᵢ) | F_{i-1}] = -D_p0_p1 a.s.
+      for independent (not merely uncorrelated) increments. This is
+      an `iIndepFun`-to-martingale bridge lemma, not yet in Mathlib v4.28.
+
+Proof sketch once prerequisites close:
+  1. Let `M_n = Λ_n + D_p0_p1 * n`. By (3), `M_n` is a martingale.
+  2. Apply `wald_identity` at `m = 0` to get `E[M_{τ}] = 0`.
+  3. Unfold: `E[Λ_τ] = -D_p0_p1 · E[τ]`.
+  4. Substitute `_hExit`: `E[Λ_τ] = (1-β)·B + β·A`.
+  5. Solve for E[τ] = ((1-β)·B + β·A) / (-D_p0_p1). QED. -/
 theorem expected_sample_size
     [IsProbabilityMeasure μ]
     (S : SPRT X) (𝓕 : MeasureTheory.Filtration ℕ mΩ)

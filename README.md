@@ -148,6 +148,8 @@ Five registered tactics ship in the public surface:
 | introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
 | see the full pythia dispatch ladder in action | [`examples/04_pythia_full_dispatch.lean`](examples/04_pythia_full_dispatch.lean) |
 | pick the sharpest tail bound for your parameters | [`examples/05_tight_tail_calculator.lean`](examples/05_tight_tail_calculator.lean) |
+| pick the right pythia tactic for your goal shape | [`docs/concentration_cookbook.md`](docs/concentration_cookbook.md) |
+| run the MiniPythia benchmark | [`Pythia/Bench/README.md`](Pythia/Bench/README.md) |
 | go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |
 | set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
 | understand the cross-prover dispatch | [`docs/sledgehammer_dispatch.md`](docs/sledgehammer_dispatch.md) |

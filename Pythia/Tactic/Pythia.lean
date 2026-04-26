@@ -64,6 +64,8 @@ import Pythia.Tactic.AnytimeValid
 import Pythia.Tactic.StatsIneq
 import Pythia.Tactic.ProbSimp
 import Pythia.Tactic.Z3Check
+import Pythia.Tactic.VampireCheck
+import Pythia.Tactic.ECheck
 
 namespace Pythia
 
@@ -131,6 +133,8 @@ syntax (name := pythia) "pythia" : tactic
         | (stats_ineq; done)                         -- concentration tails
         | (prob_simp; done)                          -- measure rewriting
         | (z3_check; done)                           -- QF_LRA over ℝ
+        | (vampire_check; done)                      -- FOL via Vampire
+        | (e_check; done)                            -- FOL via E (backup)
         -- Pythia's own aesop ruleset (registered `@[stat_lemma]` rules).
         | aesop (config := { warnOnNonterminal := false })
                 (rule_sets := [Pythia])

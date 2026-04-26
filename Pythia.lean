@@ -63,6 +63,10 @@ import Pythia.Tactic.VampireCheck
 import Pythia.Tactic.VampireCheckTest
 import Pythia.Tactic.ECheck
 import Pythia.Tactic.ECheckTest
+-- Tail-bound calculator: pick the sharpest registered concentration
+-- bound at concrete parameters. Goes beyond a closure tactic; this
+-- is a domain calculator.
+import Pythia.Tactic.TightTail
 -- Information theory (Bretagnolle-Huber binary form).
 import Pythia.InfoTheory.BretagnolleHuberBinary
 -- Measure theory infra (own-implement Mathlib gap).

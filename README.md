@@ -130,7 +130,9 @@ Five registered tactics ship in the public surface:
 
 | Tactic | Closes |
 |--------|--------|
-| `pythia` | shape-dispatching orchestrator: routes to `anytime_valid` / `stats_ineq` / `prob_simp` / `z3_check` by goal shape, then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain |
+| `pythia` | shape-dispatching orchestrator: routes to `anytime_valid` / `stats_ineq` / `prob_simp` / `z3_check` / `vampire_check` / `e_check` by goal shape, then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain |
+| `vampire_check` | first-order-logic goals via Vampire ATP + Lean `aesop` reconstruction |
+| `e_check` | first-order-logic goals via E theorem prover + Lean `aesop` reconstruction (Vampire backup) |
 | `stats_ineq` | scalar inequalities arising in concentration / tail bounds |
 | `prob_simp` | probability-theoretic rewriting (measure pushforwards, conditional expectations) |
 | `anytime_valid` | Ville-bound goals on non-negative supermartingales |
@@ -144,6 +146,7 @@ Five registered tactics ship in the public surface:
 | close a Ville-bound goal in 1 tactic call | [`examples/02_anytime_valid_smoke.lean`](examples/02_anytime_valid_smoke.lean) |
 | introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
 | see the full pythia dispatch ladder in action | [`examples/04_pythia_full_dispatch.lean`](examples/04_pythia_full_dispatch.lean) |
+| pick the sharpest tail bound for your parameters | [`examples/05_tight_tail_calculator.lean`](examples/05_tight_tail_calculator.lean) |
 | go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |
 | set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
 | understand the cross-prover dispatch | [`docs/sledgehammer_dispatch.md`](docs/sledgehammer_dispatch.md) |

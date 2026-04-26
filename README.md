@@ -130,7 +130,7 @@ Five registered tactics ship in the public surface:
 
 | Tactic | Closes |
 |--------|--------|
-| `pythia` | stats-domain goals via `@[stat_lemma]` registry + aesop ruleset fallback |
+| `pythia` | shape-dispatching orchestrator: routes to `anytime_valid` / `stats_ineq` / `prob_simp` / `z3_check` by goal shape, then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain |
 | `stats_ineq` | scalar inequalities arising in concentration / tail bounds |
 | `prob_simp` | probability-theoretic rewriting (measure pushforwards, conditional expectations) |
 | `anytime_valid` | Ville-bound goals on non-negative supermartingales |

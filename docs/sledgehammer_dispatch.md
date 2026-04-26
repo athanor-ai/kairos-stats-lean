@@ -91,14 +91,22 @@ SMT-encoding cost.
 
 ## Status (2026-04-26)
 
-| Phase | Oracle    | Status                                    |
-|-------|-----------|-------------------------------------------|
-| 1     | Z3        | shipped (`Pythia.Tactic.Z3Check`)         |
-| 2     | CVC5      | qa scaffolding (`Pythia.Tactic.CVC5Check`) |
-| 3     | EBMC      | adapter pending                            |
-| 4     | CBMC      | adapter pending                            |
-| 5     | Vampire/E | adapter pending                            |
-| 6     | Dafny     | adapter pending                            |
+| Phase | Component                                    | Status                                     |
+|-------|----------------------------------------------|--------------------------------------------|
+| 0     | `pythia` cascade dispatcher                  | shipped (`Pythia.Tactic.Pythia`)           |
+| 1     | Z3 oracle (QF_LRA)                           | shipped (`Pythia.Tactic.Z3Check`)          |
+| 2     | CVC5 oracle (QF_BV + QF_LRA backup)          | qa scaffolding (`Pythia.Tactic.CVC5Check`) |
+| 3     | EBMC oracle (hardware assertion)             | adapter pending                             |
+| 4     | CBMC oracle (software invariant)             | adapter pending                             |
+| 5     | Vampire / E oracle (FOL without arithmetic)  | adapter pending                             |
+| 6     | Dafny oracle (Hoare triple)                  | adapter pending                             |
+
+The phase-0 dispatcher in `Pythia.Tactic.Pythia` runs the existing
+specialized tactics (`anytime_valid`, `stats_ineq`, `prob_simp`,
+`z3_check`) as a `first`-cascade gated by `done`, then falls through
+to the `Pythia` aesop ruleset, the generic Mathlib chain, and finally
+the default aesop ruleset. New oracles slot into the cascade by name
+as their adapters land.
 
 Phases 3-6 follow the Z3Check template: SMT/TPTP/asgn encoding,
 then `IO.Process.run`, then verdict parsing, then Lean reconstruction.

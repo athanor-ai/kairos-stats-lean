@@ -60,6 +60,10 @@ Aidan's "household name" directive). Phase B+ delivery.
 -/
 import Mathlib
 import Aesop
+import Pythia.Tactic.AnytimeValid
+import Pythia.Tactic.StatsIneq
+import Pythia.Tactic.ProbSimp
+import Pythia.Tactic.Z3Check
 
 namespace Pythia
 
@@ -112,14 +116,29 @@ syntax (name := pythia) "pythia" : tactic
 @[tactic pythia] def evalPythia : Tactic := fun stx => do
   match stx with
   | `(tactic| pythia) =>
-    -- Try aesop with pythia rules first; on failure, light cleanup.
-    let aesopGoal ← `(tactic|
+    -- Goal-shape dispatch ladder. Each specialized tactic has its own
+    -- shape matcher and fails fast when the goal doesn't apply, so the
+    -- `first` cascade pays only for the actual closer. See
+    -- `docs/sledgehammer_dispatch.md` for the full routing table.
+    -- Each branch is gated with `done` so a partial closure (which can
+    -- happen when an inner tactic uses `warnOnNonterminal := false` and
+    -- silently leaves goals) does not lock the cascade in. The branch
+    -- only commits when the goal is actually closed.
+    let cascade ← `(tactic|
       first
+        -- Most specific shapes first.
+        | (anytime_valid; done)                      -- Ville-bound shapes
+        | (stats_ineq; done)                         -- concentration tails
+        | (prob_simp; done)                          -- measure rewriting
+        | (z3_check; done)                           -- QF_LRA over ℝ
+        -- Pythia's own aesop ruleset (registered `@[stat_lemma]` rules).
         | aesop (config := { warnOnNonterminal := false })
                 (rule_sets := [Pythia])
+        -- Generic Mathlib closer chain.
         | (try simp) <;> (try omega) <;> (try linarith) <;> (try positivity)
+        -- Aesop default ruleset, last resort.
         | aesop (config := { warnOnNonterminal := false }))
-    evalTactic aesopGoal
+    evalTactic cascade
   | _ => throwUnsupportedSyntax
 
 /-- `#stat_lemmas` — list every theorem tagged `@[stat_lemma]` in the

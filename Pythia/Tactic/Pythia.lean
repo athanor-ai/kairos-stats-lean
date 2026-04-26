@@ -64,6 +64,7 @@ import Pythia.Tactic.AnytimeValid
 import Pythia.Tactic.StatsIneq
 import Pythia.Tactic.ProbSimp
 import Pythia.Tactic.Z3Check
+import Pythia.Tactic.CVC5Check
 import Pythia.Tactic.VampireCheck
 import Pythia.Tactic.ECheck
 
@@ -148,6 +149,7 @@ syntax (name := pythiaVerbose) "pythia?" : tactic
         | (stats_ineq; done)                         -- concentration tails
         | (prob_simp; done)                          -- measure rewriting
         | (z3_check; done)                           -- QF_LRA over ℝ
+        | (cvc5_check; done)                         -- QF_BV primary + QF_LRA backup
         | (vampire_check; done)                      -- FOL via Vampire
         | (e_check; done)                            -- FOL via E (backup)
         -- Pythia's own aesop ruleset (registered `@[stat_lemma]` rules).

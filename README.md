@@ -30,10 +30,10 @@ closes in one line.
 
 ## What it does
 
-- Five tactics (`pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
-  `z3_check`) covering general stats hammering, inequality closure,
-  probability normalization, anytime-valid Ville bounds, and SMT-oracle
-  dispatch.
+- Six tactics (`pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
+  `z3_check`, `cvc5_check`) covering general stats hammering,
+  inequality closure, probability normalization, anytime-valid Ville
+  bounds, and SMT-oracle dispatch (QF_LRA via Z3, QF_BV via CVC5).
 - A registry layer: tag your own theorem with `@[stat_lemma]` /
   `@[stats_ineq]` / `@[prob_simp]` and the hammers pick it up at
   elaboration time. The same shape as `@[simp]`, `@[gcongr]`,
@@ -130,7 +130,7 @@ Five registered tactics ship in the public surface:
 
 | Tactic | Closes |
 |--------|--------|
-| `pythia` | shape-dispatching orchestrator: routes to `anytime_valid` / `stats_ineq` / `prob_simp` / `z3_check` / `vampire_check` / `e_check` by goal shape, then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain |
+| `pythia` | shape-dispatching orchestrator: routes to `anytime_valid` / `stats_ineq` / `prob_simp` / `z3_check` / `cvc5_check` / `vampire_check` / `e_check` by goal shape, then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain |
 | `vampire_check` | first-order-logic goals via Vampire ATP + Lean `aesop` reconstruction |
 | `e_check` | first-order-logic goals via E theorem prover + Lean `aesop` reconstruction (Vampire backup) |
 | `pythia?` | verbose `pythia`: same dispatch ladder, prints which rung closed the goal (Lean convention: `apply?`, `rw?`, `simp?`, `aesop?`) |
@@ -138,6 +138,7 @@ Five registered tactics ship in the public surface:
 | `prob_simp` | probability-theoretic rewriting (measure pushforwards, conditional expectations) |
 | `anytime_valid` | Ville-bound goals on non-negative supermartingales |
 | `z3_check` | linear-real-arithmetic goals via Z3 oracle + Lean `linarith` reconstruction |
+| `cvc5_check` | bit-vector goals via CVC5 oracle + Lean `bv_decide` reconstruction; QF_LRA backup via `linarith` |
 
 ## Where to look
 

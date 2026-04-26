@@ -81,26 +81,26 @@ v4.28.0.
 
 ## Bring-your-own LLM (for the natural-language → proof flow)
 
-Pythia ships a natural-language proof flow (`pythia.simple_prove`) that
-takes a stats theorem stated in English, formalizes it to Lean, dispatches
-to the registered tactic suite, reconstructs the kernel proof, and
-returns a natural-language summary. The autoformalization step calls
-your LLM via your own API key. We never hold a customer LLM key.
+This repository is the Lean library: theorems, tactics, and oracle
+adapters. The natural-language autoformalization layer (English → Lean
+statement, then dispatch to `pythia` and friends, then the
+natural-language summary) ships separately in our SDK and uses your
+own LLM API key. We never hold a customer LLM key.
 
-Set one of: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` in
-your environment or `.env` file.
+The SDK reads one of: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+`GEMINI_API_KEY` from your environment.
 
 **Recommended model: Claude Opus 4.6 or Claude Opus 4.7.** The
 autoformalization step benefits substantially from a strong reasoning
-model; Opus has the highest closure rate on our internal calibration
-set across the natural-language → Lean → tactic-dispatch path. Other
-models work; Opus is the default we recommend for the full pipeline.
+model. Opus has the highest closure rate on our internal calibration
+set for the natural-language → Lean → tactic-dispatch path. Other
+models work; Opus is the default we recommend.
 
-Provers (Z3, CVC5, Vampire, E, EBMC, CBMC, Dafny) are open-source and
-run locally. The kernel always has the final word: every external-prover
-verdict is reconstructed into a Lean tactic script that the Lean kernel
-checks against `{propext, Classical.choice, Quot.sound}`. No claim
-escapes the kernel.
+Oracles (Z3, CVC5, Vampire, E, EBMC, CBMC, Dafny) are open-source and
+run locally. The Lean kernel always has the final word: every
+external-prover verdict is reconstructed into a Lean tactic script
+that the kernel checks against `{propext, Classical.choice,
+Quot.sound}`. No claim escapes the kernel.
 
 ## Hello, pythia
 

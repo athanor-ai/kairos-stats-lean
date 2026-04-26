@@ -64,3 +64,8 @@ import Pythia.MeasureTheory.OptionalStoppingUnbounded
 -- Tier 7 scaffold — Tropp matrix Bernstein (sorries; see module
 -- docstring for Lieb / Klein / matrix-MGF dependency roadmap).
 import Pythia.MatrixBernstein
+
+-- Tier 7 + queueing + path-measure additions (Aristotle 2026-04-26)
+import Pythia.Queueing.ErlangB
+import Pythia.MeasureTheory.PathMeasureRN
+import Pythia.MatrixBernsteinFull

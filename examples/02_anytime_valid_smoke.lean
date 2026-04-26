@@ -6,9 +6,9 @@ The Phase B marquee tactic. Two variants:
 * *Countable-time* (no args): the infinite-horizon Ville bound.
 * *Finite-horizon* (`(horizon := N)`): bounded sup over t ≤ N.
 -/
-import Kairos.Stats.Tactic.AnytimeValid
+import Pythia.Tactic.AnytimeValid
 
-open Kairos.Stats MeasureTheory
+open Pythia MeasureTheory
 
 namespace Pythia.Examples.AnytimeValid
 

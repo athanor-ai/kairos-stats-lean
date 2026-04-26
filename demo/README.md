@@ -35,9 +35,9 @@ lake build              # warm full build (~3 min)
 `Mypaper.lean`:
 
 ```lean
-import Kairos.Stats.Tactic.Pythia
+import Pythia.Tactic.Pythia
 
-open Kairos.Stats
+open Pythia
 
 @[stat_lemma]
 theorem nonneg_sum_of_nonneg_real (a b : ℝ)
@@ -59,9 +59,9 @@ This is what the library actually exists for. Open
 `Mypaper.lean` again and replace the example with:
 
 ```lean
-import Kairos.Stats.Tactic.AnytimeValid
+import Pythia.Tactic.AnytimeValid
 
-open Kairos.Stats MeasureTheory
+open Pythia MeasureTheory
 
 example
     {Ω : Type*} {m0 : MeasurableSpace Ω} {μ : Measure Ω}
@@ -99,7 +99,7 @@ list.
   e-detector, Glivenko-Cantelli, Robbins-Monro, etc.).
 * `docs/lean_lsp_mcp_setup.md` — sub-second proof feedback via the
   lean-lsp-mcp MCP server (recommended for any serious user).
-* `Kairos.Stats.API` — the curated public theorem index.
+* `Pythia.API` — the curated public theorem index.
 
 ## Honest limitations
 

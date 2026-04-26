@@ -1,0 +1,65 @@
+-- Pythia: top-level entry point.
+-- Generated from `ls Pythia/*.lean`. Excludes AxiomAudit (which is a
+-- runtime-only #print-axioms harness, not a library module) and
+-- VilleMathlibPR (Mathlib-PR-style draft; intentionally namespaced under
+-- MeasureTheory rather than Pythia).
+import Pythia.API
+import Pythia.AristotleT0T1T2Bench
+import Pythia.Basic
+import Pythia.BenchDefs
+import Pythia.BettingCS
+import Pythia.BettingStrategy
+import Pythia.DeploymentDesign
+import Pythia.ElegantUnification
+import Pythia.EquivalenceBreak
+import Pythia.GaussianRandomWalk
+import Pythia.GaussianSmallBall
+import Pythia.HowardRamdasCS
+import Pythia.InformationTheoretic
+import Pythia.InputQuantization
+import Pythia.MatchingConstants
+import Pythia.NewTargetsStubs
+import Pythia.PhiTransform
+import Pythia.PowerAnalysis
+import Pythia.Quantization
+import Pythia.Sharpness
+import Pythia.StoppingRule
+import Pythia.SubGamma
+import Pythia.SubGaussianMG
+import Pythia.VectorSharpness
+import Pythia.VilleSupermartingale
+-- Phase C scaffolds (sorries — see module docstrings for status).
+import Pythia.Bernstein
+import Pythia.BernsteinTest
+import Pythia.PACBayesCS
+import Pythia.TimeUniformCLT
+-- Tier 2 sequential-stats scaffolds (sorries — see docstrings).
+import Pythia.WaldIdentity
+import Pythia.SPRT
+-- Tier 2 e-detector scaffold (sorries — see module docstring for closure plans).
+import Pythia.EDetector
+-- Tactic layer (Phase B+).
+import Pythia.Tactic.AnytimeValid
+import Pythia.Tactic.AnytimeValidRegistry
+import Pythia.Tactic.CSFamilyAttr
+import Pythia.Tactic.CSFamilyRegistry
+import Pythia.Tactic.VilleCmd
+-- Tier 8 headline tactic (v0.6.0 in flight).
+import Pythia.Tactic.Pythia
+-- Domain inequality hammer.
+import Pythia.Tactic.StatsIneq
+import Pythia.Tactic.StatsIneqRegistry
+-- Probability normalization simp-set.
+import Pythia.Tactic.ProbSimp
+import Pythia.Tactic.ProbSimpRegistry
+import Pythia.Tactic.ProbSimpTest
+-- Cross-prover hammer Phase 1 — z3_check.
+import Pythia.Tactic.Z3Check
+import Pythia.Tactic.Z3CheckTest
+-- Information theory (Bretagnolle-Huber binary form).
+import Pythia.InfoTheory.BretagnolleHuberBinary
+-- Measure theory infra (own-implement Mathlib gap).
+import Pythia.MeasureTheory.OptionalStoppingUnbounded
+-- Tier 7 scaffold — Tropp matrix Bernstein (sorries; see module
+-- docstring for Lieb / Klein / matrix-MGF dependency roadmap).
+import Pythia.MatrixBernstein

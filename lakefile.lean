@@ -1,17 +1,15 @@
--- Kairos-Stats: Lean 4 library for finite-precision statistics.
--- Mathlib-style supermartingale + Ville + sub-Gaussian concentration
--- + per-family CS slack rates under bit-width quantization.
+-- Pythia: Lean 4 stats automation library.
+-- Tactics + theorems for anytime-valid CS, sequential statistics,
+-- concentration inequalities, and finite-precision quantization.
 
 import Lake
 open Lake DSL
 
-package «KairosStats» where
+package «Pythia» where
 
--- Pinned to Mathlib v4.28.0 so every file we write can be sanity-checked by
--- Aristotle without toolchain drift. Verified against Aristotle submission
--- tarballs 2026-04-24. Never bump ahead of Aristotle.
+-- Pinned to Mathlib v4.28.0 for toolchain stability.
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @ "v4.28.0"
 
 @[default_target]
-lean_lib «Kairos» where
+lean_lib «Pythia» where

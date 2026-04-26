@@ -13,7 +13,7 @@ with the imports it actually needs.
 | `03_cs_families_introspection.lean` | The `#cs_families` and `#ville` commands listing the registered CS families. |
 | `04_betting_cs_admissibility.lean` | Full betting-CS admissibility theorem invocation with the recommended hypothesis order. |
 
-All files build via `lake build Kairos` (transitively via `import Kairos`).
+All files build via `lake build Pythia` (transitively via `import Pythia`).
 
 To run a single file as a smoke test:
 

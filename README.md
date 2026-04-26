@@ -4,7 +4,7 @@
 [![Lean](https://img.shields.io/badge/Lean-4.28.0-blue.svg)](https://github.com/leanprover/lean4/releases/tag/v4.28.0)
 [![Mathlib](https://img.shields.io/badge/Mathlib-v4.28.0-blue.svg)](https://github.com/leanprover-community/mathlib4/releases/tag/v4.28.0)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
-[![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Kairos/Stats/AxiomAudit.lean)
+[![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 > *Aesop-grade automation for statistics in Lean 4.*
 
@@ -12,56 +12,14 @@
 canonical machine-checked reference for the statistical territory Mathlib
 does not yet cover — anytime-valid inference, sequential statistics,
 empirical processes, stochastic approximation, and the cross-domain
-results practitioners in quant / actuarial / physics / biology / ML reach
-for. Like `aesop` for general math, `pythia` closes domain-specific goals
-in one tactic call, backed by a registered lemma library, a stats-domain
-`grind` simp set, and a published aesop ruleset.
+results practitioners reach for. Like `aesop` for general math, `pythia`
+closes domain-specific goals in one tactic call, backed by a registered
+lemma library, a stats-domain `grind` simp set, and a published aesop
+ruleset.
 
 This repository is the Lean library only. **No LLMs, no cloud, no fleet
 machinery.** The library works offline against any Lean 4 / Mathlib
-installation. LLM-driven autoformalization, multi-prover swarm
-orchestration, and Aristotle integration live separately in
-[`athanor-sdk`](https://github.com/athanor-ai/athanor-sdk).
-
-The repo was renamed from its working title to `pythia` on 2026-04-25 to
-align with the headline tactic. GitHub redirects preserve all old URLs;
-no action needed for existing consumers.
-
-**v0.6.0 highlights** (shipped 2026-04-25, commit `ef89f6d`): five
-registered tactics (`pythia`, `stats_ineq`, `prob_simp`, `anytime_valid`,
-`z3_check`) covering Tier 8; three Mathlib v4.28 gap closures
-(Bretagnolle-Huber binary, optional-stopping for unbounded τ,
-anytime-valid Ville hammer), all axiom-clean against the trusted
-kernel triple `{propext, Classical.choice, Quot.sound}`; Tier 1
-Bernstein closed (sub-gamma reparametrise) + `@[stat_lemma]` registered
-so `pythia` dispatches to it; Wald-identity centered closed via the
-new optional-stopping module; Tier 7 matrix Bernstein scaffold + 5-step
-dependency roadmap. CI gate enforces lake build + per-file Lean sweep
-on every branch push. **Tier 8 is shipped.** Next on the roadmap is
-Tier 3 (e-detectors + spawn-control).
-
-## Status
-
-| Block | Tag | Status |
-|-------|-----|:------:|
-| Phase A — toolchain + CI + axiom-audit | `v0.1.0` | ✅ |
-| Phase B — `anytime_valid` tactic + `@[cs_family]` attribute | `v0.2.0` | ✅ |
-| Phase C — sub-gamma, time-uniform CLT, PAC-Bayes | `v0.3.0` | ⚠ partial |
-| Tier 1 — Bernstein closed via subGamma reparametrise + `@[stat_lemma]` | `v0.4.0` | ✅ shipped |
-| Tier 1 — Bennett / Freedman / Bernstein-iid / -martingale | `v0.4.x` | scaffolds in flight |
-| Tier 2 — Wald centered closed via OptionalStoppingUnbounded | `v0.5.0` | ✅ shipped |
-| Tier 2 — Wald (general / squared / exp) / SPRT / e-detector | `v0.5.x` | scaffolds in flight |
-| Mathlib gap closures (own-implementation, axiom-clean) — Bretagnolle-Huber binary, optional stopping for unbounded τ, anytime-valid Ville hammer | `v0.6.0` | ✅ shipped |
-| **Tier 8 — `pythia` + `stats_ineq` + `prob_simp` + `anytime_valid` + `z3_check` (5 tactics)** | `v0.6.0` | **✅ shipped** |
-| Tier 7 — Tropp matrix Bernstein + dependency roadmap (Lieb concavity → Klein → matrix MGF) | `v0.7.0` | scaffold + roadmap |
-| Cross-prover hammer Phase 1 — `z3_check` (Z3 oracle + linarith reconstruction) | `v0.6.0` | ✅ shipped |
-| Cross-prover hammer Phase 2/3 — CVC5, EBMC, CBMC, Dafny, Vampire | `v0.7.0+` | roadmapped |
-| Tier 3 — e-detectors + spawn-control | `v0.8.0` | next |
-| Tier 4 / 5 / 6 + cross-domain candidates | `v0.9.0+` | roadmapped |
-
-See [`ROADMAP.md`](ROADMAP.md) for the full multi-tier plan and the
-cross-domain candidate pool (quant / actuarial / physics / biology / ML /
-signal-processing / control).
+installation.
 
 ## Install
 
@@ -75,23 +33,16 @@ require pythia from git
 Then `import Pythia` (the umbrella module) or any individual `Pythia.*`
 submodule. Mathlib is pulled transitively at the same revision; do not
 bump independently. The toolchain is pinned to Lean 4.28.0 + Mathlib
-v4.28.0 for Aristotle parity.
-
-> **Note (transition).** The lake package, the umbrella module, and the
-> internal namespace are being renamed across the v0.5.x cycle from
-> `KairosStats` / `Kairos` / `Kairos.Stats.*` to `Pythia` / `Pythia` /
-> `Pythia.*`. Until that lands, the legacy `import Kairos` /
-> `Kairos.Stats.*` paths still work; new code should target the
-> `Pythia.*` namespace.
+v4.28.0.
 
 ## Hello, pythia
 
 The shortest possible exposure to the headline tactic:
 
 ```lean
-import Kairos.Stats.Tactic.Pythia
+import Pythia.Tactic.Pythia
 
-open Kairos.Stats
+open Pythia
 
 @[stat_lemma]
 theorem nonneg_sum (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by
@@ -102,9 +53,21 @@ example (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by pythia
 
 Tag a theorem with `@[stat_lemma]` to register it into the `pythia`
 lemma library. Then `pythia` closes goals that match — falling
-through to Mathlib's standard `aesop` automation when no kairos rule
+through to Mathlib's standard `aesop` automation when no pythia rule
 applies. See [`demo/`](demo/) for the 5-minute end-to-end walkthrough
 and [`examples/`](examples/) for copy-paste-ready files.
+
+## Tactics
+
+Five registered tactics ship in the public surface:
+
+| Tactic | Closes |
+|--------|--------|
+| `pythia` | stats-domain goals via `@[stat_lemma]` registry + aesop ruleset fallback |
+| `stats_ineq` | scalar inequalities arising in concentration / tail bounds |
+| `prob_simp` | probability-theoretic rewriting (measure pushforwards, conditional expectations) |
+| `anytime_valid` | Ville-bound goals on non-negative supermartingales |
+| `z3_check` | linear-real-arithmetic goals via Z3 oracle + Lean `linarith` reconstruction |
 
 ## Where to look
 
@@ -114,104 +77,71 @@ and [`examples/`](examples/) for copy-paste-ready files.
 | close a Ville-bound goal in 1 tactic call | [`examples/02_anytime_valid_smoke.lean`](examples/02_anytime_valid_smoke.lean) |
 | introspect what's available | [`examples/03_cs_families_introspection.lean`](examples/03_cs_families_introspection.lean) |
 | go from zero to closing your first goal | [`demo/README.md`](demo/README.md) |
-| understand the multi-tier theorem plan | [`ROADMAP.md`](ROADMAP.md) |
 | set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
 
-## Roadmap: cross-prover hammer (Z3, Dafny, EBMC, CBMC)
+## Cross-prover hammer (`z3_check`)
 
-Pythia v0.7.0 will ship a **cross-prover hammer** that routes
-statistical proof obligations to the right external solver — but with
-every closure replayed back into native Lean tactics, so the Lean 4
-kernel always has the final word. No claim escapes the Lean kernel.
-
-**Phase 1 (shipped — `z3_check`):** the entry-point tactic
-[`Kairos.Stats.Tactic.Z3Check`](Kairos/Stats/Tactic/Z3Check.lean)
-dispatches linear-real-arithmetic goals to a local `z3` binary,
-reads back the `unsat` verdict, and then asks Lean's `linarith` to
-independently reconstruct the proof term. Z3 is treated strictly as
-a ranking / filter oracle — its verdict never closes a goal. If
-`z3` is unavailable on the build machine, the tactic falls through
-to `linarith` directly, so CI is independent of the SMT install.
-See [`Kairos.Stats.Tactic.Z3CheckTest`](Kairos/Stats/Tactic/Z3CheckTest.lean)
-for worked examples. Phase 2 expands to nonlinear (Z3 + nlinarith)
-and adds CVC5 as an alternate backend; Phase 3 wires in EBMC, CBMC,
-Dafny, and Vampire / E.
-
-| Goal shape | Backend used as oracle | Why |
-|------------|-----------------------|-----|
-| nonlinear arithmetic over reals + transcendentals (sub-Gaussian, sub-gamma, Bernstein MGF chains) | **Z3 / CVC5** (SMT) | discharges in milliseconds where `linarith`/`nlinarith` time out |
-| bounded-horizon Ville bounds, finite-time CS verification at fixed precision (b, s) | **EBMC** (k-induction) | exhaustively explores the state space up to the horizon; pythia lifts the bounded result to all horizons via induction |
-| stochastic-algorithm reference implementations match the Lean spec (Telos pattern) | **CBMC** (software bounded model checking) | finds adversarial inputs separating the reference impl from spec |
-| pre/post specifications on user-supplied tactics | **Dafny** (VC-driven) | extracts verification conditions; Dafny calls Z3; pythia reconstructs the proof |
-| first-order goals over decidable theories | **Vampire / E** (ATPs) | mature first-order superposition provers complement SMT |
+`z3_check` dispatches linear-real-arithmetic goals to a local `z3`
+binary, reads back the `unsat` verdict, and then asks Lean's `linarith`
+to independently reconstruct the proof term. Z3 is treated strictly as
+a ranking / filter oracle — its verdict never closes a goal. If `z3`
+is unavailable on the build machine, the tactic falls through to
+`linarith` directly, so CI is independent of the SMT install. See
+[`Pythia.Tactic.Z3Check`](Pythia/Tactic/Z3Check.lean) and
+[`Pythia.Tactic.Z3CheckTest`](Pythia/Tactic/Z3CheckTest.lean) for
+worked examples.
 
 The architectural rule: external solvers are **oracles**, not trusted
 provers. Each backend produces a certificate (refutation, witness,
-counterexample) that pythia's reconstruction layer turns into a Lean
-4 tactic script. The Lean 4 kernel checks the script against
+counterexample) that pythia's reconstruction layer turns into a Lean 4
+tactic script. The Lean 4 kernel checks the script against
 `{propext, Classical.choice, Quot.sound}` — same axiom budget as
-Mathlib itself. If the reconstruction step fails, the goal is left
-open with a `Try this:` hint, never accepted on the external prover's
-say-so. CoqHammer (Czajka & Kaliszyk, JAR 2018) is the canonical
-template for this discipline; we adapt it for Lean 4's CIC.
-
-This brings the *speed* of a heavy-duty SMT/ATP/BMC stack to a Lean
-library while preserving the *trust* properties of the Lean kernel.
-The same trick that made [Sledgehammer for
-Isabelle](https://isabelle.in.tum.de/dist/Isabelle/sledgehammer)
-indispensable, applied to a stats-domain Lean library. Tracked as
-[ATH-633](https://linear.app/athanor-ai/issue/ATH-633).
+Mathlib itself. CoqHammer (Czajka & Kaliszyk, JAR 2018) is the
+canonical template for this discipline; we adapt it for Lean 4's CIC.
 
 ## Quick tour
 
 Foundations:
 
-- `Kairos.Stats.Basic` — `BitPrecision`, `Time := ℕ`, the `slack` envelope.
-- `Kairos.Stats.SubGaussianMG` — measure-theoretic sub-Gaussian martingale + exponential supermartingale + finite-horizon Ville.
-- `Kairos.Stats.VilleSupermartingale` — Ville's inequality for non-negative supermartingales: `μ{∃ t, f t ≥ c} ≤ E[f 0] / c`. Marquee theorem.
-- `Kairos.Stats.VilleMathlibPR` — version of the Ville statement packaged in Mathlib-PR style.
-- `Kairos.Stats.StoppingRule` — `StoppingRule` primitive with `monotone_once_fired`.
-- `Kairos.Stats.BettingStrategy` — bounded adaptive strategy + wealth process `W_t = ∏ (1 + λ_s ξ_s)`.
-- `Kairos.Stats.PhiTransform` — exponential betting-transform from self-normalized to wealth form.
-- `Kairos.Stats.SubGamma` — sub-gamma tail-class generalization of `SubGaussianMG`.
+- `Pythia.Basic` — `BitPrecision`, `Time := ℕ`, the `slack` envelope.
+- `Pythia.SubGaussianMG` — measure-theoretic sub-Gaussian martingale + exponential supermartingale + finite-horizon Ville.
+- `Pythia.VilleSupermartingale` — Ville's inequality for non-negative supermartingales: `μ{∃ t, f t ≥ c} ≤ E[f 0] / c`.
+- `Pythia.StoppingRule` — `StoppingRule` primitive with `monotone_once_fired`.
+- `Pythia.BettingStrategy` — bounded adaptive strategy + wealth process `W_t = ∏ (1 + λ_s ξ_s)`.
+- `Pythia.PhiTransform` — exponential betting-transform from self-normalized to wealth form.
+- `Pythia.SubGamma` — sub-gamma tail-class generalization of `SubGaussianMG`.
 
 CS families:
 
-- `Kairos.Stats.HowardRamdasCS` — admissibility of the telescoping HR boundary `σ √(2 t log(t(t+1)/α))`.
-- `Kairos.Stats.BettingCS` — admissibility of the betting CS via infinite-horizon Ville + log-wealth threshold.
-- `Kairos.Stats.GaussianRandomWalk` — sub-Gaussian random-walk crossing scaffold for vector + asymptotic families.
-- `Kairos.Stats.GaussianSmallBall` — Gaussian small-ball lower bound on the boundary-grazing event.
+- `Pythia.HowardRamdasCS` — admissibility of the telescoping HR boundary `σ √(2 t log(t(t+1)/α))`.
+- `Pythia.BettingCS` — admissibility of the betting CS via infinite-horizon Ville + log-wealth threshold.
+- `Pythia.GaussianRandomWalk` — sub-Gaussian random-walk crossing scaffold for vector + asymptotic families.
+- `Pythia.GaussianSmallBall` — Gaussian small-ball lower bound on the boundary-grazing event.
 
 Constants and rates:
 
-- `Kairos.Stats.Quantization` — scalar quantization-transport lemma + `etaHR`, `etaVector`, `etaAsymptotic`, `etaBetting` + family ranking.
-- `Kairos.Stats.MatchingConstants` — closed-form sharp constants `c_vector_sharp = 1/(2√π)`, `c_aCS_sharp = 1/(2√(2π))`.
-- `Kairos.Stats.Sharpness` — boundary-hugging adversaries that saturate `η_F · 2^{-s} · σ`.
-- `Kairos.Stats.VectorSharpness` — sharp-constant upgrade for the vector family.
-- `Kairos.Stats.PowerAnalysis` — Type-II / power-loss analogue of the slack theorem.
-- `Kairos.Stats.DeploymentDesign` — inverse: minimal `s` for a target coverage deviation `δ`.
+- `Pythia.Quantization` — scalar quantization-transport lemma + `etaHR`, `etaVector`, `etaAsymptotic`, `etaBetting` + family ranking.
+- `Pythia.MatchingConstants` — closed-form sharp constants `c_vector_sharp = 1/(2√π)`, `c_aCS_sharp = 1/(2√(2π))`.
+- `Pythia.Sharpness` — boundary-hugging adversaries that saturate `η_F · 2^{-s} · σ`.
+- `Pythia.VectorSharpness` — sharp-constant upgrade for the vector family.
+- `Pythia.PowerAnalysis` — Type-II / power-loss analogue of the slack theorem.
+- `Pythia.DeploymentDesign` — inverse: minimal `s` for a target coverage deviation `δ`.
 
 Quantization variants:
 
-- `Kairos.Stats.InputQuantization` — input-quantized variant (process observed at finite precision; exact boundary).
-- `Kairos.Stats.InformationTheoretic` — channel-capacity reformulation of the slack rate.
-- `Kairos.Stats.EquivalenceBreak` — finite-precision equivalence-breaking between self-normalized and betting CS.
-- `Kairos.Stats.ElegantUnification` — three structural unifications across families.
-
-Experimental:
-
-- `Kairos.Stats.NewTargetsStubs` — auxiliary lemma stubs feeding the formal-AVS expansion.
-- `Kairos.Stats.BenchDefs` — definitions for the Aristotle T0/T1/T2 bench.
-- `Kairos.Stats.AristotleT0T1T2Bench` — Aristotle-testable restatements of selected library theorems.
+- `Pythia.InputQuantization` — input-quantized variant (process observed at finite precision; exact boundary).
+- `Pythia.InformationTheoretic` — channel-capacity reformulation of the slack rate.
+- `Pythia.EquivalenceBreak` — finite-precision equivalence-breaking between self-normalized and betting CS.
+- `Pythia.ElegantUnification` — three structural unifications across families.
 
 ## Examples
 
 ### Ville's inequality on a non-negative supermartingale
 
 ```lean
-import Kairos.Stats.VilleSupermartingale
+import Pythia.VilleSupermartingale
 
-open Kairos.Stats MeasureTheory
+open Pythia MeasureTheory
 
 example
     {Ω : Type*} {m0 : MeasurableSpace Ω} {μ : Measure Ω} [IsFiniteMeasure μ]
@@ -225,9 +155,9 @@ example
 ### Howard-Ramdas CS admissibility
 
 ```lean
-import Kairos.Stats.HowardRamdasCS
+import Pythia.HowardRamdasCS
 
-open Kairos.Stats MeasureTheory
+open Pythia MeasureTheory
 
 example
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
@@ -242,9 +172,9 @@ example
 ### Betting CS admissibility
 
 ```lean
-import Kairos.Stats.BettingCS
+import Pythia.BettingCS
 
-open Kairos.Stats MeasureTheory
+open Pythia MeasureTheory
 
 example
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
@@ -266,14 +196,13 @@ example
 
 ## Versioning
 
-Semantic versioning. The `Kairos.Stats.API` surface (the umbrella `Kairos`
+Semantic versioning. The `Pythia.API` surface (the umbrella `Pythia`
 module plus the public theorem names listed in the Quick tour) is stable
 within a major version: signature changes go through a deprecation cycle.
 Internal modules — names starting with a lowercase helper prefix or
-declared `private`, plus everything under `BenchDefs` /
-`AristotleT0T1T2Bench` / `NewTargetsStubs` — may churn on any release.
-Mathlib revision pin is treated as part of the public surface; bumping it
-is a major-version event.
+declared `private` — may churn on any release. Mathlib revision pin is
+treated as part of the public surface; bumping it is a major-version
+event.
 
 ## Axiom discipline
 
@@ -283,9 +212,9 @@ ad-hoc axioms, no `@[implemented_by]` shortcuts on theorem-level
 definitions. Audit each theorem locally with
 
 ```lean
-#print axioms Kairos.Stats.ville_supermartingale
-#print axioms Kairos.Stats.hrStoppingRule_admissible
-#print axioms Kairos.Stats.bettingStoppingRule_admissible
+#print axioms Pythia.ville_supermartingale
+#print axioms Pythia.hrStoppingRule_admissible
+#print axioms Pythia.bettingStoppingRule_admissible
 ```
 
 The full audit log lives at
@@ -295,31 +224,20 @@ The full audit log lives at
 
 PRs welcome. Open an issue first to scope the change. All theorems must
 axiom-audit clean (`#print axioms` reports only `propext`, `Classical.choice`,
-`Quot.sound`) before merge, and the repo packaging matches Aristotle's
-tarball convention so any reviewer can drop a contribution into a fresh
-Aristotle worktree for a frictionless sanity-check.
+`Quot.sound`) before merge.
 
 ## Acknowledgments
 
 This library would not exist in its current form without
 **[Harmonic](https://harmonic.fun)** and the **Aristotle** automated
 theorem-proving system. Aristotle closed many of the hardest theorems in
-this repository — including the Ville-supermartingale machine-check
-(`d2755ea2`), the T3 Gaussian small-ball lower bound (`54614669`), the
-T4 wealth-process martingale property (`ca5f0a75`), the deployment-design
-trio (`4d9266c7`), the Type-II power-loss bound (`a03602a5`), the
-Howard-Ramdas CS admissibility (`e0ca7af5`), the betting CS
-admissibility (`82321bad`), the sub-gamma martingale + Bennett-Bernstein
-maximal inequality (`f254e362`), and the PAC-Bayes Radon-Nikodym KL
-divergence (`ff1832e6`) — all axiom-clean against
+this repository — including the Ville-supermartingale machine-check, the
+T3 Gaussian small-ball lower bound, the T4 wealth-process martingale
+property, the deployment-design trio, the Type-II power-loss bound, the
+Howard-Ramdas CS admissibility, the betting CS admissibility, the
+sub-gamma martingale + Bennett-Bernstein maximal inequality, and the
+PAC-Bayes Radon-Nikodym KL divergence — all axiom-clean against
 `{propext, Classical.choice, Quot.sound}`.
-
-Several of those closures replaced sorry'd scaffolds that humans could
-state cleanly but not prove without weeks of manual effort. Aristotle
-reduced that to hours per theorem with full axiom-audit transparency on
-every closure. The library is positioned, in part, around what is
-*Aristotle-tractable* — the partnership shapes which territory we
-formalize first.
 
 The library is also indebted to the Lean 4 + Mathlib community
 (particularly the `Mathlib.Probability.Moments.SubGaussian` and

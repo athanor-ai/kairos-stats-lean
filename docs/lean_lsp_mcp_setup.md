@@ -1,13 +1,13 @@
-# lean-lsp-mcp setup for kairos-stats-lean
+# lean-lsp-mcp setup for pythia
 
 This is the developer setup guide for running `oOo0oOo/lean-lsp-mcp` against
 this repository. Once configured, an MCP-aware client (Claude Code, Cursor,
 VSCode) gets sub-second LSP feedback (`lean_goal`, `lean_diagnostic_messages`)
 and can run `lean_multi_attempt` on candidate tactic scripts in parallel.
 
-This is the **prerequisite layer** for `pythia` (ATH-608),
-`kairos_grind` (ATH-609), `kairos_aesop` (ATH-610), `concentration_search`
-(ATH-611), and the `kairos.fleet.LeanProver` multi-agent closer (ATH-615).
+This is the **prerequisite layer** for `pythia`,
+`pythia_grind`, `pythia_aesop`, `concentration_search`
+, and the `pythia.fleet.LeanProver` multi-agent closer.
 Without LSP the cycle engine reduces to manual `lake build` (30-60s/edit),
 which is too slow for the autoformalization-class workflows.
 
@@ -28,7 +28,7 @@ non-built repo can time out the MCP client. Pre-warming with `lake build`
 makes startup <5s.
 
 ```bash
-cd /path/to/kairos-stats-lean
+cd /path/to/pythia
 lake exe cache get   # pull Mathlib oleans (first time)
 lake build           # warm full build
 ```
@@ -36,7 +36,7 @@ lake build           # warm full build
 Confirm the WaldIdentity + SPRT modules build:
 
 ```bash
-lake build Kairos.Stats.WaldIdentity Kairos.Stats.SPRT
+lake build Pythia.WaldIdentity Pythia.SPRT
 ```
 
 ### 3. Smoke-test the server
@@ -70,7 +70,7 @@ Add to `.claude/settings.json` or the user-level `~/.claude/settings.json`:
 ```
 
 The MCP server is invoked from the project root; ensure your Claude Code
-session's working directory is the kairos-stats-lean checkout.
+session's working directory is the pythia checkout.
 
 #### VSCode / Cursor
 
@@ -107,7 +107,7 @@ brew install ripgrep        # macOS
 | `lean_code_actions(file, line)` | Resolve `simp?` / `exact?` / `apply?` "Try this" |
 | `lean_verify(name)` | Axiom check + source scan; required at Phase 4 (Review) |
 
-### Search — used by `concentration_search` (ATH-611) and Phase 1 oracle
+### Search — used by `concentration_search` and Phase 1 oracle
 
 | Tool | Rate limit (external) | Use |
 |------|----------------------|-----|
@@ -127,10 +127,10 @@ brew install ripgrep        # macOS
 | `lean_declaration_file(name)` | Source of a declaration (large output) |
 | `lean_profile_proof(name)` | Profile a theorem; tactic hotspots |
 
-## Self-hosting (ATH-616 follow-up)
+## Self-hosting (follow-up)
 
 External rate limits (3-10 / 30s on most search tools) will throttle the
-multi-agent fleet (ATH-615) once we exceed ~6 concurrent children. Mitigation:
+multi-agent fleet once we exceed ~6 concurrent children. Mitigation:
 
 | Tool | Self-host how |
 |------|---------------|
@@ -145,7 +145,7 @@ export LEAN_REPL=true
 ```
 
 The `repl` package needs to be pinned to the same Lean version as
-kairos-stats-lean (currently 4.28.0 per Aristotle parity).
+pythia (currently 4.28.0 per Aristotle parity).
 
 ## Troubleshooting
 
@@ -168,7 +168,7 @@ That means the search ran but found no results. Try a different query shape (NL 
 ## References
 
 - [oOo0oOo/lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) — upstream
-- ATH-616 — this ticket (kairos-stats-lean integration + self-hosting)
-- ATH-615 — kairos.fleet.LeanProver (uses lean-lsp-mcp as substrate)
-- ATH-608 — `pythia` (cycle engine built on top)
+- — this ticket (pythia integration + self-hosting)
+- — pythia.fleet.LeanProver (uses lean-lsp-mcp as substrate)
+- — `pythia` (cycle engine built on top)
 - `cameronfreer/lean4-skills` — the cycle-engine model we adopt

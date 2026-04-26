@@ -1,10 +1,8 @@
 name: Lean Build + Axiom Audit
 
-# Aidan 2026-04-25 mainline-protection mandate: every push (every branch,
-# not just main) must lake-build clean. A broken Lean compile cannot land
-# anywhere — not on main, not on a feature branch. This trigger fires on
-# every branch push so that a broken push fails CI immediately and the
-# branch tip is visibly red on the PR/branch view.
+# Every push (every branch, not just main) must lake-build clean. A
+# broken Lean compile cannot land — not on main, not on a feature
+# branch. Failed CI marks the branch tip visibly red.
 on:
   push:
     branches: ['**']
@@ -47,30 +45,22 @@ jobs:
         run: lake exe cache get
 
       - name: Build all modules (full Lean sweep — gate)
-        run: |
-          # Per Aidan 2026-04-25 mandate: a single broken Lean file fails
-          # the build, which fails this CI step, which marks the branch
-          # tip red. No further steps run. This is the mainline-protection
-          # gate.
-          lake build
+        run: lake build
 
       - name: Per-file Lean sweep (defense-in-depth)
         run: |
           # Even if `lake build` succeeded, run each top-level Lean file
           # individually to catch any file that builds via cache but
-          # fails when re-elaborated (rare but possible during cache
-          # warmup). Treat every elaboration error as fatal.
+          # fails when re-elaborated.
           #
           # Excludes:
-          #   - **/Tactic/*Test.lean — test files use `example` blocks that
-          #     elaborate fine in build but emit warnings on bare re-elaboration.
-          #   - VilleMathlibPR.lean — Mathlib-PR-style draft, intentionally
-          #     namespaced under `MeasureTheory` not `Kairos.Stats`, excluded
-          #     from the umbrella for the same reason. Per the "no upstream
-          #     PR" mandate (Aidan 2026-04-25) this file has no shipping
-          #     consumers; per-file sweep skip is the correct treatment.
+          #   - **/Tactic/*Test.lean — test files use `example` blocks
+          #     that emit warnings on bare re-elaboration.
+          #   - VilleMathlibPR.lean — Mathlib-PR-style draft, namespaced
+          #     under `MeasureTheory` not `Pythia`, excluded from the
+          #     umbrella for the same reason.
           set -e
-          for f in $(find Kairos -name '*.lean' -not -path '*/Tactic/*Test.lean' -not -name 'VilleMathlibPR.lean' | sort); do
+          for f in $(find Pythia -name '*.lean' -not -path '*/Tactic/*Test.lean' -not -name 'VilleMathlibPR.lean' | sort); do
             echo "::group::lake env lean $f"
             lake env lean "$f"
             echo "::endgroup::"
@@ -81,9 +71,7 @@ jobs:
           # Every public theorem under test must depend only on the Lean
           # kernel's trusted axioms: propext, Classical.choice, Quot.sound.
           # Anything else (e.g. sorryAx, added axioms) fails CI.
-          lake env lean Kairos/Stats/AxiomAudit.lean > axiom-audit.txt 2>&1 || true
+          lake env lean Pythia/AxiomAudit.lean > axiom-audit.txt 2>&1 || true
           cat axiom-audit.txt
-          # Forbid any axiom line that is not in the trusted set.
           ! grep -E "^\s*(sorryAx|Mathlib\.Axioms|[A-Z][a-zA-Z]*\.axiom)" axiom-audit.txt
-          # Must contain at least one "axioms" report — proves audit ran.
           grep -q "axioms" axiom-audit.txt

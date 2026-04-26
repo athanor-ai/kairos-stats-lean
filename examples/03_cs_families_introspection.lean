@@ -6,9 +6,9 @@ examples/03_cs_families_introspection.lean — discoverability commands.
 parameters. Both are info-only commands; the real work happens at the
 theorem level (admissibility, ranking).
 -/
-import Kairos.Stats.Tactic.CSFamilyRegistry
-import Kairos.Stats.Tactic.VilleCmd
+import Pythia.Tactic.CSFamilyRegistry
+import Pythia.Tactic.VilleCmd
 
-open Kairos.Stats
+open Pythia
 
 #cs_families

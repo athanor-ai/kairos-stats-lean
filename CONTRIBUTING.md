@@ -15,20 +15,15 @@ By participating, you agree to abide by the
   stochastic approximation, info-theoretic divergences, modern
   high-dim probability, conformal prediction.
 - Tactics for stats reasoning — `pythia` (domain hammer), `stats_ineq`
-  (inequality hammer), `pdf_simp` (probability normalization),
-  `anytime_valid` (Ville closer), `sequential_stats` (planned).
+  (inequality hammer), `prob_simp` (probability normalization),
+  `anytime_valid` (Ville closer), `z3_check` (Z3 oracle + reconstruction).
 - Attributes + commands for discoverability — `@[stat_lemma]`,
   `@[cs_family]`, `@[stats_ineq]`, `@[prob_simp]`, `#stat_lemmas`,
-  `#cs_families`, `#concentration` (planned).
+  `#cs_families`.
 
 **Pythia is NOT** an LLM library. No machine-learning runtime, no
 cloud calls, no external API keys, no auto-formalization endpoints. It
 runs entirely offline against any Lean 4 + Mathlib install.
-
-LLM-driven autoformalization, multi-prover swarm orchestration, and
-Aristotle integration live separately in
-[`athanor-sdk`](https://github.com/athanor-ai/athanor-sdk) (the
-companion `athanor-kairos` PyPI package).
 
 ## Hard rules
 
@@ -51,22 +46,22 @@ status visibly. Fix the build before pushing again. Don't push and
 
 ### 2. Axiom-clean against the trusted triple
 
-Every theorem that joins `Kairos.Stats.API` must depend only on
+Every theorem that joins `Pythia.API` must depend only on
 `{propext, Classical.choice, Quot.sound}` — the standard Lean kernel
 axiom set. Anything else (a lingering `sorryAx`, a custom `axiom Foo`
 declaration, a `@[implemented_by]` shortcut on theorem-level defs)
 fails the audit. Audit a single theorem with:
 
 ```lean
-#print axioms Kairos.Stats.your_theorem
+#print axioms Pythia.your_theorem
 ```
 
-`Kairos/Stats/AxiomAudit.lean` runs the audit across the public API
+`Pythia/AxiomAudit.lean` runs the audit across the public API
 on every commit; CI enforces.
 
 Sorries on scaffold files (clearly flagged in the module docstring +
 excluded from the audit's import list) are acceptable as in-flight
-markers, *with a tracking ticket and an active path to closure*.
+markers, *with a tracking issue and an active path to closure*.
 Indefinite sorries decay into lies as readers forget the provisional
 status — close them or remove them.
 
@@ -80,12 +75,11 @@ the claim. We've been bitten by this before; reviewers will push back.
 ### 4. No LLM coupling in the library
 
 Pythia is offline-first. If your contribution imports an HTTP client,
-calls a model API, or requires a cloud key, it belongs in
-[`athanor-sdk`](https://github.com/athanor-ai/athanor-sdk), not here.
+calls a model API, or requires a cloud key, it does not belong here.
 The Lean kernel must accept your work without internet access.
 
-The cross-prover hammer (Z3/Dafny/EBMC/CBMC/Vampire — see ROADMAP) is
-an exception: those are *deterministic external solvers*, not LLMs.
+The cross-prover hammer (Z3 today; Dafny / EBMC / CBMC / Vampire planned)
+is an exception: those are *deterministic external solvers*, not LLMs.
 Their certificates always reconstruct into Lean tactic syntax checked
 by the kernel.
 
@@ -106,59 +100,37 @@ Mathlib `Mathlib/Tactic/Foo.lean` ↔ `docs/foo.md` convention.
 
 ## How to add a new theorem
 
-1. **Read the [`ROADMAP.md`](ROADMAP.md)** — the multi-tier plan
-   already lists the priority candidates. If your theorem is on the
-   roadmap, claim it on the relevant Linear ticket (ATH-591/*) before
-   starting.
-2. **Pick the right module**. Concentration → `Kairos.Stats.SubGaussianMG` or `SubGamma`. CS family → `Kairos.Stats.HowardRamdasCS` etc. Pure measure-theory infra → `Kairos.Stats.MeasureTheory.<topic>`. Information theory → `Kairos.Stats.InfoTheory.<topic>`.
+1. **Open an issue first** to scope the change and avoid duplicate work.
+2. **Pick the right module**. Concentration → `Pythia.SubGaussianMG` or `SubGamma`. CS family → `Pythia.HowardRamdasCS` etc. Pure measure-theory infra → `Pythia.MeasureTheory.<topic>`. Information theory → `Pythia.InfoTheory.<topic>`.
 3. **State the theorem first**. Open a *scaffold PR* with the statement + an honest sorry + a closure plan in the docstring. Mark the module excluded from `AxiomAudit` until closure lands.
-4. **Tag it for the tactic suite**. Concentration / inequality / closing-form lemmas get `@[stat_lemma]` (pythia hammer). Monotonicity / nonneg / ranking lemmas get `@[stats_ineq]`. Probability-normalization simp lemmas get `@[prob_simp]`. Aesop ruleset name `Kairos.Stats` is the umbrella.
+4. **Tag it for the tactic suite**. Concentration / inequality / closing-form lemmas get `@[stat_lemma]` (pythia hammer). Monotonicity / nonneg / ranking lemmas get `@[stats_ineq]`. Probability-normalization simp lemmas get `@[prob_simp]`. Aesop ruleset name `Pythia` is the umbrella.
 5. **Close the proof**. Local Mathlib first (linarith / nlinarith /
    gcongr / aesop / fun_prop / measurability). External-prover hammer
-   (Z3, EBMC, etc.) when the goal is in their wheelhouse. If you need
-   Aristotle for a hard structural piece, that's fine — the
-   reconstruction must compile in Lean kernel.
-6. **Wire to `Kairos.Stats.API`**. Once axiom-clean, add the theorem
+   (Z3 etc.) when the goal is in their wheelhouse. The reconstruction
+   must compile in Lean kernel.
+6. **Wire to `Pythia.API`**. Once axiom-clean, add the theorem
    name to the audit list + the public API umbrella.
 7. **Add tests**. At least 1 regression test that the `pythia` tactic
    closes the headline goal in 1 line; 1 example using the theorem
    directly.
-8. **Update [`ROADMAP.md`](ROADMAP.md)** to check off the entry and
-   note the version it landed in.
-9. **PR review**: per the Aidan 2026-04-25 fleet rule, one peer LGTM
-   from any other agent (`research`, `qa`, `platform`, `cto`)
-   unblocks admin-merge. CI must be green; the merge state must be
-   `MERGEABLE`.
+8. **PR review**: one approving review from any other contributor + green
+   CI before merge.
 
 ## How to add a new tactic
 
 Same as theorems, plus:
 
-10. **Document the tactic** in a `docs/<tactic>.md` page mirroring
-    Mathlib's tactic-doc style.
-11. **Ship a test file** at `Kairos/Stats/Tactic/<Foo>Test.lean` with
+9. **Document the tactic** in a `docs/<tactic>.md` page mirroring
+   Mathlib's tactic-doc style.
+10. **Ship a test file** at `Pythia/Tactic/<Foo>Test.lean` with
     at least 5 worked examples. Tests must close in <500ms each on
     CI runner hardware.
-12. **Add an `examples/` entry** for copy-paste-ready user code. The
+11. **Add an `examples/` entry** for copy-paste-ready user code. The
     bar is "a new user can lift this snippet into their project and
     it works."
 
-## Coordination protocol
-
-Most-active channel: `#dev-research` for research work,
-`#dev-platform` for SDK/platform infra, `#agent-founder` for founder
-asks. Linear ATH-591/* tickets track all pythia work.
-
-Pinging conventions:
-- *Cross-fleet* discussion (research / qa / platform / cto): same
-  channel + same thread, `<@UID>` mentions in body.
-- *Founder asks*: never repost to `#agent-founder` unless the
-  founder is the audience; default to the dev-* channel that
-  matches the topic.
-
 ## Reading list
 
-- [`ROADMAP.md`](ROADMAP.md) — the multi-tier theorem plan + cross-domain candidate pool.
 - [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) — sub-second LSP feedback for serious users.
 - [`demo/README.md`](demo/README.md) — 5-minute walkthrough.
 - [`examples/`](examples/) — copy-paste user code.

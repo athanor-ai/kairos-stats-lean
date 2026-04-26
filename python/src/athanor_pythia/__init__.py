@@ -11,16 +11,16 @@ and cross-domain stats (quant / actuarial / physics / biology / ML).
 
 Lean tactics don't ship via PyPI; install the Lean library via:
 
-    require kairos-stats-lean from git
+    require pythia from git
       "https://github.com/athanor-ai/pythia.git" @ "main"
 
 Future versions of this Python package will expose:
 
-    - kairos.fleet.LeanProver (multi-agent cycle-driven proof closer)
+    - pythia.fleet.LeanProver (multi-agent cycle-driven proof closer)
     - lean-lsp-mcp helpers for pythia-aware tooling
     - LSP backend self-hosters for loogle / leanfinder / hammer-premise
 
-Companion SDK: `athanor-kairos` (https://github.com/athanor-ai/athanor-sdk).
+Companion SDK: `athanor-pythia` (https://github.com/athanor-ai/athanor-sdk).
 """
 
 __version__ = "0.0.1"

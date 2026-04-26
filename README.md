@@ -97,11 +97,20 @@ model. Opus has the highest closure rate on our internal calibration
 set for the natural-language → Lean → tactic-dispatch path. Other
 models work; Opus is the default we recommend.
 
-Oracles (Z3, CVC5, Vampire, E, EBMC, CBMC, Dafny) are open-source and
-run locally. The Lean kernel always has the final word: every
-external-prover verdict is reconstructed into a Lean tactic script
-that the kernel checks against `{propext, Classical.choice,
-Quot.sound}`. No claim escapes the kernel.
+Oracles wired on the pythia LEAN side today: Z3 (QF_LRA), CVC5
+(QF_BV + QF_LRA backup), Vampire (FOL), E (FOL backup). All
+open-source, all run locally, all kernel-clean: every verdict is
+reconstructed into a Lean tactic script the kernel checks against
+`{propext, Classical.choice, Quot.sound}`. No claim escapes the
+kernel.
+
+Phase 6 reflective adapters (EBMC for hardware assertions, CBMC for
+software invariants, Dafny for Hoare triples) are design-only at
+this point. See [`docs/reflective_oracles.md`](docs/reflective_oracles.md)
+for the kernel-clean restriction (each requires a per-language
+reflective decision procedure to land first). The companion SDK
+ships separate Python adapters for those provers; the in-Lean
+tactic is the gap.
 
 ## Hello, pythia
 

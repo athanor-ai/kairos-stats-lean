@@ -66,6 +66,9 @@ import Pythia.Tactic.VampireCheck
 import Pythia.Tactic.VampireCheckTest
 import Pythia.Tactic.ECheck
 import Pythia.Tactic.ECheckTest
+-- Domain calculator typeclass: generic Param/Output/Family/report
+-- abstraction shared by all domain calculators (TightTail, etc.).
+import Pythia.Tactic.DomainCalculator
 -- Tail-bound calculator: pick the sharpest registered concentration
 -- bound at concrete parameters. Goes beyond a closure tactic; this
 -- is a domain calculator.
@@ -112,3 +115,7 @@ import Pythia.Risk.CVaR
 -- `Pythia/Bench/README.md` for the section breakdown and add-a-bench
 -- recipe.
 import Pythia.Bench.MiniPythia
+
+-- ATH-718 Layer 1: actuarial loss distributions (Pareto, Weibull, LogNormal).
+-- Moment + tail formulas; see each module for Aristotle queue candidates.
+import Pythia.Actuarial

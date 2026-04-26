@@ -75,6 +75,9 @@ import Pythia.Tactic.Disprove
 import Pythia.Tactic.DisproveTest
 -- Cascade routing regression suite (verifies pythia? rung naming).
 import Pythia.Tactic.CascadeTest
+-- Per-domain @[*_lemma] taxonomy (actuarial / numerical / bio /
+-- bayes / control). Cross-cutting infra for v0.4+ domain expansion.
+import Pythia.Tactic.DomainRegistry
 -- Information theory (Bretagnolle-Huber binary form).
 import Pythia.InfoTheory.BretagnolleHuberBinary
 -- Measure theory infra (own-implement Mathlib gap).

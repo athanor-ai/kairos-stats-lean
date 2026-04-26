@@ -76,6 +76,9 @@ import Pythia.Tactic.ValidateInvokedLemmasTest
 -- LLM-defense layer (ATH-718 Layer 3): parametricity / concretization guard.
 import Pythia.Tactic.FlagConcreteConstants
 import Pythia.Tactic.FlagConcreteConstantsTest
+-- LLM-defense layer (ATH-724 Guard C): unused-hypothesis guard.
+import Pythia.Tactic.MinimizeHypotheses
+import Pythia.Tactic.MinimizeHypothesesTest
 -- Counterexample-finder tactic — disprove (Phase 1, dual of z3_check).
 import Pythia.Tactic.Disprove
 import Pythia.Tactic.DisproveTest

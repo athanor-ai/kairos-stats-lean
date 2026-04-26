@@ -36,6 +36,8 @@ import Kairos.Stats.TimeUniformCLT
 -- Tier 2 sequential-stats scaffolds (ATH-604/605, sorries — see docstrings).
 import Kairos.Stats.WaldIdentity
 import Kairos.Stats.SPRT
+-- Tier 2 e-detector scaffold (ATH-606, sorries — see module docstring for closure plans).
+import Kairos.Stats.EDetector
 -- Tactic layer (Phase B+).
 import Kairos.Stats.Tactic.AnytimeValid
 import Kairos.Stats.Tactic.AnytimeValidRegistry

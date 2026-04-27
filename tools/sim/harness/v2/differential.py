@@ -77,7 +77,20 @@ def lean_eval_matches_python(
     *,
     tolerance: float = 1e-9,
 ) -> bool:
-    """#eval <lean_decl.format(**inputs)> matches python_fn(**inputs). Skips if no lake."""
+    """#eval <lean_decl.format(**inputs)> matches python_fn(**inputs). Skips if no lake.
+
+    NOTE on batched differential: the current API takes a single
+    ``inputs`` dict and pays one lake-startup cost (~3s cold) per
+    call. Today's ``Sim.run()`` invokes differential exactly once
+    per sim, so this cost is already at the minimum.
+
+    A future multi-input differential probe (e.g., differential
+    over a parameter grid) would call this N times, paying N lake
+    startups. When that use case materialises, refactor to a
+    persistent subprocess or a batched tmpfile rather than calling
+    this function N times. Not implemented today because no caller
+    needs it. ATH-789-followup if/when reopened.
+    """
     raw = _lean_eval(lean_decl.format(**inputs))
     if raw is None:
         warnings.warn("lean_eval_matches_python: lake not found or eval failed — skipping", stacklevel=2)

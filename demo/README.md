@@ -20,6 +20,7 @@ lake init mypaper
 
 Add to your `lakefile.lean`:
 
+<!-- doctest: lakefile -->
 ```lean
 require pythia from git
   "https://github.com/athanor-ai/pythia.git" @ "main"
@@ -107,6 +108,7 @@ example (p q : Prop) (hp : p) (hq : q) : p ∧ q := by pythia
 Use `pythia` to normalise or discharge a subgoal, then hand the
 residual to `linarith`:
 
+<!-- doctest: skip-reason: continuation of prior block -->
 ```lean
 example (a b : ℝ) (ha : 0 < a) (hb : 0 < b) (h : a + b ≤ 3) : a < 3 := by
   have hpos : 0 < a + b := by pythia   -- pythia closes positivity subgoal
@@ -123,6 +125,7 @@ closes out the conclusion.
 `@[aesop safe apply (rule_sets := [Pythia])]`.
 If you need aesop's full configuration surface, call the ruleset directly:
 
+<!-- doctest: skip-reason: continuation of prior block -->
 ```lean
 @[stat_lemma]
 theorem sub_self_zero (x : ℝ) : x - x = 0 := sub_self x
@@ -142,6 +145,7 @@ Normalise the goal with a targeted `simp only` pass first, then hand
 the simplified form to `pythia`. This avoids full `simp` blowing up
 the goal while still benefiting from pythia's dispatch chain:
 
+<!-- doctest: skip-reason: continuation of prior block -->
 ```lean
 example (x : ℝ) : x * 1 + 0 = x := by
   simp only [mul_one, add_zero]
@@ -180,6 +184,7 @@ and `@[stat_lemma]` is a thin attribute wrapper around
 
 ## Discoverability
 
+<!-- doctest: cmd-only -->
 ```lean
 #cs_families       -- list all @[cs_family]-tagged definitions
 #stat_lemmas       -- describe the @[stat_lemma] aesop ruleset

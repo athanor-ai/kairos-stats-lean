@@ -83,12 +83,14 @@ simplified form to `pythia`.  This avoids full `simp` blowing up the
 goal while still benefiting from the pythia dispatch chain.
 -/
 
-/-- Normalise x * 1 to x with simp, then trivially close. -/
+/-- Normalise x * 1 to x with a targeted `simp only`, then close
+the residual `x + 0 = x` via the `pythia` cascade. -/
 example (x : ℝ) : x * 1 + 0 = x := by
-  simp only [mul_one, add_zero]
+  simp only [mul_one]
   pythia
 
-/-- Normalise list membership after simp, then close with pythia. -/
+/-- Drop the spurious `+ 0` with simp, then let pythia close the
+residual linear inequality. -/
 example (n : ℕ) (h : n ≤ 4) : n + 0 ≤ 4 := by
   simp only [add_zero]
   pythia

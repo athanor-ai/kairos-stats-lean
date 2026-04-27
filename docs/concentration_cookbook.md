@@ -124,6 +124,8 @@ If you have specific numbers (n = 1000, σ = 0.3, ε = 0.05, b = 1),
 and want to know which inequality gives the tightest bound, run
 
 ```lean
+import Pythia.Tactic.TightTail
+
 #eval Pythia.TightTail.report (σ := 0.3) (b := 1) (n := 1000) (ε := 0.05)
 ```
 

@@ -45,6 +45,7 @@ assert property (@(posedge clk) p);
 where `p` is a Boolean combination of bit-vector equalities and
 inequalities over signals of bounded width. The Lean shadow is
 
+<!-- doctest: skip-reason: depends on user-defined p_lean / CircuitState -->
 ```lean
 theorem my_assertion : ∀ (s : Σ (n : ℕ), CircuitState n), p_lean s := by
   decide

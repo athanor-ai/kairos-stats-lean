@@ -100,21 +100,103 @@ Mathlib `Mathlib/Tactic/Foo.lean` ↔ `docs/foo.md` convention.
 
 ## How to add a new theorem
 
+There are two tracks. Pick the one that matches your contribution.
+
+### Track A: cross-domain closed-form fact (the quick path)
+
+For a single named fact from chemistry, biology, economics, engineering,
+mechanics, control, OR, signal processing, or similar fields. One Lean
+file, one Python runner. Most community contributions fit here.
+
+1. **Pick a target.** A textbook fact that closes in one screen of Lean
+   and isn't in mathlib by name. Examples already shipped:
+   Cobb-Douglas constant returns to scale, Arrhenius rate positivity,
+   Hardy-Weinberg conservation, Lotka-Volterra equilibrium positivity,
+   risk-neutral call non-negativity, Hooke spring potential energy
+   non-negativity, scalar Lyapunov stability.
+
+2. **Scaffold via the CLI.** The `tools/add_theorem.py` script writes
+   the Lean module + the Python runner skeleton + appends a manifest
+   entry in one command:
+
+   ```bash
+   python3 tools/add_theorem.py \
+       --domain Mechanical \
+       --name bernoulli_invariant \
+       --statement '...your full Lean theorem statement...' \
+       --summary 'one-sentence customer-facing description' \
+       --strategy 'p1=floats(0,1e6),v1=floats(0,100),...' \
+       --reference 'Bernoulli, D. Hydrodynamica (1738)'
+   ```
+
+   This creates `Pythia/Mechanical/BernoulliInvariant.lean`,
+   `tools/sim/mechanical_bernoulli_invariant.py`, and patches
+   `tools/sim/theorem_manifest.py`. Add `--dry-run` to preview.
+
+3. **Fill in the proof.** Replace `by sorry` with a real tactic. Most
+   targets close in 1-3 tactics: `positivity`, `linarith`, `nlinarith`,
+   `ring`, `field_simp`, `mul_pos`, `div_nonneg`, etc. Tag with
+   `@[stat_lemma]` so the cascade picks it up.
+
+4. **Fill in the runner.** Implement the spec body (the empirical
+   form returning `True` when the bound holds within `rtol=1e-9`) and
+   add 3 mutations from `tools/sim/mutations.py`:
+
+   - `negate_value` flips the verdict
+   - `drop_factor` pins one parameter to a constant
+   - `swap_inequality` is an alias for `negate_value`
+   - `strict_bound_below` / `strict_bound_above` strengthen the bound
+   - `custom_transform` is the escape hatch for domain-shaped mutations
+
+5. **Verify locally.**
+
+   ```bash
+   lake build Pythia.<Domain>.<Name>
+   python3 -m tools.sim.<domain>_<name>
+   python3 tools/run_pythia_sim.py
+   ```
+
+   The first builds the Lean proof + the axiom audit. The second runs
+   the runner with full 10 000-draw PBT + sweep + mutations. The
+   third runs every manifest-listed runner (regression sweep).
+
+6. **Open the PR.** CI runs `Lean Build + Axiom Audit` and the
+   `Pythia simulation sweep`. Both must pass before a maintainer can
+   admin-merge.
+
+### Track B: statistics-spine theorem (the deep path)
+
+For larger contributions inside the statistics core: anytime-valid
+confidence sequences, concentration inequalities, e-detectors,
+information-theoretic divergences, sequential testing, conformal
+prediction, etc. These typically live in `Pythia.SubGaussianMG`,
+`Pythia.SubGamma`, `Pythia.HowardRamdasCS`, `Pythia.InfoTheory.<topic>`,
+or `Pythia.MeasureTheory.<topic>`.
+
 1. **Open an issue first** to scope the change and avoid duplicate work.
-2. **Pick the right module**. Concentration → `Pythia.SubGaussianMG` or `SubGamma`. CS family → `Pythia.HowardRamdasCS` etc. Pure measure-theory infra → `Pythia.MeasureTheory.<topic>`. Information theory → `Pythia.InfoTheory.<topic>`.
-3. **State the theorem first**. Open a *scaffold PR* with the statement + an honest sorry + a closure plan in the docstring. Mark the module excluded from `AxiomAudit` until closure lands.
-4. **Tag it for the tactic suite**. Concentration / inequality / closing-form lemmas get `@[stat_lemma]` (pythia hammer). Monotonicity / nonneg / ranking lemmas get `@[stats_ineq]`. Probability-normalization simp lemmas get `@[prob_simp]`. Aesop ruleset name `Pythia` is the umbrella.
-5. **Close the proof**. Local Mathlib first (linarith / nlinarith /
+2. **Pick the right module.** Concentration → `Pythia.SubGaussianMG` or
+   `SubGamma`. CS family → `Pythia.HowardRamdasCS` etc. Pure
+   measure-theory infra → `Pythia.MeasureTheory.<topic>`. Information
+   theory → `Pythia.InfoTheory.<topic>`.
+3. **State the theorem first.** Open a *scaffold PR* with the statement
+   + an honest sorry + a closure plan in the docstring. Mark the module
+   excluded from `AxiomAudit` until closure lands.
+4. **Tag it for the tactic suite.** Concentration / inequality /
+   closing-form lemmas get `@[stat_lemma]` (pythia hammer). Monotonicity
+   / nonneg / ranking lemmas get `@[stats_ineq]`. Probability-
+   normalization simp lemmas get `@[prob_simp]`. Aesop ruleset name
+   `Pythia` is the umbrella.
+5. **Close the proof.** Local Mathlib first (linarith / nlinarith /
    gcongr / aesop / fun_prop / measurability). External-prover hammer
    (Z3 etc.) when the goal is in their wheelhouse. The reconstruction
    must compile in Lean kernel.
-6. **Wire to `Pythia.API`**. Once axiom-clean, add the theorem
-   name to the audit list + the public API umbrella.
-7. **Add tests**. At least 1 regression test that the `pythia` tactic
+6. **Wire to `Pythia.API`.** Once axiom-clean, add the theorem name to
+   the audit list + the public API umbrella.
+7. **Add tests.** At least 1 regression test that the `pythia` tactic
    closes the headline goal in 1 line; 1 example using the theorem
    directly.
-8. **PR review**: one approving review from any other contributor + green
-   CI before merge.
+8. **PR review.** One approving review from any other contributor +
+   green CI before merge.
 
 ## How to add a new tactic
 

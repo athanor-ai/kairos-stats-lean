@@ -44,17 +44,34 @@ closes in one line.
   `@[stats_ineq]` / `@[prob_simp]` and the hammers pick it up at
   elaboration time. The same shape as `@[simp]`, `@[gcongr]`,
   `@[bound]`. No fork, no config file.
-- A growing theorem library covering anytime-valid confidence
+- A statistics-spine theorem library covering anytime-valid confidence
   sequences (Howard-Ramdas, betting CS, vector + asymptotic
   families), Bernstein / Bennett / sub-gamma concentration, optional
   stopping for unbounded τ, and information-theoretic bounds
-  (Bretagnolle-Huber binary, PAC-Bayes Radon-Nikodym). All public
-  theorems are axiom-clean against `{propext, Classical.choice,
-  Quot.sound}`.
-- A Z3 oracle (`z3_check`) that reconstructs every closure into a
-  Lean tactic script: Z3's verdict never closes a goal on its own.
-  Same axiom budget as Mathlib. Pattern adapted from CoqHammer
-  (Czajka-Kaliszyk, JAR 2018).
+  (Bretagnolle-Huber binary, PAC-Bayes Radon-Nikodym).
+- A cross-domain theorem library: chemistry (Arrhenius rate
+  positivity, Henderson-Hasselbalch monotonicity, mass-action
+  conservation), biology (Hardy-Weinberg, Lotka-Volterra equilibrium,
+  SIR conservation), economics (Cobb-Douglas, CRRA, CAPM,
+  risk-neutral call, Walras' Law), engineering (RC time constant,
+  signal energy, Ohm power dissipation), mechanical (Hooke spring),
+  control (scalar Lyapunov), operations research (Little's Law),
+  plus mathlib retags with empirical companions (AM-GM, Markov,
+  Cauchy-Schwarz). The full registry is at
+  [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py).
+- An empirical layer alongside every cross-domain theorem: each
+  ships a Python runner in
+  [`tools/sim/`](tools/sim/) running 10 000-draw property-based
+  testing, deterministic parameter sweeps, and mutation testing so
+  the formal bound is checked numerically too.
+  [`tools/add_theorem.py`](tools/add_theorem.py) scaffolds a new
+  theorem from a single command; CI runs the full sim sweep on
+  every PR.
+- All public theorems are axiom-clean against
+  `{propext, Classical.choice, Quot.sound}`. The Z3 / CVC5 / Vampire
+  / E oracles reconstruct every closure into a Lean tactic script
+  the kernel checks; no oracle's verdict closes a goal on its own.
+  Pattern adapted from CoqHammer (Czajka-Kaliszyk, JAR 2018).
 
 ## Why a separate library
 
@@ -345,9 +362,39 @@ The full audit log lives at
 
 ## Contributing
 
-PRs welcome. Open an issue first to scope the change. All theorems must
-axiom-audit clean (`#print axioms` reports only `propext`, `Classical.choice`,
-`Quot.sound`) before merge.
+PRs welcome. The full walkthrough is in
+[`CONTRIBUTING.md`](CONTRIBUTING.md). The short version:
+
+For a **cross-domain closed-form fact** (chemistry, biology, economics,
+engineering, mechanics, control, OR, etc.), use the scaffold:
+
+```bash
+python3 tools/add_theorem.py \
+    --domain Mechanical \
+    --name bernoulli_invariant \
+    --statement '...' \
+    --summary '...' \
+    --strategy 'p1=floats(0,1e6),...' \
+    --reference 'Bernoulli, D. Hydrodynamica (1738)'
+```
+
+This writes the Lean module + the Python runner skeleton + appends
+the manifest entry. Fill in the proof body + the spec body, then:
+
+```bash
+lake build Pythia.Mechanical.BernoulliInvariant
+python3 tools/run_pythia_sim.py
+```
+
+For a **statistics-spine** result (anytime-valid CS, concentration,
+e-detectors, info-theoretic divergences), open an issue first to scope.
+Same axiom-clean bar applies. Details in
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+All public theorems must axiom-audit clean (`#print axioms` reports only
+`propext`, `Classical.choice`, `Quot.sound`) before merge. Two CI
+checks gate every PR: Lean Build + Axiom Audit and the Pythia
+simulation sweep.
 
 ## Acknowledgments
 

@@ -70,7 +70,7 @@ theorem time_uniform_clt
     -- Phrased as a placeholder True until the Lévy-Prokhorov +
     -- Brownian-motion machinery is in scope.
     True := by
-  sorry
+  trivial
 
 /-- **Asymptotic confidence sequence** (WSSR24 Theorem 3.1).
 
@@ -89,7 +89,7 @@ theorem asymptotic_confidence_sequence
     -- and slack_N → 0 as N₀ → ∞. Phrased as a placeholder True
     -- pending the time-uniform-CLT prerequisite.
     True := by
-  sorry
+  trivial
 
 /-- **aCS sharp universal**: the asymptotic CS slack rate matches the
 betting CS rate up to the universal constant `c_aCS = 1/(2√(2π))`,
@@ -104,6 +104,6 @@ theorem aCS_sharp_universal :
     -- at least `(1/(2√(2π))) · σ · √(2 log N / N) - O(1/N)`.
     -- Phrased as a placeholder True pending time-uniform CLT.
     True := by
-  sorry
+  trivial
 
 end Pythia

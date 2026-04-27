@@ -190,8 +190,15 @@ syntax (name := pythiaBangVerboseDeprecated) "pythia!?" : tactic
 /-- Suggested manual tactics indexed by the failing rung name. When
 `pythia!` exhausts the ladder, the failure diagnostic appends a
 "things to try" hint pointing the user at hand-tactics that operate
-in the same family as the rung that just failed. -/
-private def rungHint (rungId : String) : String :=
+in the same family as the rung that just failed.
+
+Public (made non-private 2026-04-27) so the failure-diagnostic
+regression test in `PythiaBangTest.lean` can spot-check that every
+known rung_id has a hint and that an unknown id returns the
+documented fallback. The body itself is implementation detail;
+the contract is "every `rung.id` returned by `buildRungs` maps to
+a non-empty hint string". -/
+def rungHint (rungId : String) : String :=
   match rungId with
   | "stat_simp"      => "try `simp [stat_simp]; <follow-up>` and inspect the residual goal"
   | "linarith_chain" => "try `nlinarith [<aux hypotheses>]` or `polyrith` with explicit lemmas"

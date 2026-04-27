@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://athanorl.com/pythia/triage_schema.json",
+  "title": "Pythia Module Triage",
+  "description": "Classification of every Pythia/*.lean module into Tier-A (user-facing applied math), Tier-B (statistics-spine infrastructure), or Tier-C (pure Lean structural).",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/$defs/entry"
+  },
+  "$defs": {
+    "tier_a_entry": {
+      "type": "object",
+      "properties": {
+        "tier": { "const": "A" },
+        "theorem_names": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Lean declaration names (unqualified or fully qualified) present in the module."
+        },
+        "symmetries": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Metamorphic / symmetry tags drawn from the vocabulary: homogeneous, permutation_invariant, time_reversal, bilinear, subadditive, limit_case, scale_invariant, monotone, power_law, translation_invariant."
+        },
+        "regime": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Semicolon-separated parameter assumptions under which the main theorem holds."
+        },
+        "shared_spine_sim": {
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            { "type": "null" }
+          ],
+          "description": "Name of the spine-sim cluster this module feeds into, or null if standalone."
+        },
+        "differential_candidate": {
+          "type": "boolean",
+          "description": "True if a numeric differential test is feasible (closed-form LHS computable, no intractable integrals)."
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Free-form classification rationale."
+        }
+      },
+      "required": ["tier", "theorem_names", "symmetries", "regime", "shared_spine_sim", "differential_candidate", "rationale"],
+      "additionalProperties": false
+    },
+    "tier_b_entry": {
+      "type": "object",
+      "properties": {
+        "tier": { "const": "B" },
+        "theorem_names": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "symmetries": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "regime": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shared_spine_sim": {
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            { "type": "null" }
+          ]
+        },
+        "differential_candidate": {
+          "type": "boolean"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["tier", "theorem_names", "symmetries", "regime", "shared_spine_sim", "differential_candidate", "rationale"],
+      "additionalProperties": false
+    },
+    "tier_c_entry": {
+      "type": "object",
+      "properties": {
+        "tier": { "const": "C" },
+        "theorem_names": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["tier", "theorem_names", "rationale"],
+      "additionalProperties": false
+    },
+    "entry": {
+      "oneOf": [
+        { "$ref": "#/$defs/tier_a_entry" },
+        { "$ref": "#/$defs/tier_b_entry" },
+        { "$ref": "#/$defs/tier_c_entry" }
+      ]
+    }
+  }
+}

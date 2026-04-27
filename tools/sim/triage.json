@@ -1,0 +1,961 @@
+{
+  "Pythia/API.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Public re-export surface only. No theorem declarations; pure namespace re-export via transitive imports. Structural glue."
+  },
+  "Pythia/Actuarial.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Umbrella import-only module; aggregates Actuarial sub-modules. No theorems declared here."
+  },
+  "Pythia/Actuarial/LogNormal.lean": {
+    "tier": "A",
+    "theorem_names": ["LogNormal.tail_chebyshev"],
+    "symmetries": ["homogeneous(sigma, exponent=2)", "scale_invariant(mu)"],
+    "regime": "log-normal with log-mean mu and log-std sigma > 0; tail bound via Chebyshev",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "User-facing actuarial loss distribution. tail_chebyshev is closed (uses Chebyshev); mean/variance/median are scaffold-sorrys. Working actuaries test log-normal tails empirically. Differential: Chebyshev bound is computable from sigma, mu, t."
+  },
+  "Pythia/Actuarial/Pareto.lean": {
+    "tier": "A",
+    "theorem_names": ["Pareto.tail"],
+    "symmetries": ["homogeneous(x_m, exponent=alpha)", "power_law(alpha)"],
+    "regime": "Pareto Type-I with scale x_m > 0 and shape alpha > 0; closed tail formula",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Standard insurance heavy-tail model. tail formula is closed; mean/variance/median are scaffold-sorrys. Empirical: verify survival function (x_m/t)^alpha numerically across alpha, t."
+  },
+  "Pythia/Actuarial/Weibull.lean": {
+    "tier": "A",
+    "theorem_names": ["Weibull.tail"],
+    "symmetries": ["scale_invariant(lambda)", "homogeneous(lambda, exponent=k)"],
+    "regime": "Weibull with scale lambda > 0 and shape k > 0; closed tail formula",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Standard reliability / actuarial lifetime model. tail formula exp(-(t/lambda)^k) is closed; mean/variance/median scaffold-sorrys. Empirical: test tail values across lambda, k, t."
+  },
+  "Pythia/AsymptoticSharpness.lean": {
+    "tier": "B",
+    "theorem_names": ["c_aCS_sharp_asymptotic_matching", "asymptotic_gaussian_density_at_boundary_aCS"],
+    "symmetries": ["limit_case(T -> infinity)"],
+    "regime": "asymptotic (T -> infinity) regime for aCS family; CLT-based",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Spine infrastructure for the aCS sharp-constant claim. The headline theorem carries an honest sorry; helper lemmas closed. Part of the anytime-valid CS machinery tested in the confidence_sequence spine sim."
+  },
+  "Pythia/Asymptotics/DeltaMethod.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.Asymptotics.delta_method"],
+    "symmetries": ["linear_approx(g_prime)", "limit_case(n -> infinity)"],
+    "regime": "scalar delta method; r_n(T_n - theta) ->_d Z, g differentiable at theta",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Core asymptotic statistics result used for confidence intervals on nonlinear functions of estimators. Every working statistician uses this. Empirical: sample normal estimates, apply g, check asymptotic distribution matches g'(theta)*Z."
+  },
+  "Pythia/Asymptotics/DeltaMethodMulti.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.DeltaMethod.multivariate_delta_method", "Pythia.DeltaMethod.scaled_remainder_tendstoInMeasure"],
+    "symmetries": ["linear_approx(J_Frechet)", "limit_case(n -> infinity)"],
+    "regime": "multivariate delta method; Frechet differentiable g at theta",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Multivariate extension of delta method. Used for GMM, odds ratios, implied vol. Empirical: simulate multivariate normal T_n, apply nonlinear g, check J*Z distribution."
+  },
+  "Pythia/AxiomAudit.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Axiom-audit harness using #print axioms. No new theorems; pure CI-facing diagnostic infrastructure."
+  },
+  "Pythia/BDG.lean": {
+    "tier": "A",
+    "theorem_names": ["bdg_discrete_l2"],
+    "symmetries": ["homogeneous(c=positive_real, exponent=2)", "permutation_invariant(increments)"],
+    "regime": "p=2; discrete-time martingale with M_0=0; finite second moment",
+    "shared_spine_sim": "martingale_concentration",
+    "differential_candidate": true,
+    "rationale": "User-facing concentration result for L^2 martingale norm. Empirical: sample bounded-increment martingale paths, check BDG bound holds at multiple alpha levels. Differential test feasible because BDG constant 4 is computable in Lean."
+  },
+  "Pythia/Basic.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Foundational types only: BitPrecision structure, Time abbrev, slack noncomputable def. No theorem declarations."
+  },
+  "Pythia/Bench/MiniPythia.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Benchmark tactic-closure suite. Each entry tests that a tactic closes a goal; the theorems are tactic-closure demonstrations, not user-facing applied math results. Infrastructure."
+  },
+  "Pythia/BenchDefs.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Definitions of sharp constants (c_HR_sharp, c_betting_sharp), CSFamily structure, boundary function. Primarily def/structure declarations; small helper lemmas (c_sharp_ranking, ranking_four_way) are internal infrastructure for BenchTargets."
+  },
+  "Pythia/BenchTargets.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Test-fixture stubs for the 48-target drafter slate. Each bench_ theorem is a restatement of an existing library theorem under a bench_ prefix. Not new mathematical content; benchmark scaffolding."
+  },
+  "Pythia/Bennett.lean": {
+    "tier": "B",
+    "theorem_names": ["bennett_iid", "bennett_mgf_bound", "bennett_tail_general_lambda"],
+    "symmetries": ["homogeneous(sigma_squared, exponent=1)", "permutation_invariant(samples)", "limit_case(b -> 0, recovers_gaussian)"],
+    "regime": "iid bounded RVs with |X_i| <= b, E[X]=0, E[X^2] <= sigma^2",
+    "shared_spine_sim": "concentration_iid_bounded",
+    "differential_candidate": true,
+    "rationale": "Tail bound for iid bounded RVs using the Bennett phi function. Shares concentration_iid_bounded sim with sub-gaussian, sub-gamma, Hoeffding, Bernstein. Tighter than Bernstein at large deviations."
+  },
+  "Pythia/Bernstein.lean": {
+    "tier": "B",
+    "theorem_names": ["bernstein_of_subGamma", "bernstein_iid", "bernstein_martingale", "freedman"],
+    "symmetries": ["homogeneous(sigma_squared, exponent=1)", "permutation_invariant(samples)", "subadditive(n)"],
+    "regime": "iid bounded RVs or bounded-increment martingales; variance-aware regime",
+    "shared_spine_sim": "concentration_iid_bounded",
+    "differential_candidate": true,
+    "rationale": "Bernstein's inequality + martingale extension. bernstein_of_subGamma is fully closed; iid/martingale variants are scaffold-sorrys. Part of concentration_iid_bounded spine sim with Bennett, Hoeffding."
+  },
+  "Pythia/BettingCS.lean": {
+    "tier": "A",
+    "theorem_names": ["bettingStoppingRule_admissible", "ville_supermartingale_infinite"],
+    "symmetries": ["limit_case(alpha -> 0)", "time_reversal(null)"],
+    "regime": "betting CS; sub-Gaussian; log-wealth threshold; infinite horizon",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": true,
+    "rationale": "User-facing betting confidence sequence construction. Admissibility theorem gives anytime-valid coverage guarantee. Empirical: simulate betting wealth process, verify stopping probability <= alpha."
+  },
+  "Pythia/BettingStrategy.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "BettingStrategy structure + wealthProcess definition. Infrastructure for BettingCS; no user-facing applied-math theorems."
+  },
+  "Pythia/Bio.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Umbrella import-only module aggregating Bio sub-modules. No theorems."
+  },
+  "Pythia/Bio/MassAction.lean": {
+    "tier": "A",
+    "theorem_names": ["massAction_existence", "massAction_nonnegativity", "mass_conservation", "detailed_balance_equilibrium"],
+    "symmetries": ["permutation_invariant(species_ordering)", "scale_invariant(concentration)"],
+    "regime": "chemical reaction network ODEs under mass-action kinetics; scaffold-sorry",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Foundational CRN ODE results. All scaffold-sorrys but the theorem shapes are substantive applied math (comp-bio, chemical engineering). Empirical: simulate mass-action ODE, verify nonnegativity and conservation. BORDERLINE: all content is scaffold-sorry."
+  },
+  "Pythia/Bio/MichaelisMentenSaturation.lean": {
+    "tier": "A",
+    "theorem_names": ["michaelis_menten_saturation"],
+    "symmetries": ["limit_case(S -> infinity, approaches Vmax)", "homogeneous(Vmax, exponent=1)"],
+    "regime": "Michaelis-Menten kinetics; Vmax >= 0, Km > 0, S >= 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Closed fully proven bound. User-facing biochemistry result: reaction velocity bounded by Vmax. Already in theorem_manifest. Empirical: sweep Vmax, Km, S; verify saturation bound."
+  },
+  "Pythia/Bio/Phylogenetics.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Scaffold stubs only: felsenstein_correct_spec is trivial (True := by trivial). JukesCantor_pi_sum is a tiny algebraic lemma. No substantive closed theorems. BORDERLINE."
+  },
+  "Pythia/Bio/Population.lean": {
+    "tier": "A",
+    "theorem_names": ["hardy_weinberg_conservation", "lotka_volterra_equilibrium_x_pos", "lotka_volterra_equilibrium_y_pos", "sir_total_population_derivative_zero"],
+    "symmetries": ["permutation_invariant(alleles)", "limit_case(Lotka-Volterra_equilibrium)"],
+    "regime": "population genetics and predator-prey dynamics; closed algebraic proofs",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed results covering Hardy-Weinberg, Lotka-Volterra equilibria, and SIR conservation. Working scientists in biology test these empirically."
+  },
+  "Pythia/Chemistry/Arrhenius.lean": {
+    "tier": "A",
+    "theorem_names": ["arrhenius_pos"],
+    "symmetries": ["homogeneous(A, exponent=1)", "monotone(T, increasing)"],
+    "regime": "Arrhenius equation; A > 0, T > 0, R > 0, any Ea",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: rate constant positivity. Empirical: sweep A, Ea, R, T; verify positivity."
+  },
+  "Pythia/Chemistry/HendersonHasselbalch.lean": {
+    "tier": "A",
+    "theorem_names": ["hh_monotone_in_ratio"],
+    "symmetries": ["monotone(ratio, increasing)", "translation_invariant(pKa)"],
+    "regime": "buffer pH; pKa fixed; ratio = [A-]/[HA] > 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed monotonicity result for Henderson-Hasselbalch. Empirical: sweep ratio, verify pH monotonicity."
+  },
+  "Pythia/Chemistry/MassActionConservation.lean": {
+    "tier": "A",
+    "theorem_names": ["mass_action_conservation_pair"],
+    "symmetries": ["bilinear(nA, nB, xi)"],
+    "regime": "single reversible reaction A <-> B; conservation of moles",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Already in theorem_manifest. Closed trivial algebraic identity. Differential test not interesting (it's rfl-level). Still Tier-A as the empirical harness already exists."
+  },
+  "Pythia/Control/Lyapunov.lean": {
+    "tier": "A",
+    "theorem_names": ["scalar_lyapunov_nonneg", "scalar_lyapunov_stable_decreasing"],
+    "symmetries": ["homogeneous(alpha, exponent=1)", "even(x)"],
+    "regime": "scalar linear system dx/dt = -alpha*x with alpha > 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed results. Working control engineers verify Lyapunov stability empirically."
+  },
+  "Pythia/Control/LyapunovDiscrete.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.Control.LyapunovDiscrete.lyapunov_asymptotic_stability"],
+    "symmetries": ["limit_case(r -> 0, stronger_stability)"],
+    "regime": "discrete-time system x_{n+1}=f(x_n); Lyapunov V positive-definite on closed ball",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Full discrete-time Lyapunov asymptotic stability proof. User-facing control result for working engineers and control theorists."
+  },
+  "Pythia/Control/LyapunovODE.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.Control.LyapunovODE.lyapunov_asymptotic_stability"],
+    "symmetries": ["limit_case(r -> 0)"],
+    "regime": "continuous-time ODE x'=f(x); Lyapunov V, orbital derivative < 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Full continuous-time Lyapunov ODE asymptotic stability. In AxiomAudit. User-facing result for control engineers and ODE practitioners."
+  },
+  "Pythia/DeploymentDesign.lean": {
+    "tier": "B",
+    "theorem_names": ["deploymentScale_bound_HR", "deploymentScale_bound_Betting"],
+    "symmetries": ["monotone(sigma/delta)", "monotone(b)"],
+    "regime": "deployment spec with alpha, delta, sigma; bit-width b and scale s",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Inverse quantization-slack bound: given coverage tolerance delta and sigma, compute minimal scale s. Spine infrastructure for the anytime-valid CS deployment framework."
+  },
+  "Pythia/EDetector.lean": {
+    "tier": "B",
+    "theorem_names": ["eprocess_supermartingale_bound", "edetector_type1_error_control", "eprocess_mixture_is_eprocess", "eprocess_product_is_eprocess"],
+    "symmetries": ["permutation_invariant(e_processes)", "subadditive(mixture)"],
+    "regime": "sequential change detection; e-detector with threshold alpha in (0,1)",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "E-detector framework for anytime-valid change detection. Spine-B: shares the anytime-valid confidence_sequence sim framework. Many theorems are scaffold-sorrys."
+  },
+  "Pythia/Economics/CAPM.lean": {
+    "tier": "A",
+    "theorem_names": ["capm_beta_nonneg"],
+    "symmetries": ["homogeneous(cov, exponent=1)", "scale_invariant(varM)"],
+    "regime": "CAPM; cov >= 0, varM > 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result. Empirical: sweep cov, varM; verify beta nonnegativity."
+  },
+  "Pythia/Economics/CRRA.lean": {
+    "tier": "A",
+    "theorem_names": ["crra_marginal_utility_pos"],
+    "symmetries": ["monotone(c, increasing)"],
+    "regime": "CRRA utility; any gamma, c > 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: marginal utility positivity for all risk-aversion parameters."
+  },
+  "Pythia/Economics/CobbDouglas.lean": {
+    "tier": "A",
+    "theorem_names": ["cobb_douglas_crts", "cobb_douglas_pos"],
+    "symmetries": ["homogeneous(lambda, exponent=1)", "bilinear(K, L)"],
+    "regime": "Cobb-Douglas; K, L, lam > 0, alpha in (0,1)",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: constant returns to scale. Core macroeconomics result."
+  },
+  "Pythia/Economics/RiskNeutralCall.lean": {
+    "tier": "A",
+    "theorem_names": ["risk_neutral_call_nonneg"],
+    "symmetries": ["monotone(S, increasing)", "monotone(T, increasing)"],
+    "regime": "European call; S, K any real, T >= 0, r any real",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: option price non-negativity."
+  },
+  "Pythia/Economics/Walras.lean": {
+    "tier": "A",
+    "theorem_names": ["walras_clearing_implies_zero_sum"],
+    "symmetries": ["permutation_invariant(goods)", "bilinear(p, z)"],
+    "regime": "n-good economy; market clearing z_i = 0 for all i",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Already in theorem_manifest. Closed result (trivial algebra once clearing assumed). The empirical content is the clearing-implies-zero-sum property; differential not interesting."
+  },
+  "Pythia/ElegantUnification.lean": {
+    "tier": "C",
+    "theorem_names": ["etaHR_is_sqrt_shannon_entropy", "etaVector_is_sqrt_2_shannon_entropy", "etaAsymptotic_is_sqrt_bit_entropy"],
+    "rationale": "Three information-theoretic identities showing eta rates equal sqrt of Shannon entropy. Closed arithmetic identities (rfl-level), not user-facing applied-math results. Internal structural connections."
+  },
+  "Pythia/Engineering/PowerDissipation.lean": {
+    "tier": "A",
+    "theorem_names": ["power_dissipation_nonneg"],
+    "symmetries": ["even(I)", "homogeneous(R, exponent=1)"],
+    "regime": "resistive power; R >= 0, I any real",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: P = I^2 * R >= 0."
+  },
+  "Pythia/Engineering/RCTimeConstant.lean": {
+    "tier": "A",
+    "theorem_names": ["rc_time_constant_pos"],
+    "symmetries": ["homogeneous(R, C, exponent=1)"],
+    "regime": "RC circuit; R, C > 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: tau = R*C > 0."
+  },
+  "Pythia/Engineering/SignalEnergy.lean": {
+    "tier": "A",
+    "theorem_names": ["signal_energy_nonneg"],
+    "symmetries": ["permutation_invariant(samples)", "even(x_i)"],
+    "regime": "discrete-time signal x : Fin n -> R; any signal",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Already in theorem_manifest. Closed result: sum of squares >= 0. Differential not interesting."
+  },
+  "Pythia/EquivalenceBreak.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "The main theorem equivalence_break_at_finite_precision is documented as FALSE (per the file's own STATUS section with a concrete counterexample). Only definitions and structural stubs. Not classifiable as Tier-A/B until the theorem is corrected. BORDERLINE - flagged for research review."
+  },
+  "Pythia/GameTheory/MinimaxTwoStrategyBound.lean": {
+    "tier": "A",
+    "theorem_names": ["minimax_two_strategy_bound"],
+    "symmetries": ["permutation_invariant(rows)", "permutation_invariant(cols)"],
+    "regime": "2x2 payoff matrix; pure strategies; any real entries",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Already in theorem_manifest. Closed result: max_i min_j A[i][j] <= min_j max_i A[i][j]."
+  },
+  "Pythia/GaussianRandomWalk.lean": {
+    "tier": "B",
+    "theorem_names": ["gaussianWalk_subGaussianMG", "gaussianWalk_crossing_prob_lower"],
+    "symmetries": ["scale_invariant(sigma)", "time_reversal(null)"],
+    "regime": "iid Gaussian increments; sub-Gaussian MG on canonical product space",
+    "shared_spine_sim": "martingale_concentration",
+    "differential_candidate": false,
+    "rationale": "Scaffold infrastructure for the sharpness/adversary constructions. gaussianProductMeasure is sorry'd. Spine-B: supports martingale_concentration sim framework."
+  },
+  "Pythia/GaussianSmallBall.lean": {
+    "tier": "B",
+    "theorem_names": ["gaussian_small_ball_lower_bound"],
+    "symmetries": ["scale_invariant(sigma)"],
+    "regime": "Gaussian measure; sigma > 0, c in R, epsilon > 0",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Infrastructure lemma: lower bound on Gaussian measure of small intervals. Used in sharpness arguments. Not a direct user-facing result but has clear empirical content (anti-concentration). Shared with confidence_sequence spine."
+  },
+  "Pythia/HowardRamdasCS.lean": {
+    "tier": "A",
+    "theorem_names": ["hrStoppingRule_admissible", "hrBoundary"],
+    "symmetries": ["limit_case(alpha -> 0)", "monotone(T, boundary_grows)"],
+    "regime": "Howard-Ramdas self-normalized CS; sub-Gaussian; infinite horizon",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": true,
+    "rationale": "User-facing anytime-valid CS construction. Admissibility theorem is the main coverage guarantee. Empirical: simulate sub-Gaussian walks, verify coverage at multiple alpha levels."
+  },
+  "Pythia/HypothesisTest/MultipleTesting.lean": {
+    "tier": "A",
+    "theorem_names": ["bonferroni_fwer", "holm_fwer", "benjamini_hochberg_fdr"],
+    "symmetries": ["permutation_invariant(hypotheses)", "monotone(m, bonferroni_level_decreases)"],
+    "regime": "m simultaneous tests; FWER/FDR at level alpha",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Standard multiple-testing corrections used by working scientists in every quantitative field. bonferroni_fwer has a sorry (easy close noted); holm+BH are scaffolds. BORDERLINE: bonferroni is easy to close, others are harder. Flag for research."
+  },
+  "Pythia/HypothesisTest/Wald.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "wald_alpha_bound_spec and wald_two_sided_alpha_spec are both trivial (True := by trivial). WaldStatistic is a def. No substantive theorems. Pure scaffold."
+  },
+  "Pythia/InfoTheory/BinaryEntropy.lean": {
+    "tier": "A",
+    "theorem_names": ["binary_entropy_nonneg"],
+    "symmetries": ["permutation_invariant(p, 1-p)"],
+    "regime": "binary entropy; p in [0,1]",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: H(p) >= 0. Fundamental information theory."
+  },
+  "Pythia/InfoTheory/BretagnolleHuberBinary.lean": {
+    "tier": "A",
+    "theorem_names": ["bretagnolle_huber_binary"],
+    "symmetries": ["permutation_invariant(p, q)"],
+    "regime": "binary alphabet; p, q in (0,1); TV distance vs KL divergence",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Binary-alphabet Bretagnolle-Huber inequality: TV(P,Q) <= sqrt(1 - exp(-KL)). Used in minimax lower bound arguments. Applied information theory / statistics."
+  },
+  "Pythia/InfoTheory/DataProcessing.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.InfoTheory.klDiv_bind_le_klDiv", "Pythia.InfoTheory.AbsolutelyContinuous.bind_right"],
+    "symmetries": ["monotone(kernel_composition, KL_decreasing)"],
+    "regime": "Markov kernel on measurable spaces; nu << mu",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Data Processing Inequality: processing data cannot increase KL divergence. Fundamental result in information theory / statistics / ML. In AxiomAudit."
+  },
+  "Pythia/InfoTheory/HammingDistanceTriangle.lean": {
+    "tier": "A",
+    "theorem_names": ["hamming_distance_triangle"],
+    "symmetries": ["permutation_invariant(a, b, c)", "subadditive"],
+    "regime": "3-bit Boolean tuples; Hamming distance",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Already in theorem_manifest. Closed by decide. Differential not interesting (decidable enumeration)."
+  },
+  "Pythia/InformationTheoretic.lean": {
+    "tier": "B",
+    "theorem_names": ["quantized_entropy_bound", "betting_is_kelly_optimal"],
+    "symmetries": ["monotone(b, entropy_grows)", "limit_case(b -> infinity)"],
+    "regime": "quantization entropy; b-bit alphabet; sigma > 0",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Information-theoretic formulation of quantization slack. Spine-B: infrastructure for the anytime-valid CS quantization framework. Links Shannon capacity to eta rates."
+  },
+  "Pythia/InputQuantization.lean": {
+    "tier": "B",
+    "theorem_names": ["quantization_transport_input"],
+    "symmetries": ["scale_invariant(s)"],
+    "regime": "input-quantized martingale; scale s; SubGaussianMG extended",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "QuantizedMartingale struct + input-quantization transport bound. Spine-B: infrastructure for sensor-quantization variant of the deployment-slack framework."
+  },
+  "Pythia/MGFBoundedSubGamma.lean": {
+    "tier": "B",
+    "theorem_names": ["mgf_le_subGamma_of_bounded"],
+    "symmetries": ["homogeneous(sigma_sq, exponent=1)", "limit_case(b -> 0, sub_gaussian)"],
+    "regime": "bounded centered RV; |X| <= b, E[X]=0, E[X^2] <= sigma^2, b*lam < 3",
+    "shared_spine_sim": "concentration_iid_bounded",
+    "differential_candidate": false,
+    "rationale": "MGF bound that is the missing piece for Bennett/Bernstein closures. Spine-B infrastructure for concentration_iid_bounded; not directly user-facing."
+  },
+  "Pythia/MatchingConstants.lean": {
+    "tier": "B",
+    "theorem_names": ["c_vector_sharp_pos", "c_aCS_sharp_pos", "c_sharp_ranking", "c_vector_eq_sqrt_two_mul_c_HR"],
+    "symmetries": [],
+    "regime": "sharp matching-lower-bound constants for CS families",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Spine infrastructure: explicit sharp constants for matching lower bounds. Pure arithmetic identities about eta rates; not directly user-facing but part of the CS family spine."
+  },
+  "Pythia/MathlibTags.lean": {
+    "tier": "A",
+    "theorem_names": ["am_gm_two", "am_gm_two_split", "MeasureTheory.meas_ge_le_lintegral_div", "Pythia.MathlibTags.cauchy_schwarz_two"],
+    "symmetries": ["permutation_invariant(a, b)", "homogeneous(a, b, exponent=1)"],
+    "regime": "two non-negative reals (AM-GM); general measure space (Markov/Cauchy-Schwarz)",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Retags Mathlib lemmas with @[stat_lemma]. AM-GM and Cauchy-Schwarz are classic applied-math results. Markov inequality is fundamental."
+  },
+  "Pythia/MatrixBernstein.lean": {
+    "tier": "A",
+    "theorem_names": ["matrix_bernstein", "matrix_bernstein_log", "matrix_bernstein_simple"],
+    "symmetries": ["permutation_invariant(X_k)", "homogeneous(t, exponent=2)"],
+    "regime": "independent zero-mean self-adjoint matrices; d-dimensional; ||X_k||_op <= R; sigma^2 variance proxy",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Tropp's matrix Bernstein inequality. All sorry'd. Every practitioner in randomized algorithms/ML uses this. BORDERLINE: entirely scaffold-sorry with extensive Mathlib gap inventory. Flag for research."
+  },
+  "Pythia/MatrixBernsteinFull.lean": {
+    "tier": "A",
+    "theorem_names": ["matrix_bernstein_full"],
+    "symmetries": ["permutation_invariant(X_k)", "homogeneous(t, exponent=2)"],
+    "regime": "same as MatrixBernstein; Tropp 5-step proof architecture",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Full proof module for Tropp's matrix Bernstein. scaffold-sorry on the Laplace step (needs Lieb). Tier-A because the outer optimization step is proved. Shares sim with MatrixBernstein."
+  },
+  "Pythia/MatrixLieb.lean": {
+    "tier": "B",
+    "theorem_names": ["hermFuncCalc_id", "hermFuncCalc_isHermitian", "traceConj_eq_trace", "trace_hermFuncCalc_eq_sum", "matExp_posDef"],
+    "symmetries": [],
+    "regime": "Hermitian matrices; functional calculus; d-dimensional",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Spine infrastructure for MatrixBernstein. Several lemmas proved (hermFuncCalc_id, matExp_posDef); core Lieb concavity theorem is sorry'd. Tier-B: building block, not direct user result."
+  },
+  "Pythia/MeasureTheory/ConditionalJensen.lean": {
+    "tier": "A",
+    "theorem_names": ["ConditionalJensen.conditional_jensen"],
+    "symmetries": ["limit_case(trivial_sigma_algebra, recovers_unconditional)"],
+    "regime": "convex phi on R; sub-sigma-algebra m; integrable X",
+    "shared_spine_sim": "martingale_concentration",
+    "differential_candidate": true,
+    "rationale": "Conditional Jensen's inequality. In AxiomAudit. Load-bearing for martingale and concentration results. User-facing: working probabilists test Jensen numerically. Shared martingale_concentration spine."
+  },
+  "Pythia/MeasureTheory/OptionalStoppingUnbounded.lean": {
+    "tier": "B",
+    "theorem_names": ["MeasureTheory.martingale_optional_stopping_unbounded"],
+    "symmetries": ["limit_case(bounded_tau, recovers_Mathlib_form)"],
+    "regime": "L1-martingale; a.s.-finite stopping time tau; UI stopped process",
+    "shared_spine_sim": "martingale_concentration",
+    "differential_candidate": false,
+    "rationale": "Fully closed (zero sorries per file header). Unbounded optional stopping theorem - spine infrastructure for Wald identity and SPRT. Tier-B: building block for sequential statistics."
+  },
+  "Pythia/MeasureTheory/PathMeasureRN.lean": {
+    "tier": "B",
+    "theorem_names": ["PathMeasureRN.finProdMeasure_rnDeriv_eq_prod", "PathMeasureRN.pathMeasure_rnDeriv_eq_tprod", "PathMeasureRN.kakutani_dichotomy"],
+    "symmetries": [],
+    "regime": "countable product measures; sigma-finite mu_n, nu_n",
+    "shared_spine_sim": "martingale_concentration",
+    "differential_candidate": false,
+    "rationale": "Path-measure Radon-Nikodym chain rule + Kakutani dichotomy. Several sorry'd gaps; measurable_partialRNDeriv and measurable_rnDeriv_comp are proved. Spine-B: deep infrastructure for sequential statistics."
+  },
+  "Pythia/Mechanical/HookeSpring.lean": {
+    "tier": "A",
+    "theorem_names": ["hooke_pe_nonneg"],
+    "symmetries": ["even(x)", "homogeneous(k, exponent=1)"],
+    "regime": "Hookean spring; k >= 0, x any displacement",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: spring PE >= 0."
+  },
+  "Pythia/NewTargetsStubs.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Target stubs for 60-target drafter expansion. T2/T3 theorem stubs that restate existing library results or are arithmetic consequences. Some are proved locally (etaHR_monotone calls etaHR_mono). Infrastructure/scaffolding."
+  },
+  "Pythia/Numerical.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Umbrella import-only module aggregating Numerical sub-modules. No theorems."
+  },
+  "Pythia/Numerical/KKT.lean": {
+    "tier": "A",
+    "theorem_names": ["kkt_necessary", "kkt_sufficient_convex"],
+    "symmetries": [],
+    "regime": "nonlinear program with inequality + equality constraints; Slater CQ or convexity",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "KKT conditions scaffold. kkt_necessary and kkt_sufficient_convex are scaffold-sorrys. Core applied optimization result used by every engineer. BORDERLINE: structure-only scaffold."
+  },
+  "Pythia/Numerical/Kahan.lean": {
+    "tier": "A",
+    "theorem_names": ["kahan_error_bound", "naive_error_bound"],
+    "symmetries": [],
+    "regime": "floating-point summation; machine epsilon eps; n-element list",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Kahan compensated summation correctness. scaffold-sorry. Numerical analysts test this empirically on different input distributions. BORDERLINE: Float-vs-Real bridging not in Mathlib."
+  },
+  "Pythia/Numerical/Lyapunov.lean": {
+    "tier": "B",
+    "theorem_names": ["lyapunov_stable", "lyapunov_asymptotic", "lasalle_invariance"],
+    "symmetries": [],
+    "regime": "scalar autonomous ODE y'=f(y); Lyapunov V positive-definite",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Numerical/Lyapunov is a duplicate scaffold of Control/LyapunovODE but for the scalar case (Numerical.PicardLindelof context). All scaffold-sorrys. Tier-B: spine for the Numerical modules. BORDERLINE vs Control/LyapunovODE."
+  },
+  "Pythia/Numerical/NewtonQuadraticIterPos.lean": {
+    "tier": "A",
+    "theorem_names": ["newton_quadratic_iter_pos"],
+    "symmetries": ["homogeneous(c, exponent=1/2)", "monotone(x, converging)"],
+    "regime": "Newton iteration for x^2 - c; x > 0, c > 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: Newton iterate stays positive."
+  },
+  "Pythia/Numerical/PicardLindelof.lean": {
+    "tier": "A",
+    "theorem_names": ["picard_lindelof_local", "picard_lindelof_global", "picard_lindelof_continuous_dependence"],
+    "symmetries": ["limit_case(K -> 0, trivial_case)", "monotone(K_Lipschitz, existence_interval_shrinks)"],
+    "regime": "IVP y'=f(t,y), y(t0)=y0; f Lipschitz in y with constant K",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Picard-Lindelof scaffold. All scaffold-sorrys. Core applied ODE result used by scientists. BORDERLINE: purely scaffold."
+  },
+  "Pythia/OR/LittlesLaw.lean": {
+    "tier": "A",
+    "theorem_names": ["littles_law_nonneg"],
+    "symmetries": ["bilinear(lam, W)"],
+    "regime": "stable queue; lam >= 0, W >= 0",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Already in theorem_manifest. Closed result: L = lam*W >= 0."
+  },
+  "Pythia/OptimalTransport/WassersteinDistanceNonneg.lean": {
+    "tier": "A",
+    "theorem_names": ["wasserstein_distance_nonneg"],
+    "symmetries": ["permutation_invariant(i)", "subadditive"],
+    "regime": "discrete L1 Wasserstein; p, q : Fin n -> R",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Already in theorem_manifest. Closed result: sum |p_i - q_i| >= 0."
+  },
+  "Pythia/PACBayesCS.lean": {
+    "tier": "A",
+    "theorem_names": ["pac_bayes_confidence_sequence"],
+    "symmetries": ["limit_case(KL -> 0, recovers_betting_CS)"],
+    "regime": "PAC-Bayes CS; prior P over strategies; posterior Q; KL(Q||P) penalty",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "PAC-Bayes CS: tighter CS by averaging over strategies with KL penalty. Scaffold-sorrys. User-facing applied Bayesian statistics. BORDERLINE: all sorry'd."
+  },
+  "Pythia/PhiTransform.lean": {
+    "tier": "B",
+    "theorem_names": ["phiProcess_zero_ae_eq_one"],
+    "symmetries": [],
+    "regime": "phi-transform from HR to betting form; sigma, alpha, T parameters",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Phi-transform infrastructure: exponential betting-transform from HR to wealth process. Spine-B for the equivalence between HR and betting families."
+  },
+  "Pythia/PowerAnalysis.lean": {
+    "tier": "B",
+    "theorem_names": ["powerLoss_bound"],
+    "symmetries": [],
+    "regime": "Type-II power loss; b, s, sigma, delta parameters",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Power-loss (Type-II error) analogue of quantization-slack theorem. Spine-B: infrastructure for the deployment-slack framework. Corrected version with h_slack hypothesis."
+  },
+  "Pythia/Quantization.lean": {
+    "tier": "B",
+    "theorem_names": ["quantizeReal_error", "quantizeReal_lower_bound", "etaHR_nonneg", "etaHR_mono", "etaHR_le_slack", "etaBetting_pos", "etaBetting_nonneg", "etaBetting_antitone", "etaBetting_le_etaHR", "etaVector", "etaAsymptotic", "ranking_four_way"],
+    "symmetries": ["monotone(b, etaHR_increases)", "monotone(b, etaBetting_decreases)"],
+    "regime": "quantization of reals to scale s; family-specific eta rates",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Spine infrastructure: quantization-transport lemma + all four family eta rates + four-way ranking. In AxiomAudit. Backbone of the deployment-slack framework."
+  },
+  "Pythia/Quantum/VonNeumannEntropyNonnegTwoState.lean": {
+    "tier": "A",
+    "theorem_names": ["von_neumann_entropy_nonneg_two_state"],
+    "symmetries": ["permutation_invariant(p, 1-p)"],
+    "regime": "two-state qubit; p in [0,1]",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: S(rho) >= 0 for qubit."
+  },
+  "Pythia/Queueing/ErlangB.lean": {
+    "tier": "A",
+    "theorem_names": ["ErlangB.partitionFn_pos", "ErlangB.blockingProb_nonneg", "ErlangB.blockingProb_le_one", "ErlangB.steadyState_sum_one", "ErlangB.blockingProb_recursion"],
+    "symmetries": ["monotone(rho, blocking_increases)", "monotone(n, blocking_decreases)"],
+    "regime": "M/M/n/n Erlang loss queue; n servers, offered load rho >= 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Erlang B formula for teletraffic engineering. Core queueing result used in capacity planning. Probability bounds and recursion are substantive. BORDERLINE: some results proved, recursion may be scaffold."
+  },
+  "Pythia/Queueing/LittlesLaw.lean": {
+    "tier": "A",
+    "theorem_names": ["littles_law"],
+    "symmetries": ["bilinear(arr_rate, mean_sojourn)"],
+    "regime": "sample-path queueing system; limits arr_rate, W, L exist",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "Sample-path Little's Law: L = lambda*W via product-of-limits rule. Full proof via Filter.Tendsto.mul and tendsto_nhds_unique. BORDERLINE vs OR/LittlesLaw.lean (different level)."
+  },
+  "Pythia/Risk/CVaR.lean": {
+    "tier": "A",
+    "theorem_names": ["cvarAux_convexOn", "cvarAux_bddBelow", "CVaR_eq_cvarAux_VaR", "CVaR_dual_rep"],
+    "symmetries": ["translation_invariant(z)", "monotone(alpha, CVaR_increases)"],
+    "regime": "Rockafellar-Uryasev CVaR; alpha in (0,1); integrable loss X",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "CVaR dual representation (Rockafellar-Uryasev). Basel III/IV regulatory risk metric. User-facing financial risk management result. Several results may be scaffold-sorrys."
+  },
+  "Pythia/Risk/CoherentMeasures.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.Risk.CoherentMeasures.adeh_representation"],
+    "symmetries": ["permutation_invariant(omega)", "homogeneous(t, pos_homogeneous)"],
+    "regime": "ADEH coherent risk measures; finite Omega; rho : (Omega -> R) -> R",
+    "shared_spine_sim": null,
+    "differential_candidate": false,
+    "rationale": "ADEH coherent measures representation theorem on finite Omega. In AxiomAudit. Financial risk management. Finite Omega makes this tractable."
+  },
+  "Pythia/SPRT.lean": {
+    "tier": "A",
+    "theorem_names": ["SPRT.error_rates", "SPRT.wald_approximation", "SPRT.wald_wolfowitz_optimal", "SPRT.expected_sample_size"],
+    "symmetries": ["limit_case(A -> infinity, B -> -infinity)"],
+    "regime": "SPRT with log-LR threshold A > 0 > B; iid p0 or p1",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": true,
+    "rationale": "Wald SPRT error-rate theorems. error_rates is closed; wald_approximation, wald_wolfowitz_optimal, expected_sample_size are honest-sorrys with detailed closure plans. Core sequential statistics result."
+  },
+  "Pythia/Scratch/SDKFleetDemo/BSCallUpperBoundKimi.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "SDK fleet demo scratch file. Contains invalid Lean syntax (backtick code block in proof body - not valid Lean 4). Scratch/demo infrastructure, not library content."
+  },
+  "Pythia/Scratch/SDKFleetDemo/BSCallUpperBoundSonnet.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "SDK fleet demo scratch file. bs_call_upper_bound is a valid closed proof but lives in Scratch/SDKFleetDemo namespace. Not part of the canonical library surface. Demo infrastructure."
+  },
+  "Pythia/Scratch/SwarmDogfood/BonferroniFwer.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Swarm dogfood scratch file. bonferroni_fwer_test is a restatement+proof of the theorem from HypothesisTest/MultipleTesting.lean (the one with sorry there, actually closed here). Scratch/demo infrastructure."
+  },
+  "Pythia/Sharpness.lean": {
+    "tier": "B",
+    "theorem_names": ["etaHR_sharpness_witness", "etaBetting_sharpness_witness", "etaVector_sharpness_witness", "etaAsymptotic_sharpness_witness"],
+    "symmetries": ["homogeneous(sigma)"],
+    "regime": "sharpness witnesses for four CS families; b >= 2, s >= 1, sigma > 0",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Existence-of-deviation sharpness witnesses. Each theorem proves max(...,0) >= 0 (trivially). The measure-theoretic adversary construction is informal. Spine-B infrastructure."
+  },
+  "Pythia/Stochastic/ItoIsometryFiniteDim.lean": {
+    "tier": "A",
+    "theorem_names": ["ito_isometry_finite_dim"],
+    "symmetries": ["permutation_invariant(f)"],
+    "regime": "f : Fin n -> R; discrete finite-dimensional analogue",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: (sum f_i)^2 <= n * sum (f_i)^2."
+  },
+  "Pythia/StochasticApproximation/Dvoretzky.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.StochasticApproximation.Dvoretzky.det_contraction_convergence", "Pythia.StochasticApproximation.Dvoretzky.dvoretzky_ae", "Pythia.StochasticApproximation.Dvoretzky.robbins_monro_convergence", "Pythia.StochasticApproximation.Dvoretzky.sgd_convergence"],
+    "symmetries": ["limit_case(a_n -> 0)", "monotone(sum_a_n, divergent)"],
+    "regime": "stochastic approximation with step sizes a_n; summable b_n perturbations",
+    "shared_spine_sim": "stochastic_approximation",
+    "differential_candidate": true,
+    "rationale": "Dvoretzky convergence theorem + Robbins-Monro + SGD convergence. Core stochastic approximation results used in ML/RL. In AxiomAudit. Shares stochastic_approximation spine with RobbinsMonro and RobbinsSiegmund."
+  },
+  "Pythia/StochasticApproximation/RobbinsMonro.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.StochasticApproximation.robbins_monro_convergence"],
+    "symmetries": ["limit_case(a_n -> 0, convergence)"],
+    "regime": "Robbins-Monro SA; step sizes sum=inf, sum-sq<inf; conditional mean = f(X_n)",
+    "shared_spine_sim": "stochastic_approximation",
+    "differential_candidate": true,
+    "rationale": "Robbins-Monro (1951) stochastic approximation convergence. In AxiomAudit. Foundation of iterative statistical estimation and SGD. Shares stochastic_approximation spine."
+  },
+  "Pythia/StochasticApproximation/RobbinsSiegmund.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.StochasticApproximation.robbins_siegmund"],
+    "symmetries": ["monotone(V_n, bounded_from_below)"],
+    "regime": "non-negative adapted process; summable alpha_n, beta_n; E[V_{n+1}|F_n] <= (1+alpha_n)V_n + beta_n",
+    "shared_spine_sim": "stochastic_approximation",
+    "differential_candidate": true,
+    "rationale": "Robbins-Siegmund almost-supermartingale convergence. In AxiomAudit. Core convergence lemma for stochastic approximation algorithms. Shares stochastic_approximation spine."
+  },
+  "Pythia/StoppingRule.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "StoppingRule structure + Admissible structure + firstHit definition. Infrastructure; no theorems."
+  },
+  "Pythia/SubGamma.lean": {
+    "tier": "B",
+    "theorem_names": ["subGamma_ville_ineq"],
+    "symmetries": ["limit_case(c -> 0, recovers_sub_gaussian)", "homogeneous(nu, exponent=1)"],
+    "regime": "sub-gamma martingale with parameters (nu, c); c*|lam| < 1",
+    "shared_spine_sim": "concentration_iid_bounded",
+    "differential_candidate": false,
+    "rationale": "Sub-gamma tail class generalizing sub-Gaussian. Has structural sorrys (excluded from public surface per API.lean). Spine-B: shares concentration_iid_bounded with Bernstein, Bennett."
+  },
+  "Pythia/SubGaussianMG.lean": {
+    "tier": "B",
+    "theorem_names": ["Pythia.ville_supermartingale", "Pythia.ville_ineq"],
+    "symmetries": ["scale_invariant(sigma)", "limit_case(N -> infinity)"],
+    "regime": "sub-Gaussian martingale; sigma > 0; finite-measure probability space",
+    "shared_spine_sim": "martingale_concentration",
+    "differential_candidate": false,
+    "rationale": "Core sub-Gaussian MG structure + Ville's inequality. Spine infrastructure for BettingCS, HowardRamdasCS, SPRT. In AxiomAudit. Backbone of the library."
+  },
+  "Pythia/Tactic/AnytimeValid.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "anytime_valid tactic implementation. Pure tactic plumbing; no theorems."
+  },
+  "Pythia/Tactic/AnytimeValidRegistry.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "anytime_valid_lemma registry. @[anytime_valid_lemma] attribute registrations. Pure registry/infrastructure."
+  },
+  "Pythia/Tactic/CSFamilyAttr.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Attribute-driven registry for CSFamily declarations. Pure Lean infrastructure; no empirical content."
+  },
+  "Pythia/Tactic/CSFamilyRegistry.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "attribute [cs_family] registration for four canonical CS families. Registry glue."
+  },
+  "Pythia/Tactic/CVC5Check.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "cvc5_check tactic implementation. SMT oracle bridge; no theorems."
+  },
+  "Pythia/Tactic/Disprove.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "disprove tactic implementation. Counterexample-finder; no theorems."
+  },
+  "Pythia/Tactic/DomainCalculator.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Generic domain-calculator typeclass. Pure def/structure/class; no theorems."
+  },
+  "Pythia/Tactic/DomainRegistry.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Per-domain @[*_lemma] attribute declarations. Registry infrastructure."
+  },
+  "Pythia/Tactic/ECheck.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "e_check tactic implementation. E prover oracle bridge; no theorems."
+  },
+  "Pythia/Tactic/FlagConcreteConstants.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "#flag_concrete_constants command. LLM-defense compile-time command; no theorems."
+  },
+  "Pythia/Tactic/MinimizeHypotheses.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "#minimize_hypotheses command. LLM-defense compile-time command; no theorems."
+  },
+  "Pythia/Tactic/ProbSimp.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "prob_simp/pdf_simp tactic + @[prob_simp] attribute. Tactic plumbing; no theorems."
+  },
+  "Pythia/Tactic/ProbSimpRegistry.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "@[prob_simp] membership table. Registry of existing Mathlib lemmas; no new theorems."
+  },
+  "Pythia/Tactic/Pythia.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "pythia tactic + @[stat_lemma] attribute declaration. Core tactic plumbing; no theorems."
+  },
+  "Pythia/Tactic/PythiaBang.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "pythia! / pythia? hammer ladder orchestrator. Tactic plumbing; no theorems."
+  },
+  "Pythia/Tactic/StatSimp.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "stat_simp tactic + @[stat_simp] attribute. Tactic plumbing; no theorems."
+  },
+  "Pythia/Tactic/StatSimpRegistry.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "@[stat_simp] membership table. Registry of existing Mathlib lemmas; no new theorems."
+  },
+  "Pythia/Tactic/StatsIneq.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "stats_ineq tactic + @[stats_ineq] attribute. Tactic plumbing; no theorems."
+  },
+  "Pythia/Tactic/StatsIneqRegistry.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "@[stats_ineq] membership table. Registry of existing lemmas; no new theorems."
+  },
+  "Pythia/Tactic/TPTPEncode.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "TPTP encoder for FOL oracle adapters. Shared encoder infrastructure; no theorems."
+  },
+  "Pythia/Tactic/TightTail.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "Tail-bound calculator tactic. Evaluates registered inequalities numerically; pure def/eval infrastructure."
+  },
+  "Pythia/Tactic/ValidateInvokedLemmas.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "#validate_invoked_lemmas command. LLM-defense; no theorems."
+  },
+  "Pythia/Tactic/ValidateTypes.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "#validate_types command. LLM-defense; no theorems."
+  },
+  "Pythia/Tactic/VampireCheck.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "vampire_check tactic. Vampire FOL oracle bridge; no theorems."
+  },
+  "Pythia/Tactic/VilleCmd.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "#ville elaborator command. Prints CSFamily fields; pure infrastructure command."
+  },
+  "Pythia/Tactic/Z3Check.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "z3_check tactic. Z3 SMT oracle bridge; no theorems."
+  },
+  "Pythia/Thermodynamics/CarnotEfficiencyUpperBound.lean": {
+    "tier": "A",
+    "theorem_names": ["carnot_efficiency_upper_bound"],
+    "symmetries": ["monotone(T_c, efficiency_decreases)"],
+    "regime": "Carnot engine; T_c < T_h, both > 0",
+    "shared_spine_sim": null,
+    "differential_candidate": true,
+    "rationale": "Already in theorem_manifest. Closed result: eta = 1 - T_c/T_h <= 1."
+  },
+  "Pythia/TimeSeries/NeweyWest.lean": {
+    "tier": "A",
+    "theorem_names": ["NeweyWest.hac_consistent"],
+    "symmetries": ["limit_case(m -> 0, reduces_to_sample_variance)", "permutation_invariant(X_t)"],
+    "regime": "iid with E[X]=0, E[X^2]=sigma^2; bandwidth m(T) -> inf, m(T)/T^{1/4} -> 0",
+    "shared_spine_sim": "time_series",
+    "differential_candidate": true,
+    "rationale": "Newey-West HAC variance estimator consistency. In AxiomAudit. Fundamental for heteroskedasticity-robust inference in econometrics/time series. Shares time_series spine with WoldDecomposition."
+  },
+  "Pythia/TimeSeries/WoldDecomposition.lean": {
+    "tier": "A",
+    "theorem_names": ["Wold.wold_decomposition", "Wold.decomposition_orthogonal", "Wold.decomposition_unique", "Wold.maCoeff_sq_summable"],
+    "symmetries": ["limit_case(deterministic_only, D_t)"],
+    "regime": "zero-mean covariance-stationary process in L^2; shift isometry U",
+    "shared_spine_sim": "time_series",
+    "differential_candidate": false,
+    "rationale": "Wold decomposition: MA(inf) + deterministic component. Core time-series result. Several results proved (unitarySubspace_isClosed, wold_decomposition). Shares time_series spine."
+  },
+  "Pythia/TimeUniformCLT.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.time_uniform_clt", "Pythia.asymptotic_confidence_sequence", "Pythia.aCS_sharp_universal"],
+    "symmetries": ["limit_case(T -> infinity)", "scale_invariant(sigma)"],
+    "regime": "iid with finite second moment sigma^2; Levy-Prokhorov metric; all t",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Time-uniform CLT (WSSR24). All scaffold-sorrys pending Levy-Prokhorov machinery. User-facing: working statisticians test time-uniform CLT empirically. BORDERLINE: entirely sorry'd."
+  },
+  "Pythia/VectorSharpness.lean": {
+    "tier": "B",
+    "theorem_names": ["Pythia.one_d_marginal_reduction_tight", "Pythia.gaussian_boundary_density_vector"],
+    "symmetries": ["scale_invariant(sigma)"],
+    "regime": "vector-valued sub-Gaussian MG; 1-d projection; Gaussian boundary density",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": false,
+    "rationale": "Sharpness infrastructure for vector CS family. All sorry'd. Spine-B: needed to complete 4-of-4 sharp-constant pinning for Theorem 1. Part of confidence_sequence spine."
+  },
+  "Pythia/VilleMathlibPR.lean": {
+    "tier": "C",
+    "theorem_names": [],
+    "rationale": "House-style reference draft for Mathlib PR. Uses Lean 4 module syntax incompatible with Lake (public import). Explicitly excluded from public surface per API.lean. Not library content."
+  },
+  "Pythia/VilleSupermartingale.lean": {
+    "tier": "B",
+    "theorem_names": ["Pythia.ville_supermartingale_unit_initial", "Pythia.ville_bound_pos"],
+    "symmetries": ["limit_case(c -> infinity, probability -> 0)"],
+    "regime": "non-negative supermartingale; c > 0; finite measure",
+    "shared_spine_sim": "martingale_concentration",
+    "differential_candidate": false,
+    "rationale": "Ville's inequality corollaries for non-negative supermartingales. Spine-B: infrastructure for SubGaussianMG, BettingCS, SPRT."
+  },
+  "Pythia/WaldIdentity.lean": {
+    "tier": "A",
+    "theorem_names": ["Pythia.wald_identity_centered", "Pythia.wald_identity", "Pythia.wald_identity_squared", "Pythia.wald_identity_exp"],
+    "symmetries": ["bilinear(E_X, E_tau)", "limit_case(mu -> 0, centered)"],
+    "regime": "iid integrable X_i; stopping time tau with E[tau] < inf",
+    "shared_spine_sim": "confidence_sequence",
+    "differential_candidate": true,
+    "rationale": "Wald's identity: E[sum_{i<=tau} X_i] = E[X_1]*E[tau]. Scaffold-sorrys with closure plans. Core sequential statistics result used in SPRT. Shares confidence_sequence spine."
+  }
+}

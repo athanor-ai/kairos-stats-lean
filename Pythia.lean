@@ -119,3 +119,12 @@ import Pythia.Bench.MiniPythia
 -- ATH-718 Layer 1: actuarial loss distributions (Pareto, Weibull, LogNormal).
 -- Moment + tail formulas; see each module for Aristotle queue candidates.
 import Pythia.Actuarial
+-- ATH-718 Layer 1: numerical methods (Picard-Lindelöf, Lyapunov,
+-- Kahan summation, KKT). Theorem signatures + scaffold sorries.
+import Pythia.Numerical
+-- ATH-718 Layer 1: computational biology (mass-action CRN ODEs,
+-- phylogenetic likelihood). Scaffolds + Aristotle queue candidates.
+import Pythia.Bio
+-- ATH-718 Layer 1: hypothesis testing + multiple-testing corrections
+-- (Wald, Bonferroni, Holm, BH-FDR).
+import Pythia.HypothesisTest

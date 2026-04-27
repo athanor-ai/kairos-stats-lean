@@ -11,6 +11,7 @@ term against `{propext, Classical.choice, Quot.sound}`. No `sorry`, no
 skipped tests, no fake closures.
 -/
 import Pythia.Tactic.Pythia
+import Pythia.MathlibTags
 
 namespace Pythia.PythiaTest
 
@@ -84,5 +85,15 @@ example (x y : ℝ) : (x + y) - y = x := by pythia
 
 -- The `#stat_lemmas` command works at command level.
 #stat_lemmas
+
+/-! ## Section G — Dispatch regression: `am_gm_two` post-simp form -/
+
+/-- Regression for the AM-GM dispatch bug surfaced by QA on
+2026-04-27: `pythia`'s simp pass unfolds `Real.sqrt (a*b)` to
+`Real.sqrt a * Real.sqrt b` under nonneg hypotheses, so the original
+`am_gm_two` head-match was gone before aesop fired. The split-form
+companion `am_gm_two_split` keeps the cascade reachable. -/
+example (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
+    Real.sqrt (a * b) ≤ (a + b) / 2 := by pythia
 
 end Pythia.PythiaTest

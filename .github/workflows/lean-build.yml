@@ -102,7 +102,20 @@ jobs:
           # Every public theorem under test must depend only on the Lean
           # kernel's trusted axioms: propext, Classical.choice, Quot.sound.
           # Anything else (e.g. sorryAx, added axioms) fails CI.
-          lake env lean Pythia/AxiomAudit.lean > axiom-audit.txt 2>&1 || true
+          #
+          # ATH-781 hardening:
+          #   - Removed `|| true` so a lake-env-lean failure aborts
+          #     immediately instead of silently passing through to grep.
+          #   - Replaced the weak `grep -q "axioms"` sanity check with a
+          #     manifest-driven coverage check that asserts every
+          #     theorem listed in tools.sim.axiom_audit_manifest
+          #     appears as a substring in lake's output. A silent
+          #     drop in coverage (someone removes a `#print axioms`
+          #     line) now fails with a named missing-theorems list.
+          set -euo pipefail
+          lake env lean Pythia/AxiomAudit.lean > axiom-audit.txt 2>&1
           cat axiom-audit.txt
+          # No declaration may use sorryAx or any non-kernel axiom.
           ! grep -E "^\s*(sorryAx|Mathlib\.Axioms|[A-Z][a-zA-Z]*\.axiom)" axiom-audit.txt
-          grep -q "axioms" axiom-audit.txt
+          # Coverage gate against the expected-theorem manifest.
+          python3 -m tools.sim.check_axiom_audit axiom-audit.txt

@@ -49,6 +49,17 @@ theorem am_gm_two (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
     (Real.sqrt_mul ha b).symm
   nlinarith [h_sq_nonneg, h_sa, h_sb, h_sab]
 
+/-- Simp-normal-form companion for `am_gm_two`. `pythia`'s simp pass
+unfolds `Real.sqrt (a*b)` to `Real.sqrt a * Real.sqrt b` under nonneg
+hypotheses (Mathlib `Real.sqrt_mul`), so the original head-match is
+gone before aesop reaches the ruleset. Tagging this rewritten form
+keeps AM-GM reachable through the cascade. -/
+@[stat_lemma]
+theorem am_gm_two_split (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
+    Real.sqrt a * Real.sqrt b ≤ (a + b) / 2 := by
+  rw [← Real.sqrt_mul ha]
+  exact am_gm_two a b ha hb
+
 /-! ## Markov inequality (Chebyshev's inequality) -/
 
 -- `MeasureTheory.meas_ge_le_lintegral_div`:

@@ -101,6 +101,29 @@ families) registered so a domain-specialised hammer finds them.
 Tactics read like Lean syntax (`by pythia`), not like library calls.
 Error messages match Mathlib's tone.
 
+## Quickstart (60 seconds)
+
+```lean
+-- 1. Add to your lakefile.lean:
+--    require pythia from git "https://github.com/athanor-ai/pythia.git" @ "main"
+import Pythia.Tactic.PythiaBang
+
+example (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
+    Real.sqrt (a * b) ≤ (a + b) / 2 := by
+  pythia!  -- closes via the @[stat_simp] + @[stat_lemma] cascade
+```
+
+That's it. `pythia!` walks the 9-rung deterministic ladder
+(simp / linarith / aesop / @[stat_lemma] / Z3 / CVC5 / Vampire / E /
+disprove) and closes most standard statistics goals. For per-rung
+timing on the success path use `pythia?` (verbose). For LLM-augmented
+closure see `kairos.lean_cycle.cycle_prove` in the kairos-sdk
+companion.
+
+Per-domain starter packs at [`examples/<domain>/`](examples/) show
+the same workflow on biology, economics, control, optimal transport,
+and quantum information.
+
 ## Install
 
 Add to your `lakefile.lean`:

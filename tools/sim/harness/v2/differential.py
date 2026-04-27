@@ -23,29 +23,38 @@ class DifferentialCheck:
 
 
 def _lean_eval(expr: str) -> Optional[str]:
-    """Run #eval <expr> via lake env lean. Returns stdout or None."""
+    """Run #eval <expr> via lake env lean. Returns stdout or None.
+
+    Uses a unique tmpfile per call so concurrent sims (e.g. under
+    pytest-xdist) don't race on a single shared path.
+    """
     if not shutil.which("lake"):
         return None
-    tmpfile = _REPO_ROOT / ".v2_lean_eval_tmp.lean"
+    import tempfile
+
+    fd, tmppath_str = tempfile.mkstemp(
+        prefix=".v2_lean_eval_", suffix=".lean", dir=str(_REPO_ROOT)
+    )
+    tmpfile = Path(tmppath_str)
     try:
-        tmpfile.write_text(f"#eval {expr}\n", encoding="utf-8")
+        with open(fd, "w", encoding="utf-8") as f:
+            f.write(f"#eval {expr}\n")
         result = subprocess.run(
             ["lake", "env", "lean", str(tmpfile)],
             capture_output=True, text=True, timeout=30, cwd=str(_REPO_ROOT),
         )
-        tmpfile.unlink(missing_ok=True)
         if result.returncode != 0:
             warnings.warn(f"lean eval error: {result.stderr[:200]}", stacklevel=3)
             return None
         return result.stdout.strip()
     except subprocess.TimeoutExpired:
         warnings.warn("lean eval timed out", stacklevel=3)
-        tmpfile.unlink(missing_ok=True)
         return None
     except Exception as exc:
         warnings.warn(f"lean eval error: {exc}", stacklevel=3)
-        tmpfile.unlink(missing_ok=True)
         return None
+    finally:
+        tmpfile.unlink(missing_ok=True)
 
 
 def _parse_lean_float(raw: str) -> Optional[float]:

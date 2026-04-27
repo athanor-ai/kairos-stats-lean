@@ -43,6 +43,9 @@ import Pythia.BDG
 import Pythia.Bennett
 import Pythia.MeasureTheory.ConditionalJensen
 import Pythia.InfoTheory.DataProcessing
+import Pythia.StochasticApproximation.RobbinsSiegmund
+import Pythia.StochasticApproximation.RobbinsMonro
+import Pythia.StochasticApproximation.Dvoretzky
 
 namespace Pythia.AxiomAudit
 
@@ -126,5 +129,18 @@ open Pythia
 #print axioms Pythia.InfoTheory.klDiv_snd_le
 #print axioms Pythia.InfoTheory.klDiv_fst_le
 #print axioms Pythia.InfoTheory.klDiv_compProd_right
+/-! ## Stochastic approximation (Aristotle import 2026-04-26) -/
+
+-- Robbins-Siegmund almost-supermartingale convergence (project 3ef0e627)
+#print axioms Pythia.StochasticApproximation.robbins_siegmund
+
+-- Robbins-Monro stochastic approximation (project 3ef0e627)
+#print axioms Pythia.StochasticApproximation.robbins_monro_ae_tendsto
+
+-- Dvoretzky / a.s. convergence + SGD (project 54b65c15)
+#print axioms Pythia.StochasticApproximation.Dvoretzky.dvoretzky_ae
+#print axioms Pythia.StochasticApproximation.Dvoretzky.robbins_siegmund_ae
+#print axioms Pythia.StochasticApproximation.Dvoretzky.robbins_monro_convergence
+#print axioms Pythia.StochasticApproximation.Dvoretzky.sgd_convergence
 
 end Pythia.AxiomAudit

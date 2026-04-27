@@ -50,4 +50,52 @@ theorem hardy_weinberg_conservation (p q : ℝ) (h : p + q = 1) :
   rw [hq]
   ring
 
+/-!
+## Lotka-Volterra (Lotka 1925, Volterra 1926)
+
+The continuous predator-prey system
+
+    dx/dt = alpha * x - beta * x * y
+    dy/dt = delta * x * y - gamma * y
+
+with `alpha, beta, gamma, delta > 0` admits a unique coexistence equilibrium
+
+    x* = gamma / delta,    y* = alpha / beta.
+
+Both coordinates are strictly positive whenever the four rate parameters are
+strictly positive. The positivity results below are the algebraic core that
+downstream stability analyses build on.
+
+References:
+* Lotka, A. J. "Elements of Physical Biology." Williams and Wilkins (1925).
+* Volterra, V. "Variazioni e fluttuazioni del numero d'individui in specie
+  animali conviventi." Mem. R. Accad. Naz. dei Lincei, Ser. VI, 2: 31-113 (1926).
+-/
+
+/-- Coexistence equilibrium prey density: `x* = gamma / delta`. -/
+noncomputable def lotkaVolterraEquilibriumX (gamma delta : ℝ) : ℝ := gamma / delta
+
+/-- Coexistence equilibrium predator density: `y* = alpha / beta`. -/
+noncomputable def lotkaVolterraEquilibriumY (alpha beta : ℝ) : ℝ := alpha / beta
+
+/-- **Lotka-Volterra prey equilibrium positivity.**
+When `gamma > 0` and `delta > 0`, the coexistence prey density `x* = gamma / delta`
+is strictly positive. -/
+@[stat_lemma]
+theorem lotka_volterra_equilibrium_x_pos
+    (gamma delta : ℝ) (hgamma : 0 < gamma) (hdelta : 0 < delta) :
+    0 < lotkaVolterraEquilibriumX gamma delta := by
+  unfold lotkaVolterraEquilibriumX
+  exact div_pos hgamma hdelta
+
+/-- **Lotka-Volterra predator equilibrium positivity.**
+When `alpha > 0` and `beta > 0`, the coexistence predator density `y* = alpha / beta`
+is strictly positive. -/
+@[stat_lemma]
+theorem lotka_volterra_equilibrium_y_pos
+    (alpha beta : ℝ) (halpha : 0 < alpha) (hbeta : 0 < beta) :
+    0 < lotkaVolterraEquilibriumY alpha beta := by
+  unfold lotkaVolterraEquilibriumY
+  exact div_pos halpha hbeta
+
 end Pythia.Bio.Population

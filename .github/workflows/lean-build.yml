@@ -106,3 +106,18 @@ jobs:
           cat axiom-audit.txt
           ! grep -E "^\s*(sorryAx|Mathlib\.Axioms|[A-Z][a-zA-Z]*\.axiom)" axiom-audit.txt
           grep -q "axioms" axiom-audit.txt
+
+      # Markdown doctest gate: every fenced ```lean / ```lean4 block in
+      # *.md files must compile via `lake env lean` OR carry an explicit
+      # <!-- doctest: ... --> skip marker. Catches the silent-rot pattern
+      # where README / tutorial / cookbook snippets drift away from the
+      # actual API and customers find them broken on copy-paste. The
+      # in-repo `examples/**/*.lean` gate (above) covers the .lean
+      # starter packs; this one covers prose code blocks.
+      - name: Install markdown doctest deps
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pytest markdown-it-py
+      - name: Markdown doctest
+        run: |
+          python3 -m pytest tools/markdown_doctest/test_doctest.py -v --tb=short

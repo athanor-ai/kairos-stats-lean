@@ -33,9 +33,13 @@ standard automation (`simp`, `linarith`, `aesop`, `bound`,
 applied-mathematics working set. A goal like
 
 ```lean
+import Pythia
+open Pythia MeasureTheory
+
 example
-    {Ω : Type*} {μ : Measure Ω} [IsFiniteMeasure μ]
-    {f : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ _}
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsFiniteMeasure μ]
+    {f : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ mΩ}
     (hsup : Supermartingale f 𝓕 μ) (hnn : ∀ t ω, 0 ≤ f t ω)
     (hint : Integrable (f 0) μ) {c : ℝ} (hc : 0 < c) :
     μ {ω | ∃ t, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal := by
@@ -105,6 +109,7 @@ Error messages match Mathlib's tone.
 
 Add to your `lakefile.lean`:
 
+<!-- doctest: lakefile -->
 ```lean
 require pythia from git
   "https://github.com/athanor-ai/pythia.git" @ "main"
@@ -367,6 +372,10 @@ ad-hoc axioms, no `@[implemented_by]` shortcuts on theorem-level
 definitions. Audit each theorem locally with
 
 ```lean
+import Pythia.SubGaussianMG
+import Pythia.HowardRamdasCS
+import Pythia.BettingCS
+
 #print axioms Pythia.ville_supermartingale
 #print axioms Pythia.hrStoppingRule_admissible
 #print axioms Pythia.bettingStoppingRule_admissible

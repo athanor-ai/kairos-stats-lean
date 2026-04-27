@@ -49,6 +49,9 @@ predictable proof terms that survive future Mathlib simp-set churn.
 Plain form:
 
 ```lean
+import Pythia
+open Pythia
+open scoped ENNReal NNReal
 example (a b : ℝ≥0∞) : (a * b).toReal = a.toReal * b.toReal := by stat_simp
 ```
 
@@ -56,12 +59,16 @@ With side-condition hypotheses (passed through to the simp discharger
 via `assumption`):
 
 ```lean
+import Pythia
+open Pythia
+open scoped ENNReal NNReal
 example (a b : ℝ≥0∞) (ha : a ≠ ∞) (hb : b ≠ ∞) :
     (a + b).toReal = a.toReal + b.toReal := by stat_simp [ha, hb]
 ```
 
 Equivalent direct form (useful when calling from a larger tactic):
 
+<!-- doctest: skip-reason: tactic-fragment shown for context -->
 ```lean
 simp (discharger := assumption) only [stat_simp, ha, hb]
 ```

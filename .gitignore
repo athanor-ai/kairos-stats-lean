@@ -25,3 +25,7 @@ __pycache__/
 .coverage.*
 coverage.xml
 .pytest_cache/
+
+# Aristotle queue state — per-developer / per-account project ids,
+# do not commit. See tools/aristotle_queue.py.
+.aristotle/

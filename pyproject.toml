@@ -59,3 +59,39 @@ exclude_also = [
   "raise NotImplementedError",
   "pragma: no cover",
 ]
+
+[tool.mutmut]
+# Mutation testing layer over the Python tooling. Verifies test
+# QUALITY (do tests catch bugs?) on top of the line-coverage gate
+# in [tool.coverage.report]. Coverage says "this line ran"; mutation
+# testing says "if I broke this line, a test would fail."
+#
+# Wired as an advisory gate via .github/workflows/mutation-tests.yml
+# (PR + manual trigger only, NOT every push). See
+# docs/mutation-tests.md for the run-locally + suppression workflow.
+paths_to_mutate = "tools/"
+runner = "python3 -m pytest tools/sim/ -x -q"
+tests_dir = "tools/sim/"
+# Same exclusion rationale as [tool.coverage.run].omit: per-theorem
+# sim runners are integration scripts, not library code; mutating
+# them tells us nothing about library health. Test files mutate to
+# trivial passes, so exclude those too.
+also_copy = []
+do_not_mutate = [
+  "tools/sim/bio_*.py",
+  "tools/sim/chemistry_*.py",
+  "tools/sim/control_*.py",
+  "tools/sim/economics_*.py",
+  "tools/sim/engineering_*.py",
+  "tools/sim/info_theory_*.py",
+  "tools/sim/infotheory_*.py",
+  "tools/sim/mathlib_tags_*.py",
+  "tools/sim/mechanical_*.py",
+  "tools/sim/numerical_*.py",
+  "tools/sim/or_*.py",
+  "tools/sim/thermodynamics_*.py",
+  "tools/run_pythia_sim.py",
+  "tools/sim/test_*.py",
+  "tools/sim/*_template*.py",
+  "tools/sim/Scratch/*",
+]

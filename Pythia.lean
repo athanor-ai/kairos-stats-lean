@@ -82,6 +82,9 @@ import Pythia.Tactic.FlagConcreteConstantsTest
 -- LLM-defense layer (ATH-724 Guard C): unused-hypothesis guard.
 import Pythia.Tactic.MinimizeHypotheses
 import Pythia.Tactic.MinimizeHypothesesTest
+-- LLM-defense layer (ATH-725 Guard D): type-shape sanity guard.
+import Pythia.Tactic.ValidateTypes
+import Pythia.Tactic.ValidateTypesTest
 -- Counterexample-finder tactic — disprove (Phase 1, dual of z3_check).
 import Pythia.Tactic.Disprove
 import Pythia.Tactic.DisproveTest

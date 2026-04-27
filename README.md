@@ -1,6 +1,8 @@
 # pythia
 
 [![CI](https://github.com/athanor-ai/pythia/actions/workflows/lean-build.yml/badge.svg)](https://github.com/athanor-ai/pythia/actions/workflows/lean-build.yml)
+[![Sim sweep](https://github.com/athanor-ai/pythia/actions/workflows/pythia-sim.yml/badge.svg)](https://github.com/athanor-ai/pythia/actions/workflows/pythia-sim.yml)
+[![codecov](https://codecov.io/gh/athanor-ai/pythia/branch/main/graph/badge.svg)](https://codecov.io/gh/athanor-ai/pythia)
 [![Lean](https://img.shields.io/badge/Lean-4.28.0-blue.svg)](https://github.com/leanprover/lean4/releases/tag/v4.28.0)
 [![Mathlib](https://img.shields.io/badge/Mathlib-v4.28.0-blue.svg)](https://github.com/leanprover-community/mathlib4/releases/tag/v4.28.0)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)

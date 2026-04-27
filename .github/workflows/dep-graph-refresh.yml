@@ -1,0 +1,59 @@
+name: Refresh dep_graph.md
+
+# Regenerates docs/dep_graph.md from the current Pythia/ tree on every
+# push to main. Commits the result back to main if (and only if) the
+# rendered content drifted from what is checked in. Read-only on PRs:
+# we run the script there to surface drift, but never write back.
+#
+# Idempotent: tools/dep_graph.py emits stable, sorted output, so a
+# no-op push leaves the working tree clean and the second job step
+# exits without committing.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Pythia/**.lean'
+      - 'tools/dep_graph.py'
+      - '.github/workflows/dep-graph-refresh.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Pythia/**.lean'
+      - 'tools/dep_graph.py'
+      - '.github/workflows/dep-graph-refresh.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Regenerate docs/dep_graph.md
+        run: |
+          python3 tools/dep_graph.py --output docs/dep_graph.md
+      - name: Lint regenerated file (anti-LLM-slop bar)
+        run: |
+          python3 tools/md_lint.py docs/dep_graph.md
+      - name: Commit if changed (push to main only)
+        # Skip the commit step on pull_request runs: PRs from forks
+        # cannot push to the base repository, and PRs from the same
+        # repo would race the author's branch. The PR build still
+        # validates that the file regenerates cleanly.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -e
+          if git diff --quiet -- docs/dep_graph.md; then
+            echo "dep_graph.md unchanged. Nothing to commit."
+            exit 0
+          fi
+          git config user.name  "pythia-dep-graph-bot"
+          git config user.email "actions@github.com"
+          git add docs/dep_graph.md
+          git commit -m "chore(docs): refresh dep_graph.md (auto)"
+          git push origin HEAD:main

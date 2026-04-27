@@ -259,7 +259,314 @@ class TestSimTestAstResolution:
         )
 
 
+# ── Coverage primitive enforcement ─────────────────────────────────────
+#
+# Paper claim (AI4MATH 2026 §1.2): every theorem's Python sim runner
+# exercises three primitives:
+#   1. property-based testing (Hypothesis-style strategy + assertions)
+#   2. deterministic parameter sweeps (a fixed grid)
+#   3. mutation testing (perturb the spec, confirm the test catches it)
+#
+# The forward / reverse / AST checks above only enforce that a function
+# with the right name exists. That's necessary but not sufficient — a
+# sim like ``def test_foo(): assert True`` would pass those checks
+# while delivering none of the paper's claimed coverage. The tests in
+# this section close that gap by inspecting the AST of each sim file.
+#
+# Acceptable shapes (today, v1 only):
+#   1. v1 harness pattern: imports tools.sim.harness AND calls
+#      run_harness(...) with mutations=<non-empty>
+#
+# v2 (tools.sim.harness.v2.Sim) is a follow-up to land separately;
+# when v2 sims start arriving in the backfill, extend
+# ``_sim_uses_coverage_primitives`` to accept ``Sim(generator=...,
+# property=..., symmetries=[...])`` as the v2 alternative.
+
+
+def _parse_module(path: Path) -> ast.Module:
+    return ast.parse(path.read_text(encoding="utf-8"))
+
+
+def _imports_v1_harness(tree: ast.Module) -> bool:
+    """True iff the file does ``from tools.sim.harness import ...``
+    or ``from tools.sim import harness``."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            mod = node.module or ""
+            if mod == "tools.sim.harness":
+                return True
+            if mod == "tools.sim" and any(a.name == "harness" for a in node.names):
+                return True
+    return False
+
+
+def _run_harness_calls(tree: ast.Module) -> list[ast.Call]:
+    """All call sites of ``run_harness(...)`` in the module."""
+    calls: list[ast.Call] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            fn = node.func
+            if isinstance(fn, ast.Name) and fn.id == "run_harness":
+                calls.append(node)
+            elif isinstance(fn, ast.Attribute) and fn.attr == "run_harness":
+                calls.append(node)
+    return calls
+
+
+def _kw_value(call: ast.Call, name: str) -> ast.expr | None:
+    for kw in call.keywords:
+        if kw.arg == name:
+            return kw.value
+    return None
+
+
+def _is_non_empty_mutations(value: ast.expr | None) -> bool:
+    """True iff the kwarg value passed to ``mutations=`` is provably
+    non-empty.
+
+    Accepts:
+      * ``mutations=(m1, m2, ...)``                      — non-empty literal
+      * ``mutations=[m1, m2, ...]``                       — non-empty list literal
+      * ``mutations=MUTATIONS`` where MUTATIONS is a    — module-level
+        non-empty literal at module scope                 alias
+      * ``mutations=*expression*`` — fallback: only       (caller-defined
+        accept names that resolve to non-empty literals    aliases)
+        elsewhere in the module.
+
+    Rejects:
+      * ``mutations=()`` / ``mutations=[]`` (empty)
+      * ``mutations=None``
+      * absent kwarg (None passed in)
+    """
+    if value is None:
+        return False
+    if isinstance(value, (ast.Tuple, ast.List)):
+        return len(value.elts) > 0
+    if isinstance(value, ast.Constant) and value.value is None:
+        return False
+    # If it's a Name reference, we need to look up the binding at module
+    # scope. The caller resolves this via ``_resolve_name_to_literal``.
+    return True  # fall-through: treat as "needs deeper check"
+
+
+def _resolve_name_to_literal(tree: ast.Module, name: str) -> ast.expr | None:
+    """Return the RHS expression of a top-level ``<name> = <expr>``
+    binding, or None if no such binding exists."""
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, ast.Assign):
+            for tgt in node.targets:
+                if isinstance(tgt, ast.Name) and tgt.id == name:
+                    return node.value
+    return None
+
+
+def _sim_uses_coverage_primitives(path: Path) -> tuple[bool, str]:
+    """Return ``(passed, reason)`` for a single sim file.
+
+    ``reason`` is empty on pass; on fail it names the missing primitive
+    and points at a fix.
+    """
+    try:
+        tree = _parse_module(path)
+    except SyntaxError as exc:
+        return False, f"SyntaxError: {exc}"
+
+    if not _imports_v1_harness(tree):
+        return False, (
+            "no import of tools.sim.harness — sim must use the shared "
+            "harness so PBT + sweep + mutation coverage all run "
+            "through one battle-tested code path."
+        )
+
+    calls = _run_harness_calls(tree)
+    if not calls:
+        return False, (
+            "no run_harness(...) call — paper claims PBT + sweeps + "
+            "mutation testing on every theorem. Calling run_harness is "
+            "how that coverage actually fires."
+        )
+
+    # At least one call must pass non-empty mutations (the harness
+    # itself enforces non-vacuous PBT + sweeps internally; the only
+    # primitive the caller must explicitly opt into is mutation
+    # testing because mutations are domain-specific).
+    for call in calls:
+        kw = _kw_value(call, "mutations")
+        if kw is None:
+            continue
+        if isinstance(kw, (ast.Tuple, ast.List)):
+            if len(kw.elts) > 0:
+                return True, ""
+            continue
+        if isinstance(kw, ast.Name):
+            resolved = _resolve_name_to_literal(tree, kw.id)
+            if isinstance(resolved, (ast.Tuple, ast.List)) and len(resolved.elts) > 0:
+                return True, ""
+            continue
+        # Any other shape (function call, subscript, etc.): trust it.
+        return True, ""
+
+    return False, (
+        "run_harness(...) called but no non-empty mutations= argument "
+        "found. Mutation testing is a documented paper primitive — "
+        "without it the spec test can pass vacuously. Add at least "
+        "one Mutation that perturbs the theorem statement and ensure "
+        "the harness flags it as caught."
+    )
+
+
+class TestCoveragePrimitives:
+    """Every domain sim must opt into PBT + sweeps + mutation testing.
+
+    These checks close the gap between 'function exists with the right
+    name' (which the forward / AST tests above enforce) and the actual
+    paper claim 'every theorem under PBT + sweeps + mutation testing'.
+    """
+
+    @pytest.mark.parametrize(
+        "sim_file",
+        _domain_sim_files(),
+        ids=[p.stem for p in _domain_sim_files()],
+    )
+    def test_sim_uses_coverage_primitives(self, sim_file: Path) -> None:
+        ok, reason = _sim_uses_coverage_primitives(sim_file)
+        assert ok, (
+            f"Coverage gap in {sim_file.relative_to(REPO_ROOT)}:\n"
+            f"  {reason}\n"
+            f"\n"
+            f"This file must follow the v1 harness contract (or the "
+            f"v2 Sim contract once that lands) so the paper claim "
+            f"\"every theorem under PBT + sweeps + mutation testing\" "
+            f"is actually enforceable, not just documented."
+        )
+
+
 # ── Utility-exclusion sanity ───────────────────────────────────────────
+
+
+class TestCoveragePrimitivesHelper:
+    """Unit tests for the `_sim_uses_coverage_primitives` helper.
+
+    These pin the helper's behaviour on synthetic inputs so the
+    parametrised contract test above can be trusted to catch real
+    regressions. Each case answers: "if the helper saw this file
+    shape, would it correctly accept / reject it?"
+    """
+
+    def test_rejects_trivial_test_function(self, tmp_path: Path) -> None:
+        """The classic anti-pattern: function with the right name but
+        no actual coverage. The original gate would PASS this; the
+        new check must REJECT it."""
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "def test_fake() -> None:\n"
+            "    assert True\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "tools.sim.harness" in reason
+
+    def test_rejects_no_run_harness_call(self, tmp_path: Path) -> None:
+        """Imports the harness but doesn't call run_harness — would
+        previously pass since the import shows intent, but the
+        actual coverage primitives never fire."""
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "from tools.sim.harness import run_harness, Strategy, floats\n"
+            "def test_fake() -> None:\n"
+            "    assert True\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "run_harness" in reason
+
+    def test_rejects_empty_mutations_tuple(self, tmp_path: Path) -> None:
+        """``mutations=()`` is the silent-vacuousness shape: PBT runs
+        but no mutation testing happens. The paper claim "PBT +
+        sweeps + mutation testing" is violated."""
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "from tools.sim.harness import run_harness\n"
+            "def test_fake() -> None:\n"
+            "    run_harness(name='x', spec=lambda: True, "
+            "strategy=None, mutations=())\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "mutations" in reason
+
+    def test_rejects_empty_mutations_list(self, tmp_path: Path) -> None:
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "from tools.sim.harness import run_harness\n"
+            "def test_fake() -> None:\n"
+            "    run_harness(name='x', spec=lambda: True, "
+            "strategy=None, mutations=[])\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "mutations" in reason
+
+    def test_rejects_missing_mutations_kwarg(self, tmp_path: Path) -> None:
+        """Run_harness called without mutations= at all.
+
+        The harness signature requires mutations, but a call could
+        in principle omit them via **kwargs unpacking; we explicitly
+        reject calls that lack a non-empty mutations= keyword.
+        """
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "from tools.sim.harness import run_harness\n"
+            "def test_fake() -> None:\n"
+            "    run_harness(name='x', spec=lambda: True, strategy=None)\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "mutations" in reason
+
+    def test_accepts_non_empty_inline_mutations(self, tmp_path: Path) -> None:
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "from tools.sim.harness import run_harness, Mutation\n"
+            "def test_fake() -> None:\n"
+            "    run_harness(name='x', spec=lambda: True, strategy=None,\n"
+            "                mutations=(Mutation(name='m', spec=lambda: False),))\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert ok, reason
+
+    def test_accepts_module_level_mutations_alias(self, tmp_path: Path) -> None:
+        """The canonical pattern: ``MUTATIONS = (...)`` at module
+        scope, then ``run_harness(..., mutations=MUTATIONS)``.
+
+        Helper resolves the Name reference back to the module-level
+        binding to confirm non-emptiness."""
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "from tools.sim.harness import run_harness, Mutation\n"
+            "MUTATIONS = (\n"
+            "    Mutation(name='m1', spec=lambda: False),\n"
+            "    Mutation(name='m2', spec=lambda: False),\n"
+            ")\n"
+            "def test_fake() -> None:\n"
+            "    run_harness(name='x', spec=lambda: True, "
+            "strategy=None, mutations=MUTATIONS)\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert ok, reason
+
+    def test_rejects_module_level_empty_mutations_alias(self, tmp_path: Path) -> None:
+        f = tmp_path / "fake_sim.py"
+        f.write_text(
+            "from tools.sim.harness import run_harness\n"
+            "MUTATIONS = ()\n"
+            "def test_fake() -> None:\n"
+            "    run_harness(name='x', spec=lambda: True, "
+            "strategy=None, mutations=MUTATIONS)\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "mutations" in reason
 
 
 class TestExclusionLogic:

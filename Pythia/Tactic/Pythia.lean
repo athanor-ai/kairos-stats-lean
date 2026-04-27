@@ -162,47 +162,79 @@ syntax (name := pythiaVerbose) "pythia?" : tactic
     evalTactic cascade
   | _ => throwUnsupportedSyntax
 
+/-- `pythia.machineFormat` — when true, `pythia?` emits a tagged
+log line `[pythia.result] {"rung": ..., "shape": ...}` (success) or
+`[pythia.failure] {"reason": ...}` (failure) in addition to the
+human-readable summary. Agent loops parsing pythia output (e.g.
+kairos's lake-build subprocess wrapper, MCP-side tool integrations)
+grep `^\[pythia\.(result|failure)\] ` for structured JSON.
+
+Off by default to keep interactive `pythia?` output clean. Toggle via
+`set_option pythia.machineFormat true in pythia?` for a single
+invocation, or globally via `set_option pythia.machineFormat true`
+for an agent-driven session. -/
+register_option pythia.machineFormat : Bool := {
+  defValue := false
+  descr := "When true, `pythia?` emits a `[pythia.result]` or `[pythia.failure]` tagged log line with structured JSON for agent-loop consumption. Default false for interactive use."
+}
+
 @[tactic pythiaVerbose] def evalPythiaVerbose : Tactic := fun stx => do
   match stx with
   | `(tactic| pythia?) =>
     -- Try each rung in order; the first to fully close the goal logs
     -- a message naming the rung. If none close, fail with the
     -- standard `pythia` error.
-    let rungs : List (Syntax × String) := [
+    -- Triple of (rung-tactic, human-readable msg, machine rung-id).
+    let rungs : List (Syntax × String × String) := [
       (← `(tactic| (anytime_valid; done)),
-        "closed by anytime_valid (Ville-bound shape)"),
+        "closed by anytime_valid (Ville-bound shape)",
+        "anytime_valid"),
       (← `(tactic| (stats_ineq; done)),
-        "closed by stats_ineq (concentration tail)"),
+        "closed by stats_ineq (concentration tail)",
+        "stats_ineq"),
       (← `(tactic| (prob_simp; done)),
-        "closed by prob_simp (probability rewriting)"),
+        "closed by prob_simp (probability rewriting)",
+        "prob_simp"),
       (← `(tactic| (z3_check; done)),
-        "closed by z3_check (QF_LRA over ℝ via Z3 + linarith reconstruction)"),
+        "closed by z3_check (QF_LRA over ℝ via Z3 + linarith reconstruction)",
+        "z3_check"),
       (← `(tactic| (cvc5_check; done)),
-        "closed by cvc5_check (QF_BV via CVC5 + bv_decide / QF_LRA backup via linarith)"),
+        "closed by cvc5_check (QF_BV via CVC5 + bv_decide / QF_LRA backup via linarith)",
+        "cvc5_check"),
       (← `(tactic| (vampire_check; done)),
-        "closed by vampire_check (FOL via Vampire + aesop reconstruction)"),
+        "closed by vampire_check (FOL via Vampire + aesop reconstruction)",
+        "vampire_check"),
       (← `(tactic| (e_check; done)),
-        "closed by e_check (FOL via E theorem prover + aesop reconstruction)"),
+        "closed by e_check (FOL via E theorem prover + aesop reconstruction)",
+        "e_check"),
       (← `(tactic|
             (aesop (config := { warnOnNonterminal := false })
                    (rule_sets := [Pythia]); done)),
-        "closed by aesop on the @[stat_lemma] ruleset"),
+        "closed by aesop on the @[stat_lemma] ruleset",
+        "stat_lemma_aesop"),
       (← `(tactic|
             ((try simp) <;> (try omega) <;> (try linarith)
                 <;> (try positivity); done)),
-        "closed by the generic Mathlib chain (simp; omega; linarith; positivity)"),
+        "closed by the generic Mathlib chain (simp; omega; linarith; positivity)",
+        "mathlib_chain"),
       (← `(tactic| (aesop (config := { warnOnNonterminal := false }); done)),
-        "closed by the default aesop ruleset (last resort)")
+        "closed by the default aesop ruleset (last resort)",
+        "aesop_default")
     ]
+    let machineFmt := pythia.machineFormat.get (← getOptions)
     let mut closed := false
-    for (rung, msg) in rungs do
+    for (rung, msg, rungId) in rungs do
       if closed then break
       try
         evalTactic rung
         logInfo msg
+        if machineFmt then
+          logInfo s!"[pythia.result] \{\"rung\": \"{rungId}\"}"
         closed := true
       catch _ => pure ()
     unless closed do
+      if machineFmt then
+        logInfo "[pythia.failure] {\"reason\": \"no_rung_closed\"}"
       throwError "pythia?: no rung closed the goal."
   | _ => throwUnsupportedSyntax
 

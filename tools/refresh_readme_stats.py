@@ -44,28 +44,91 @@ def _import_manifest():
     return MANIFEST, domains()
 
 
-def render_stats_block(count: int, sorted_domains: list[str]) -> str:
+_DECL_RE = __import__("re").compile(r"^(?:theorem|lemma)\s+", __import__("re").MULTILINE)
+_STAT_LEMMA_RE = __import__("re").compile(
+    r"^@\[stat_lemma\]", __import__("re").MULTILINE
+)
+
+
+def count_pythia_decls(repo_root: Path = REPO_ROOT) -> int:
+    """Count `^theorem ` + `^lemma ` declarations across Pythia/,
+    excluding Pythia/Scratch/. The total surface size — every
+    statement claimed in the library, sorry-bearing or not."""
+    pythia_dir = repo_root / "Pythia"
+    if not pythia_dir.is_dir():
+        return 0
+    total = 0
+    for p in pythia_dir.rglob("*.lean"):
+        if "Scratch" in p.parts:
+            continue
+        total += len(_DECL_RE.findall(p.read_text()))
+    return total
+
+
+def count_stat_lemmas(repo_root: Path = REPO_ROOT) -> int:
+    """Count `@[stat_lemma]` attribute uses across Pythia/. The size
+    of the cascade: what `pythia` tactic dispatches to."""
+    pythia_dir = repo_root / "Pythia"
+    if not pythia_dir.is_dir():
+        return 0
+    total = 0
+    for p in pythia_dir.rglob("*.lean"):
+        if "Scratch" in p.parts:
+            continue
+        total += len(_STAT_LEMMA_RE.findall(p.read_text()))
+    return total
+
+
+def render_stats_block(
+    sim_count: int,
+    sorted_domains: list[str],
+    total_decls: Optional[int] = None,
+    stat_lemma_count: Optional[int] = None,
+) -> str:
     """Return the body that goes BETWEEN the sentinel markers.
 
-    Format is intentionally simple so the drift test can parse counts
-    deterministically without HTML-comment quirks: a single line with
-    two integers in known positions, plus a parenthetical domain list.
+    Reports three figures so the headline doesn't undersell the
+    library:
+      * `total_decls`: every theorem/lemma declared in Pythia/.
+      * `stat_lemma_count`: theorems registered into the `pythia`
+        tactic cascade via `@[stat_lemma]`.
+      * `sim_count`: cross-domain theorems with both Lean proof AND
+        Python sim runner (PBT + sweep + mutation testing).
+
+    Earlier prose said "N cross-domain theorems" with no qualifier,
+    which read as the library size and undersold the surface by 16x.
     """
     n_domains = len(sorted_domains)
     domain_csv = ", ".join(sorted_domains)
-    return (
-        f"**Coverage**: {count} cross-domain theorems shipped "
-        f"across {n_domains} domains\n"
-        f"({domain_csv}). Auto-tracked\n"
-        f"in [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py); "
-        f"regenerate this block via `python3 tools/refresh_readme_stats.py`."
+    lines = ["**Coverage**:"]
+    if total_decls is not None:
+        lines.append(f"- {total_decls} theorem/lemma declarations in `Pythia/`")
+    if stat_lemma_count is not None:
+        lines.append(
+            f"- {stat_lemma_count} `@[stat_lemma]`-tagged theorems "
+            f"in the `pythia` tactic cascade"
+        )
+    lines.append(
+        f"- {sim_count} cross-domain theorems with Lean proof + Python "
+        f"sim runner across {n_domains} domains "
+        f"({domain_csv})"
     )
+    lines.append("")
+    lines.append(
+        "Auto-tracked from "
+        "[`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py) "
+        "and the `Pythia/` source tree; regenerate via "
+        "`python3 tools/refresh_readme_stats.py`."
+    )
+    return "\n".join(lines)
 
 
 def rewrite_block(
     readme_text: str,
-    count: int,
+    sim_count: int,
     sorted_domains: list[str],
+    total_decls: Optional[int] = None,
+    stat_lemma_count: Optional[int] = None,
 ) -> str:
     """Return README text with the stats block rewritten in place.
     Raises ValueError if either sentinel is missing.
@@ -78,7 +141,11 @@ def rewrite_block(
         raise ValueError(f"missing end sentinel {END_SENTINEL!r}")
     if end < begin:
         raise ValueError("end sentinel appears before begin sentinel")
-    body = render_stats_block(count, sorted(sorted_domains))
+    body = render_stats_block(
+        sim_count, sorted(sorted_domains),
+        total_decls=total_decls,
+        stat_lemma_count=stat_lemma_count,
+    )
     new_text = (
         readme_text[: begin + len(BEGIN_SENTINEL)]
         + "\n"
@@ -99,32 +166,40 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     readme_path = Path(args.readme)
     manifest, doms = _import_manifest()
-    count = len(manifest)
+    sim_count = len(manifest)
     sorted_domains = sorted(set(doms))
+    total_decls = count_pythia_decls()
+    stat_lemma_count = count_stat_lemmas()
     current = readme_path.read_text()
     try:
-        rewritten = rewrite_block(current, count, sorted_domains)
+        rewritten = rewrite_block(
+            current, sim_count, sorted_domains,
+            total_decls=total_decls,
+            stat_lemma_count=stat_lemma_count,
+        )
     except ValueError as e:
         print(f"refresh_readme_stats: {e}", file=sys.stderr)
         return 1
 
+    summary = (
+        f"{total_decls} total decls / "
+        f"{stat_lemma_count} @[stat_lemma] / "
+        f"{sim_count} sim-covered across {len(sorted_domains)} domains"
+    )
     if rewritten == current:
-        print(f"README stats block is already in sync ({count} theorems, "
-              f"{len(sorted_domains)} domains).")
+        print(f"README stats block is already in sync ({summary}).")
         return 0
 
     if args.check:
         print(
-            f"README stats block is STALE — manifest has {count} theorems, "
-            f"{len(sorted_domains)} domains. "
+            f"README stats block is STALE. Live values: {summary}. "
             f"Run `python3 tools/refresh_readme_stats.py` to fix.",
             file=sys.stderr,
         )
         return 1
 
     readme_path.write_text(rewritten)
-    print(f"README stats block updated: {count} theorems, "
-          f"{len(sorted_domains)} domains.")
+    print(f"README stats block updated: {summary}.")
     return 0
 
 

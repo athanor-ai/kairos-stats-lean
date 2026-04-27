@@ -21,6 +21,8 @@ if str(REPO_ROOT) not in sys.path:
 from tools.refresh_readme_stats import (  # noqa: E402
     BEGIN_SENTINEL,
     END_SENTINEL,
+    count_pythia_decls,
+    count_stat_lemmas,
     render_stats_block,
     rewrite_block,
 )
@@ -32,7 +34,7 @@ README_PATH = REPO_ROOT / "README.md"
 
 # ── pure helpers ────────────────────────────────────────────────────
 
-def test_render_stats_block_includes_count():
+def test_render_stats_block_includes_sim_count():
     body = render_stats_block(7, ["bio", "chem"])
     assert "7 cross-domain theorems" in body
 
@@ -51,6 +53,18 @@ def test_render_stats_block_zero_is_valid():
     body = render_stats_block(0, [])
     assert "0 cross-domain theorems" in body
     assert "across 0 domains" in body
+
+
+def test_render_stats_block_includes_total_decls_when_passed():
+    body = render_stats_block(5, ["bio"], total_decls=464, stat_lemma_count=55)
+    assert "464 theorem/lemma declarations" in body
+    assert "55 `@[stat_lemma]`-tagged" in body
+
+
+def test_render_stats_block_omits_total_when_none():
+    body = render_stats_block(5, ["bio"])
+    assert "theorem/lemma declarations" not in body
+    assert "@[stat_lemma]" not in body
 
 
 def test_rewrite_block_replaces_only_between_sentinels():
@@ -94,9 +108,48 @@ def test_rewrite_block_is_idempotent():
         "stale\n"
         f"{END_SENTINEL}\n"
     )
-    once = rewrite_block(src, 4, ["bio", "chem"])
-    twice = rewrite_block(once, 4, ["bio", "chem"])
+    once = rewrite_block(src, 4, ["bio", "chem"], total_decls=10, stat_lemma_count=2)
+    twice = rewrite_block(once, 4, ["bio", "chem"], total_decls=10, stat_lemma_count=2)
     assert once == twice
+
+
+# ── source counters ─────────────────────────────────────────────────
+
+def test_count_pythia_decls_skips_scratch(tmp_path):
+    pythia = tmp_path / "Pythia"
+    pythia.mkdir()
+    (pythia / "Real.lean").write_text(
+        "theorem foo : True := trivial\nlemma bar : True := trivial\n"
+    )
+    scratch = pythia / "Scratch"
+    scratch.mkdir()
+    (scratch / "Junk.lean").write_text(
+        "theorem ignored : True := trivial\n"
+    )
+    n = count_pythia_decls(tmp_path)
+    assert n == 2
+
+
+def test_count_stat_lemmas_finds_attribute_uses(tmp_path):
+    pythia = tmp_path / "Pythia"
+    pythia.mkdir()
+    (pythia / "X.lean").write_text(
+        "@[stat_lemma]\ntheorem foo : True := trivial\n"
+        "@[stat_lemma]\nlemma bar : True := trivial\n"
+        "theorem unrelated : True := trivial\n"
+    )
+    scratch = pythia / "Scratch"
+    scratch.mkdir()
+    (scratch / "Y.lean").write_text(
+        "@[stat_lemma]\ntheorem ignored : True := trivial\n"
+    )
+    assert count_stat_lemmas(tmp_path) == 2
+
+
+def test_count_pythia_decls_zero_when_no_pythia(tmp_path):
+    """No Pythia/ directory → 0, not an error."""
+    assert count_pythia_decls(tmp_path) == 0
+    assert count_stat_lemmas(tmp_path) == 0
 
 
 # ── against the real README ─────────────────────────────────────────
@@ -113,15 +166,17 @@ def test_readme_has_sentinels():
 
 
 def test_readme_stats_in_sync_with_manifest():
-    """Headline drift test: the count and domain list rendered between
-    the README sentinels must equal what the canonical
-    `tools/sim/theorem_manifest.py` says today.
+    """Headline drift test: the counts rendered between the README
+    sentinels must equal what the live source says today (manifest +
+    grep over Pythia/).
 
     On failure: run `python3 tools/refresh_readme_stats.py`.
     """
     current = README_PATH.read_text()
     expected = rewrite_block(
         current, len(MANIFEST), sorted(set(domains())),
+        total_decls=count_pythia_decls(),
+        stat_lemma_count=count_stat_lemmas(),
     )
     if current != expected:
         # Surface the diff inline so the failing CI log tells the
@@ -164,7 +219,11 @@ def test_check_mode_exits_0_on_in_sync(tmp_path):
     """`--check` returns 0 when the README already matches the
     manifest (fixture builds the block from the live manifest first)."""
     fake_readme = tmp_path / "README.md"
-    body = render_stats_block(len(MANIFEST), sorted(set(domains())))
+    body = render_stats_block(
+        len(MANIFEST), sorted(set(domains())),
+        total_decls=count_pythia_decls(),
+        stat_lemma_count=count_stat_lemmas(),
+    )
     fake_readme.write_text(
         f"head\n{BEGIN_SENTINEL}\n{body}\n{END_SENTINEL}\nfoot\n"
     )

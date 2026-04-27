@@ -143,3 +143,7 @@ import Pythia.InfoTheory.DataProcessing
 import Pythia.StochasticApproximation.RobbinsSiegmund
 import Pythia.StochasticApproximation.RobbinsMonro
 import Pythia.StochasticApproximation.Dvoretzky
+-- Aristotle batch (2026-04-26): cross-domain headlines.
+import Pythia.TimeSeries.NeweyWest
+import Pythia.Control.LyapunovODE
+import Pythia.Risk.CoherentMeasures

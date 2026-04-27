@@ -123,7 +123,12 @@ jobs:
           # Anything else (e.g. sorryAx, added axioms) fails CI.
           lake env lean Pythia/AxiomAudit.lean > axiom-audit.txt 2>&1 || true
           cat axiom-audit.txt
-          ! grep -E "^\s*(sorryAx|Mathlib\.Axioms|[A-Z][a-zA-Z]*\.axiom)" axiom-audit.txt
+          # SC2251: `!` skips errexit; use explicit if-then-exit so the
+          # audit failure aborts the job loud.
+          if grep -qE "^\s*(sorryAx|Mathlib\.Axioms|[A-Z][a-zA-Z]*\.axiom)" axiom-audit.txt; then
+            echo "::error::out-of-band axiom detected — see axiom-audit.txt above"
+            exit 1
+          fi
           grep -q "axioms" axiom-audit.txt
 
       # Markdown doctest gate: every fenced ```lean / ```lean4 block in

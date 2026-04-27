@@ -1,0 +1,145 @@
+name: Aristotle queue restock
+
+# Daily auto-fill of the Aristotle proof-search queue. Discovers new
+# sorry-bearing theorems in `Pythia/`, polls in-flight projects, and
+# submits up to N new targets. Manual import of COMPLETE results is
+# still human-driven via `tools/aristotle_import.py`; this workflow
+# only manages the OUTBOUND queue.
+#
+# State (`.aristotle/queue_state.json`) is gitignored but cached
+# between runs via actions/cache so the dedup logic in
+# `tools/aristotle_queue.py` works across runs.
+#
+# Secrets required:
+#   ARISTOTLE_API_KEY — research's harmonic.fun API key
+
+on:
+  schedule:
+    # 02:00 UTC daily = 19:00 PT prior day. Off-hours; aligns with
+    # Aristotle's typical 4-12h proof-search latency so results are
+    # ready by morning.
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Max new targets to submit this run'
+        required: false
+        default: '5'
+        type: string
+
+permissions:
+  contents: read
+  # issues:write is required by the failure-alert step (gh issue
+  # create / comment on the aristotle-cron-failure label).
+  issues: write
+
+jobs:
+  restock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # GitHub Actions does NOT expose `secrets` in job-level `if:`
+      # expressions (caught by actionlint 2026-04-27 audit). Gate via
+      # an early step instead: read the secret into env, set an
+      # output, gate every subsequent step on that output.
+      - name: Check API key presence
+        id: keycheck
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+        run: |
+          if [ -n "${ARISTOTLE_API_KEY:-}" ]; then
+            echo "have_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::ARISTOTLE_API_KEY not set; subsequent steps will skip."
+          fi
+
+      - uses: actions/checkout@v6
+        if: steps.keycheck.outputs.have_key == 'true'
+      - uses: actions/setup-python@v6
+        if: steps.keycheck.outputs.have_key == 'true'
+        with:
+          python-version: '3.11'
+
+      # Persist queue state across runs so we don't re-submit the same
+      # target every day.
+      - name: Restore queue state cache
+        if: steps.keycheck.outputs.have_key == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .aristotle
+          key: aristotle-queue-state-${{ github.run_id }}
+          restore-keys: |
+            aristotle-queue-state-
+
+      - name: Install aristotle CLI
+        if: steps.keycheck.outputs.have_key == 'true'
+        run: |
+          python3 -m pip install --upgrade pip
+          # `aristotlelib` packages the `aristotle` CLI used by
+          # tools/aristotle_queue.py and tools/aristotle_import.py.
+          python3 -m pip install aristotlelib==1.0.1
+
+      - name: Discover sorry-bearing targets
+        if: steps.keycheck.outputs.have_key == 'true'
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+        run: python3 tools/aristotle_queue.py discover --verbose
+
+      - name: Poll in-flight projects
+        if: steps.keycheck.outputs.have_key == 'true'
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+        run: python3 tools/aristotle_queue.py check
+
+      - name: Submit new targets (up to limit)
+        if: steps.keycheck.outputs.have_key == 'true'
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+          RESTOCK_LIMIT: ${{ inputs.limit || '5' }}
+        run: |
+          python3 tools/aristotle_queue.py restock --limit "$RESTOCK_LIMIT"
+
+      - name: List COMPLETE targets ready for import
+        # Surfaces COMPLETE projects that need manual review +
+        # `tools/aristotle_import.py <id>`. We deliberately do NOT
+        # auto-merge Aristotle imports — every formal-proof addition
+        # gets human review per CONTRIBUTING.md.
+        if: steps.keycheck.outputs.have_key == 'true'
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+        run: python3 tools/aristotle_queue.py import-completed
+
+      - name: Save queue state
+        if: always() && steps.keycheck.outputs.have_key == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .aristotle
+          key: aristotle-queue-state-${{ github.run_id }}
+
+      # ATH-759 hardening: silent cron rot is the failure mode here —
+      # if the daily run breaks for a week, no one notices until the
+      # queue stagnates. File a GitHub issue on every scheduled-run
+      # failure (not on manual workflow_dispatch, which the operator
+      # is already watching). Auto-closes when the next scheduled
+      # run succeeds via the issue's `aristotle-cron-failure` label.
+      - name: Alert on scheduled-run failure
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          # Reuse an existing open issue if one is already filed,
+          # rather than spamming N issues for N consecutive failures.
+          existing=$(gh issue list \
+            --label aristotle-cron-failure \
+            --state open --json number --jq '.[0].number' || echo "")
+          msg="Aristotle restock cron failed in run [\#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) at $(date -u +%Y-%m-%dT%H:%M:%SZ). The queue will not auto-fill until this is resolved. Inspect the failed step in the run log; common causes: ARISTOTLE_API_KEY rotated, aristotlelib version drift, network hiccup."
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "Another scheduled-run failure: $msg"
+          else
+            gh issue create \
+              --title "Aristotle restock cron failing" \
+              --label aristotle-cron-failure \
+              --body "$msg"
+          fi

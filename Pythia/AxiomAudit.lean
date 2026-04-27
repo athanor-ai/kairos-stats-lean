@@ -46,6 +46,9 @@ import Pythia.InfoTheory.DataProcessing
 import Pythia.StochasticApproximation.RobbinsSiegmund
 import Pythia.StochasticApproximation.RobbinsMonro
 import Pythia.StochasticApproximation.Dvoretzky
+import Pythia.TimeSeries.NeweyWest
+import Pythia.Control.LyapunovODE
+import Pythia.Risk.CoherentMeasures
 
 namespace Pythia.AxiomAudit
 
@@ -142,5 +145,18 @@ open Pythia
 #print axioms Pythia.StochasticApproximation.Dvoretzky.robbins_siegmund_ae
 #print axioms Pythia.StochasticApproximation.Dvoretzky.robbins_monro_convergence
 #print axioms Pythia.StochasticApproximation.Dvoretzky.sgd_convergence
+/-! ## Cross-domain headlines (Aristotle import 2026-04-26) -/
+
+-- Newey-West HAC variance estimator (project f839007a)
+#print axioms Pythia.TimeSeries.NeweyWest.hac_consistent
+
+-- Lyapunov ODE annulus stability (project b049ff98)
+#print axioms Pythia.Control.LyapunovODE.V_pos_lower_bound_annulus
+
+-- Coherent risk measures — ADEH representation (project 74303263)
+#print axioms Pythia.Risk.CoherentMeasures.adeh_attained
+#print axioms Pythia.Risk.CoherentMeasures.adehSet_nonempty
+#print axioms Pythia.Risk.CoherentMeasures.adeh_representation
+#print axioms Pythia.Risk.CoherentMeasures.isCoherent_sup_expect
 
 end Pythia.AxiomAudit

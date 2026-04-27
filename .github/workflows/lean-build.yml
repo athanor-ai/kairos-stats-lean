@@ -25,7 +25,7 @@ jobs:
       # toolchain bump (rare). Avoids the curl + install on warm runs.
       - name: Cache elan toolchain
         id: cache-elan
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.elan
           key: pythia-elan-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
@@ -52,7 +52,7 @@ jobs:
       # Holds the cloned mathlib + transitive deps. Keyed on
       # lake-manifest.json so it only rotates on `lake update`.
       - name: Cache .lake/packages (deps tree)
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .lake/packages
           key: pythia-lake-packages-${{ runner.os }}-${{ hashFiles('lake-manifest.json') }}
@@ -64,7 +64,7 @@ jobs:
       # deps bump. Restore-keys allow a partial-match warm boot so a
       # near-miss still seeds most of the cache.
       - name: Cache .lake/build (olean output)
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .lake/build
           key: pythia-lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}

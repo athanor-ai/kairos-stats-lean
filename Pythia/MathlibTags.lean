@@ -59,4 +59,23 @@ theorem am_gm_two (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
 -- can close goals of that shape automatically.
 attribute [stat_lemma] MeasureTheory.meas_ge_le_lintegral_div
 
+/-! ## Cauchy-Schwarz (2 variables) -/
+
+/-- **Cauchy-Schwarz inequality (two variables).**
+For real numbers `a b c d`, the square of the inner product
+`a * c + b * d` is at most the product of the squared norms
+`(a^2 + b^2) * (c^2 + d^2)`.
+
+The formal proof uses the discriminant identity `(a*d - b*c)^2 >= 0`,
+which expands directly to the required inequality. No exotic Mathlib
+lemmas are borrowed for this 2-variable form; the proof is entirely
+self-contained. The `@[stat_lemma]` attribute registers this theorem
+in the pythia tactic cascade. The retag of the inner-product form
+`inner_mul_le_norm_mul_norm` is left for a follow-up batch. -/
+@[stat_lemma]
+theorem cauchy_schwarz_two (a b c d : ℝ) :
+    (a * c + b * d)^2 ≤ (a^2 + b^2) * (c^2 + d^2) := by
+  nlinarith [sq_nonneg (a*d - b*c), sq_nonneg (a*c + b*d), sq_nonneg a,
+             sq_nonneg b, sq_nonneg c, sq_nonneg d]
+
 end Pythia.MathlibTags

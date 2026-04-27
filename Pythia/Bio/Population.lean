@@ -98,4 +98,26 @@ theorem lotka_volterra_equilibrium_y_pos
   unfold lotkaVolterraEquilibriumY
   exact div_pos halpha hbeta
 
+/-! ## SIR epidemiological conservation (Kermack-McKendrick 1927) -/
+
+/-- **SIR total-population derivative is zero.**
+In the classical Kermack-McKendrick SIR model the three compartments satisfy:
+- `dS = -beta * S * I`  (susceptibles lost to infection)
+- `dI = beta * S * I - gamma * I`  (infecteds gained from S, lost to recovery)
+- `dR = gamma * I`  (recovered from I)
+
+The infection flux `beta * S * I` appears with opposite signs in dS and dI,
+and the recovery flux `gamma * I` appears with opposite signs in dI and dR.
+Hence `dS + dI + dR = 0`: total population `N = S + I + R` is constant
+throughout the epidemic. -/
+@[stat_lemma]
+theorem sir_total_population_derivative_zero
+    {beta gamma S I R dS dI dR : ℝ}
+    (hS : dS = -beta * S * I)
+    (hI : dI = beta * S * I - gamma * I)
+    (hR : dR = gamma * I) :
+    dS + dI + dR = 0 := by
+  rw [hS, hI, hR]
+  ring
+
 end Pythia.Bio.Population

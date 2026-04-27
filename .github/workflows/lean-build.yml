@@ -20,26 +20,57 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Tier 1 — elan toolchain cache.
+      # Keyed on the lean-toolchain file content. Invalidates only on
+      # toolchain bump (rare). Avoids the curl + install on warm runs.
+      - name: Cache elan toolchain
+        id: cache-elan
+        uses: actions/cache@v4
+        with:
+          path: ~/.elan
+          key: pythia-elan-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
+          restore-keys: |
+            pythia-elan-${{ runner.os }}-
+
       - name: Install elan
+        if: steps.cache-elan.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -eu
           curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
           bash elan-init.sh -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Add elan to PATH
+        run: echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Pin toolchain
         run: |
           lean --version
           lake --version
 
-      - name: Cache Mathlib .lake
+      # Tier 2 — resolved dependency tree (.lake/packages).
+      # Holds the cloned mathlib + transitive deps. Keyed on
+      # lake-manifest.json so it only rotates on `lake update`.
+      - name: Cache .lake/packages (deps tree)
         uses: actions/cache@v4
         with:
-          path: .lake
-          key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
+          path: .lake/packages
+          key: pythia-lake-packages-${{ runner.os }}-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
-            lake-${{ runner.os }}-
+            pythia-lake-packages-${{ runner.os }}-
+
+      # Tier 3 — compiled olean output (.lake/build).
+      # Keyed on (toolchain, manifest, OS). Lifts whenever toolchain or
+      # deps bump. Restore-keys allow a partial-match warm boot so a
+      # near-miss still seeds most of the cache.
+      - name: Cache .lake/build (olean output)
+        uses: actions/cache@v4
+        with:
+          path: .lake/build
+          key: pythia-lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
+          restore-keys: |
+            pythia-lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-
+            pythia-lake-build-${{ runner.os }}-
 
       - name: Fetch Mathlib cache
         run: lake exe cache get

@@ -1,21 +1,11 @@
-[project]
-name = "pythia-tools"
-version = "0.0.0"
-description = "Test + simulation tooling for the pythia Lean library"
-requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
-
-# This pyproject is for `tools/` only (test runners + theorem
-# scaffolds). The library itself is Lean 4, built via Lake. There is
-# no installable Python distribution; we just want a place for
-# pytest + coverage config that works under standard CI.
-
-[project.optional-dependencies]
-test = [
-  "pytest>=8.0",
-  "pytest-cov>=5.0",
-  "hypothesis>=6.100",
-]
+# pyproject.toml — pytest + coverage config for `tools/` only.
+#
+# Pythia is a Lean 4 library; there is no installable Python package
+# here. We deliberately do NOT declare a `[project]` table: that
+# would make `pip install .` attempt setuptools auto-discovery, which
+# trips on the top-level `Pythia/` and `demo/` directories. Test
+# dependencies are installed directly in CI (see
+# `.github/workflows/pythia-sim.yml`).
 
 [tool.pytest.ini_options]
 minversion = "8.0"

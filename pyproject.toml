@@ -35,10 +35,17 @@ omit = [
   "tools/sim/control_*.py",
   "tools/sim/economics_*.py",
   "tools/sim/engineering_*.py",
+  "tools/sim/gametheory_*.py",
   "tools/sim/info_theory_*.py",
+  "tools/sim/infotheory_*.py",
   "tools/sim/mathlib_tags_*.py",
   "tools/sim/mechanical_*.py",
+  "tools/sim/numerical_*.py",
+  "tools/sim/optimaltransport_*.py",
   "tools/sim/or_*.py",
+  "tools/sim/quantum_*.py",
+  "tools/sim/stochastic_*.py",
+  "tools/sim/thermodynamics_*.py",
   # Wrapper that subprocess-invokes the runners — same rationale.
   "tools/run_pythia_sim.py",
   # Test files themselves are excluded by default; spell it out.

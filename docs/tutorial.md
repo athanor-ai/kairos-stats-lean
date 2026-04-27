@@ -1,4 +1,4 @@
-# Lean for Statisticians — a pythia tutorial
+# Lean for Statisticians: a pythia tutorial
 
 This is the on-ramp for working statisticians who have never used Lean 4
 before. Three sections, each one self-contained:
@@ -83,7 +83,7 @@ Pythia ships ten tactics in total (see `docs/sledgehammer_dispatch.md`
 for the full ladder), but four cover the typical statistician's
 day-to-day:
 
-### 2.1 `pythia` — the default closer
+### 2.1 `pythia`: the default closer
 
 When you don't know which tactic to reach for, reach for `pythia`. It
 runs a cascade through aesop with the `@[stat_lemma]` ruleset, falls
@@ -105,7 +105,7 @@ example (a : ℝ) (h : 0 ≤ a) : 0 ≤ a + 1 := by pythia?
 -- Lean reports: pythia closed via stats_ineq (linarith)
 ```
 
-### 2.2 `anytime_valid` — Ville bounds, supermartingale tail bounds, e-process tails
+### 2.2 `anytime_valid`: Ville bounds, supermartingale tail bounds, e-process tails
 
 When the goal is the probability of a martingale crossing a
 threshold, reach for `anytime_valid`:
@@ -125,7 +125,7 @@ Behind the scenes, `anytime_valid` searches the `@[anytime_valid_lemma]`
 ruleset (Ville's inequality, sub-gamma Ville, Howard-Ramdas
 admissibility, betting-CS admissibility) and tries each.
 
-### 2.3 `stats_ineq` — scalar inequalities
+### 2.3 `stats_ineq`: scalar inequalities
 
 When the goal is a real-valued inequality without an integral or
 expectation, `stats_ineq` chains `linarith` + `nlinarith` + `bound` +
@@ -137,7 +137,7 @@ example (a b c : ℝ) (h_a : 0 < a) (h_b : 0 < b) :
     a / (a + b + c.exp) ≤ a / (a + b) := by stats_ineq
 ```
 
-### 2.4 `prob_simp` — probability normalization rewriter
+### 2.4 `prob_simp`: probability normalization rewriter
 
 When the goal needs `ProbabilityMeasure` / `pdf` / `cdf` /
 `withDensity` rewriting (closer to a `simp_rw` than a hammer):
@@ -210,28 +210,28 @@ example (X : ℝ) (hX : |X| ≤ 1) : Real.exp X ≤ 1 + X + X^2 := by pythia
 Pythia supports several attributes for different rungs of the
 cascade:
 
-| Attribute | Rung | What kind of theorem |
-|---|---|---|
-| `@[stat_lemma]` | `pythia` aesop ruleset | Closing-form statistical theorems. |
-| `@[anytime_valid_lemma]` | `anytime_valid` ruleset | Ville-style supermartingale tail bounds. |
-| `@[stats_ineq]` | `stats_ineq` bound-set | Scalar / vector inequalities. |
-| `@[prob_simp]` | `prob_simp` simp-set | Probability-normalization rewrite rules. |
-| `@[tail_bound]` | `TightTail.report` | Concentration families with explicit constants. |
-| `@[actuarial_lemma]` | `pythia (domain := actuarial)` | Per-domain extension (v0.4+). |
+| Attribute                 | Rung                              | What kind of theorem                                  |
+|---------------------------|-----------------------------------|-------------------------------------------------------|
+| `@[stat_lemma]`           | `pythia` aesop ruleset            | Closing-form statistical theorems.                    |
+| `@[anytime_valid_lemma]`  | `anytime_valid` ruleset           | Ville-style supermartingale tail bounds.              |
+| `@[stats_ineq]`           | `stats_ineq` bound-set            | Scalar / vector inequalities.                         |
+| `@[prob_simp]`            | `prob_simp` simp-set              | Probability-normalization rewrite rules.              |
+| `@[tail_bound]`           | `TightTail.report`                | Concentration families with explicit constants.       |
+| `@[actuarial_lemma]`      | `pythia (domain := actuarial)`    | Per-domain extension (v0.4+).                         |
 
 The full attribute reference is in `docs/sledgehammer_dispatch.md`.
 
 ## Where to next
 
-- `docs/concentration_cookbook.md` — recipes for sub-Gaussian /
+- `docs/concentration_cookbook.md`: recipes for sub-Gaussian /
   sub-gamma / Bernstein / Bennett / Freedman bounds.
-- `docs/sledgehammer_dispatch.md` — the full ten-tactic cascade.
-- `docs/reflective_oracles.md` — how the Z3 / CVC5 / Vampire / E
+- `docs/sledgehammer_dispatch.md`: the full ten-tactic cascade.
+- `docs/reflective_oracles.md`: how the Z3 / CVC5 / Vampire / E
   oracles reconstruct closures into kernel-checked terms.
-- `docs/llm_defense.md` — the Layer 3 LLM-defense guards
+- `docs/llm_defense.md`: the Layer 3 LLM-defense guards
   (`#validate_invoked_lemmas`, `#validate_types`, etc.) for catching
   generated-proof hallucinations before lake build.
-- `Pythia/Bench/MiniPythia.lean` — the 30-theorem reference
+- `Pythia/Bench/MiniPythia.lean`: the 30-theorem reference
   benchmark, anytime-valid analogue of MiniF2F.
 
 ## Reporting issues

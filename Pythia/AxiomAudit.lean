@@ -40,6 +40,9 @@ import Pythia.EquivalenceBreak
 import Pythia.Sharpness
 import Pythia.BenchDefs
 import Pythia.BDG
+import Pythia.Bennett
+import Pythia.MeasureTheory.ConditionalJensen
+import Pythia.InfoTheory.DataProcessing
 
 namespace Pythia.AxiomAudit
 
@@ -105,5 +108,23 @@ open Pythia
 /-! ## Burkholder-Davis-Gundy (Aristotle import 2026-04-26, project ff404663) -/
 
 #print axioms bdg_discrete_l2
+
+/-! ## Bennett (Aristotle import 2026-04-26, project 7e11d4c4) -/
+
+#print axioms bennett_iid
+#print axioms bennett_mgf_bound
+
+/-! ## Conditional Jensen (Aristotle import 2026-04-26, project 97f3d814) -/
+
+#print axioms ConditionalJensen.condExp_le_condExp_of_convexOn
+#print axioms ConditionalJensen.condExp_affine_minorant_le
+#print axioms ConditionalJensen.condExp_ge_const
+
+/-! ## Data Processing inequality (Aristotle import 2026-04-26, project 98f89ac0) -/
+
+#print axioms Pythia.InfoTheory.klDiv_bind_le_klDiv
+#print axioms Pythia.InfoTheory.klDiv_snd_le
+#print axioms Pythia.InfoTheory.klDiv_fst_le
+#print axioms Pythia.InfoTheory.klDiv_compProd_right
 
 end Pythia.AxiomAudit

@@ -185,26 +185,10 @@ theorem bernstein_iid
   -- Unblocked once exp_le_bernstein_abs closes in MGFBoundedSubGamma.lean (§1).
   sorry
 
-/-- **Bennett's inequality**: refined Bernstein with explicit
-sub-exponential structure. For iid bounded RVs, Bennett gives the
-sharpest known closed-form tail bound. Used in the empirical-process
-literature to bound `sup_θ |P_n f_θ - P f_θ|` over rich classes. -/
-theorem bennett_iid
-    {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
-    [IsProbabilityMeasure μ]
-    {X : ℕ → Ω → ℝ} {b sigma_sq : ℝ}
-    (hb_pos : 0 < b) (hsigma_sq_pos : 0 < sigma_sq)
-    (h_iid : ∀ t, ProbabilityTheory.IndepFun (X 0) (X t) μ)
-    (h_bounded : ∀ t, ∀ᵐ ω ∂μ, |X t ω| ≤ b)
-    (h_zero_mean : ∀ t, ∫ ω, X t ω ∂μ = 0)
-    (h_var_bound : ∀ t, ∫ ω, (X t ω)^2 ∂μ ≤ sigma_sq)
-    (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
-    -- Bennett rate: exp(-n σ²/b² · h(b ε / (n σ²)))
-    -- where h(u) = (1+u) log(1+u) - u.
-    -- Statement placeholder pending the explicit h-function form.
-    True := by
-  -- needs: sharper sub-Bernoulli MGF (Mathlib v4.28 gap)
-  sorry
+-- `bennett_iid` was a `True := by sorry` placeholder here. The real
+-- inequality with the closed-form Bennett ψ-function landed in
+-- `Pythia.Bennett` (Aristotle import 2026-04-26, project 7e11d4c4).
+-- See `Pythia/Bennett.lean`.
 
 /-- **Bernstein's inequality for martingales** (Freedman): a
 martingale with conditionally-bounded increments and predictable

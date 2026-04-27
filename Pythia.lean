@@ -37,6 +37,9 @@ import Pythia.TimeUniformCLT
 -- Tier 2 sequential-stats scaffolds (sorries — see docstrings).
 import Pythia.WaldIdentity
 import Pythia.SPRT
+-- Paper Theorem 1 asymptotic sharpness scaffold (Aristotle target —
+-- 2 honest sorries on headline statements; helpers closed locally).
+import Pythia.AsymptoticSharpness
 -- Tier 2 e-detector scaffold (sorries — see module docstring for closure plans).
 import Pythia.EDetector
 -- Tactic layer (Phase B+).

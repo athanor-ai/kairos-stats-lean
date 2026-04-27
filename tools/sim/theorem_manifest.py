@@ -29,6 +29,21 @@ from typing import Optional
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+# Source-of-truth set of allowed drafter identifiers. Imported by the
+# CI tests in test_theorem_manifest_drafter_field.py so the manifest
+# and the test cannot drift apart. Add a new identifier here if a new
+# drafter joins the swarm; never remove one without bumping any
+# entries that reference it.
+ALLOWED_DRAFTERS: frozenset[str] = frozenset({
+    "aristotle",
+    "dspv2",
+    "sonnet",
+    "opus",
+    "human",
+    "unknown",
+})
+
+
 @dataclass(frozen=True)
 class TheoremEntry:
     """One row in the registry. All paths are relative to repo root."""
@@ -71,8 +86,28 @@ class TheoremEntry:
 
     drafter: str = "unknown"
     """Which AI drafter (or human) first produced the closed Lean proof.
-    Allowed values: 'aristotle', 'dspv2', 'sonnet', 'opus', 'human',
-    'unknown'. Backfilled from git history / PR bodies; see ATH-779."""
+    Allowed values: see :data:`ALLOWED_DRAFTERS`. Backfilled from git
+    history / PR bodies; see ATH-779."""
+
+    def __post_init__(self) -> None:
+        # Construction-time validation. Catches typos like
+        # ``drafter="claude-sonnet-4-6"`` immediately at MANIFEST
+        # build, not at test time. Frozen dataclass so we use
+        # object.__setattr__ for any normalisation; here we only
+        # validate, no mutation.
+        if self.drafter not in ALLOWED_DRAFTERS:
+            raise ValueError(
+                f"TheoremEntry({self.name!r}, drafter={self.drafter!r}): "
+                f"drafter must be one of {sorted(ALLOWED_DRAFTERS)}. "
+                "If a new drafter joined the swarm, add its identifier to "
+                "ALLOWED_DRAFTERS in tools/sim/theorem_manifest.py."
+            )
+        if self.mathlib_status not in {"novel", "retag", "extension"}:
+            raise ValueError(
+                f"TheoremEntry({self.name!r}, "
+                f"mathlib_status={self.mathlib_status!r}): must be one of "
+                "{'novel', 'retag', 'extension'}."
+            )
 
 
 # ─────────────────────────────────────────────────────────────────────

@@ -194,6 +194,7 @@ Ten registered tactics ship in the public surface:
 | set up sub-second LSP feedback | [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md) |
 | understand the cross-prover dispatch | [`docs/sledgehammer_dispatch.md`](docs/sledgehammer_dispatch.md) |
 | see why EBMC / CBMC / Dafny route through reflection | [`docs/reflective_oracles.md`](docs/reflective_oracles.md) |
+| see which `@[stat_lemma]`s feed into which top-level theorems | [`docs/dep_graph.md`](docs/dep_graph.md) |
 
 ## Cross-prover hammer (`z3_check`)
 

@@ -30,6 +30,8 @@ VALID_DOMAINS = {
     "economics", "chemistry", "biology", "engineering",
     "mechanical", "control", "or", "mathlib_tags", "info_theory",
     "thermodynamics", "numerical",
+    # Batch 9 (ATH-753): cross-field expansion.
+    "optimal_transport", "stochastic", "quantum", "game_theory",
 }
 
 VALID_MATHLIB_STATUS = {"novel", "retag", "extension"}

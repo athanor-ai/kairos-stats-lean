@@ -6,15 +6,20 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
-A Lean 4 tactic library for closing proofs in probability and statistics.
+A Lean 4 tactic library for closing proofs across applied mathematics.
+Probability, statistics, biology, actuarial science, control theory,
+information theory, queueing, time series, and numerical analysis
+all live here under one tactic cascade.
 
 Mathlib supplies the foundations: measures, martingales, sub-Gaussian
-machinery, the optional-stopping theorem. Closing a goal still takes
-the kind of by-hand chase that ends with measurability obligations,
-ENNReal arithmetic, and a stopping-time induction. `pythia` is what
-the standard automation (`simp`, `linarith`, `aesop`, `bound`,
-`measurability`) looks like once you specialize it for statistical
-reasoning. A goal like
+machinery, ODE flows, the optional-stopping theorem. Closing a goal
+still takes the kind of by-hand chase that ends with measurability
+obligations, ENNReal arithmetic, a stopping-time induction, or a
+domain-specific identity (Hardy-Weinberg conservation, Pareto tail,
+Wold decomposition, Lyapunov stability). `pythia` is what the
+standard automation (`simp`, `linarith`, `aesop`, `bound`,
+`measurability`) looks like once you specialize it for the
+applied-mathematics working set. A goal like
 
 ```lean
 example

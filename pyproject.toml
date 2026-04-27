@@ -1,0 +1,61 @@
+# pyproject.toml — pytest + coverage config for `tools/` only.
+#
+# Pythia is a Lean 4 library; there is no installable Python package
+# here. We deliberately do NOT declare a `[project]` table: that
+# would make `pip install .` attempt setuptools auto-discovery, which
+# trips on the top-level `Pythia/` and `demo/` directories. Test
+# dependencies are installed directly in CI (see
+# `.github/workflows/pythia-sim.yml`).
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+]
+testpaths = ["tools"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+  "slow: marks tests that take more than 5 seconds",
+]
+
+[tool.coverage.run]
+source = ["tools"]
+branch = true
+omit = [
+  # Per-theorem simulation runners are themselves integration tests
+  # invoked as scripts via `tools/run_pythia_sim.py` subprocess. They
+  # are NOT importable library code; coverage of their bodies says
+  # nothing about library health.
+  "tools/sim/bio_*.py",
+  "tools/sim/chemistry_*.py",
+  "tools/sim/control_*.py",
+  "tools/sim/economics_*.py",
+  "tools/sim/engineering_*.py",
+  "tools/sim/info_theory_*.py",
+  "tools/sim/mathlib_tags_*.py",
+  "tools/sim/mechanical_*.py",
+  "tools/sim/or_*.py",
+  # Wrapper that subprocess-invokes the runners — same rationale.
+  "tools/run_pythia_sim.py",
+  # Test files themselves are excluded by default; spell it out.
+  "tools/sim/test_*.py",
+  # Templates / scratch.
+  "tools/sim/*_template*.py",
+  "tools/sim/Scratch/*",
+]
+
+[tool.coverage.report]
+# Fail CI if line coverage of the tools/ tree drops below this.
+# We start conservative; lift the floor as more tests land.
+fail_under = 60
+show_missing = true
+skip_covered = false
+exclude_also = [
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+  "pragma: no cover",
+]

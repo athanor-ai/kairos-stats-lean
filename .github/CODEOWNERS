@@ -1,0 +1,53 @@
+# pythia CODEOWNERS — review routing for the public OSS repo.
+#
+# Each pattern is matched in order; later patterns override earlier ones
+# for files that match both. The pattern owner is auto-requested on PRs
+# that touch a matching file. If review is required by branch
+# protection, an OWNER must approve before merge.
+#
+# Membership: maintainers belong to the @athanor-ai/pythia-maintainers
+# team. Externally-contributed PRs default to that team. As the project
+# scales, sub-teams below let domain experts review their lane.
+
+# ─── Default catch-all ──────────────────────────────────────────────
+*                                          @athanor-ai/pythia-maintainers
+
+# ─── Library core (Lean) ────────────────────────────────────────────
+/Pythia/                                   @athanor-ai/pythia-maintainers
+/Pythia/Tactic/                            @athanor-ai/pythia-maintainers
+/Pythia/AxiomAudit.lean                    @athanor-ai/pythia-maintainers
+/Pythia.lean                               @athanor-ai/pythia-maintainers
+/lakefile.lean                             @athanor-ai/pythia-maintainers
+/lake-manifest.json                        @athanor-ai/pythia-maintainers
+/lean-toolchain                            @athanor-ai/pythia-maintainers
+
+# ─── Domain extensions (sub-teams when membership grows) ────────────
+/Pythia/InfoTheory/                        @athanor-ai/pythia-maintainers
+/Pythia/MeasureTheory/                     @athanor-ai/pythia-maintainers
+/Pythia/Asymptotics/                       @athanor-ai/pythia-maintainers
+/Pythia/Bio/                               @athanor-ai/pythia-maintainers
+/Pythia/Actuarial/                         @athanor-ai/pythia-maintainers
+/Pythia/Numerical/                         @athanor-ai/pythia-maintainers
+/Pythia/HypothesisTest/                    @athanor-ai/pythia-maintainers
+/Pythia/Queueing/                          @athanor-ai/pythia-maintainers
+/Pythia/Risk/                              @athanor-ai/pythia-maintainers
+/Pythia/TimeSeries/                        @athanor-ai/pythia-maintainers
+/Pythia/Control/                           @athanor-ai/pythia-maintainers
+
+# ─── Tooling (Python) ───────────────────────────────────────────────
+/tools/                                    @athanor-ai/pythia-maintainers
+/tools/sim/                                @athanor-ai/pythia-maintainers
+
+# ─── CI / infra / branch protection-relevant ────────────────────────
+/.github/                                  @athanor-ai/pythia-maintainers
+/.github/workflows/                        @athanor-ai/pythia-maintainers
+/.github/CODEOWNERS                        @athanor-ai/pythia-maintainers
+/.github/dependabot.yml                    @athanor-ai/pythia-maintainers
+
+# ─── Top-level policy / docs ────────────────────────────────────────
+/SECURITY.md                               @athanor-ai/pythia-maintainers
+/CONTRIBUTING.md                           @athanor-ai/pythia-maintainers
+/CODE_OF_CONDUCT.md                        @athanor-ai/pythia-maintainers
+/LICENSE                                   @athanor-ai/pythia-maintainers
+/README.md                                 @athanor-ai/pythia-maintainers
+/CHANGELOG.md                              @athanor-ai/pythia-maintainers

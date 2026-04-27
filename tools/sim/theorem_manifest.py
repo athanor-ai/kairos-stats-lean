@@ -306,6 +306,19 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         references=["Little, J.D.C. Operations Research 9(3): 383-387 (1961)"],
     ),
 
+    # ── Information Theory ────────────────────────────────────────
+    TheoremEntry(
+        domain="info_theory",
+        name="binary_entropy_nonneg",
+        lean_path="Pythia/InfoTheory/BinaryEntropy.lean",
+        lean_theorem="Pythia.InfoTheory.binary_entropy_nonneg",
+        sim_path="tools/sim/info_theory_binary_entropy.py",
+        sim_test="test_binary_entropy_nonneg",
+        mathlib_status="novel",
+        summary="Shannon binary entropy H(p) = -p*log(p) - (1-p)*log(1-p) is non-negative on [0,1].",
+        references=["Shannon, C.E. Bell System Technical Journal 27(3): 379-423 (1948)", "Cover, T.M. and Thomas, J.A. Elements of Information Theory 2nd ed (2006)"],
+    ),
+
     # ── Mathlib retags + extensions ──────────────────────────────
     TheoremEntry(
         domain="mathlib_tags",

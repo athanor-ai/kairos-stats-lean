@@ -1,0 +1,92 @@
+name: Aristotle queue restock
+
+# Daily auto-fill of the Aristotle proof-search queue. Discovers new
+# sorry-bearing theorems in `Pythia/`, polls in-flight projects, and
+# submits up to N new targets. Manual import of COMPLETE results is
+# still human-driven via `tools/aristotle_import.py`; this workflow
+# only manages the OUTBOUND queue.
+#
+# State (`.aristotle/queue_state.json`) is gitignored but cached
+# between runs via actions/cache so the dedup logic in
+# `tools/aristotle_queue.py` works across runs.
+#
+# Secrets required:
+#   ARISTOTLE_API_KEY — research's harmonic.fun API key
+
+on:
+  schedule:
+    # 02:00 UTC daily = 19:00 PT prior day. Off-hours; aligns with
+    # Aristotle's typical 4-12h proof-search latency so results are
+    # ready by morning.
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Max new targets to submit this run'
+        required: false
+        default: '5'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  restock:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.ARISTOTLE_API_KEY != '' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      # Persist queue state across runs so we don't re-submit the same
+      # target every day.
+      - name: Restore queue state cache
+        uses: actions/cache@v4
+        with:
+          path: .aristotle
+          key: aristotle-queue-state-${{ github.run_id }}
+          restore-keys: |
+            aristotle-queue-state-
+
+      - name: Install aristotle CLI
+        run: |
+          python3 -m pip install --upgrade pip
+          # `aristotlelib` packages the `aristotle` CLI used by
+          # tools/aristotle_queue.py and tools/aristotle_import.py.
+          python3 -m pip install aristotlelib==1.0.1
+
+      - name: Discover sorry-bearing targets
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+        run: python3 tools/aristotle_queue.py discover --verbose
+
+      - name: Poll in-flight projects
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+        run: python3 tools/aristotle_queue.py check
+
+      - name: Submit new targets (up to limit)
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+          RESTOCK_LIMIT: ${{ inputs.limit || '5' }}
+        run: |
+          python3 tools/aristotle_queue.py restock --limit "$RESTOCK_LIMIT"
+
+      - name: List COMPLETE targets ready for import
+        # Surfaces COMPLETE projects that need manual review +
+        # `tools/aristotle_import.py <id>`. We deliberately do NOT
+        # auto-merge Aristotle imports — every formal-proof addition
+        # gets human review per CONTRIBUTING.md.
+        env:
+          ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+        run: python3 tools/aristotle_queue.py import-completed
+
+      - name: Save queue state
+        if: always()
+        uses: actions/cache@v4
+        with:
+          path: .aristotle
+          key: aristotle-queue-state-${{ github.run_id }}

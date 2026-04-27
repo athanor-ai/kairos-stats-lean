@@ -185,3 +185,70 @@ def test_main_requires_api_key(monkeypatch, capsys):
     assert rc == 1
     err = capsys.readouterr().err
     assert "ARISTOTLE_API_KEY" in err
+
+
+# ── PR body suggestion (satisfies pr-template-check) ────────────────
+
+def test_suggest_pr_body_has_summary_section():
+    """Auto-generated PR body must satisfy the repo's
+    tools/check_pr_body.py gate: non-empty `## Summary` heading with
+    body content beneath."""
+    out = ai._suggest_pr_body(
+        branch_name="research/aristotle-foo",
+        new_files_csv="`Pythia/Foo.lean`",
+        modified_files_csv="(none)",
+    )
+    assert "## Summary" in out
+    # The check requires >10 chars of real content beneath the heading;
+    # confirm by stripping headings + whitespace and counting.
+    summary_block = out.split("## Summary", 1)[1].split("##", 1)[0]
+    summary_text = summary_block.strip()
+    assert len(summary_text) > 10, summary_text
+
+
+def test_suggest_pr_body_includes_branch_name():
+    out = ai._suggest_pr_body(
+        branch_name="research/aristotle-quantum",
+        new_files_csv="`Pythia/Quantum/X.lean`",
+        modified_files_csv="(none)",
+    )
+    assert "research/aristotle-quantum" in out
+
+
+def test_suggest_pr_body_includes_files_lists():
+    out = ai._suggest_pr_body(
+        branch_name="research/foo",
+        new_files_csv="`Pythia/A.lean`, `Pythia/B.lean`",
+        modified_files_csv="`Pythia/C.lean`",
+    )
+    assert "`Pythia/A.lean`" in out
+    assert "`Pythia/B.lean`" in out
+    assert "`Pythia/C.lean`" in out
+
+
+def test_suggest_pr_body_handles_empty_files():
+    """Empty / `(none)` placeholders must not crash the renderer."""
+    out = ai._suggest_pr_body(
+        branch_name="research/empty",
+        new_files_csv="(none)",
+        modified_files_csv="(none)",
+    )
+    assert "(none)" in out
+    assert "## Summary" in out
+
+
+def test_suggest_pr_body_passes_check_pr_body_gate():
+    """Round-trip: feed the suggested body through tools/check_pr_body.py
+    to verify it satisfies the actual gate rather than a proxy
+    assertion."""
+    import tools.check_pr_body as cpb  # noqa: E402
+
+    body = ai._suggest_pr_body(
+        branch_name="research/round-trip",
+        new_files_csv="`Pythia/RoundTrip.lean`",
+        modified_files_csv="(none)",
+    )
+    # `validate` is the canonical entry point; it returns a list of
+    # error strings (empty list = the body passes the CI gate).
+    errors = cpb.validate(body, strict=False)
+    assert errors == [], f"PR body would be rejected: {errors}"

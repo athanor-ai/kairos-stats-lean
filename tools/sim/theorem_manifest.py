@@ -401,6 +401,58 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         summary="Hamming distance on 3-bit binary tuples satisfies the triangle inequality.",
         references=["Hamming, R.W. Bell System Technical Journal 29(2): 147-160 (1950)"],
     ),
+
+    # ── Cross-field batch 9 (ATH-753) ────────────────────────────
+    TheoremEntry(
+        domain="optimal_transport",
+        name="wasserstein_distance_nonneg",
+        lean_path="Pythia/OptimalTransport/WassersteinDistanceNonneg.lean",
+        lean_theorem="Pythia.OptimalTransport.wasserstein_distance_nonneg",
+        sim_path="tools/sim/optimaltransport_wasserstein_distance_nonneg.py",
+        sim_test="test_wasserstein_distance_nonneg",
+        mathlib_status="novel",
+        summary="Discrete L1 Wasserstein-style cost sum_i |p_i - q_i| is non-negative.",
+        references=[
+            "Vaserstein, L.N. Problemy Peredachi Informatsii 5(3): 64-72 (1969)",
+            "Kantorovich, L.V. Doklady Akademii Nauk SSSR 37: 199-201 (1942)",
+        ],
+    ),
+    TheoremEntry(
+        domain="stochastic",
+        name="ito_isometry_finite_dim",
+        lean_path="Pythia/Stochastic/ItoIsometryFiniteDim.lean",
+        lean_theorem="Pythia.Stochastic.ito_isometry_finite_dim",
+        sim_path="tools/sim/stochastic_ito_isometry_finite_dim.py",
+        sim_test="test_ito_isometry_finite_dim",
+        mathlib_status="novel",
+        summary="Discrete Ito isometry / Cauchy-Schwarz: (sum f)^2 <= n * sum f^2.",
+        references=["Ito, K. Memoirs of the American Mathematical Society 4: 1-51 (1951)"],
+    ),
+    TheoremEntry(
+        domain="quantum",
+        name="von_neumann_entropy_nonneg_two_state",
+        lean_path="Pythia/Quantum/VonNeumannEntropyNonnegTwoState.lean",
+        lean_theorem="Pythia.Quantum.von_neumann_entropy_nonneg_two_state",
+        sim_path="tools/sim/quantum_von_neumann_entropy_nonneg_two_state.py",
+        sim_test="test_von_neumann_entropy_nonneg_two_state",
+        mathlib_status="novel",
+        summary="Two-state von Neumann (binary Shannon) entropy is non-negative on [0,1].",
+        references=[
+            "von Neumann, J. Mathematische Grundlagen der Quantenmechanik, Springer (1932)",
+            "Shannon, C.E. Bell System Technical Journal 27(3): 379-423 (1948)",
+        ],
+    ),
+    TheoremEntry(
+        domain="game_theory",
+        name="minimax_two_strategy_bound",
+        lean_path="Pythia/GameTheory/MinimaxTwoStrategyBound.lean",
+        lean_theorem="Pythia.GameTheory.minimax_two_strategy_bound",
+        sim_path="tools/sim/gametheory_minimax_two_strategy_bound.py",
+        sim_test="test_minimax_two_strategy_bound",
+        mathlib_status="novel",
+        summary="Weak minimax inequality for 2x2 payoff: max_i min_j A i j <= min_j max_i A i j.",
+        references=["von Neumann, J. Mathematische Annalen 100: 295-320 (1928)"],
+    ),
 )
 
 

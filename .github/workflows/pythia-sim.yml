@@ -1,0 +1,51 @@
+name: Pythia simulation sweep
+
+# ATH-750: every PR runs the full per-theorem PBT + sweep + mutation
+# harness across every entry in tools/sim/theorem_manifest.MANIFEST.
+# Catches drift between the formal Lean theorem and the empirical
+# companion when mathlib bumps or a domain harness goes stale.
+#
+# Distinct from the Lean Build + Axiom Audit workflow: this one is
+# Python-only (no lake / no Lean toolchain), runs in seconds, and
+# fires on every push including documentation PRs.
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'tools/sim/**'
+      - 'tools/run_pythia_sim.py'
+      - '.github/workflows/pythia-sim.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/sim/**'
+      - 'tools/run_pythia_sim.py'
+      - '.github/workflows/pythia-sim.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pythia-sim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pytest
+        run: python3 -m pip install --upgrade pytest
+      - name: Manifest sweep — every theorem's harness pytest
+        run: |
+          set -e
+          python3 tools/run_pythia_sim.py
+      - name: Manifest invariant tests
+        run: |
+          python3 -m pytest tools/sim/test_theorem_manifest.py -v
+      - name: Mutation library tests
+        run: |
+          python3 -m pytest tools/sim/test_mutations.py -v
+      - name: Harness self-tests
+        run: |
+          python3 -m pytest tools/sim/test_harness.py -v

@@ -164,6 +164,19 @@ file, one Python runner. Most community contributions fit here.
    `Pythia simulation sweep`. Both must pass before a maintainer can
    admin-merge.
 
+### PR description requirements
+
+Your PR description must keep the template's `## Summary` section
+non-empty; CI enforces this via the `pr-template-check` workflow. The
+`## Linked issues` section is optional. To validate locally before
+pushing, save your PR body to a file and run:
+
+```bash
+python3 tools/check_pr_body.py --file my_pr_body.md
+```
+
+See `python3 tools/check_pr_body.py --help` for the full set of flags.
+
 ### Track B: statistics-spine theorem (the deep path)
 
 For larger contributions inside the statistics core: anytime-valid

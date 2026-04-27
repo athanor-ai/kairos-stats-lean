@@ -1,0 +1,38 @@
+name: PR template check
+
+# Verifies that the PR description keeps the load-bearing sections of
+# `.github/pull_request_template.md` non-empty. External contributors
+# sometimes delete the `## Summary` block; reviewers depend on it.
+#
+# Quality nudge — NOT in the required-status-checks list. Branch
+# protection still requires only `build` and `md-lint`. This workflow
+# emits a CI status reviewers can see; merging is unblocked if
+# reviewers decide a missing Summary is acceptable for that PR.
+#
+# Skipped on draft PRs so contributors can iterate on the description
+# without CI noise.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-template-check:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate PR body against template
+        # Reads `$GITHUB_EVENT_PATH` (the pull_request event payload),
+        # extracts `.pull_request.body`, and checks that the `## Summary`
+        # section is present + non-empty + not the verbatim placeholder.
+        # Lenient mode (default) — checkbox enforcement is off; we only
+        # block missing or empty Summary blocks.
+        run: |
+          python3 tools/check_pr_body.py --from-event "$GITHUB_EVENT_PATH"

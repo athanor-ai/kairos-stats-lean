@@ -11,8 +11,13 @@
   },
   "Pythia/Actuarial/LogNormal.lean": {
     "tier": "A",
-    "theorem_names": ["LogNormal.tail_chebyshev"],
-    "symmetries": ["homogeneous(sigma, exponent=2)", "scale_invariant(mu)"],
+    "theorem_names": [
+      "LogNormal.tail_chebyshev"
+    ],
+    "symmetries": [
+      "homogeneous(sigma, exponent=2)",
+      "scale_invariant(mu)"
+    ],
     "regime": "log-normal with log-mean mu and log-std sigma > 0; tail bound via Chebyshev",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -20,8 +25,13 @@
   },
   "Pythia/Actuarial/Pareto.lean": {
     "tier": "A",
-    "theorem_names": ["Pareto.tail"],
-    "symmetries": ["homogeneous(x_m, exponent=alpha)", "power_law(alpha)"],
+    "theorem_names": [
+      "Pareto.tail"
+    ],
+    "symmetries": [
+      "homogeneous(x_m, exponent=alpha)",
+      "power_law(alpha)"
+    ],
     "regime": "Pareto Type-I with scale x_m > 0 and shape alpha > 0; closed tail formula",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -29,8 +39,13 @@
   },
   "Pythia/Actuarial/Weibull.lean": {
     "tier": "A",
-    "theorem_names": ["Weibull.tail"],
-    "symmetries": ["scale_invariant(lambda)", "homogeneous(lambda, exponent=k)"],
+    "theorem_names": [
+      "Weibull.tail"
+    ],
+    "symmetries": [
+      "scale_invariant(lambda)",
+      "homogeneous(lambda, exponent=k)"
+    ],
     "regime": "Weibull with scale lambda > 0 and shape k > 0; closed tail formula",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -38,8 +53,13 @@
   },
   "Pythia/AsymptoticSharpness.lean": {
     "tier": "B",
-    "theorem_names": ["c_aCS_sharp_asymptotic_matching", "asymptotic_gaussian_density_at_boundary_aCS"],
-    "symmetries": ["limit_case(T -> infinity)"],
+    "theorem_names": [
+      "c_aCS_sharp_asymptotic_matching",
+      "asymptotic_gaussian_density_at_boundary_aCS"
+    ],
+    "symmetries": [
+      "limit_case(T -> infinity)"
+    ],
     "regime": "asymptotic (T -> infinity) regime for aCS family; CLT-based",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -47,8 +67,13 @@
   },
   "Pythia/Asymptotics/DeltaMethod.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.Asymptotics.delta_method"],
-    "symmetries": ["linear_approx(g_prime)", "limit_case(n -> infinity)"],
+    "theorem_names": [
+      "Pythia.Asymptotics.delta_method"
+    ],
+    "symmetries": [
+      "linear_approx(g_prime)",
+      "limit_case(n -> infinity)"
+    ],
     "regime": "scalar delta method; r_n(T_n - theta) ->_d Z, g differentiable at theta",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -56,8 +81,14 @@
   },
   "Pythia/Asymptotics/DeltaMethodMulti.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.DeltaMethod.multivariate_delta_method", "Pythia.DeltaMethod.scaled_remainder_tendstoInMeasure"],
-    "symmetries": ["linear_approx(J_Frechet)", "limit_case(n -> infinity)"],
+    "theorem_names": [
+      "Pythia.DeltaMethod.multivariate_delta_method",
+      "Pythia.DeltaMethod.scaled_remainder_tendstoInMeasure"
+    ],
+    "symmetries": [
+      "linear_approx(J_Frechet)",
+      "limit_case(n -> infinity)"
+    ],
     "regime": "multivariate delta method; Frechet differentiable g at theta",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -70,8 +101,13 @@
   },
   "Pythia/BDG.lean": {
     "tier": "A",
-    "theorem_names": ["bdg_discrete_l2"],
-    "symmetries": ["homogeneous(c=positive_real, exponent=2)", "permutation_invariant(increments)"],
+    "theorem_names": [
+      "bdg_discrete_l2"
+    ],
+    "symmetries": [
+      "homogeneous(c=positive_real, exponent=2)",
+      "permutation_invariant(increments)"
+    ],
     "regime": "p=2; discrete-time martingale with M_0=0; finite second moment",
     "shared_spine_sim": "martingale_concentration",
     "differential_candidate": true,
@@ -99,8 +135,16 @@
   },
   "Pythia/Bennett.lean": {
     "tier": "B",
-    "theorem_names": ["bennett_iid", "bennett_mgf_bound", "bennett_tail_general_lambda"],
-    "symmetries": ["homogeneous(sigma_squared, exponent=1)", "permutation_invariant(samples)", "limit_case(b -> 0, recovers_gaussian)"],
+    "theorem_names": [
+      "bennett_iid",
+      "bennett_mgf_bound",
+      "bennett_tail_general_lambda"
+    ],
+    "symmetries": [
+      "homogeneous(sigma_squared, exponent=1)",
+      "permutation_invariant(samples)",
+      "limit_case(b -> 0, recovers_gaussian)"
+    ],
     "regime": "iid bounded RVs with |X_i| <= b, E[X]=0, E[X^2] <= sigma^2",
     "shared_spine_sim": "concentration_iid_bounded",
     "differential_candidate": true,
@@ -108,8 +152,17 @@
   },
   "Pythia/Bernstein.lean": {
     "tier": "B",
-    "theorem_names": ["bernstein_of_subGamma", "bernstein_iid", "bernstein_martingale", "freedman"],
-    "symmetries": ["homogeneous(sigma_squared, exponent=1)", "permutation_invariant(samples)", "subadditive(n)"],
+    "theorem_names": [
+      "bernstein_of_subGamma",
+      "bernstein_iid",
+      "bernstein_martingale",
+      "freedman"
+    ],
+    "symmetries": [
+      "homogeneous(sigma_squared, exponent=1)",
+      "permutation_invariant(samples)",
+      "subadditive(n)"
+    ],
     "regime": "iid bounded RVs or bounded-increment martingales; variance-aware regime",
     "shared_spine_sim": "concentration_iid_bounded",
     "differential_candidate": true,
@@ -117,8 +170,14 @@
   },
   "Pythia/BettingCS.lean": {
     "tier": "A",
-    "theorem_names": ["bettingStoppingRule_admissible", "ville_supermartingale_infinite"],
-    "symmetries": ["limit_case(alpha -> 0)", "time_reversal(null)"],
+    "theorem_names": [
+      "bettingStoppingRule_admissible",
+      "ville_supermartingale_infinite"
+    ],
+    "symmetries": [
+      "limit_case(alpha -> 0)",
+      "time_reversal(null)"
+    ],
     "regime": "betting CS; sub-Gaussian; log-wealth threshold; infinite horizon",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": true,
@@ -136,8 +195,16 @@
   },
   "Pythia/Bio/MassAction.lean": {
     "tier": "A",
-    "theorem_names": ["massAction_existence", "massAction_nonnegativity", "mass_conservation", "detailed_balance_equilibrium"],
-    "symmetries": ["permutation_invariant(species_ordering)", "scale_invariant(concentration)"],
+    "theorem_names": [
+      "massAction_existence",
+      "massAction_nonnegativity",
+      "mass_conservation",
+      "detailed_balance_equilibrium"
+    ],
+    "symmetries": [
+      "permutation_invariant(species_ordering)",
+      "scale_invariant(concentration)"
+    ],
     "regime": "chemical reaction network ODEs under mass-action kinetics; scaffold-sorry",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -145,8 +212,13 @@
   },
   "Pythia/Bio/MichaelisMentenSaturation.lean": {
     "tier": "A",
-    "theorem_names": ["michaelis_menten_saturation"],
-    "symmetries": ["limit_case(S -> infinity, approaches Vmax)", "homogeneous(Vmax, exponent=1)"],
+    "theorem_names": [
+      "michaelis_menten_saturation"
+    ],
+    "symmetries": [
+      "limit_case(S -> infinity, approaches Vmax)",
+      "homogeneous(Vmax, exponent=1)"
+    ],
     "regime": "Michaelis-Menten kinetics; Vmax >= 0, Km > 0, S >= 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -159,8 +231,16 @@
   },
   "Pythia/Bio/Population.lean": {
     "tier": "A",
-    "theorem_names": ["hardy_weinberg_conservation", "lotka_volterra_equilibrium_x_pos", "lotka_volterra_equilibrium_y_pos", "sir_total_population_derivative_zero"],
-    "symmetries": ["permutation_invariant(alleles)", "limit_case(Lotka-Volterra_equilibrium)"],
+    "theorem_names": [
+      "hardy_weinberg_conservation",
+      "lotka_volterra_equilibrium_x_pos",
+      "lotka_volterra_equilibrium_y_pos",
+      "sir_total_population_derivative_zero"
+    ],
+    "symmetries": [
+      "permutation_invariant(alleles)",
+      "limit_case(Lotka-Volterra_equilibrium)"
+    ],
     "regime": "population genetics and predator-prey dynamics; closed algebraic proofs",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -168,8 +248,13 @@
   },
   "Pythia/Chemistry/Arrhenius.lean": {
     "tier": "A",
-    "theorem_names": ["arrhenius_pos"],
-    "symmetries": ["homogeneous(A, exponent=1)", "monotone(T, increasing)"],
+    "theorem_names": [
+      "arrhenius_pos"
+    ],
+    "symmetries": [
+      "homogeneous(A, exponent=1)",
+      "monotone(T, increasing)"
+    ],
     "regime": "Arrhenius equation; A > 0, T > 0, R > 0, any Ea",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -177,8 +262,13 @@
   },
   "Pythia/Chemistry/HendersonHasselbalch.lean": {
     "tier": "A",
-    "theorem_names": ["hh_monotone_in_ratio"],
-    "symmetries": ["monotone(ratio, increasing)", "translation_invariant(pKa)"],
+    "theorem_names": [
+      "hh_monotone_in_ratio"
+    ],
+    "symmetries": [
+      "monotone(ratio, increasing)",
+      "translation_invariant(pKa)"
+    ],
     "regime": "buffer pH; pKa fixed; ratio = [A-]/[HA] > 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -186,8 +276,12 @@
   },
   "Pythia/Chemistry/MassActionConservation.lean": {
     "tier": "A",
-    "theorem_names": ["mass_action_conservation_pair"],
-    "symmetries": ["bilinear(nA, nB, xi)"],
+    "theorem_names": [
+      "mass_action_conservation_pair"
+    ],
+    "symmetries": [
+      "bilinear(nA, nB, xi)"
+    ],
     "regime": "single reversible reaction A <-> B; conservation of moles",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -195,8 +289,14 @@
   },
   "Pythia/Control/Lyapunov.lean": {
     "tier": "A",
-    "theorem_names": ["scalar_lyapunov_nonneg", "scalar_lyapunov_stable_decreasing"],
-    "symmetries": ["homogeneous(alpha, exponent=1)", "even(x)"],
+    "theorem_names": [
+      "scalar_lyapunov_nonneg",
+      "scalar_lyapunov_stable_decreasing"
+    ],
+    "symmetries": [
+      "homogeneous(alpha, exponent=1)",
+      "even(x)"
+    ],
     "regime": "scalar linear system dx/dt = -alpha*x with alpha > 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -204,8 +304,12 @@
   },
   "Pythia/Control/LyapunovDiscrete.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.Control.LyapunovDiscrete.lyapunov_asymptotic_stability"],
-    "symmetries": ["limit_case(r -> 0, stronger_stability)"],
+    "theorem_names": [
+      "Pythia.Control.LyapunovDiscrete.lyapunov_asymptotic_stability"
+    ],
+    "symmetries": [
+      "limit_case(r -> 0, stronger_stability)"
+    ],
     "regime": "discrete-time system x_{n+1}=f(x_n); Lyapunov V positive-definite on closed ball",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -213,8 +317,12 @@
   },
   "Pythia/Control/LyapunovODE.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.Control.LyapunovODE.lyapunov_asymptotic_stability"],
-    "symmetries": ["limit_case(r -> 0)"],
+    "theorem_names": [
+      "V_tendsto_zero_ode"
+    ],
+    "symmetries": [
+      "limit_case(r -> 0)"
+    ],
     "regime": "continuous-time ODE x'=f(x); Lyapunov V, orbital derivative < 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -222,8 +330,14 @@
   },
   "Pythia/DeploymentDesign.lean": {
     "tier": "B",
-    "theorem_names": ["deploymentScale_bound_HR", "deploymentScale_bound_Betting"],
-    "symmetries": ["monotone(sigma/delta)", "monotone(b)"],
+    "theorem_names": [
+      "deploymentScale_bound_HR",
+      "deploymentScale_bound_Betting"
+    ],
+    "symmetries": [
+      "monotone(sigma/delta)",
+      "monotone(b)"
+    ],
     "regime": "deployment spec with alpha, delta, sigma; bit-width b and scale s",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -231,8 +345,16 @@
   },
   "Pythia/EDetector.lean": {
     "tier": "B",
-    "theorem_names": ["eprocess_supermartingale_bound", "edetector_type1_error_control", "eprocess_mixture_is_eprocess", "eprocess_product_is_eprocess"],
-    "symmetries": ["permutation_invariant(e_processes)", "subadditive(mixture)"],
+    "theorem_names": [
+      "eprocess_supermartingale_bound",
+      "edetector_type1_error_control",
+      "eprocess_mixture_is_eprocess",
+      "eprocess_product_is_eprocess"
+    ],
+    "symmetries": [
+      "permutation_invariant(e_processes)",
+      "subadditive(mixture)"
+    ],
     "regime": "sequential change detection; e-detector with threshold alpha in (0,1)",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -240,8 +362,13 @@
   },
   "Pythia/Economics/CAPM.lean": {
     "tier": "A",
-    "theorem_names": ["capm_beta_nonneg"],
-    "symmetries": ["homogeneous(cov, exponent=1)", "scale_invariant(varM)"],
+    "theorem_names": [
+      "capm_beta_nonneg"
+    ],
+    "symmetries": [
+      "homogeneous(cov, exponent=1)",
+      "scale_invariant(varM)"
+    ],
     "regime": "CAPM; cov >= 0, varM > 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -249,8 +376,12 @@
   },
   "Pythia/Economics/CRRA.lean": {
     "tier": "A",
-    "theorem_names": ["crra_marginal_utility_pos"],
-    "symmetries": ["monotone(c, increasing)"],
+    "theorem_names": [
+      "crra_marginal_utility_pos"
+    ],
+    "symmetries": [
+      "monotone(c, increasing)"
+    ],
     "regime": "CRRA utility; any gamma, c > 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -258,8 +389,14 @@
   },
   "Pythia/Economics/CobbDouglas.lean": {
     "tier": "A",
-    "theorem_names": ["cobb_douglas_crts", "cobb_douglas_pos"],
-    "symmetries": ["homogeneous(lambda, exponent=1)", "bilinear(K, L)"],
+    "theorem_names": [
+      "cobb_douglas_crts",
+      "cobb_douglas_pos"
+    ],
+    "symmetries": [
+      "homogeneous(lambda, exponent=1)",
+      "bilinear(K, L)"
+    ],
     "regime": "Cobb-Douglas; K, L, lam > 0, alpha in (0,1)",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -267,8 +404,13 @@
   },
   "Pythia/Economics/RiskNeutralCall.lean": {
     "tier": "A",
-    "theorem_names": ["risk_neutral_call_nonneg"],
-    "symmetries": ["monotone(S, increasing)", "monotone(T, increasing)"],
+    "theorem_names": [
+      "risk_neutral_call_nonneg"
+    ],
+    "symmetries": [
+      "monotone(S, increasing)",
+      "monotone(T, increasing)"
+    ],
     "regime": "European call; S, K any real, T >= 0, r any real",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -276,8 +418,13 @@
   },
   "Pythia/Economics/Walras.lean": {
     "tier": "A",
-    "theorem_names": ["walras_clearing_implies_zero_sum"],
-    "symmetries": ["permutation_invariant(goods)", "bilinear(p, z)"],
+    "theorem_names": [
+      "walras_clearing_implies_zero_sum"
+    ],
+    "symmetries": [
+      "permutation_invariant(goods)",
+      "bilinear(p, z)"
+    ],
     "regime": "n-good economy; market clearing z_i = 0 for all i",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -285,13 +432,22 @@
   },
   "Pythia/ElegantUnification.lean": {
     "tier": "C",
-    "theorem_names": ["etaHR_is_sqrt_shannon_entropy", "etaVector_is_sqrt_2_shannon_entropy", "etaAsymptotic_is_sqrt_bit_entropy"],
+    "theorem_names": [
+      "etaHR_is_sqrt_shannon_entropy",
+      "etaVector_is_sqrt_2_shannon_entropy",
+      "etaAsymptotic_is_sqrt_bit_entropy"
+    ],
     "rationale": "Three information-theoretic identities showing eta rates equal sqrt of Shannon entropy. Closed arithmetic identities (rfl-level), not user-facing applied-math results. Internal structural connections."
   },
   "Pythia/Engineering/PowerDissipation.lean": {
     "tier": "A",
-    "theorem_names": ["power_dissipation_nonneg"],
-    "symmetries": ["even(I)", "homogeneous(R, exponent=1)"],
+    "theorem_names": [
+      "power_dissipation_nonneg"
+    ],
+    "symmetries": [
+      "even(I)",
+      "homogeneous(R, exponent=1)"
+    ],
     "regime": "resistive power; R >= 0, I any real",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -299,8 +455,12 @@
   },
   "Pythia/Engineering/RCTimeConstant.lean": {
     "tier": "A",
-    "theorem_names": ["rc_time_constant_pos"],
-    "symmetries": ["homogeneous(R, C, exponent=1)"],
+    "theorem_names": [
+      "rc_time_constant_pos"
+    ],
+    "symmetries": [
+      "homogeneous(R, C, exponent=1)"
+    ],
     "regime": "RC circuit; R, C > 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -308,8 +468,13 @@
   },
   "Pythia/Engineering/SignalEnergy.lean": {
     "tier": "A",
-    "theorem_names": ["signal_energy_nonneg"],
-    "symmetries": ["permutation_invariant(samples)", "even(x_i)"],
+    "theorem_names": [
+      "signal_energy_nonneg"
+    ],
+    "symmetries": [
+      "permutation_invariant(samples)",
+      "even(x_i)"
+    ],
     "regime": "discrete-time signal x : Fin n -> R; any signal",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -322,8 +487,13 @@
   },
   "Pythia/GameTheory/MinimaxTwoStrategyBound.lean": {
     "tier": "A",
-    "theorem_names": ["minimax_two_strategy_bound"],
-    "symmetries": ["permutation_invariant(rows)", "permutation_invariant(cols)"],
+    "theorem_names": [
+      "minimax_two_strategy_bound"
+    ],
+    "symmetries": [
+      "permutation_invariant(rows)",
+      "permutation_invariant(cols)"
+    ],
     "regime": "2x2 payoff matrix; pure strategies; any real entries",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -331,8 +501,14 @@
   },
   "Pythia/GaussianRandomWalk.lean": {
     "tier": "B",
-    "theorem_names": ["gaussianWalk_subGaussianMG", "gaussianWalk_crossing_prob_lower"],
-    "symmetries": ["scale_invariant(sigma)", "time_reversal(null)"],
+    "theorem_names": [
+      "gaussianWalk_subGaussianMG",
+      "gaussianWalk_crossing_prob_lower"
+    ],
+    "symmetries": [
+      "scale_invariant(sigma)",
+      "time_reversal(null)"
+    ],
     "regime": "iid Gaussian increments; sub-Gaussian MG on canonical product space",
     "shared_spine_sim": "martingale_concentration",
     "differential_candidate": false,
@@ -340,8 +516,12 @@
   },
   "Pythia/GaussianSmallBall.lean": {
     "tier": "B",
-    "theorem_names": ["gaussian_small_ball_lower_bound"],
-    "symmetries": ["scale_invariant(sigma)"],
+    "theorem_names": [
+      "gaussian_small_ball_lower_bound"
+    ],
+    "symmetries": [
+      "scale_invariant(sigma)"
+    ],
     "regime": "Gaussian measure; sigma > 0, c in R, epsilon > 0",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -349,8 +529,14 @@
   },
   "Pythia/HowardRamdasCS.lean": {
     "tier": "A",
-    "theorem_names": ["hrStoppingRule_admissible", "hrBoundary"],
-    "symmetries": ["limit_case(alpha -> 0)", "monotone(T, boundary_grows)"],
+    "theorem_names": [
+      "hrStoppingRule_admissible",
+      "hrBoundary"
+    ],
+    "symmetries": [
+      "limit_case(alpha -> 0)",
+      "monotone(T, boundary_grows)"
+    ],
     "regime": "Howard-Ramdas self-normalized CS; sub-Gaussian; infinite horizon",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": true,
@@ -358,8 +544,15 @@
   },
   "Pythia/HypothesisTest/MultipleTesting.lean": {
     "tier": "A",
-    "theorem_names": ["bonferroni_fwer", "holm_fwer", "benjamini_hochberg_fdr"],
-    "symmetries": ["permutation_invariant(hypotheses)", "monotone(m, bonferroni_level_decreases)"],
+    "theorem_names": [
+      "bonferroni_fwer",
+      "holm_fwer",
+      "benjamini_hochberg_fdr"
+    ],
+    "symmetries": [
+      "permutation_invariant(hypotheses)",
+      "monotone(m, bonferroni_level_decreases)"
+    ],
     "regime": "m simultaneous tests; FWER/FDR at level alpha",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -372,8 +565,12 @@
   },
   "Pythia/InfoTheory/BinaryEntropy.lean": {
     "tier": "A",
-    "theorem_names": ["binary_entropy_nonneg"],
-    "symmetries": ["permutation_invariant(p, 1-p)"],
+    "theorem_names": [
+      "binary_entropy_nonneg"
+    ],
+    "symmetries": [
+      "permutation_invariant(p, 1-p)"
+    ],
     "regime": "binary entropy; p in [0,1]",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -381,8 +578,12 @@
   },
   "Pythia/InfoTheory/BretagnolleHuberBinary.lean": {
     "tier": "A",
-    "theorem_names": ["bretagnolle_huber_binary"],
-    "symmetries": ["permutation_invariant(p, q)"],
+    "theorem_names": [
+      "bretagnolle_huber_binary"
+    ],
+    "symmetries": [
+      "permutation_invariant(p, q)"
+    ],
     "regime": "binary alphabet; p, q in (0,1); TV distance vs KL divergence",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -390,8 +591,13 @@
   },
   "Pythia/InfoTheory/DataProcessing.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.InfoTheory.klDiv_bind_le_klDiv", "Pythia.InfoTheory.AbsolutelyContinuous.bind_right"],
-    "symmetries": ["monotone(kernel_composition, KL_decreasing)"],
+    "theorem_names": [
+      "Pythia.InfoTheory.klDiv_bind_le_klDiv",
+      "Pythia.InfoTheory.AbsolutelyContinuous.bind_right"
+    ],
+    "symmetries": [
+      "monotone(kernel_composition, KL_decreasing)"
+    ],
     "regime": "Markov kernel on measurable spaces; nu << mu",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -399,8 +605,13 @@
   },
   "Pythia/InfoTheory/HammingDistanceTriangle.lean": {
     "tier": "A",
-    "theorem_names": ["hamming_distance_triangle"],
-    "symmetries": ["permutation_invariant(a, b, c)", "subadditive"],
+    "theorem_names": [
+      "hamming_distance_triangle"
+    ],
+    "symmetries": [
+      "permutation_invariant(a, b, c)",
+      "subadditive"
+    ],
     "regime": "3-bit Boolean tuples; Hamming distance",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -408,8 +619,14 @@
   },
   "Pythia/InformationTheoretic.lean": {
     "tier": "B",
-    "theorem_names": ["quantized_entropy_bound", "betting_is_kelly_optimal"],
-    "symmetries": ["monotone(b, entropy_grows)", "limit_case(b -> infinity)"],
+    "theorem_names": [
+      "quantized_entropy_bound",
+      "betting_is_kelly_optimal"
+    ],
+    "symmetries": [
+      "monotone(b, entropy_grows)",
+      "limit_case(b -> infinity)"
+    ],
     "regime": "quantization entropy; b-bit alphabet; sigma > 0",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -417,8 +634,12 @@
   },
   "Pythia/InputQuantization.lean": {
     "tier": "B",
-    "theorem_names": ["quantization_transport_input"],
-    "symmetries": ["scale_invariant(s)"],
+    "theorem_names": [
+      "quantization_transport_input"
+    ],
+    "symmetries": [
+      "scale_invariant(s)"
+    ],
     "regime": "input-quantized martingale; scale s; SubGaussianMG extended",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -426,8 +647,13 @@
   },
   "Pythia/MGFBoundedSubGamma.lean": {
     "tier": "B",
-    "theorem_names": ["mgf_le_subGamma_of_bounded"],
-    "symmetries": ["homogeneous(sigma_sq, exponent=1)", "limit_case(b -> 0, sub_gaussian)"],
+    "theorem_names": [
+      "mgf_le_subGamma_of_bounded"
+    ],
+    "symmetries": [
+      "homogeneous(sigma_sq, exponent=1)",
+      "limit_case(b -> 0, sub_gaussian)"
+    ],
     "regime": "bounded centered RV; |X| <= b, E[X]=0, E[X^2] <= sigma^2, b*lam < 3",
     "shared_spine_sim": "concentration_iid_bounded",
     "differential_candidate": false,
@@ -435,7 +661,12 @@
   },
   "Pythia/MatchingConstants.lean": {
     "tier": "B",
-    "theorem_names": ["c_vector_sharp_pos", "c_aCS_sharp_pos", "c_sharp_ranking", "c_vector_eq_sqrt_two_mul_c_HR"],
+    "theorem_names": [
+      "c_vector_sharp_pos",
+      "c_aCS_sharp_pos",
+      "c_sharp_ranking",
+      "c_vector_eq_sqrt_two_mul_c_HR"
+    ],
     "symmetries": [],
     "regime": "sharp matching-lower-bound constants for CS families",
     "shared_spine_sim": "confidence_sequence",
@@ -444,8 +675,15 @@
   },
   "Pythia/MathlibTags.lean": {
     "tier": "A",
-    "theorem_names": ["am_gm_two", "am_gm_two_split", "MeasureTheory.meas_ge_le_lintegral_div", "Pythia.MathlibTags.cauchy_schwarz_two"],
-    "symmetries": ["permutation_invariant(a, b)", "homogeneous(a, b, exponent=1)"],
+    "theorem_names": [
+      "am_gm_two",
+      "am_gm_two_split",
+      "Pythia.MathlibTags.cauchy_schwarz_two"
+    ],
+    "symmetries": [
+      "permutation_invariant(a, b)",
+      "homogeneous(a, b, exponent=1)"
+    ],
     "regime": "two non-negative reals (AM-GM); general measure space (Markov/Cauchy-Schwarz)",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -453,8 +691,15 @@
   },
   "Pythia/MatrixBernstein.lean": {
     "tier": "A",
-    "theorem_names": ["matrix_bernstein", "matrix_bernstein_log", "matrix_bernstein_simple"],
-    "symmetries": ["permutation_invariant(X_k)", "homogeneous(t, exponent=2)"],
+    "theorem_names": [
+      "matrixBernstein_self_adjoint",
+      "matrixHoeffding_self_adjoint",
+      "matrixChernoff_psd"
+    ],
+    "symmetries": [
+      "permutation_invariant(X_k)",
+      "homogeneous(t, exponent=2)"
+    ],
     "regime": "independent zero-mean self-adjoint matrices; d-dimensional; ||X_k||_op <= R; sigma^2 variance proxy",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -462,8 +707,13 @@
   },
   "Pythia/MatrixBernsteinFull.lean": {
     "tier": "A",
-    "theorem_names": ["matrix_bernstein_full"],
-    "symmetries": ["permutation_invariant(X_k)", "homogeneous(t, exponent=2)"],
+    "theorem_names": [
+      "matrix_bernstein_two_sided"
+    ],
+    "symmetries": [
+      "permutation_invariant(X_k)",
+      "homogeneous(t, exponent=2)"
+    ],
     "regime": "same as MatrixBernstein; Tropp 5-step proof architecture",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -471,7 +721,13 @@
   },
   "Pythia/MatrixLieb.lean": {
     "tier": "B",
-    "theorem_names": ["hermFuncCalc_id", "hermFuncCalc_isHermitian", "traceConj_eq_trace", "trace_hermFuncCalc_eq_sum", "matExp_posDef"],
+    "theorem_names": [
+      "hermFuncCalc_id",
+      "hermFuncCalc_isHermitian",
+      "traceConj_eq_trace",
+      "trace_hermFuncCalc_eq_sum",
+      "matExp_posDef"
+    ],
     "symmetries": [],
     "regime": "Hermitian matrices; functional calculus; d-dimensional",
     "shared_spine_sim": null,
@@ -480,8 +736,12 @@
   },
   "Pythia/MeasureTheory/ConditionalJensen.lean": {
     "tier": "A",
-    "theorem_names": ["ConditionalJensen.conditional_jensen"],
-    "symmetries": ["limit_case(trivial_sigma_algebra, recovers_unconditional)"],
+    "theorem_names": [
+      "condExp_le_condExp_of_convexOn"
+    ],
+    "symmetries": [
+      "limit_case(trivial_sigma_algebra, recovers_unconditional)"
+    ],
     "regime": "convex phi on R; sub-sigma-algebra m; integrable X",
     "shared_spine_sim": "martingale_concentration",
     "differential_candidate": true,
@@ -489,8 +749,12 @@
   },
   "Pythia/MeasureTheory/OptionalStoppingUnbounded.lean": {
     "tier": "B",
-    "theorem_names": ["MeasureTheory.martingale_optional_stopping_unbounded"],
-    "symmetries": ["limit_case(bounded_tau, recovers_Mathlib_form)"],
+    "theorem_names": [
+      "MeasureTheory.martingale_optional_stopping_unbounded"
+    ],
+    "symmetries": [
+      "limit_case(bounded_tau, recovers_Mathlib_form)"
+    ],
     "regime": "L1-martingale; a.s.-finite stopping time tau; UI stopped process",
     "shared_spine_sim": "martingale_concentration",
     "differential_candidate": false,
@@ -498,7 +762,11 @@
   },
   "Pythia/MeasureTheory/PathMeasureRN.lean": {
     "tier": "B",
-    "theorem_names": ["PathMeasureRN.finProdMeasure_rnDeriv_eq_prod", "PathMeasureRN.pathMeasure_rnDeriv_eq_tprod", "PathMeasureRN.kakutani_dichotomy"],
+    "theorem_names": [
+      "PathMeasureRN.finProdMeasure_rnDeriv_eq_prod",
+      "PathMeasureRN.pathMeasure_rnDeriv_eq_tprod",
+      "PathMeasureRN.kakutani_dichotomy"
+    ],
     "symmetries": [],
     "regime": "countable product measures; sigma-finite mu_n, nu_n",
     "shared_spine_sim": "martingale_concentration",
@@ -507,8 +775,13 @@
   },
   "Pythia/Mechanical/HookeSpring.lean": {
     "tier": "A",
-    "theorem_names": ["hooke_pe_nonneg"],
-    "symmetries": ["even(x)", "homogeneous(k, exponent=1)"],
+    "theorem_names": [
+      "hooke_pe_nonneg"
+    ],
+    "symmetries": [
+      "even(x)",
+      "homogeneous(k, exponent=1)"
+    ],
     "regime": "Hookean spring; k >= 0, x any displacement",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -526,7 +799,10 @@
   },
   "Pythia/Numerical/KKT.lean": {
     "tier": "A",
-    "theorem_names": ["kkt_necessary", "kkt_sufficient_convex"],
+    "theorem_names": [
+      "kkt_necessary",
+      "kkt_sufficient_convex"
+    ],
     "symmetries": [],
     "regime": "nonlinear program with inequality + equality constraints; Slater CQ or convexity",
     "shared_spine_sim": null,
@@ -535,7 +811,10 @@
   },
   "Pythia/Numerical/Kahan.lean": {
     "tier": "A",
-    "theorem_names": ["kahan_error_bound", "naive_error_bound"],
+    "theorem_names": [
+      "kahan_error_bound",
+      "naive_error_bound"
+    ],
     "symmetries": [],
     "regime": "floating-point summation; machine epsilon eps; n-element list",
     "shared_spine_sim": null,
@@ -544,7 +823,11 @@
   },
   "Pythia/Numerical/Lyapunov.lean": {
     "tier": "B",
-    "theorem_names": ["lyapunov_stable", "lyapunov_asymptotic", "lasalle_invariance"],
+    "theorem_names": [
+      "lyapunov_stable",
+      "lyapunov_asymptotic",
+      "lasalle_invariance"
+    ],
     "symmetries": [],
     "regime": "scalar autonomous ODE y'=f(y); Lyapunov V positive-definite",
     "shared_spine_sim": null,
@@ -553,8 +836,13 @@
   },
   "Pythia/Numerical/NewtonQuadraticIterPos.lean": {
     "tier": "A",
-    "theorem_names": ["newton_quadratic_iter_pos"],
-    "symmetries": ["homogeneous(c, exponent=1/2)", "monotone(x, converging)"],
+    "theorem_names": [
+      "newton_quadratic_iter_pos"
+    ],
+    "symmetries": [
+      "homogeneous(c, exponent=1/2)",
+      "monotone(x, converging)"
+    ],
     "regime": "Newton iteration for x^2 - c; x > 0, c > 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -562,8 +850,15 @@
   },
   "Pythia/Numerical/PicardLindelof.lean": {
     "tier": "A",
-    "theorem_names": ["picard_lindelof_local", "picard_lindelof_global", "picard_lindelof_continuous_dependence"],
-    "symmetries": ["limit_case(K -> 0, trivial_case)", "monotone(K_Lipschitz, existence_interval_shrinks)"],
+    "theorem_names": [
+      "picard_lindelof_local",
+      "picard_lindelof_global",
+      "picard_lindelof_continuous_dependence"
+    ],
+    "symmetries": [
+      "limit_case(K -> 0, trivial_case)",
+      "monotone(K_Lipschitz, existence_interval_shrinks)"
+    ],
     "regime": "IVP y'=f(t,y), y(t0)=y0; f Lipschitz in y with constant K",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -571,8 +866,12 @@
   },
   "Pythia/OR/LittlesLaw.lean": {
     "tier": "A",
-    "theorem_names": ["littles_law_nonneg"],
-    "symmetries": ["bilinear(lam, W)"],
+    "theorem_names": [
+      "littles_law_nonneg"
+    ],
+    "symmetries": [
+      "bilinear(lam, W)"
+    ],
     "regime": "stable queue; lam >= 0, W >= 0",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -580,8 +879,13 @@
   },
   "Pythia/OptimalTransport/WassersteinDistanceNonneg.lean": {
     "tier": "A",
-    "theorem_names": ["wasserstein_distance_nonneg"],
-    "symmetries": ["permutation_invariant(i)", "subadditive"],
+    "theorem_names": [
+      "wasserstein_distance_nonneg"
+    ],
+    "symmetries": [
+      "permutation_invariant(i)",
+      "subadditive"
+    ],
     "regime": "discrete L1 Wasserstein; p, q : Fin n -> R",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -589,8 +893,12 @@
   },
   "Pythia/PACBayesCS.lean": {
     "tier": "A",
-    "theorem_names": ["pac_bayes_confidence_sequence"],
-    "symmetries": ["limit_case(KL -> 0, recovers_betting_CS)"],
+    "theorem_names": [
+      "pacbayes_cs_ville"
+    ],
+    "symmetries": [
+      "limit_case(KL -> 0, recovers_betting_CS)"
+    ],
     "regime": "PAC-Bayes CS; prior P over strategies; posterior Q; KL(Q||P) penalty",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -598,7 +906,9 @@
   },
   "Pythia/PhiTransform.lean": {
     "tier": "B",
-    "theorem_names": ["phiProcess_zero_ae_eq_one"],
+    "theorem_names": [
+      "phiProcess_zero_ae_eq_one"
+    ],
     "symmetries": [],
     "regime": "phi-transform from HR to betting form; sigma, alpha, T parameters",
     "shared_spine_sim": "confidence_sequence",
@@ -607,7 +917,9 @@
   },
   "Pythia/PowerAnalysis.lean": {
     "tier": "B",
-    "theorem_names": ["powerLoss_bound"],
+    "theorem_names": [
+      "powerLoss_bound"
+    ],
     "symmetries": [],
     "regime": "Type-II power loss; b, s, sigma, delta parameters",
     "shared_spine_sim": "confidence_sequence",
@@ -616,8 +928,24 @@
   },
   "Pythia/Quantization.lean": {
     "tier": "B",
-    "theorem_names": ["quantizeReal_error", "quantizeReal_lower_bound", "etaHR_nonneg", "etaHR_mono", "etaHR_le_slack", "etaBetting_pos", "etaBetting_nonneg", "etaBetting_antitone", "etaBetting_le_etaHR", "etaVector", "etaAsymptotic", "ranking_four_way"],
-    "symmetries": ["monotone(b, etaHR_increases)", "monotone(b, etaBetting_decreases)"],
+    "theorem_names": [
+      "quantizeReal_error",
+      "quantizeReal_lower_bound",
+      "etaHR_nonneg",
+      "etaHR_mono",
+      "etaHR_le_slack",
+      "etaBetting_pos",
+      "etaBetting_nonneg",
+      "etaBetting_antitone",
+      "etaBetting_le_etaHR",
+      "etaVector",
+      "etaAsymptotic",
+      "ranking_four_way"
+    ],
+    "symmetries": [
+      "monotone(b, etaHR_increases)",
+      "monotone(b, etaBetting_decreases)"
+    ],
     "regime": "quantization of reals to scale s; family-specific eta rates",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -625,8 +953,12 @@
   },
   "Pythia/Quantum/VonNeumannEntropyNonnegTwoState.lean": {
     "tier": "A",
-    "theorem_names": ["von_neumann_entropy_nonneg_two_state"],
-    "symmetries": ["permutation_invariant(p, 1-p)"],
+    "theorem_names": [
+      "von_neumann_entropy_nonneg_two_state"
+    ],
+    "symmetries": [
+      "permutation_invariant(p, 1-p)"
+    ],
     "regime": "two-state qubit; p in [0,1]",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -634,8 +966,17 @@
   },
   "Pythia/Queueing/ErlangB.lean": {
     "tier": "A",
-    "theorem_names": ["ErlangB.partitionFn_pos", "ErlangB.blockingProb_nonneg", "ErlangB.blockingProb_le_one", "ErlangB.steadyState_sum_one", "ErlangB.blockingProb_recursion"],
-    "symmetries": ["monotone(rho, blocking_increases)", "monotone(n, blocking_decreases)"],
+    "theorem_names": [
+      "ErlangB.partitionFn_pos",
+      "ErlangB.blockingProb_nonneg",
+      "ErlangB.blockingProb_le_one",
+      "ErlangB.steadyState_sum_one",
+      "ErlangB.blockingProb_recursion"
+    ],
+    "symmetries": [
+      "monotone(rho, blocking_increases)",
+      "monotone(n, blocking_decreases)"
+    ],
     "regime": "M/M/n/n Erlang loss queue; n servers, offered load rho >= 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -643,8 +984,12 @@
   },
   "Pythia/Queueing/LittlesLaw.lean": {
     "tier": "A",
-    "theorem_names": ["littles_law"],
-    "symmetries": ["bilinear(arr_rate, mean_sojourn)"],
+    "theorem_names": [
+      "littles_law"
+    ],
+    "symmetries": [
+      "bilinear(arr_rate, mean_sojourn)"
+    ],
     "regime": "sample-path queueing system; limits arr_rate, W, L exist",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -652,8 +997,16 @@
   },
   "Pythia/Risk/CVaR.lean": {
     "tier": "A",
-    "theorem_names": ["cvarAux_convexOn", "cvarAux_bddBelow", "CVaR_eq_cvarAux_VaR", "CVaR_dual_rep"],
-    "symmetries": ["translation_invariant(z)", "monotone(alpha, CVaR_increases)"],
+    "theorem_names": [
+      "cvarAux_convexOn",
+      "cvarAux_bddBelow",
+      "CVaR_eq_cvarAux_VaR",
+      "CVaR_dual_rep"
+    ],
+    "symmetries": [
+      "translation_invariant(z)",
+      "monotone(alpha, CVaR_increases)"
+    ],
     "regime": "Rockafellar-Uryasev CVaR; alpha in (0,1); integrable loss X",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -661,8 +1014,13 @@
   },
   "Pythia/Risk/CoherentMeasures.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.Risk.CoherentMeasures.adeh_representation"],
-    "symmetries": ["permutation_invariant(omega)", "homogeneous(t, pos_homogeneous)"],
+    "theorem_names": [
+      "Pythia.Risk.CoherentMeasures.adeh_representation"
+    ],
+    "symmetries": [
+      "permutation_invariant(omega)",
+      "homogeneous(t, pos_homogeneous)"
+    ],
     "regime": "ADEH coherent risk measures; finite Omega; rho : (Omega -> R) -> R",
     "shared_spine_sim": null,
     "differential_candidate": false,
@@ -670,8 +1028,15 @@
   },
   "Pythia/SPRT.lean": {
     "tier": "A",
-    "theorem_names": ["SPRT.error_rates", "SPRT.wald_approximation", "SPRT.wald_wolfowitz_optimal", "SPRT.expected_sample_size"],
-    "symmetries": ["limit_case(A -> infinity, B -> -infinity)"],
+    "theorem_names": [
+      "SPRT.error_rates",
+      "SPRT.wald_approximation",
+      "SPRT.wald_wolfowitz_optimal",
+      "SPRT.expected_sample_size"
+    ],
+    "symmetries": [
+      "limit_case(A -> infinity, B -> -infinity)"
+    ],
     "regime": "SPRT with log-LR threshold A > 0 > B; iid p0 or p1",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": true,
@@ -694,8 +1059,15 @@
   },
   "Pythia/Sharpness.lean": {
     "tier": "B",
-    "theorem_names": ["etaHR_sharpness_witness", "etaBetting_sharpness_witness", "etaVector_sharpness_witness", "etaAsymptotic_sharpness_witness"],
-    "symmetries": ["homogeneous(sigma)"],
+    "theorem_names": [
+      "etaHR_sharpness_witness",
+      "etaBetting_sharpness_witness",
+      "etaVector_sharpness_witness",
+      "etaAsymptotic_sharpness_witness"
+    ],
+    "symmetries": [
+      "homogeneous(sigma)"
+    ],
     "regime": "sharpness witnesses for four CS families; b >= 2, s >= 1, sigma > 0",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -703,8 +1075,12 @@
   },
   "Pythia/Stochastic/ItoIsometryFiniteDim.lean": {
     "tier": "A",
-    "theorem_names": ["ito_isometry_finite_dim"],
-    "symmetries": ["permutation_invariant(f)"],
+    "theorem_names": [
+      "ito_isometry_finite_dim"
+    ],
+    "symmetries": [
+      "permutation_invariant(f)"
+    ],
     "regime": "f : Fin n -> R; discrete finite-dimensional analogue",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -712,8 +1088,16 @@
   },
   "Pythia/StochasticApproximation/Dvoretzky.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.StochasticApproximation.Dvoretzky.det_contraction_convergence", "Pythia.StochasticApproximation.Dvoretzky.dvoretzky_ae", "Pythia.StochasticApproximation.Dvoretzky.robbins_monro_convergence", "Pythia.StochasticApproximation.Dvoretzky.sgd_convergence"],
-    "symmetries": ["limit_case(a_n -> 0)", "monotone(sum_a_n, divergent)"],
+    "theorem_names": [
+      "Pythia.StochasticApproximation.Dvoretzky.det_contraction_convergence",
+      "Pythia.StochasticApproximation.Dvoretzky.dvoretzky_ae",
+      "Pythia.StochasticApproximation.Dvoretzky.robbins_monro_convergence",
+      "Pythia.StochasticApproximation.Dvoretzky.sgd_convergence"
+    ],
+    "symmetries": [
+      "limit_case(a_n -> 0)",
+      "monotone(sum_a_n, divergent)"
+    ],
     "regime": "stochastic approximation with step sizes a_n; summable b_n perturbations",
     "shared_spine_sim": "stochastic_approximation",
     "differential_candidate": true,
@@ -721,8 +1105,12 @@
   },
   "Pythia/StochasticApproximation/RobbinsMonro.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.StochasticApproximation.robbins_monro_convergence"],
-    "symmetries": ["limit_case(a_n -> 0, convergence)"],
+    "theorem_names": [
+      "robbins_monro_ae_tendsto"
+    ],
+    "symmetries": [
+      "limit_case(a_n -> 0, convergence)"
+    ],
     "regime": "Robbins-Monro SA; step sizes sum=inf, sum-sq<inf; conditional mean = f(X_n)",
     "shared_spine_sim": "stochastic_approximation",
     "differential_candidate": true,
@@ -730,8 +1118,12 @@
   },
   "Pythia/StochasticApproximation/RobbinsSiegmund.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.StochasticApproximation.robbins_siegmund"],
-    "symmetries": ["monotone(V_n, bounded_from_below)"],
+    "theorem_names": [
+      "Pythia.StochasticApproximation.robbins_siegmund"
+    ],
+    "symmetries": [
+      "monotone(V_n, bounded_from_below)"
+    ],
     "regime": "non-negative adapted process; summable alpha_n, beta_n; E[V_{n+1}|F_n] <= (1+alpha_n)V_n + beta_n",
     "shared_spine_sim": "stochastic_approximation",
     "differential_candidate": true,
@@ -744,8 +1136,13 @@
   },
   "Pythia/SubGamma.lean": {
     "tier": "B",
-    "theorem_names": ["subGamma_ville_ineq"],
-    "symmetries": ["limit_case(c -> 0, recovers_sub_gaussian)", "homogeneous(nu, exponent=1)"],
+    "theorem_names": [
+      "subGamma_ville_ineq"
+    ],
+    "symmetries": [
+      "limit_case(c -> 0, recovers_sub_gaussian)",
+      "homogeneous(nu, exponent=1)"
+    ],
     "regime": "sub-gamma martingale with parameters (nu, c); c*|lam| < 1",
     "shared_spine_sim": "concentration_iid_bounded",
     "differential_candidate": false,
@@ -753,8 +1150,14 @@
   },
   "Pythia/SubGaussianMG.lean": {
     "tier": "B",
-    "theorem_names": ["Pythia.ville_supermartingale", "Pythia.ville_ineq"],
-    "symmetries": ["scale_invariant(sigma)", "limit_case(N -> infinity)"],
+    "theorem_names": [
+      "Pythia.ville_supermartingale",
+      "Pythia.ville_ineq"
+    ],
+    "symmetries": [
+      "scale_invariant(sigma)",
+      "limit_case(N -> infinity)"
+    ],
     "regime": "sub-Gaussian martingale; sigma > 0; finite-measure probability space",
     "shared_spine_sim": "martingale_concentration",
     "differential_candidate": false,
@@ -892,8 +1295,12 @@
   },
   "Pythia/Thermodynamics/CarnotEfficiencyUpperBound.lean": {
     "tier": "A",
-    "theorem_names": ["carnot_efficiency_upper_bound"],
-    "symmetries": ["monotone(T_c, efficiency_decreases)"],
+    "theorem_names": [
+      "carnot_efficiency_upper_bound"
+    ],
+    "symmetries": [
+      "monotone(T_c, efficiency_decreases)"
+    ],
     "regime": "Carnot engine; T_c < T_h, both > 0",
     "shared_spine_sim": null,
     "differential_candidate": true,
@@ -901,8 +1308,13 @@
   },
   "Pythia/TimeSeries/NeweyWest.lean": {
     "tier": "A",
-    "theorem_names": ["NeweyWest.hac_consistent"],
-    "symmetries": ["limit_case(m -> 0, reduces_to_sample_variance)", "permutation_invariant(X_t)"],
+    "theorem_names": [
+      "NeweyWest.hac_consistent"
+    ],
+    "symmetries": [
+      "limit_case(m -> 0, reduces_to_sample_variance)",
+      "permutation_invariant(X_t)"
+    ],
     "regime": "iid with E[X]=0, E[X^2]=sigma^2; bandwidth m(T) -> inf, m(T)/T^{1/4} -> 0",
     "shared_spine_sim": "time_series",
     "differential_candidate": true,
@@ -910,8 +1322,15 @@
   },
   "Pythia/TimeSeries/WoldDecomposition.lean": {
     "tier": "A",
-    "theorem_names": ["Wold.wold_decomposition", "Wold.decomposition_orthogonal", "Wold.decomposition_unique", "Wold.maCoeff_sq_summable"],
-    "symmetries": ["limit_case(deterministic_only, D_t)"],
+    "theorem_names": [
+      "Wold.wold_decomposition",
+      "Wold.decomposition_orthogonal",
+      "Wold.decomposition_unique",
+      "Wold.maCoeff_sq_summable"
+    ],
+    "symmetries": [
+      "limit_case(deterministic_only, D_t)"
+    ],
     "regime": "zero-mean covariance-stationary process in L^2; shift isometry U",
     "shared_spine_sim": "time_series",
     "differential_candidate": false,
@@ -919,8 +1338,15 @@
   },
   "Pythia/TimeUniformCLT.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.time_uniform_clt", "Pythia.asymptotic_confidence_sequence", "Pythia.aCS_sharp_universal"],
-    "symmetries": ["limit_case(T -> infinity)", "scale_invariant(sigma)"],
+    "theorem_names": [
+      "Pythia.time_uniform_clt",
+      "Pythia.asymptotic_confidence_sequence",
+      "Pythia.aCS_sharp_universal"
+    ],
+    "symmetries": [
+      "limit_case(T -> infinity)",
+      "scale_invariant(sigma)"
+    ],
     "regime": "iid with finite second moment sigma^2; Levy-Prokhorov metric; all t",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -928,8 +1354,13 @@
   },
   "Pythia/VectorSharpness.lean": {
     "tier": "B",
-    "theorem_names": ["Pythia.one_d_marginal_reduction_tight", "Pythia.gaussian_boundary_density_vector"],
-    "symmetries": ["scale_invariant(sigma)"],
+    "theorem_names": [
+      "Pythia.one_d_marginal_reduction_tight",
+      "Pythia.gaussian_boundary_density_vector"
+    ],
+    "symmetries": [
+      "scale_invariant(sigma)"
+    ],
     "regime": "vector-valued sub-Gaussian MG; 1-d projection; Gaussian boundary density",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": false,
@@ -942,8 +1373,13 @@
   },
   "Pythia/VilleSupermartingale.lean": {
     "tier": "B",
-    "theorem_names": ["Pythia.ville_supermartingale_unit_initial", "Pythia.ville_bound_pos"],
-    "symmetries": ["limit_case(c -> infinity, probability -> 0)"],
+    "theorem_names": [
+      "Pythia.ville_supermartingale_unit_initial",
+      "Pythia.ville_bound_pos"
+    ],
+    "symmetries": [
+      "limit_case(c -> infinity, probability -> 0)"
+    ],
     "regime": "non-negative supermartingale; c > 0; finite measure",
     "shared_spine_sim": "martingale_concentration",
     "differential_candidate": false,
@@ -951,8 +1387,16 @@
   },
   "Pythia/WaldIdentity.lean": {
     "tier": "A",
-    "theorem_names": ["Pythia.wald_identity_centered", "Pythia.wald_identity", "Pythia.wald_identity_squared", "Pythia.wald_identity_exp"],
-    "symmetries": ["bilinear(E_X, E_tau)", "limit_case(mu -> 0, centered)"],
+    "theorem_names": [
+      "Pythia.wald_identity_centered",
+      "Pythia.wald_identity",
+      "Pythia.wald_identity_squared",
+      "Pythia.wald_identity_exp"
+    ],
+    "symmetries": [
+      "bilinear(E_X, E_tau)",
+      "limit_case(mu -> 0, centered)"
+    ],
     "regime": "iid integrable X_i; stopping time tau with E[tau] < inf",
     "shared_spine_sim": "confidence_sequence",
     "differential_candidate": true,

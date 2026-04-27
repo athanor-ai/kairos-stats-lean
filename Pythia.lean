@@ -57,6 +57,10 @@ import Pythia.Tactic.StatsIneqRegistry
 import Pythia.Tactic.ProbSimp
 import Pythia.Tactic.ProbSimpRegistry
 import Pythia.Tactic.ProbSimpTest
+-- ENNReal / probability normal-form curated simp-set (ATH-754).
+import Pythia.Tactic.StatSimp
+import Pythia.Tactic.StatSimpRegistry
+import Pythia.Tactic.StatSimpTest
 -- Cross-prover hammer Phase 1 — z3_check.
 import Pythia.Tactic.Z3Check
 import Pythia.Tactic.Z3CheckTest

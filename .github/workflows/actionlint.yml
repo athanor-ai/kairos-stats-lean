@@ -1,0 +1,41 @@
+name: actionlint
+
+# Static-analyse every workflow under .github/workflows/ on every push
+# that touches one. Catches: typos in `if:` expressions, deprecated
+# action versions, malformed cron syntax, missing `permissions:`,
+# step-level command syntax errors. The scheduled cron in
+# aristotle-restock.yml is one of the highest-risk failure modes
+# (silent rot if YAML is broken — operator only sees the failure
+# the next morning) so static lint is the cheapest gate.
+#
+# ATH-759 hardening: added 2026-04-27 after the audit pass found
+# that aristotle-restock.yml had no validation beyond the cron
+# itself firing.
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run actionlint
+        run: |
+          # Pinned to v1.7.7 (latest stable as of 2026-04-27). Bump
+          # in the same PR that the new actionlint version is
+          # observed to flag a regression we want fixed.
+          curl -fsSL --max-time 30 \
+            -o actionlint.tar.gz \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz
+          tar -xzf actionlint.tar.gz actionlint
+          chmod +x actionlint
+          ./actionlint -color

@@ -66,7 +66,7 @@ jobs:
       - name: Upload coverage to Codecov
         # Codecov action is no-token for public repos. Best-effort —
         # tolerate Codecov outages without failing the sweep.
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         if: always()
         with:
           files: ./coverage.xml

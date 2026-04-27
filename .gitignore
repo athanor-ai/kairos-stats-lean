@@ -15,3 +15,9 @@ python/build/
 python/*.egg-info/
 
 .claude/
+
+# Stale scratch directories from past experiments (not source).
+Kairos/
+# Python bytecode (pythia is Lean+md+py; we don't ship pyc).
+__pycache__/
+*.pyc

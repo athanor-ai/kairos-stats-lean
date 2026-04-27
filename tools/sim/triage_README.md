@@ -11,11 +11,11 @@ ATH-790 output. Every `.lean` file under `Pythia/` (excluding `*Test.lean`) is c
 
 ## Tier definitions
 
-**Tier-A** — User-facing applied-math results. The theorem statement is a claim a practitioner would test empirically (a bound, formula, or convergence rate). Eligible for sim pairing in `theorem_manifest.py`.
+**Tier-A** . User-facing applied-math results. The theorem statement is a claim a practitioner would test empirically (a bound, formula, or convergence rate). Eligible for sim pairing in `theorem_manifest.py`.
 
-**Tier-B** — Statistics-spine infrastructure. Theorems with empirical content that serve as building blocks for Tier-A results rather than being directly user-facing. Organized into spine-sim clusters.
+**Tier-B** . Statistics-spine infrastructure. Theorems with empirical content that serve as building blocks for Tier-A results rather than being directly user-facing. Organized into spine-sim clusters.
 
-**Tier-C** — Pure Lean structural. Tactic plumbing, attribute registries, umbrella import modules, trivial lemmas (`True := by trivial`). No empirical content; no sim needed.
+**Tier-C** . Pure Lean structural. Tactic plumbing, attribute registries, umbrella import modules, trivial lemmas (`True := by trivial`). No empirical content; no sim needed.
 
 ## Spine-sim clusters (Tier-B)
 
@@ -76,4 +76,4 @@ Exit 0 means valid.
 |--------|-------|
 | `Pythia/EquivalenceBreak.lean` | Main theorem is documented as provably FALSE in the file header; classified Tier-B (spine) but may warrant removal or renaming |
 | `Pythia/Bio/Phylogenetics.lean` | Only real theorem is `True := by trivial`; classified Tier-C but the module stub may grow |
-| `Pythia/MathlibTags.lean` | Pre-paired in `theorem_manifest.py` as Tier-A; contains only attribute declarations, no theorem bodies — classified Tier-A per manifest precedence |
+| `Pythia/MathlibTags.lean` | Pre-paired in `theorem_manifest.py` as Tier-A; contains only attribute declarations, no theorem bodies . classified Tier-A per manifest precedence |

@@ -56,9 +56,14 @@ jobs:
       - name: Tool unit + property tests with coverage
         # Single pytest invocation across all tools/ tests so coverage
         # data accumulates into one report. Individual sub-suite runs
-        # were splitting coverage and underreporting.
+        # were splitting coverage and underreporting. The
+        # markdown_doctest harness is excluded: it needs `lake env
+        # lean` (Lean toolchain) which this Python-only sim CI does
+        # NOT install. The doctest gate runs in lean-build.yml where
+        # the toolchain is present.
         run: |
           python3 -m pytest tools/ -v \
+            --ignore=tools/markdown_doctest \
             --cov=tools \
             --cov-report=xml \
             --cov-report=term-missing \

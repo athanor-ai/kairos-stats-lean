@@ -419,23 +419,23 @@ All public theorems must axiom-audit clean (`#print axioms` reports only
 `propext`, `Classical.choice`, `Quot.sound`) before merge. Five CI
 gates run on every push:
 
-1. **Lean Build** — `lake build` over the full source tree.
-2. **Per-file sweep** — every `Pythia/**/*.lean` re-elaborated with
+1. **Lean Build**: `lake build` over the full source tree.
+2. **Per-file sweep**: every `Pythia/**/*.lean` re-elaborated with
    `lake env lean` to catch cache-passing-but-elab-broken files.
-3. **Examples + demo compile** — every `examples/**/*.lean` and
+3. **Examples + demo compile**: every `examples/**/*.lean` and
    `demo/*.lean` file compiles standalone, so customer-facing
    starter packs cannot silently rot.
-4. **Markdown doctest** — every fenced ` ```lean ` / ` ```lean4 `
+4. **Markdown doctest**: every fenced ` ```lean ` / ` ```lean4 `
    block in `*.md` files (README, tutorial, cookbook, demo prose)
    either compiles via `lake env lean` or carries an explicit
    `<!-- doctest: ... -->` skip marker.
-5. **Axiom audit** — `Pythia/AxiomAudit.lean` `#print axioms`
+5. **Axiom audit**: `Pythia/AxiomAudit.lean` `#print axioms`
    transcript must reduce every audited theorem to
    `{propext, Classical.choice, Quot.sound}`.
 
-The Pythia simulation sweep (property-based + parameter-sweep +
-mutation testing on every cross-domain theorem) runs as a separate
-workflow, gated independently.
+The Pythia simulation sweep (property-based plus parameter-sweep
+plus mutation testing on every cross-domain theorem) runs as a
+separate workflow, gated independently.
 
 ## Acknowledgments
 

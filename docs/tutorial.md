@@ -98,11 +98,15 @@ example (X : ℝ → ℝ) (hX_cont : Continuous X) (x : ℝ) :
     Continuous (fun y => X y + x) := by pythia
 ```
 
-If you want to see *which* rung closed the goal, use `pythia?`:
+If you want to see *which* rung closed the goal, escalate to the
+hammer ladder and ask for the verbose form. `pythia?` runs the full
+9-rung `pythia!` ladder and reports the closing rung plus per-rung
+timing (the `?` suffix follows Lean convention: `apply?`, `rw?`,
+`simp?`):
 
 ```lean
 example (a : ℝ) (h : 0 ≤ a) : 0 ≤ a + 1 := by pythia?
--- Lean reports: pythia closed via stats_ineq (linarith)
+-- Lean reports: pythia? — closed by `linarith_chain`. Ladder timing: ...
 ```
 
 ### 2.2 `anytime_valid`: Ville bounds, supermartingale tail bounds, e-process tails

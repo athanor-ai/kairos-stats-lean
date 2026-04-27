@@ -77,9 +77,13 @@ open Lean Elab Meta Tactic
 -- `[Pythia, default]` together.
 declare_aesop_rule_sets [Pythia]
 
--- Trace class for `pythia?` verbose mode. Always emits when the
--- tactic runs; the user can route the output via the standard
--- `set_option trace.Pythia.Verbose true` mechanism.
+-- Trace class for `pythia` verbose mode. Always emits when the
+-- verbose ladder runs; the user can route the output via the standard
+-- `set_option trace.Pythia.Verbose true` mechanism. Retained for
+-- backwards compatibility with code that toggles this trace class
+-- directly; the canonical verbose tactic is now `pythia?` (ATH-756),
+-- which lives in `Pythia.Tactic.PythiaBang` and reports the full
+-- 9-rung ladder rather than the plain-pythia dispatch alone.
 initialize registerTraceClass `Pythia.Verbose
 
 /-- `@[stat_lemma]` — register a theorem as part of the `pythia` lemma
@@ -121,15 +125,13 @@ concentration, KL divergence, MGF identities, and CS admissibility.
 -/
 syntax (name := pythia) "pythia" : tactic
 
-/-- `pythia?` — verbose pythia. Same dispatch ladder as `pythia`,
-but prints which rung actually closed the goal. Useful when you
-want to know whether the close came from `anytime_valid`,
-`z3_check`, an aesop rule from the registry, or the generic
-Mathlib chain.
-
-Following Lean convention: `apply?`, `rw?`, `simp?`, `aesop?` —
-adding `?` to a closure tactic asks for an explanation. -/
-syntax (name := pythiaVerbose) "pythia?" : tactic
+-- ATH-756: the `pythia?` syntax now lives in
+-- `Pythia.Tactic.PythiaBang` (it is the verbose form of `pythia!`,
+-- the full 9-rung ladder). The plain-pythia verbose tactic was
+-- subsumed: rung 5 of the ladder is `pythia` itself, so verbose
+-- ladder output already names the plain-pythia close when it fires.
+-- Following Lean convention: `apply?`, `rw?`, `simp?`, `aesop?` —
+-- adding `?` to a closure tactic asks for an explanation.
 
 @[tactic pythia] def evalPythia : Tactic := fun stx => do
   match stx with
@@ -162,81 +164,11 @@ syntax (name := pythiaVerbose) "pythia?" : tactic
     evalTactic cascade
   | _ => throwUnsupportedSyntax
 
-/-- `pythia.machineFormat` — when true, `pythia?` emits a tagged
-log line `[pythia.result] {"rung": ..., "shape": ...}` (success) or
-`[pythia.failure] {"reason": ...}` (failure) in addition to the
-human-readable summary. Agent loops parsing pythia output (e.g.
-kairos's lake-build subprocess wrapper, MCP-side tool integrations)
-grep `^\[pythia\.(result|failure)\] ` for structured JSON.
-
-Off by default to keep interactive `pythia?` output clean. Toggle via
-`set_option pythia.machineFormat true in pythia?` for a single
-invocation, or globally via `set_option pythia.machineFormat true`
-for an agent-driven session. -/
-register_option pythia.machineFormat : Bool := {
-  defValue := false
-  descr := "When true, `pythia?` emits a `[pythia.result]` or `[pythia.failure]` tagged log line with structured JSON for agent-loop consumption. Default false for interactive use."
-}
-
-@[tactic pythiaVerbose] def evalPythiaVerbose : Tactic := fun stx => do
-  match stx with
-  | `(tactic| pythia?) =>
-    -- Try each rung in order; the first to fully close the goal logs
-    -- a message naming the rung. If none close, fail with the
-    -- standard `pythia` error.
-    -- Triple of (rung-tactic, human-readable msg, machine rung-id).
-    let rungs : List (Syntax × String × String) := [
-      (← `(tactic| (anytime_valid; done)),
-        "closed by anytime_valid (Ville-bound shape)",
-        "anytime_valid"),
-      (← `(tactic| (stats_ineq; done)),
-        "closed by stats_ineq (concentration tail)",
-        "stats_ineq"),
-      (← `(tactic| (prob_simp; done)),
-        "closed by prob_simp (probability rewriting)",
-        "prob_simp"),
-      (← `(tactic| (z3_check; done)),
-        "closed by z3_check (QF_LRA over ℝ via Z3 + linarith reconstruction)",
-        "z3_check"),
-      (← `(tactic| (cvc5_check; done)),
-        "closed by cvc5_check (QF_BV via CVC5 + bv_decide / QF_LRA backup via linarith)",
-        "cvc5_check"),
-      (← `(tactic| (vampire_check; done)),
-        "closed by vampire_check (FOL via Vampire + aesop reconstruction)",
-        "vampire_check"),
-      (← `(tactic| (e_check; done)),
-        "closed by e_check (FOL via E theorem prover + aesop reconstruction)",
-        "e_check"),
-      (← `(tactic|
-            (aesop (config := { warnOnNonterminal := false })
-                   (rule_sets := [Pythia]); done)),
-        "closed by aesop on the @[stat_lemma] ruleset",
-        "stat_lemma_aesop"),
-      (← `(tactic|
-            ((try simp) <;> (try omega) <;> (try linarith)
-                <;> (try positivity); done)),
-        "closed by the generic Mathlib chain (simp; omega; linarith; positivity)",
-        "mathlib_chain"),
-      (← `(tactic| (aesop (config := { warnOnNonterminal := false }); done)),
-        "closed by the default aesop ruleset (last resort)",
-        "aesop_default")
-    ]
-    let machineFmt := pythia.machineFormat.get (← getOptions)
-    let mut closed := false
-    for (rung, msg, rungId) in rungs do
-      if closed then break
-      try
-        evalTactic rung
-        logInfo msg
-        if machineFmt then
-          logInfo s!"[pythia.result] \{\"rung\": \"{rungId}\"}"
-        closed := true
-      catch _ => pure ()
-    unless closed do
-      if machineFmt then
-        logInfo "[pythia.failure] {\"reason\": \"no_rung_closed\"}"
-      throwError "pythia?: no rung closed the goal."
-  | _ => throwUnsupportedSyntax
+-- `pythia.machineFormat` was the legacy option that toggled tagged
+-- log-line emission for the verbose plain-`pythia?` tactic. ATH-756
+-- folded the verbose-of-plain-pythia into the verbose-of-`pythia!`
+-- ladder; the replacement option is `pythia.bang.machineFormat`,
+-- declared in `Pythia.Tactic.PythiaBang`.
 
 /-- `#stat_lemmas` — list every theorem tagged `@[stat_lemma]` in the
 current scope. Helpful for discovering what `pythia` will try. -/

@@ -133,11 +133,13 @@ labeled. See `Pythia.Tactic.TightTail`.
 
 ## Goal didn't close?
 
-Try `pythia?`: the verbose variant of `pythia` that prints which
-rung of the dispatch ladder closed the goal. If `pythia?` reports
-the close came from the generic Mathlib chain, you may want to
-register the closer with `@[stat_lemma]` so future `pythia` calls
-short-circuit there.
+Try `pythia?`: the verbose form of the `pythia!` hammer ladder that
+prints which rung of the 9-rung ladder closed the goal plus per-rung
+wall-clock timing. If `pythia?` reports the close came from the
+plain `pythia` rung (slot 5) via the generic Mathlib chain, you
+may want to register the closer with `@[stat_lemma]` so future
+calls short-circuit at the dedicated aesop ruleset (rung 4). See
+[`docs/pythia_bang.md`](pythia_bang.md) for the full ladder table.
 
 If `pythia` fails entirely:
 

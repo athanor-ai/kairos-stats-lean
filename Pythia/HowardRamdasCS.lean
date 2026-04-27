@@ -26,6 +26,7 @@ an infinite-horizon coverage guarantee via union bound.
 import Mathlib
 import Pythia.Basic
 import Pythia.SubGaussianMG
+import Pythia.Tactic.Pythia
 
 namespace Pythia
 
@@ -124,6 +125,7 @@ the process ever crosses the Howard-Ramdas boundary is at most `α`:
 Proof: countable union bound + per-time Chernoff bounds + telescoping
 series `∑ α/(t(t+1)) = α`.
 -/
+@[stat_lemma]
 theorem hrStoppingRule_admissible
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
     {𝓕 : Filtration ℕ mΩ} {μ : Measure Ω} [IsProbabilityMeasure μ]

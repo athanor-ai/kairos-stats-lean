@@ -37,6 +37,7 @@ References
 import Mathlib
 import Pythia.Basic
 import Pythia.MeasureTheory.OptionalStoppingUnbounded
+import Pythia.Tactic.Pythia
 
 namespace Pythia
 
@@ -139,6 +140,7 @@ artifact. Used internally; the `Ω → ℕ` ergonomic wrapper
 For a martingale `S_n = partialSum X n` (`S_0 = 0`), an a.s.-finite
 stopping time `τ : Ω → ℕ∞`, and uniform integrability of the stopped
 process, we get `E[stoppedValue S τ] = 0`. -/
+@[stat_lemma]
 theorem wald_identity_centered_via_optional_stopping
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)

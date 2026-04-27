@@ -4,6 +4,7 @@ All rights reserved.
 Released under Apache 2.0 license.
 -/
 import Mathlib
+import Pythia.Tactic.Pythia
 
 /-!
 # Multivariate Delta Method
@@ -204,6 +205,7 @@ differentiable at `θ` with derivative `J`, then
 * `hTmeas` — each `Tₙ` is AE-measurable.
 * `hgmeas` — `g` is measurable (needed for push-forward measures).
 -/
+@[stat_lemma]
 theorem multivariate_delta_method
     {T : ℕ → Ω → E} {θ : E} {Z : Ω → E}
     {g : E → F} {J : E →L[ℝ] F}

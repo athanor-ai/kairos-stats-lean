@@ -34,6 +34,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Data.Real.Sqrt
 import Mathlib.Analysis.Convex.SpecificFunctions.Basic
+import Pythia.Tactic.Pythia
 
 namespace Pythia.InfoTheory
 
@@ -240,6 +241,7 @@ bound (which would require TV / Pinsker on arbitrary measure spaces). The proof
 combines (a) Jensen's inequality for `Real.log` on `(0, ∞)`, (b) the elementary
 AM-GM bound `2√(ab) ≤ a + b`, and (c) monotonicity of `Real.sqrt`.
 -/
+@[stat_lemma]
 theorem bretagnolle_huber_binary
     {p q : ℝ} (hp0 : 0 < p) (hp1 : p < 1) (hq0 : 0 < q) (hq1 : q < 1) :
     |p - q| ≤ Real.sqrt (1 - Real.exp (-klBin p q)) := by

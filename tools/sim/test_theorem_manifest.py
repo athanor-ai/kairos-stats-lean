@@ -28,7 +28,7 @@ from tools.sim.theorem_manifest import (
 
 VALID_DOMAINS = {
     "economics", "chemistry", "biology", "engineering",
-    "mechanical", "control", "or", "mathlib_tags",
+    "mechanical", "control", "or", "mathlib_tags", "info_theory",
 }
 
 VALID_MATHLIB_STATUS = {"novel", "retag", "extension"}

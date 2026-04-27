@@ -49,4 +49,14 @@ theorem am_gm_two (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
     (Real.sqrt_mul ha b).symm
   nlinarith [h_sq_nonneg, h_sa, h_sb, h_sab]
 
+/-! ## Markov inequality (Chebyshev's inequality) -/
+
+-- `MeasureTheory.meas_ge_le_lintegral_div`:
+--   For an AE-measurable f : alpha -> R>=0inf and epsilon != 0,
+--   mu { omega | f omega >= epsilon } <= (integral f) / epsilon.
+-- This is the canonical Markov (first-moment) inequality in Mathlib.
+-- We retag it with `@[stat_lemma]` so the pythia tactic cascade
+-- can close goals of that shape automatically.
+attribute [stat_lemma] MeasureTheory.meas_ge_le_lintegral_div
+
 end Pythia.MathlibTags

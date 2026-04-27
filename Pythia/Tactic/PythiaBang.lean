@@ -187,20 +187,69 @@ deprecation warning on use; will be removed in the next minor
 version. -/
 syntax (name := pythiaBangVerboseDeprecated) "pythia!?" : tactic
 
+/-- Suggested manual tactics indexed by the failing rung name. When
+`pythia!` exhausts the ladder, the failure diagnostic appends a
+"things to try" hint pointing the user at hand-tactics that operate
+in the same family as the rung that just failed.
+
+Public (made non-private 2026-04-27) so the failure-diagnostic
+regression test in `PythiaBangTest.lean` can spot-check that every
+known rung_id has a hint and that an unknown id returns the
+documented fallback. The body itself is implementation detail;
+the contract is "every `rung.id` returned by `buildRungs` maps to
+a non-empty hint string". -/
+def rungHint (rungId : String) : String :=
+  match rungId with
+  | "stat_simp"      => "try `simp [stat_simp]; <follow-up>` and inspect the residual goal"
+  | "linarith_chain" => "try `nlinarith [<aux hypotheses>]` or `polyrith` with explicit lemmas"
+  | "positivity"     => "case-split on the sign of relevant subterms; positivity needs concrete bounds"
+  | "aesop_pythia"   => "tag the missing lemma with `@[stat_lemma]` or `@[aesop safe]` (ruleset Pythia)"
+  | "pythia"         => "the cascade fell through — supply the lemma directly via `exact`"
+  | "z3_check"       => "rewrite to QF_LRA shape: linear arithmetic over ℝ, no transcendentals"
+  | "cvc5_check"     => "rewrite to QF_BV / QF_LRA; CVC5 cannot handle quantifiers without instantiation"
+  | "fol_check"      => "supply axioms explicitly as local hypotheses; vampire/e need the relevant facts"
+  | "disprove"       => "the goal MAY be vacuously true; check hypotheses are satisfiable"
+  | _                => "no hint available"
+
 /-- Core ladder runner shared by `pythia!` and the deprecated alias.
-Returns `Unit` on success and throws on full-ladder miss. -/
+Returns `Unit` on success and throws on full-ladder miss.
+
+On failure: emits a structured per-rung breakdown via `logError`
+showing what was tried, how long each rung ran, and a
+hand-tactic hint indexed by the LAST rung that was attempted. The
+breakdown is silent on the success path — only failures pay the
+diagnostic cost. -/
 def runPythiaBang : TacticM Unit := do
   let rungs ← liftMetaM buildRungs
   let mut closed := false
+  let mut summary : Array String := #[]
+  let mut lastTried : Option String := none
   for rung in rungs do
     if closed then break
+    let t0 ← IO.monoMsNow
     match ← tryRung rung pythiaBangDefaultHeartbeats with
-    | some _ =>
+    | some ms =>
       closed := true
+      summary := summary.push s!"  ✓ {rung.id} CLOSED in {ms}ms ({rung.descr})"
     | none =>
-      pure ()
+      let t1 ← IO.monoMsNow
+      summary := summary.push s!"  ✗ {rung.id} failed in {t1 - t0}ms ({rung.descr})"
+      lastTried := some rung.id
   unless closed do
-    throwError "pythia!: no rung closed the goal."
+    let body := String.intercalate "\n" summary.toList
+    let hint := match lastTried with
+      | some r => rungHint r
+      | none   => "no rung was attempted (ladder is empty)"
+    throwError s!"pythia!: no rung closed the goal.\n\
+                 \n\
+                 Ladder breakdown:\n\
+                 {body}\n\
+                 \n\
+                 Hint (based on last rung tried, `{lastTried.getD "(none)"}`):\n\
+                 {hint}\n\
+                 \n\
+                 For per-rung timing on the SUCCESS path use `pythia?` (verbose).\n\
+                 For LLM-augmented closure see `kairos.lean_cycle.cycle_prove` in the kairos-sdk companion."
 
 /-- Core verbose runner shared by `pythia?` and the deprecated alias. -/
 def runPythiaBangVerbose : TacticM Unit := do

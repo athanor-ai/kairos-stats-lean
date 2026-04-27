@@ -236,4 +236,52 @@ example {α : Type*} (f : α → ℝ) (a : α) :
 the residual linear inequality. -/
 example (a : ℝ≥0∞) : 0 ≤ a.toReal + 1 := by pythia!
 
+/-! ## Section 15 — Failure-diagnostic contract (ATH-760)
+
+When the ladder exhausts without closing, `pythia!` emits a
+structured error message: a per-rung breakdown, a hint indexed
+by the LAST rung tried, and a pointer at `pythia?` for verbose
+success-path timing.
+
+These tests pin one contract: the `Pythia.rungHint` lookup table covers
+every `rung.id` returned by `buildRungs`, plus a documented
+fallback for unknown ids. If a future edit drops a hint or
+renames a rung, the test fails before the rename propagates to
+user-facing failure messages.
+
+The pure-text-message regression test (assert that an unclosable
+goal produces a message containing "no rung closed", "Ladder
+breakdown", and "Hint") is intentionally left as a follow-up:
+Lean 4's `#guard_msgs` requires exact match including timings,
+and capturing the error from a failing tactic in-place produces
+brittle nested-tactic-monad code. The unit-test below covers the
+single most-likely regression class — typos in the Pythia.rungHint
+keys — which would manifest as "no hint available" surfacing for
+a real rung. -/
+
+/-- Every `rung.id` produced by `buildRungs` must have a non-empty
+hint in `Pythia.rungHint`. The 9 rung ids below are the contract; if
+`buildRungs` evolves, update both this list and the hint table in
+the same PR. -/
+example (id : String)
+    (hmem : id ∈ ["stat_simp", "linarith_chain", "positivity",
+                  "aesop_pythia", "pythia", "z3_check", "cvc5_check",
+                  "fol_check", "disprove"]) :
+    Pythia.rungHint id ≠ "" ∧ Pythia.rungHint id ≠ "no hint available" := by
+  fin_cases hmem <;> exact ⟨by decide, by decide⟩
+
+/-- `Pythia.rungHint` returns the documented fallback string for any id
+that is NOT in the known set. Pins the fallback behaviour so a
+future refactor that swaps it (e.g., to `throw` or to silent `""`)
+breaks loud. -/
+example : Pythia.rungHint "made_up_id" = "no hint available" := by decide
+
+/-- Spot-check: the `disprove` rung_id maps to the documented
+hint about vacuous-truth goals. Catches a typo where the table
+has `"Disprove"` (capitalised) but `buildRungs` emits `"disprove"`. -/
+example :
+    Pythia.rungHint "disprove" =
+      "the goal MAY be vacuously true; check hypotheses are satisfiable" := by
+  rfl
+
 end Pythia.PythiaBangTest

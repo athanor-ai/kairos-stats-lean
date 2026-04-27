@@ -1,0 +1,51 @@
+# Dependabot config — auto-PRs for outdated dependencies + security
+# alerts. Lean / Lake is not a Dependabot-supported ecosystem; we
+# track those manually via lake update + manual lake-manifest.json
+# review (see CONTRIBUTING.md for the bump cadence).
+
+version: 2
+updates:
+  # GitHub Actions workflows: weekly check, group routine bumps so
+  # contributors don't drown in N PRs/week for action-version-of-the-day.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Los_Angeles
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: chore(actions)
+      include: scope
+    groups:
+      actions-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Python tooling pinned in pyproject.toml + ad-hoc requirements.
+  # We don't ship Python at runtime; this guards the test + sim
+  # toolchain (pytest, hypothesis, coverage, etc.) only.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Los_Angeles
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - python
+    commit-message:
+      prefix: chore(deps)
+      include: scope
+    groups:
+      python-minor-patch:
+        update-types:
+          - minor
+          - patch

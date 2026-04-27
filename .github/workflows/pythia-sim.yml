@@ -1,9 +1,13 @@
 name: Pythia simulation sweep
 
-# ATH-750: every PR runs the full per-theorem PBT + sweep + mutation
-# harness across every entry in tools/sim/theorem_manifest.MANIFEST.
-# Catches drift between the formal Lean theorem and the empirical
-# companion when mathlib bumps or a domain harness goes stale.
+# Every PR runs the full per-theorem PBT + sweep + mutation harness
+# across every entry in tools/sim/theorem_manifest.MANIFEST. Catches
+# drift between the formal Lean theorem and the empirical companion
+# when mathlib bumps or a domain harness goes stale.
+#
+# Also measures Python tooling coverage (tools/) and uploads to
+# Codecov so contributors can see what test gaps exist before
+# proposing new theorems / runners.
 #
 # Distinct from the Lean Build + Axiom Audit workflow: this one is
 # Python-only (no lake / no Lean toolchain), runs in seconds, and
@@ -12,14 +16,14 @@ on:
   push:
     branches: ['**']
     paths:
-      - 'tools/sim/**'
-      - 'tools/run_pythia_sim.py'
+      - 'tools/**'
+      - 'pyproject.toml'
       - '.github/workflows/pythia-sim.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'tools/sim/**'
-      - 'tools/run_pythia_sim.py'
+      - 'tools/**'
+      - 'pyproject.toml'
       - '.github/workflows/pythia-sim.yml'
   workflow_dispatch:
 
@@ -34,18 +38,37 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install pytest
-        run: python3 -m pip install --upgrade pytest
+      - name: Install test deps (pytest + coverage + hypothesis)
+        # Pin major versions. pyproject.toml has NO `[project]` table
+        # (see comment there); we install dependencies directly
+        # rather than via `pip install .[test]` to avoid setuptools
+        # auto-discovery tripping on top-level `Pythia/` and `demo/`.
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install \
+            'pytest>=8.0' \
+            'pytest-cov>=5.0' \
+            'hypothesis>=6.100'
       - name: Manifest sweep — every theorem's harness pytest
         run: |
           set -e
           python3 tools/run_pythia_sim.py
-      - name: Manifest invariant tests
+      - name: Tool unit + property tests with coverage
+        # Single pytest invocation across all tools/ tests so coverage
+        # data accumulates into one report. Individual sub-suite runs
+        # were splitting coverage and underreporting.
         run: |
-          python3 -m pytest tools/sim/test_theorem_manifest.py -v
-      - name: Mutation library tests
-        run: |
-          python3 -m pytest tools/sim/test_mutations.py -v
-      - name: Harness self-tests
-        run: |
-          python3 -m pytest tools/sim/test_harness.py -v
+          python3 -m pytest tools/ -v \
+            --cov=tools \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=60
+      - name: Upload coverage to Codecov
+        # Codecov action is no-token for public repos. Best-effort —
+        # tolerate Codecov outages without failing the sweep.
+        uses: codecov/codecov-action@v5
+        if: always()
+        with:
+          files: ./coverage.xml
+          flags: tools
+          fail_ci_if_error: false

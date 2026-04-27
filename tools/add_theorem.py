@@ -245,8 +245,28 @@ def render_harness_file(
     test_name = f"test_{name}"
     harness_name = f"{domain_lower}.{name}"
     module_dotted = sim_path.replace("/", ".").removesuffix(".py")
+    # Split `strategy_args` on top-level commas only — i.e. commas
+    # outside any (), [], {}. The naive `split(",")` breaks function
+    # calls like `floats(0, 1)` across two arg slots.
+    parts: list[str] = []
+    buf: list[str] = []
+    depth = 0
+    for ch in strategy_args:
+        if ch in "([{":
+            depth += 1
+            buf.append(ch)
+        elif ch in ")]}":
+            depth = max(depth - 1, 0)
+            buf.append(ch)
+        elif ch == "," and depth == 0:
+            parts.append("".join(buf))
+            buf = []
+        else:
+            buf.append(ch)
+    if buf:
+        parts.append("".join(buf))
     strategy_lines = ",\n        ".join(
-        s.strip() for s in strategy_args.split(",") if s.strip()
+        s.strip() for s in parts if s.strip()
     ) or "# TODO: name=floats(lo, hi),"
     return _HARNESS_TEMPLATE.format(
         module_doc_first=summary or f"Empirical companion for {namespace}.{name}.",

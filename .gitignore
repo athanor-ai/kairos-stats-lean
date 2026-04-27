@@ -18,6 +18,10 @@ python/*.egg-info/
 
 # Stale scratch directories from past experiments (not source).
 Kairos/
-# Python bytecode (pythia is Lean+md+py; we don't ship pyc).
+# Python tooling artifacts (pytest + coverage).
 __pycache__/
 *.pyc
+.coverage
+.coverage.*
+coverage.xml
+.pytest_cache/

@@ -69,6 +69,11 @@ class TheoremEntry:
     """Bibliographic citations for the named result, mirroring the
     Lean module docstring's References section. Optional."""
 
+    drafter: str = "unknown"
+    """Which AI drafter (or human) first produced the closed Lean proof.
+    Allowed values: 'aristotle', 'dspv2', 'sonnet', 'opus', 'human',
+    'unknown'. Backfilled from git history / PR bodies; see ATH-779."""
+
 
 # ─────────────────────────────────────────────────────────────────────
 # The registry
@@ -87,6 +92,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Cobb-Douglas constant returns to scale: scaling all inputs by lambda scales output by lambda.",
         references=["Cobb, C.W. and Douglas, P.H. American Economic Review 18(Suppl): 139-165 (1928)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="economics",
@@ -97,6 +103,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         sim_test="test_cobb_douglas_crts",  # bundled in the same harness
         mathlib_status="novel",
         summary="Cobb-Douglas output positivity for positive K, L.",
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="economics",
@@ -108,6 +115,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="CRRA marginal utility c^(-gamma) > 0 for c > 0.",
         references=["Pratt, J.W. Econometrica 32 (1964); Arrow, K.J. Yrjö Jahnsson Lectures (1965)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="economics",
@@ -119,6 +127,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="CAPM beta = Cov(R_i, R_m)/Var(R_m) >= 0 when assets positively correlated.",
         references=["Sharpe, W.F. J. Finance 19(3): 425-442 (1964); Lintner, J. Rev. Econ. Stat. 47(1): 13-37 (1965)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="economics",
@@ -130,6 +139,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Risk-neutral call option price max(S-K,0)*exp(-r*T) >= 0.",
         references=["Cox, J.C., Ross, S.A., Rubinstein, M. J. Financial Economics 7(3): 229-263 (1979); Black, F. and Scholes, M. J. Political Economy 81(3): 637-654 (1973)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="economics",
@@ -141,6 +151,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Walras' Law: when all excess demands clear (z_i = 0), the price-weighted sum is zero.",
         references=["Walras, L. Eléments d'économie politique pure (1874)"],
+        drafter="sonnet",
     ),
 
     # ── Chemistry ─────────────────────────────────────────────────
@@ -154,6 +165,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Arrhenius rate constant k = A*exp(-Ea/(RT)) > 0.",
         references=["Arrhenius, S. Z. Phys. Chem. 4: 226-248 (1889)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="chemistry",
@@ -165,6 +177,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Henderson-Hasselbalch pH = pKa + log10([A-]/[HA]) is monotone increasing in the ratio.",
         references=["Henderson, L.J. American Journal of Physiology 21(2): 173-179 (1908); Hasselbalch, K.A. Biochem. Z. 78: 112-144 (1917)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="chemistry",
@@ -176,6 +189,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Mass-action stoichiometric conservation for A <-> B: total moles constant under reaction extent.",
         references=["Guldberg, C.M. and Waage, P. Forhandlinger Videnskabs-Selskabet i Christiania (1864)"],
+        drafter="sonnet",
     ),
 
     # ── Biology ───────────────────────────────────────────────────
@@ -189,6 +203,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Hardy-Weinberg allele-frequency conservation: p^2 + 2pq + q^2 = 1 when p+q=1.",
         references=["Hardy, G.H. Science 28(706): 49-50 (1908); Weinberg, W. Jahresh. Verein f. vaterländ. Naturkunde in Württemberg 64: 369-382 (1908)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="biology",
@@ -200,6 +215,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Lotka-Volterra prey equilibrium x* = gamma/delta > 0.",
         references=["Lotka, A.J. Elements of Physical Biology (1925); Volterra, V. Mem. R. Accad. Naz. dei Lincei 2 (1926)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="biology",
@@ -210,6 +226,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         sim_test="test_lotka_volterra_equilibrium_pos",
         mathlib_status="novel",
         summary="Lotka-Volterra predator equilibrium y* = alpha/beta > 0.",
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="biology",
@@ -221,6 +238,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="SIR epidemic model: total population derivative dS+dI+dR is zero.",
         references=["Kermack, W.O. and McKendrick, A.G. Proc. Roy. Soc. A 115(772): 700-721 (1927)"],
+        drafter="sonnet",
     ),
 
     # ── Engineering (electrical) ───────────────────────────────────
@@ -233,6 +251,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         sim_test="test_rc_time_constant_pos",
         mathlib_status="novel",
         summary="RC circuit time constant tau = R*C > 0.",
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="engineering",
@@ -244,6 +263,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Discrete signal energy sum |x_n|^2 is non-negative.",
         references=["Oppenheim, A.V. and Schafer, R.W. Discrete-Time Signal Processing 3rd ed (2010)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="engineering",
@@ -255,6 +275,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Joule heating power P = I^2 * R is non-negative when R is non-negative.",
         references=["Ohm, G.S. Die galvanische Kette, mathematisch bearbeitet (1827); Joule, J.P. Philosophical Magazine 19: 260-277 (1841)"],
+        drafter="sonnet",
     ),
 
     # ── Mechanical ────────────────────────────────────────────────
@@ -268,6 +289,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Hooke spring potential energy U = 0.5*k*x^2 is non-negative.",
         references=["Hooke, R. De Potentia Restitutiva (1678); Goldstein, Poole, Safko Classical Mechanics 3rd ed (2002)"],
+        drafter="sonnet",
     ),
 
     # ── Control ───────────────────────────────────────────────────
@@ -281,6 +303,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Scalar Lyapunov function V(x) = x^2 is non-negative.",
         references=["Lyapunov, A.M. PhD thesis, Kharkov University (1892); translation: The General Problem of the Stability of Motion (1992)"],
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="control",
@@ -291,6 +314,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         sim_test="test_scalar_lyapunov_stable_decreasing",
         mathlib_status="novel",
         summary="For dx/dt = -alpha*x with alpha > 0, the Lyapunov derivative dV/dt is non-positive.",
+        drafter="sonnet",
     ),
 
     # ── Operations Research ──────────────────────────────────────
@@ -304,6 +328,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Little's law: L = lambda*W is non-negative for non-negative arrival rate and wait time.",
         references=["Little, J.D.C. Operations Research 9(3): 383-387 (1961)"],
+        drafter="sonnet",
     ),
 
     # ── Information Theory ────────────────────────────────────────
@@ -317,6 +342,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Shannon binary entropy H(p) = -p*log(p) - (1-p)*log(1-p) is non-negative on [0,1].",
         references=["Shannon, C.E. Bell System Technical Journal 27(3): 379-423 (1948)", "Cover, T.M. and Thomas, J.A. Elements of Information Theory 2nd ed (2006)"],
+        drafter="sonnet",
     ),
 
     # ── Mathlib retags + extensions ──────────────────────────────
@@ -329,6 +355,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         sim_test="test_am_gm_two",
         mathlib_status="extension",
         summary="AM-GM (2 reals): sqrt(a*b) <= (a+b)/2 for a, b >= 0. Direct via discriminant identity.",
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="mathlib_tags",
@@ -339,6 +366,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         sim_test="test_markov_inequality",
         mathlib_status="retag",
         summary="Markov / Chebyshev inequality: mu{f >= eps} <= integral(f) / eps. Mathlib has the proof; pythia retags + adds empirical sweep.",
+        drafter="sonnet",
     ),
     TheoremEntry(
         domain="mathlib_tags",
@@ -349,6 +377,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         sim_test="test_cauchy_schwarz_two",
         mathlib_status="extension",
         summary="Cauchy-Schwarz (2 reals): (a*c+b*d)^2 <= (a^2+b^2)*(c^2+d^2). Direct via discriminant trick.",
+        drafter="sonnet",
     ),
     # ── Thermodynamics ────────────────────────────────────────────
     TheoremEntry(
@@ -361,6 +390,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Carnot heat-engine efficiency 1 - T_c/T_h is bounded above by 1.",
         references=["Carnot, S. Réflexions sur la puissance motrice du feu (1824)"],
+        drafter="opus",
     ),
 
     # ── Biology (batch 8) ────────────────────────────────────────
@@ -374,6 +404,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Michaelis-Menten reaction velocity v = Vmax*S/(Km+S) is bounded above by Vmax.",
         references=["Michaelis, L. and Menten, M.L. Biochem. Z. 49: 333-369 (1913)"],
+        drafter="opus",
     ),
 
     # ── Numerical methods ────────────────────────────────────────
@@ -387,6 +418,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Newton iteration on f(x)=x^2-c keeps positive iterates: (x + c/x)/2 > 0 when x > 0 and c > 0.",
         references=["Newton, I. De analysi per aequationes numero terminorum infinitas (1669)"],
+        drafter="opus",
     ),
 
     # ── Information theory (batch 8) ─────────────────────────────
@@ -400,6 +432,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Hamming distance on 3-bit binary tuples satisfies the triangle inequality.",
         references=["Hamming, R.W. Bell System Technical Journal 29(2): 147-160 (1950)"],
+        drafter="opus",
     ),
 
     # ── Cross-field batch 9 (ATH-753) ────────────────────────────
@@ -416,6 +449,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
             "Vaserstein, L.N. Problemy Peredachi Informatsii 5(3): 64-72 (1969)",
             "Kantorovich, L.V. Doklady Akademii Nauk SSSR 37: 199-201 (1942)",
         ],
+        drafter="opus",
     ),
     TheoremEntry(
         domain="stochastic",
@@ -427,6 +461,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Discrete Ito isometry / Cauchy-Schwarz: (sum f)^2 <= n * sum f^2.",
         references=["Ito, K. Memoirs of the American Mathematical Society 4: 1-51 (1951)"],
+        drafter="opus",
     ),
     TheoremEntry(
         domain="quantum",
@@ -441,6 +476,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
             "von Neumann, J. Mathematische Grundlagen der Quantenmechanik, Springer (1932)",
             "Shannon, C.E. Bell System Technical Journal 27(3): 379-423 (1948)",
         ],
+        drafter="opus",
     ),
     TheoremEntry(
         domain="game_theory",
@@ -452,6 +488,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="novel",
         summary="Weak minimax inequality for 2x2 payoff: max_i min_j A i j <= min_j max_i A i j.",
         references=["von Neumann, J. Mathematische Annalen 100: 295-320 (1928)"],
+        drafter="opus",
     ),
 )
 

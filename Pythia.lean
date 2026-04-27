@@ -139,3 +139,7 @@ import Pythia.BDG
 import Pythia.Bennett
 import Pythia.MeasureTheory.ConditionalJensen
 import Pythia.InfoTheory.DataProcessing
+-- Aristotle batch (2026-04-26): stochastic approximation.
+import Pythia.StochasticApproximation.RobbinsSiegmund
+import Pythia.StochasticApproximation.RobbinsMonro
+import Pythia.StochasticApproximation.Dvoretzky

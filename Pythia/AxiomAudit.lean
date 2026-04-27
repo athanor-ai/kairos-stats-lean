@@ -49,6 +49,7 @@ import Pythia.StochasticApproximation.Dvoretzky
 import Pythia.TimeSeries.NeweyWest
 import Pythia.Control.LyapunovODE
 import Pythia.Risk.CoherentMeasures
+import Pythia.HypothesisTest.MultipleTesting
 
 namespace Pythia.AxiomAudit
 
@@ -158,5 +159,10 @@ open Pythia
 #print axioms Pythia.Risk.CoherentMeasures.adehSet_nonempty
 #print axioms Pythia.Risk.CoherentMeasures.adeh_representation
 #print axioms Pythia.Risk.CoherentMeasures.isCoherent_sup_expect
+
+/-! ## Multiple-testing corrections (sorry-cleanup 2026-04-27) -/
+
+-- Bonferroni FWER bound: union bound over m tests at level α/m.
+#print axioms Pythia.HypothesisTest.MultipleTesting.bonferroni_fwer
 
 end Pythia.AxiomAudit

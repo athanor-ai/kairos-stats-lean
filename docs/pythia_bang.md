@@ -26,7 +26,7 @@ when you already know what closes your goal.
 
 | Rung | Tactic                                  | Typical budget | Notes                                            |
 |------|-----------------------------------------|----------------|--------------------------------------------------|
-| 1    | `simp`                                  | < 50ms         | core simp; the dedicated `@[stat_simp]` set lands in ATH-754 |
+| 1    | `stat_simp` then `simp`                 | < 50ms         | ATH-754 `@[stat_simp]` set first, falls through to core simp |
 | 2    | `linarith` / `nlinarith` / `polyrith`   | 50-300ms       | numeric arithmetic; tried in ascending cost order |
 | 3    | `positivity`                            | < 50ms         | non-negativity goals                             |
 | 4    | `aesop` on the `Pythia` ruleset         | 100-500ms      | every `@[stat_lemma]` registered theorem         |

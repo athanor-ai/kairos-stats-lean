@@ -9,8 +9,8 @@ per-rung timing.
 
 ## Ladder
 
-  1. `simp` (core simp; the dedicated `@[stat_simp]` set lands in
-     ATH-754 and slots in here)
+  1. `stat_simp` (the dedicated `@[stat_simp]` simp set from ATH-754)
+     with fall-through to core `simp`
   2. `linarith` / `nlinarith` / `polyrith` (numeric arithmetic)
   3. `positivity` (non-negativity goals)
   4. `aesop` on the registered `Pythia` ruleset
@@ -40,6 +40,7 @@ Lean reconstruction, NOT language models. LLM-augmented closure
 ## ATH-753 — research/ath-753-pythia-bang.
 -/
 import Pythia.Tactic.Pythia
+import Pythia.Tactic.StatSimp
 import Pythia.Tactic.Z3Check
 import Pythia.Tactic.CVC5Check
 import Pythia.Tactic.VampireCheck
@@ -78,7 +79,10 @@ The ladder is deliberately LLM-free per CONTRIBUTING rule 4
 (offline-first, no LLM coupling). LLM-augmented closure lives in the
 kairos-sdk companion (`kairos.lean_cycle.cycle_prove`), not here. -/
 def buildRungs : MetaM (Array Rung) := do
-  let r1 : TSyntax `tactic ← `(tactic| (simp; done))
+  let r1 : TSyntax `tactic ← `(tactic|
+    first
+      | (stat_simp; done)
+      | (simp; done))
   let r2 : TSyntax `tactic ← `(tactic|
     first
       | (linarith; done)
@@ -97,7 +101,7 @@ def buildRungs : MetaM (Array Rung) := do
       | (e_check; done))
   let r9 : TSyntax `tactic ← `(tactic| (disprove; done))
   return #[
-    ⟨"simp",            "core simp closure",                              r1⟩,
+    ⟨"simp",            "@[stat_simp] (ATH-754) + core simp closure",     r1⟩,
     ⟨"linarith_chain",  "linarith / nlinarith / polyrith arithmetic",     r2⟩,
     ⟨"positivity",      "positivity (non-negativity goals)",              r3⟩,
     ⟨"aesop_pythia",    "aesop on the @[stat_lemma] Pythia ruleset",      r4⟩,

@@ -135,3 +135,7 @@ import Pythia.Bio
 -- (Wald, Bonferroni, Holm, BH-FDR).
 import Pythia.HypothesisTest
 import Pythia.BDG
+-- Aristotle batch (2026-04-26): concentration + KL data-processing.
+import Pythia.Bennett
+import Pythia.MeasureTheory.ConditionalJensen
+import Pythia.InfoTheory.DataProcessing

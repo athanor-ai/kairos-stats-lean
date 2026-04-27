@@ -29,3 +29,9 @@ coverage.xml
 # Aristotle queue state — per-developer / per-account project ids,
 # do not commit. See tools/aristotle_queue.py.
 .aristotle/
+
+# Markdown-doctest scratch tempfiles. The harness writes per-block
+# tempfiles here and unlinks them on exit, but a crashed run can
+# leave .lean files behind. Source-controlled scratch namespaces
+# (SwarmDogfood/, SDKFleetDemo/) are NOT covered by this rule.
+Pythia/Scratch/MdDoctest/

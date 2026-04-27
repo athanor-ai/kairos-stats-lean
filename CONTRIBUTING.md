@@ -52,6 +52,7 @@ axiom set. Anything else (a lingering `sorryAx`, a custom `axiom Foo`
 declaration, a `@[implemented_by]` shortcut on theorem-level defs)
 fails the audit. Audit a single theorem with:
 
+<!-- doctest: skip-reason: placeholder name 'Pythia.your_theorem' -->
 ```lean
 #print axioms Pythia.your_theorem
 ```

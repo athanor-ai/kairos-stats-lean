@@ -91,6 +91,7 @@ back to `simp + linarith + measurability`, and ends at the SMT oracles
 (`z3_check`, `cvc5_check`) for residual arithmetic. If anything closes
 the goal, `pythia` reports it.
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 example (n : ℕ) (h : 0 < n) : 0 < n + 1 := by pythia
 example (a b : ℝ) (h₁ : 0 ≤ a) (h₂ : 0 ≤ b) : 0 ≤ a + b := by pythia
@@ -104,6 +105,7 @@ hammer ladder and ask for the verbose form. `pythia?` runs the full
 timing (the `?` suffix follows Lean convention: `apply?`, `rw?`,
 `simp?`):
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 example (a : ℝ) (h : 0 ≤ a) : 0 ≤ a + 1 := by pythia?
 -- Lean reports: pythia? — closed by `linarith_chain`. Ladder timing: ...
@@ -114,6 +116,7 @@ example (a : ℝ) (h : 0 ≤ a) : 0 ≤ a + 1 := by pythia?
 When the goal is the probability of a martingale crossing a
 threshold, reach for `anytime_valid`:
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 example
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
@@ -135,6 +138,7 @@ When the goal is a real-valued inequality without an integral or
 expectation, `stats_ineq` chains `linarith` + `nlinarith` + `bound` +
 `gcongr` + `polyrith` and registered closing-form scalar inequalities:
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 example (x : ℝ) (h : 0 ≤ x) : 0 ≤ x + Real.sqrt x := by stats_ineq
 example (a b c : ℝ) (h_a : 0 < a) (h_b : 0 < b) :
@@ -146,6 +150,7 @@ example (a b c : ℝ) (h_a : 0 < a) (h_b : 0 < b) :
 When the goal needs `ProbabilityMeasure` / `pdf` / `cdf` /
 `withDensity` rewriting (closer to a `simp_rw` than a hammer):
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 example {Ω : Type*} {μ : Measure Ω} [IsProbabilityMeasure μ] :
     μ Set.univ = 1 := by prob_simp
@@ -167,6 +172,7 @@ In your project file, prove your statistical fact as a regular Lean
 theorem. Make sure the proof is closing-form, not a long rewrite chain
 (aesop-tagged lemmas should match a goal head, then conclude):
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 theorem my_concentration_bound
     (X : ℝ) (hX : |X| ≤ 1) :
@@ -179,6 +185,7 @@ theorem my_concentration_bound
 
 Add the attribute right before the `theorem` keyword:
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 @[stat_lemma]
 theorem my_concentration_bound
@@ -195,6 +202,7 @@ aesop ruleset.
 Use `#stat_lemmas` to list every registered theorem in the Pythia
 ruleset:
 
+<!-- doctest: cmd-only -->
 ```lean
 #stat_lemmas
 -- Lean prints a table of all @[stat_lemma]-tagged theorems,
@@ -204,6 +212,7 @@ ruleset:
 Now any goal that head-matches your conclusion will pick up your
 theorem during `pythia` dispatch:
 
+<!-- doctest: skip-reason: tutorial continuation; see L52 block for imports -->
 ```lean
 example (X : ℝ) (hX : |X| ≤ 1) : Real.exp X ≤ 1 + X + X^2 := by pythia
 -- Lean closes via my_concentration_bound from the cascade.

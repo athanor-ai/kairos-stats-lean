@@ -70,6 +70,7 @@ Three steps:
 
 2. Add the theorem under the section heading. Required form:
 
+   <!-- doctest: skip-reason: placeholder template (... and <tactic> are author fill-ins) -->
    ```lean
    /-- §X.Y One-line description naming the source. -/
    theorem name_of_theorem ... : ... := by <tactic>

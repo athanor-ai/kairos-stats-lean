@@ -156,6 +156,8 @@ family.
 ## Verbose mode example
 
 ```lean
+import Pythia
+open Pythia
 example (a b c : ℝ) (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c := by pythia?
 ```
 

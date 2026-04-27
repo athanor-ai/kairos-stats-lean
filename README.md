@@ -10,7 +10,7 @@
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 549 theorem/lemma declarations in `Pythia/`
+- 571 theorem/lemma declarations in `Pythia/`
 - 56 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
@@ -33,9 +33,13 @@ standard automation (`simp`, `linarith`, `aesop`, `bound`,
 applied-mathematics working set. A goal like
 
 ```lean
+import Pythia
+open Pythia MeasureTheory
+
 example
-    {Ω : Type*} {μ : Measure Ω} [IsFiniteMeasure μ]
-    {f : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ _}
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsFiniteMeasure μ]
+    {f : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ mΩ}
     (hsup : Supermartingale f 𝓕 μ) (hnn : ∀ t ω, 0 ≤ f t ω)
     (hint : Integrable (f 0) μ) {c : ℝ} (hc : 0 < c) :
     μ {ω | ∃ t, f t ω ≥ c} ≤ (∫ ω, f 0 ω ∂μ).toNNReal / c.toNNReal := by
@@ -105,6 +109,7 @@ Error messages match Mathlib's tone.
 
 Add to your `lakefile.lean`:
 
+<!-- doctest: lakefile -->
 ```lean
 require pythia from git
   "https://github.com/athanor-ai/pythia.git" @ "main"
@@ -367,6 +372,10 @@ ad-hoc axioms, no `@[implemented_by]` shortcuts on theorem-level
 definitions. Audit each theorem locally with
 
 ```lean
+import Pythia.SubGaussianMG
+import Pythia.HowardRamdasCS
+import Pythia.BettingCS
+
 #print axioms Pythia.ville_supermartingale
 #print axioms Pythia.hrStoppingRule_admissible
 #print axioms Pythia.bettingStoppingRule_admissible
@@ -407,9 +416,26 @@ Same axiom-clean bar applies. Details in
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 All public theorems must axiom-audit clean (`#print axioms` reports only
-`propext`, `Classical.choice`, `Quot.sound`) before merge. Two CI
-checks gate every PR: Lean Build + Axiom Audit and the Pythia
-simulation sweep.
+`propext`, `Classical.choice`, `Quot.sound`) before merge. Five CI
+gates run on every push:
+
+1. **Lean Build**: `lake build` over the full source tree.
+2. **Per-file sweep**: every `Pythia/**/*.lean` re-elaborated with
+   `lake env lean` to catch cache-passing-but-elab-broken files.
+3. **Examples + demo compile**: every `examples/**/*.lean` and
+   `demo/*.lean` file compiles standalone, so customer-facing
+   starter packs cannot silently rot.
+4. **Markdown doctest**: every fenced ` ```lean ` / ` ```lean4 `
+   block in `*.md` files (README, tutorial, cookbook, demo prose)
+   either compiles via `lake env lean` or carries an explicit
+   `<!-- doctest: ... -->` skip marker.
+5. **Axiom audit**: `Pythia/AxiomAudit.lean` `#print axioms`
+   transcript must reduce every audited theorem to
+   `{propext, Classical.choice, Quot.sound}`.
+
+The Pythia simulation sweep (property-based plus parameter-sweep
+plus mutation testing on every cross-domain theorem) runs as a
+separate workflow, gated independently.
 
 ## Acknowledgments
 

@@ -97,6 +97,8 @@ import Pythia.Tactic.Disprove
 import Pythia.Tactic.DisproveTest
 -- Cascade routing regression suite (verifies pythia? rung naming).
 import Pythia.Tactic.CascadeTest
+-- Hammer ladder orchestrator: `pythia!!` / `pythia!?` (ATH-753).
+import Pythia.Tactic.PythiaBang
 -- Per-domain @[*_lemma] taxonomy (actuarial / numerical / bio /
 -- bayes / control). Cross-cutting infra for v0.4+ domain expansion.
 import Pythia.Tactic.DomainRegistry

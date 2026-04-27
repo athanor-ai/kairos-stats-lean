@@ -39,6 +39,7 @@ import Pythia.Quantization
 import Pythia.EquivalenceBreak
 import Pythia.Sharpness
 import Pythia.BenchDefs
+import Pythia.BDG
 
 namespace Pythia.AxiomAudit
 
@@ -99,5 +100,10 @@ open Pythia
 
 #print axioms etaHR_sharpness_witness
 #print axioms etaBetting_sharpness_witness
+
+
+/-! ## Burkholder-Davis-Gundy (Aristotle import 2026-04-26, project ff404663) -/
+
+#print axioms bdg_discrete_l2
 
 end Pythia.AxiomAudit

@@ -10,9 +10,9 @@
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 460 theorem/lemma declarations in `Pythia/`
-- 51 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
-- 28 cross-domain theorems with Lean proof + Python sim runner across 11 domains (biology, chemistry, control, economics, engineering, info_theory, mathlib_tags, mechanical, numerical, or, thermodynamics)
+- 464 theorem/lemma declarations in `Pythia/`
+- 55 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
+- 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
 Auto-tracked from [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py) and the `Pythia/` source tree; regenerate via `python3 tools/refresh_readme_stats.py`.
 <!-- pythia-stats-auto-end -->

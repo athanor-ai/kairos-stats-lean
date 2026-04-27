@@ -289,13 +289,31 @@ def _parse_module(path: Path) -> ast.Module:
 
 def _imports_v1_harness(tree: ast.Module) -> bool:
     """True iff the file does ``from tools.sim.harness import ...``
-    or ``from tools.sim import harness``."""
+    or ``from tools.sim import harness`` (and is NOT a v2 import)."""
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
             mod = node.module or ""
+            # Disambiguate from v2: ``tools.sim.harness.v2`` matches
+            # ``startswith("tools.sim.harness")`` but is the v2 import.
             if mod == "tools.sim.harness":
                 return True
             if mod == "tools.sim" and any(a.name == "harness" for a in node.names):
+                return True
+    return False
+
+
+def _imports_v2_harness(tree: ast.Module) -> bool:
+    """True iff the file imports anything from the v2 harness subpackage.
+
+    Matches ``from tools.sim.harness.v2 import Sim`` and
+    ``from tools.sim.harness.v2.<sub> import ...`` (generators,
+    properties, metamorphic, statistical, targeting, differential,
+    replay).
+    """
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            mod = node.module or ""
+            if mod == "tools.sim.harness.v2" or mod.startswith("tools.sim.harness.v2."):
                 return True
     return False
 
@@ -311,6 +329,34 @@ def _run_harness_calls(tree: ast.Module) -> list[ast.Call]:
             elif isinstance(fn, ast.Attribute) and fn.attr == "run_harness":
                 calls.append(node)
     return calls
+
+
+def _sim_constructions(tree: ast.Module) -> list[ast.Call]:
+    """All call sites that construct a v2 ``Sim(...)`` instance.
+
+    Catches both ``Sim(generator=..., property=...)`` directly and
+    ``module.Sim(...)`` if someone aliases the import.
+    """
+    calls: list[ast.Call] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            fn = node.func
+            if isinstance(fn, ast.Name) and fn.id == "Sim":
+                calls.append(node)
+            elif isinstance(fn, ast.Attribute) and fn.attr == "Sim":
+                calls.append(node)
+    return calls
+
+
+def _sim_has_required_v2_kwargs(call: ast.Call) -> bool:
+    """A v2 ``Sim(...)`` opt-in must pass ``generator=`` and
+    ``property=`` (the two non-defaulted dataclass fields). A bare
+    ``Sim()`` would TypeError at runtime; this catches the case
+    where someone constructs ``Sim(name=..., lean_module=...)``
+    while forgetting the coverage-bearing kwargs.
+    """
+    kw_names = {kw.arg for kw in call.keywords if kw.arg is not None}
+    return "generator" in kw_names and "property" in kw_names
 
 
 def _kw_value(call: ast.Call, name: str) -> ast.expr | None:
@@ -363,6 +409,16 @@ def _resolve_name_to_literal(tree: ast.Module, name: str) -> ast.expr | None:
 def _sim_uses_coverage_primitives(path: Path) -> tuple[bool, str]:
     """Return ``(passed, reason)`` for a single sim file.
 
+    Accepts either contract:
+
+    * **v1 harness pattern** — imports ``tools.sim.harness`` AND
+      calls ``run_harness(...)`` with ``mutations=<non-empty>``.
+    * **v2 Sim pattern** — imports from ``tools.sim.harness.v2`` AND
+      constructs at least one ``Sim(generator=..., property=...)``
+      instance. The v2 harness internally drives PBT + symmetry +
+      replay; v2 sims demonstrate the contract by Sim-construction
+      shape.
+
     ``reason`` is empty on pass; on fail it names the missing primitive
     and points at a fix.
     """
@@ -371,11 +427,43 @@ def _sim_uses_coverage_primitives(path: Path) -> tuple[bool, str]:
     except SyntaxError as exc:
         return False, f"SyntaxError: {exc}"
 
-    if not _imports_v1_harness(tree):
+    has_v1_import = _imports_v1_harness(tree)
+    has_v2_import = _imports_v2_harness(tree)
+
+    if not has_v1_import and not has_v2_import:
         return False, (
-            "no import of tools.sim.harness — sim must use the shared "
-            "harness so PBT + sweep + mutation coverage all run "
-            "through one battle-tested code path."
+            "no import of tools.sim.harness or tools.sim.harness.v2 — "
+            "sim must use one of the shared harnesses so PBT + sweep + "
+            "mutation (v1) or PBT + symmetry + replay (v2) coverage "
+            "runs through one battle-tested code path."
+        )
+
+    # v2 path: a single non-empty Sim construction with the required
+    # kwargs is enough. v2's harness drives PBT + symmetry + replay
+    # internally based on those kwargs.
+    if has_v2_import:
+        sim_calls = _sim_constructions(tree)
+        if sim_calls:
+            for call in sim_calls:
+                if _sim_has_required_v2_kwargs(call):
+                    return True, ""
+            return False, (
+                "tools.sim.harness.v2 imported but no Sim(...) call "
+                "carries both ``generator=`` and ``property=`` "
+                "kwargs. v2 coverage requires at least one Sim "
+                "instance with those two fields populated."
+            )
+        # Imported v2 but never constructed a Sim — fall through to
+        # v1 check; the file might be a helper module rather than a
+        # sim runner.
+
+    # v1 path: must import v1 harness AND call run_harness with
+    # non-empty mutations.
+    if not has_v1_import:
+        return False, (
+            "v2 imports present but no Sim(...) constructed. If this "
+            "is a v2 helper module, exclude it from the manifest. "
+            "Otherwise add the canonical Sim declaration."
         )
 
     calls = _run_harness_calls(tree)
@@ -567,6 +655,82 @@ class TestCoveragePrimitivesHelper:
         ok, reason = _sim_uses_coverage_primitives(f)
         assert not ok
         assert "mutations" in reason
+
+    def test_accepts_v2_sim_with_required_kwargs(self, tmp_path: Path) -> None:
+        """A v2-pattern sim that imports harness.v2 and constructs a
+        Sim(generator=..., property=...) passes the gate without
+        needing the v1 harness.
+
+        This is the path the ATH-791 PoC files follow — they do not
+        import the v1 harness because the v2 contract internally
+        drives PBT + symmetry + replay. The gate must accept the
+        v2 contract or v2 sims will be flagged as orphans the moment
+        ATH-791 lands."""
+        f = tmp_path / "fake_v2_sim.py"
+        f.write_text(
+            "from tools.sim.harness.v2 import Sim\n"
+            "from tools.sim.harness.v2.generators import positive_real\n"
+            "from tools.sim.harness.v2.properties import identity\n"
+            "my_sim = Sim(\n"
+            "    name='fake.v2',\n"
+            "    lean_module='Pythia.Fake',\n"
+            "    generator=positive_real(),\n"
+            "    property=lambda x: True,\n"
+            "    replications=100,\n"
+            ")\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert ok, reason
+
+    def test_rejects_v2_sim_missing_property_kwarg(self, tmp_path: Path) -> None:
+        """A v2 Sim that omits ``property=`` is incomplete coverage."""
+        f = tmp_path / "fake_v2_sim.py"
+        f.write_text(
+            "from tools.sim.harness.v2 import Sim\n"
+            "from tools.sim.harness.v2.generators import positive_real\n"
+            "broken = Sim(\n"
+            "    name='broken.v2',\n"
+            "    lean_module='Pythia.Broken',\n"
+            "    generator=positive_real(),\n"
+            "    replications=100,\n"
+            ")\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "property" in reason
+
+    def test_rejects_v2_sim_missing_generator_kwarg(self, tmp_path: Path) -> None:
+        """Same shape as above for ``generator=`` omission."""
+        f = tmp_path / "fake_v2_sim.py"
+        f.write_text(
+            "from tools.sim.harness.v2 import Sim\n"
+            "broken = Sim(\n"
+            "    name='broken.v2',\n"
+            "    lean_module='Pythia.Broken',\n"
+            "    property=lambda x: True,\n"
+            "    replications=100,\n"
+            ")\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert not ok
+        assert "generator" in reason
+
+    def test_accepts_v2_sim_with_v2_subpackage_import(self, tmp_path: Path) -> None:
+        """Importing from ``tools.sim.harness.v2.generators`` (not just
+        the top-level v2 package) also satisfies the v2 contract."""
+        f = tmp_path / "fake_v2_sim.py"
+        f.write_text(
+            "from tools.sim.harness.v2 import Sim\n"
+            "from tools.sim.harness.v2.metamorphic import homogeneous\n"
+            "my_sim = Sim(\n"
+            "    name='fake.v2',\n"
+            "    lean_module='Pythia.Fake',\n"
+            "    generator=None,\n"  # value irrelevant; we check kwarg presence
+            "    property=lambda x: True,\n"
+            ")\n"
+        )
+        ok, reason = _sim_uses_coverage_primitives(f)
+        assert ok, reason
 
 
 class TestExclusionLogic:

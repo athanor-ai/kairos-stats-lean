@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Pythia contributors
 -/
 import Mathlib
+import Pythia.Tactic.Pythia
 
 /-!
 # Scalar Delta Method
@@ -193,6 +194,7 @@ This is Theorem 3.1 of van der Vaart, *Asymptotic Statistics* (1998),
 originally due to Mann–Wald (1943).  The proof factors the increment through a
 slope function and applies Slutsky's lemma
 (`TendstoInDistribution.continuous_comp_prodMk_of_tendstoInMeasure_const`). -/
+@[stat_lemma]
 theorem delta_method
     {T : ℕ → Ω → ℝ} {Z : Ω → ℝ} {r : ℕ → ℝ} {θ g' : ℝ} {g : ℝ → ℝ}
     (hg : HasDerivAt g g' θ)

@@ -18,6 +18,7 @@ but covers bounded random variables (which are sub-gamma with
 import Mathlib
 import Pythia.Basic
 import Pythia.SubGaussianMG
+import Pythia.Tactic.Pythia
 
 namespace Pythia
 
@@ -61,6 +62,7 @@ martingale with `(ν, c) = (σ², 0)`.  When `c = 0`, the condition
 `c * |λ| < 1` reduces to `0 < 1` (always true), so the MGF bound
 `exp(σ² λ²/2)` must hold for all `λ`.
 -/
+@[stat_lemma]
 theorem SubGaussianMG_to_SubGammaMG
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
     {σ : ℝ} {𝓕 : Filtration ℕ mΩ} {μ : Measure Ω} [IsFiniteMeasure μ]
@@ -79,6 +81,7 @@ theorem SubGaussianMG_to_SubGammaMG
 
 /-- The exponential process `exp(λ M_t) / exp(K t)` where
 `K = ν λ² / (2(1 - cλ))` is a supermartingale under the sub-gamma
+@[stat_lemma]
 MGF bound. -/
 theorem exp_subGamma_supermartingale
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
@@ -190,6 +193,7 @@ Ville's inequality for sub-gamma martingales: crossing probability
 is bounded by `exp(-τ²/(2 ν N + 2 c τ))` (the sub-gamma tail form).
 For bounded increments (sub-gamma with `c = b`), this is sharper than
 Hoeffding for small τ and matches the Bennett-Bernstein bound for
+@[stat_lemma]
 larger τ.
 -/
 theorem subGamma_ville_ineq

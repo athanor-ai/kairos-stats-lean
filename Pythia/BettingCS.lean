@@ -13,6 +13,7 @@ import Pythia.Basic
 import Pythia.StoppingRule
 import Pythia.BettingStrategy
 import Pythia.SubGaussianMG
+import Pythia.Tactic.Pythia
 
 namespace Pythia
 
@@ -54,6 +55,7 @@ Ville's inequality for non-negative supermartingales, infinite horizon:
     Follows from the finite-horizon `ville_supermartingale` by taking the
     supremum over N, using continuity of measure from below.
 -/
+@[stat_lemma]
 lemma ville_supermartingale_infinite
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
     {Y : ℕ → Ω → ℝ} {𝓕 : Filtration ℕ mΩ} {μ : Measure Ω}
@@ -105,6 +107,7 @@ lemma wealthProcess_integral_zero
 
 /-
 Admissibility of the betting rule.
+@[stat_lemma]
 -/
 theorem bettingStoppingRule_admissible
     {Ω : Type*} {mΩ : MeasurableSpace Ω}

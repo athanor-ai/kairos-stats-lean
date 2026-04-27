@@ -353,6 +353,22 @@ Shafer 2023, Chugg-Wang-Ramdas 2024) and to the broader concentration
 inequality + matrix probability lines cited inline. All public theorems
 are axiom-clean against `{propext, Classical.choice, Quot.sound}`.
 
+A subset of the theorems were closed with help from automated proof
+search and large-language-model assistance:
+
+- *Aristotle* (Harmonic) helped close several of the harder
+  measure-theoretic theorems in `Pythia.Bernstein`,
+  `Pythia.MGFBoundedSubGamma`, and `Pythia.MeasureTheory.*`.
+  See [aristotle.harmonic.fun](https://aristotle.harmonic.fun/dashboard/docs/citation)
+  for the canonical citation.
+- *Anthropic Claude* (Opus 4.6 and Sonnet 4.6) drafted proof
+  candidates and reviewed library structure. The Pythia tactic
+  cascade dispatches to model-side drafters via
+  [`kairos.model_client`](https://github.com/athanor-ai/athanor-sdk).
+- *DeepSeek-Prover-V2* (DeepSeek team) contributed candidate proofs
+  via the specialised-prover row of the formal-AVS benchmark companion
+  evaluation. See the [DSPv2-7B model card](https://huggingface.co/deepseek-ai/DeepSeek-Prover-V2-7B).
+
 ## License
 
 Apache-2.0. See `LICENSE`.

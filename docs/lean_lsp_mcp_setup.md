@@ -50,7 +50,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"initialize",
 
 You should see a JSON-RPC response with `serverInfo.name = "Lean LSP"` and
 `serverInfo.version = 1.27.0` or higher. The server prints `Session ending` on
-stderr after the smoke test exits — that's normal.
+stderr after the smoke test exits. That's normal.
 
 ### 4. Configure your client
 
@@ -89,7 +89,7 @@ brew install ripgrep        # macOS
 
 ## Tool catalog (1.27.0)
 
-### Core LSP — used by `pythia` Phase 1
+### Core LSP, used by `pythia` Phase 1
 
 | Tool | What it does |
 |------|--------------|
@@ -98,7 +98,7 @@ brew install ripgrep        # macOS
 | `lean_hover_info(file, line, col)` | Type signature + docs |
 | `lean_completions(file, line, col)` | IDE-style completions |
 
-### Tactic exploration — used by `pythia` Phase 2
+### Tactic exploration, used by `pythia` Phase 2
 
 | Tool | What it does |
 |------|--------------|
@@ -107,11 +107,11 @@ brew install ripgrep        # macOS
 | `lean_code_actions(file, line)` | Resolve `simp?` / `exact?` / `apply?` "Try this" |
 | `lean_verify(name)` | Axiom check + source scan; required at Phase 4 (Review) |
 
-### Search — used by `concentration_search` and Phase 1 oracle
+### Search, used by `concentration_search` and Phase 1 oracle
 
 | Tool | Rate limit (external) | Use |
 |------|----------------------|-----|
-| `lean_local_search(query)` | none | First fallback — search this repo + Mathlib oleans |
+| `lean_local_search(query)` | none | First fallback (search this repo + Mathlib oleans) |
 | `lean_leansearch(query)` | 3 / 30s | Natural-language to Mathlib name |
 | `lean_loogle(pattern)` | 3 / 30s | Type-pattern search (e.g. `\|- _ ≤ exp _`) |
 | `lean_leanfinder(query)` | 10 / 30s | Goal-aware semantic search |
@@ -159,7 +159,7 @@ Pre-warm with `lake build`. Some clients have an MCP startup timeout in the 30-6
 
 ### "no goals" vs `lean_goal` returning nothing
 
-`"no goals"` literally means the proof is complete at that position — that's success, not an error.
+`"no goals"` literally means the proof is complete at that position. That's success, not an error.
 
 ### Search returns `[]` with `isError: false`
 
@@ -167,8 +167,8 @@ That means the search ran but found no results. Try a different query shape (NL 
 
 ## References
 
-- [oOo0oOo/lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) — upstream
-- — this ticket (pythia integration + self-hosting)
-- — pythia.fleet.LeanProver (uses lean-lsp-mcp as substrate)
-- — `pythia` (cycle engine built on top)
-- `cameronfreer/lean4-skills` — the cycle-engine model we adopt
+- [oOo0oOo/lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp): upstream
+- this ticket: pythia integration + self-hosting
+- pythia.fleet.LeanProver: uses lean-lsp-mcp as substrate
+- `pythia`: cycle engine built on top
+- `cameronfreer/lean4-skills`: the cycle-engine model we adopt

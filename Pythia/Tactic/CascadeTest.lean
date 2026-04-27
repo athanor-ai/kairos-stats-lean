@@ -4,7 +4,8 @@ routing.
 
 This file's job: confirm that the `pythia` tactic's dispatch ladder
 closes a representative cross-section of goal shapes AND that the
-verbose companion `pythia?` reports which rung actually fired. The
+verbose companion `pythia?` (the `pythia!` ladder verbose; ATH-756)
+reports which rung actually fired across the full 9-rung ladder. The
 test contract is "first rung in the ladder that succeeds wins,"
 which is the documented `pythia` semantics. The verbose output is
 the regression check: if a rung is reordered or broken, the printed
@@ -43,6 +44,7 @@ Phase B+. Companion to `Pythia/Tactic/Pythia.lean` (cascade owner)
 and `docs/sledgehammer_dispatch.md` (rung table).
 -/
 import Pythia.Tactic.Pythia
+import Pythia.Tactic.PythiaBang
 import Pythia.Tactic.AnytimeValidRegistry
 
 namespace Pythia.CascadeTest

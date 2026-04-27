@@ -80,24 +80,28 @@ submodule. Mathlib is pulled transitively at the same revision; do not
 bump independently. The toolchain is pinned to Lean 4.28.0 + Mathlib
 v4.28.0.
 
-## Bring-your-own LLM (for the natural-language → proof flow)
+## Natural-language interface (via Claude + Athanor SDK)
 
 This repository is the Lean library: theorems, tactics, and oracle
-adapters. The natural-language autoformalization layer (English → Lean
-statement, then dispatch to `pythia` and friends, then the
-natural-language summary) ships separately in our SDK and uses your
-own LLM API key. We never hold a customer LLM key.
+adapters, all Apache-2.0. The natural-language flow on top of it
+(English requirement → Lean statement → tactic dispatch → English
+summary) lives in the **Athanor SDK** companion, which you call from
+Claude. Two entry points:
 
-The SDK reads one of: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
-`GEMINI_API_KEY` from your environment.
+- **Claude Code with the SDK**:
+  [`athanor-ai/athanor-sdk`](https://github.com/athanor-ai/athanor-sdk)
+  exposes a `simple_prove(...)` API plus the multi-agent orchestrator
+  that pulls in the right pythia tactics for each goal. You bring
+  your own Claude API key; the SDK never holds it.
+- **Claude MCP**: any MCP-capable client (Claude desktop, Claude
+  Code) can attach to pythia via
+  [`oOo0oOo/lean-lsp-mcp`](https://github.com/oOo0oOo/lean-lsp-mcp)
+  for goal-state queries and tactic search.
 
-**Recommended model: Claude Opus 4.6 or Claude Opus 4.7.** The
-autoformalization step benefits substantially from a strong reasoning
-model. Opus has the highest closure rate on our internal calibration
-set for the natural-language → Lean → tactic-dispatch path. Other
-models work; Opus is the default we recommend.
+**Recommended model: Claude Opus 4.6 or 4.7.** The autoformalization
+step benefits substantially from a strong reasoning model.
 
-Oracles wired on the pythia LEAN side today: Z3 (QF_LRA), CVC5
+Oracles wired on the pythia Lean side today: Z3 (QF_LRA), CVC5
 (QF_BV + QF_LRA backup), Vampire (FOL), E (FOL backup). All
 open-source, all run locally, all kernel-clean: every verdict is
 reconstructed into a Lean tactic script the kernel checks against
@@ -108,9 +112,7 @@ Phase 6 reflective adapters (EBMC for hardware assertions, CBMC for
 software invariants, Dafny for Hoare triples) are design-only at
 this point. See [`docs/reflective_oracles.md`](docs/reflective_oracles.md)
 for the kernel-clean restriction (each requires a per-language
-reflective decision procedure to land first). The companion SDK
-ships separate Python adapters for those provers; the in-Lean
-tactic is the gap.
+reflective decision procedure to land first).
 
 ## Hello, pythia
 

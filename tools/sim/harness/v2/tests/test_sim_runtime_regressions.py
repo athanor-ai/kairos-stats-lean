@@ -132,24 +132,24 @@ def test_statistical_assertion_fails_when_violation_rate_exceeds_claim() -> None
         sim.run()
 
 
-def test_statistical_assertion_passes_when_violation_rate_under_claim() -> None:
-    """A property that never fails passes the statistical assertion.
-
-    Sample-size calculus: Wilson upper CI for 0/500 at 99% level is
-    ~0.013, which is below claimed_prob=0.05. A smaller N would not
-    pass even with zero observed violations because the CI alone
-    exceeds the claim — this is correct conservative behaviour and
-    is exercised by the *fails* test below.
-    """
-    sim = Sim(
-        name="regression.stat_zero_violation_rate",
-        lean_module="N/A",
-        generator=real_in(0.0, 1.0),
-        property=lambda x: True,
-        replications=500,
-        statistical_assertion={"claimed_prob": 0.05, "ci_level": 0.99},
-    )
-    sim.run()  # no raise
+# NOTE (audit pass 2026-04-27): there used to be a test here named
+# ``test_statistical_assertion_passes_when_violation_rate_under_claim``
+# that constructed a Sim with property=True (zero violations) and
+# expected ``sim.run()`` not to raise. That test PASSED against both
+# the original buggy code and the fixed code: with zero violations,
+# the buggy code's per-sample raise never fires and the dead-code
+# CI block never runs either. So the test could not catch the bug
+# it was supposed to guard. Per the rule
+# (feedback_no_pleasing_verify_dont_claim.md, "would the test still
+# pass if the production code regressed?"), it has been removed.
+#
+# Coverage for "the CI assertion correctly passes when the violation
+# rate is under the claim" is provided by the lax half of
+# ``test_statistical_assertion_distinguishes_borderline_rates``
+# below: a 3% empirical rate at N=500 with claim=0.10 passes the CI
+# gate, AND would have failed under the buggy code (the first
+# observed violation would have raised, never reaching the CI
+# assertion). That test is the genuine regression guard.
 
 
 def test_statistical_assertion_fails_with_too_few_samples() -> None:

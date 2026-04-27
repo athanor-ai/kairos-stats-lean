@@ -15,19 +15,19 @@ This emits `#print axioms` output for each audited theorem. CI grep
 asserts that no line names anything outside the trusted triple
 `{propext, Classical.choice, Quot.sound}`.
 
-Note on coverage. The library currently declares two separate
-`Pythia.ville_supermartingale` symbols — one in
-`SubGaussianMG.lean` (finite-horizon supermartingale form, the active
-form used by `BettingCS` etc.) and one in `VilleSupermartingale.lean`
-(infinite-horizon corollary). Lean refuses to load both modules into
-the same environment because the fully-qualified names collide, so
-this audit covers the `SubGaussianMG`-rooted form which is the one
-actually invoked downstream. The two corollaries
-`ville_supermartingale_unit_initial` and `ville_bound_pos` live in
-`VilleSupermartingale.lean` and cannot be co-audited from this file
-without resolving the name collision upstream — they are NOT covered
-here. Recommend renaming the orphan declarations as a follow-up
-chore.
+Coverage is complete. A name collision previously existed between two
+`Pythia.ville_supermartingale` symbols: the finite-horizon form in
+`SubGaussianMG.lean` and the infinite-horizon form in
+`VilleSupermartingale.lean`. This was resolved (ATH-781) by renaming
+the `SubGaussianMG.lean` declaration to `ville_supermartingale_finite`,
+making `ville_supermartingale` unique and referring exclusively to the
+infinite-horizon form in `VilleSupermartingale`. Both modules are now
+co-imported without collision, and all four Ville-family declarations
+— `ville_supermartingale`, `ville_supermartingale_unit_initial`,
+`ville_bound_pos`, and `ville_supermartingale_finite` — are audited
+below. The AI4MATH 2026 paper claim "every public theorem is
+axiom-clean against the standard kernel set" is now fully enforced
+for the entire `VilleSupermartingale` public surface.
 -/
 import Pythia.SubGaussianMG
 import Pythia.VilleSupermartingale

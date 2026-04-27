@@ -230,6 +230,26 @@ Quantization variants:
 - `Pythia.EquivalenceBreak`: finite-precision equivalence-breaking between self-normalized and betting CS.
 - `Pythia.ElegantUnification`: three structural unifications across families.
 
+Applied-math domain coverage (scaffolds + Aristotle-driven closures):
+
+- `Pythia.Actuarial`: Pareto / Weibull / log-normal loss distributions (moment + tail formulas) plus the in-flight Cramér-Lundberg / Sparre Andersen / Lundberg / Cox proportional-hazards / Bornhuetter-Ferguson Aristotle queue.
+- `Pythia.Numerical`: Picard-Lindelöf ODE existence + uniqueness + continuous dependence; Lyapunov stability + asymptotic stability + LaSalle invariance; Kahan compensated summation backward-error; KKT first-order conditions (necessary + sufficient under convexity).
+- `Pythia.Bio`: chemical-reaction-network ODE wellposedness + nonneg-orthant invariance + mass conservation + detailed-balance equilibrium; phylogenetic likelihood + Jukes-Cantor substitution model.
+- `Pythia.HypothesisTest`: Wald-test alpha-bound; Bonferroni / Holm / Benjamini-Hochberg multiple-testing corrections (FWER + FDR control).
+
+Beyond-proof tools:
+
+- `Pythia.Tactic.TightTail`: tail-bound calculator. `#eval TightTail.report (σ := 0.3) (b := 1) (n := 1000) (ε := 0.05)` evaluates Hoeffding / Bernstein / sub-Gaussian / sub-gamma / Markov / Chebyshev numerically, picks the sharpest. Lean has no equivalent.
+- `Pythia.Tactic.DomainCalculator`: typeclass for per-domain calculators. TightTail is the first instance; v0.5+ adds Numerical / Bayesian / Bio calculators following the same recipe.
+- `Pythia.Tactic.Disprove`: counterexample finder via Z3 sat verdict + model extraction. `disprove (minimize := |x|+|y|)` returns the smallest violating assignment via Z3 Optimize. Lean has no built-in counterexample finder.
+
+LLM-defense layer (engine side; kairos owns the dashboard composite):
+
+- `Pythia.Tactic.ValidateInvokedLemmas` (Guard B): catches LLM-hallucinated lemma names.
+- `Pythia.Tactic.MinimizeHypotheses` (Guard C): flags unused hypothesis binders.
+- `Pythia.Tactic.FlagConcreteConstants` (Guard H): flags hard-coded numerical literals in theorem statements.
+- See [`docs/llm_defense.md`](docs/llm_defense.md) for the 8-failure-mode framework + engine-vs-dashboard split.
+
 ## Examples
 
 ### Ville's inequality on a non-negative supermartingale

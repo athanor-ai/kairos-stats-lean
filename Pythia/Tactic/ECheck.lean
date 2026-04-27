@@ -91,10 +91,13 @@ def runE (tptp : String) : IO Verdict := do
   let result ← try
     IO.Process.output {
       cmd := "eprover"
+      -- 3s soft cap (tightened from 10s in ATH-761). E auto-schedule
+      -- usually closes in <1s when the goal is in its wheelhouse;
+      -- past 3s is mostly timeout pollution.
       args := #[
         "--auto-schedule",
         "--tptp3-format",
-        "--soft-cpu-limit=10",
+        "--soft-cpu-limit=3",
         tmpFile
       ]
     }

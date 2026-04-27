@@ -246,7 +246,9 @@ def runZ3 (smt : String) : IO Verdict := do
   let result ← try
     IO.Process.output {
       cmd := "z3"
-      args := #["-smt2", "-T:5", tmpFile]
+      -- 2s soft cap (tightened from 5s in ATH-761). Z3 closes most
+      -- QF_LRA goals in <100ms; the long tail past 2s rarely yields.
+      args := #["-smt2", "-T:2", tmpFile]
     }
   catch e =>
     return .error s!"failed to invoke z3: {e}"

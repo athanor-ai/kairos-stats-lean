@@ -294,7 +294,10 @@ def runCvc5 (smt : String) : IO Pythia.Z3Check.Verdict := do
   let result ← try
     IO.Process.output {
       cmd := "cvc5"
-      args := #["--tlimit", "5000", "--produce-models", tmpFile]
+      -- 2s soft cap (tightened from 5s in ATH-761). CVC5 closes
+      -- QF_BV / QF_LRA goals in <200ms typically; longer is mostly
+      -- timeout pollution.
+      args := #["--tlimit", "2000", "--produce-models", tmpFile]
     }
   catch e =>
     return .error s!"failed to invoke cvc5: {e}"

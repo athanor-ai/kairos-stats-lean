@@ -124,7 +124,10 @@ def runVampire (tptp : String) : IO Verdict := do
   let result ← try
     IO.Process.output {
       cmd := "vampire"
-      args := #["--mode", "casc", "--time_limit", "10", tmpFile]
+      -- 3s soft cap (tightened from 10s in ATH-761). Vampire CASC
+      -- mode finds most FOL closures in <1s; the long tail past 3s
+      -- usually times out anyway.
+      args := #["--mode", "casc", "--time_limit", "3", tmpFile]
     }
   catch e =>
     return .error s!"failed to invoke vampire: {e}"

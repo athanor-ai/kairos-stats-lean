@@ -131,3 +131,4 @@ import Pythia.Bio
 -- ATH-718 Layer 1: hypothesis testing + multiple-testing corrections
 -- (Wald, Bonferroni, Holm, BH-FDR).
 import Pythia.HypothesisTest
+import Pythia.BDG

@@ -1,18 +1,22 @@
-# Lean for Statisticians: a pythia tutorial
+# Lean for Applied Mathematicians: a pythia tutorial
 
-This is the on-ramp for working statisticians who have never used Lean 4
-before. Three sections, each one self-contained:
+This is the on-ramp for working applied mathematicians who have
+never used Lean 4 before. Three sections, each one self-contained:
 
-1. *Hello, pythia*: install Lean + Mathlib + pythia, close one Ville
-   bound. Five minutes from zero.
-2. *The four hammer tactics*: when to use `pythia` vs `anytime_valid`
-   vs `stats_ineq` vs `prob_simp`. Lift-by-example.
-3. *Adding your own theorem*: tag with `@[stat_lemma]`, prove it,
-   verify it joins the cascade.
+1. *Hello, pythia!*: install Lean + Mathlib + pythia, close one
+   AM-GM goal in a single `pythia!` call. Five minutes from zero.
+2. *The hammer ladder*: when `pythia!` works, when to reach for the
+   per-rung tactics directly, and how to debug a missed closure.
+3. *Adding your own theorem*: tag with `@[stat_lemma]` (or
+   `@[stat_simp]`, `@[stats_ineq]`, `@[prob_simp]`,
+   `@[anytime_valid_lemma]`), prove it, verify it joins the
+   cascade.
 
-The bar is a competent statistician with no Lean experience can follow
-this in an afternoon and close their first Ville bound. If you get
-stuck, open an issue on
+The bar: a competent applied mathematician with no Lean experience
+can follow this and close their first proof. Per-domain starter
+packs live at [`examples/<domain>/`](../examples/): biology,
+economics, control theory, optimal transport, quantum information.
+If you get stuck, open an issue on
 [github.com/athanor-ai/pythia](https://github.com/athanor-ai/pythia).
 
 ## 1. Hello, pythia
@@ -77,11 +81,13 @@ Lean prints nothing on success. That's it: you just proved Ville's
 inequality for non-negative supermartingales in one tactic. Next: how
 to pick the right tactic.
 
-## 2. The four hammer tactics
+## 2. The hammer ladder
 
 Pythia ships ten tactics in total (see `docs/sledgehammer_dispatch.md`
-for the full ladder), but four cover the typical statistician's
-day-to-day:
+for the full ladder). For most goals you only need one tactic,
+`pythia!`, which orchestrates the rest. The four tactics below are
+the direct-invocation versions when you know the goal shape and
+want to skip the orchestrator overhead.
 
 ### 2.1 `pythia`: the default closer
 

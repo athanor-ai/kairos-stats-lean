@@ -10,8 +10,8 @@
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 545 theorem/lemma declarations in `Pythia/`
-- 55 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
+- 549 theorem/lemma declarations in `Pythia/`
+- 56 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
 Auto-tracked from [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py) and the `Pythia/` source tree; regenerate via `python3 tools/refresh_readme_stats.py`.
@@ -46,11 +46,13 @@ closes in one line.
 
 ## What it does
 
-- Ten tactics covering general stats hammering, inequality closure,
-  probability normalization, anytime-valid Ville bounds, SMT-oracle
-  dispatch (QF_LRA via Z3, QF_BV via CVC5), first-order-logic
-  closure (Vampire, E), counterexample finding (`disprove`), and a
-  rung-naming verbose orchestrator (`pythia?`).
+- Eleven tactics covering general stats hammering, inequality
+  closure, probability normalization, anytime-valid Ville bounds,
+  SMT-oracle dispatch (QF_LRA via Z3, QF_BV via CVC5), first-order-
+  logic closure (Vampire, E), counterexample finding (`disprove`), a
+  rung-naming verbose orchestrator (`pythia?`), and the headline
+  `pythia!!` hammer ladder (ATH-753) that walks the full closer
+  surface in priority order with per-rung timing in `pythia!?`.
 - A registry layer: tag your own theorem with `@[stat_lemma]` /
   `@[stats_ineq]` / `@[prob_simp]` and the hammers pick it up at
   elaboration time. The same shape as `@[simp]`, `@[gcongr]`,
@@ -171,10 +173,11 @@ and [`examples/`](examples/) for copy-paste-ready files.
 
 ## Tactics
 
-Ten registered tactics ship in the public surface:
+Eleven registered tactics ship in the public surface:
 
 | Tactic | Closes |
 |--------|--------|
+| `pythia!!` | hammer ladder orchestrator: walks a 9-rung ladder (simp → linarith chain → positivity → aesop[Pythia] → pythia → z3_check → cvc5_check → vampire_check/e_check → disprove) with per-rung budget; first to close wins. `pythia!?` reports the closing rung plus per-rung timing. LLM-free per CONTRIBUTING rule 4; LLM-augmented closure lives in the kairos-sdk companion. Headline orchestrator (ATH-753) |
 | `pythia` | shape-dispatching orchestrator: routes to `anytime_valid` / `stats_ineq` / `prob_simp` / `z3_check` / `cvc5_check` / `vampire_check` / `e_check` by goal shape, then falls through to the `@[stat_lemma]` aesop ruleset and the standard Mathlib chain |
 | `vampire_check` | first-order-logic goals via Vampire ATP + Lean `aesop` reconstruction |
 | `e_check` | first-order-logic goals via E theorem prover + Lean `aesop` reconstruction (Vampire backup) |

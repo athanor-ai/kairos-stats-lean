@@ -44,16 +44,35 @@ def _import_manifest():
     return MANIFEST, domains()
 
 
-_DECL_RE = __import__("re").compile(r"^(?:theorem|lemma)\s+", __import__("re").MULTILINE)
-_STAT_LEMMA_RE = __import__("re").compile(
-    r"^@\[stat_lemma\]", __import__("re").MULTILINE
-)
+# Line-based AST-style parser for Lean declarations and attribute
+# tags. Earlier versions used regex on the source, which (a) skipped
+# `private theorem` / `noncomputable theorem` / `protected theorem`
+# variants entirely, undercounting by ~30, and (b) couldn't see the
+# `attribute [stat_lemma] X Y Z` retag form that registers external
+# (Mathlib) lemmas into the cascade. The line walker handles both.
+
+_DECL_KEYWORDS = ("theorem", "lemma")
+_DECL_MODIFIERS = {"private", "protected", "noncomputable", "partial", "unsafe"}
+
+
+def _is_decl_line(line: str, keywords: tuple[str, ...] = _DECL_KEYWORDS) -> bool:
+    """True iff `line` opens a top-level declaration with a keyword
+    in `keywords`, possibly preceded by Lean visibility/computability
+    modifiers (`private`, `noncomputable`, etc.)."""
+    tokens = line.split()
+    if not tokens:
+        return False
+    i = 0
+    while i < len(tokens) and tokens[i] in _DECL_MODIFIERS:
+        i += 1
+    return i < len(tokens) and tokens[i] in keywords
 
 
 def count_pythia_decls(repo_root: Path = REPO_ROOT) -> int:
-    """Count `^theorem ` + `^lemma ` declarations across Pythia/,
-    excluding Pythia/Scratch/. The total surface size — every
-    statement claimed in the library, sorry-bearing or not."""
+    """Count `theorem ` + `lemma ` declarations (with or without
+    visibility modifier prefixes) across Pythia/, excluding
+    Pythia/Scratch/. Total surface — every statement claimed in the
+    library, sorry-bearing or not."""
     pythia_dir = repo_root / "Pythia"
     if not pythia_dir.is_dir():
         return 0
@@ -61,13 +80,28 @@ def count_pythia_decls(repo_root: Path = REPO_ROOT) -> int:
     for p in pythia_dir.rglob("*.lean"):
         if "Scratch" in p.parts:
             continue
-        total += len(_DECL_RE.findall(p.read_text()))
+        for raw_line in p.read_text(errors="replace").splitlines():
+            # Top-level only: indent breaks the count. Lean 4 puts
+            # every declaration flush-left even inside namespace blocks.
+            if raw_line.startswith((" ", "\t")):
+                continue
+            if _is_decl_line(raw_line):
+                total += 1
     return total
 
 
 def count_stat_lemmas(repo_root: Path = REPO_ROOT) -> int:
-    """Count `@[stat_lemma]` attribute uses across Pythia/. The size
-    of the cascade: what `pythia` tactic dispatches to."""
+    """Count `@[stat_lemma]` decorations + `attribute [stat_lemma] X`
+    retag entries across Pythia/. The size of the cascade — what
+    `pythia` tactic actually dispatches to.
+
+    Walking the source line-by-line:
+      * `@[stat_lemma]` (or `@[stat_lemma, ...]`) on its own line
+        decorates the next declaration → 1 hit.
+      * `attribute [stat_lemma]` opens a multi-line block of
+        identifier names; each indented non-comment line inside the
+        block is one retag → +1 per line.
+    """
     pythia_dir = repo_root / "Pythia"
     if not pythia_dir.is_dir():
         return 0
@@ -75,7 +109,32 @@ def count_stat_lemmas(repo_root: Path = REPO_ROOT) -> int:
     for p in pythia_dir.rglob("*.lean"):
         if "Scratch" in p.parts:
             continue
-        total += len(_STAT_LEMMA_RE.findall(p.read_text()))
+        in_attr_block = False
+        for raw_line in p.read_text(errors="replace").splitlines():
+            stripped = raw_line.strip()
+            # Decoration form: @[stat_lemma] or @[stat_lemma, simp] etc.
+            if stripped.startswith("@[") and "]" in stripped:
+                inner = stripped[stripped.find("[") + 1: stripped.rfind("]")]
+                attrs = [a.strip().split(" ")[0].split("(")[0]
+                         for a in inner.split(",")]
+                if "stat_lemma" in attrs:
+                    total += 1
+                continue
+            # Retag block: `attribute [stat_lemma]` followed by
+            # indented identifiers until a top-level (non-indented)
+            # line resumes.
+            if not in_attr_block:
+                if stripped.startswith("attribute [stat_lemma]"):
+                    in_attr_block = True
+                continue
+            # Inside the retag block.
+            if not raw_line.startswith((" ", "\t")):
+                in_attr_block = False
+                continue
+            if not stripped or stripped.startswith("--"):
+                continue
+            # An identifier on its own line counts as one retag.
+            total += 1
     return total
 
 

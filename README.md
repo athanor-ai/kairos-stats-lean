@@ -10,7 +10,7 @@
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 549 theorem/lemma declarations in `Pythia/`
+- 571 theorem/lemma declarations in `Pythia/`
 - 56 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
@@ -416,9 +416,26 @@ Same axiom-clean bar applies. Details in
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 All public theorems must axiom-audit clean (`#print axioms` reports only
-`propext`, `Classical.choice`, `Quot.sound`) before merge. Two CI
-checks gate every PR: Lean Build + Axiom Audit and the Pythia
-simulation sweep.
+`propext`, `Classical.choice`, `Quot.sound`) before merge. Five CI
+gates run on every push:
+
+1. **Lean Build** — `lake build` over the full source tree.
+2. **Per-file sweep** — every `Pythia/**/*.lean` re-elaborated with
+   `lake env lean` to catch cache-passing-but-elab-broken files.
+3. **Examples + demo compile** — every `examples/**/*.lean` and
+   `demo/*.lean` file compiles standalone, so customer-facing
+   starter packs cannot silently rot.
+4. **Markdown doctest** — every fenced ` ```lean ` / ` ```lean4 `
+   block in `*.md` files (README, tutorial, cookbook, demo prose)
+   either compiles via `lake env lean` or carries an explicit
+   `<!-- doctest: ... -->` skip marker.
+5. **Axiom audit** — `Pythia/AxiomAudit.lean` `#print axioms`
+   transcript must reduce every audited theorem to
+   `{propext, Classical.choice, Quot.sound}`.
+
+The Pythia simulation sweep (property-based + parameter-sweep +
+mutation testing on every cross-domain theorem) runs as a separate
+workflow, gated independently.
 
 ## Acknowledgments
 

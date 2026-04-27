@@ -211,6 +211,16 @@ Same as theorems, plus:
     bar is "a new user can lift this snippet into their project and
     it works."
 
+### Mutation testing
+
+The Python tooling under `tools/` ships with a mutation-test
+sweep (`mutmut`) on top of the 60% line-coverage gate, to verify
+that tests actually catch bugs and not just cover lines. CI runs
+the sweep on every PR and on manual dispatch with a 75% kill-rate
+floor; it is advisory, not in `required_status_checks`. See
+[`docs/mutation-tests.md`](docs/mutation-tests.md) for how to run
+locally and how to handle surviving equivalent mutants.
+
 ## Reading list
 
 - [`docs/lean_lsp_mcp_setup.md`](docs/lean_lsp_mcp_setup.md): sub-second LSP feedback for serious users.

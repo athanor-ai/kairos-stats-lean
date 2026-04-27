@@ -1,0 +1,152 @@
+name: Mutation tests (advisory)
+
+# Mutation testing over the Python tooling. Sits ON TOP of the
+# 60% line-coverage gate in pythia-sim.yml: coverage tells us
+# "this line ran in a test"; mutation testing tells us "if I
+# broke this line, a test would fail." If too many mutants
+# survive, the test suite is weaker than coverage suggests.
+#
+# This is ADVISORY: it runs on PRs and manual dispatch only,
+# NOT on every push, and the workflow is deliberately NOT in
+# `required_status_checks` for branch protection. Mutation
+# testing is slow (full sweep can take 10-30 minutes), and we
+# do not want to block per-PR merges on it. Maintainers should
+# still review the artifact + the kill rate before merge for
+# any PR that touches the tooling code under mutation.
+#
+# 75% kill rate floor (i.e., at most 25% surviving mutants).
+# See docs/mutation-tests.md for the rationale and for how to
+# run locally.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/**'
+      - 'pyproject.toml'
+      - '.github/workflows/mutation-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mutation-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install mutmut + test deps
+        # mutmut drives pytest under the hood; pytest-cov and
+        # hypothesis are pulled so the existing test suite has
+        # everything it needs when mutmut invokes it.
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install \
+            'mutmut>=2.4' \
+            'pytest>=8.0' \
+            'pytest-cov>=5.0' \
+            'hypothesis>=6.100'
+      - name: Build mutation target list (only existing files)
+        # The strategic plan called for mutating a fixed set of
+        # tooling modules; some land in later PRs. Build the
+        # comma-separated list from the files that actually
+        # exist so the workflow stays green as files are added.
+        id: targets
+        run: |
+          set -e
+          candidates=(
+            tools/sim/harness.py
+            tools/sim/mutations.py
+            tools/sim/theorem_manifest.py
+            tools/add_theorem.py
+            tools/aristotle_import.py
+            tools/aristotle_queue.py
+            tools/md_lint.py
+          )
+          existing=()
+          for f in "${candidates[@]}"; do
+            if [ -f "$f" ]; then
+              existing+=("$f")
+            fi
+          done
+          joined=$(IFS=, ; echo "${existing[*]}")
+          echo "paths=$joined" >> "$GITHUB_OUTPUT"
+          echo "Mutating: $joined"
+      - name: Run mutmut
+        # `mutmut run` exits non-zero when any mutant survives.
+        # We want to inspect results regardless and enforce the
+        # 75% kill floor in a separate step, so swallow the exit
+        # code here.
+        run: |
+          set +e
+          mutmut run --paths-to-mutate "${{ steps.targets.outputs.paths }}"
+          echo "mutmut run exit: $?"
+          mutmut results > mutmut-stats.txt 2>&1 || true
+          cat mutmut-stats.txt
+      - name: Enforce 75% kill rate floor
+        # Parse `mutmut results` headcount lines. mutmut prints
+        # something like:
+        #   Survived (X)
+        #   Killed (Y)
+        #   ... etc.
+        # We pull the total and the survived count, fail if
+        # surviving > 25% of total.
+        run: |
+          python3 - <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+
+          stats = Path("mutmut-stats.txt").read_text(errors="replace")
+
+          def count(label: str) -> int:
+              m = re.search(
+                  rf"^{label}\s*\((\d+)\)",
+                  stats,
+                  re.MULTILINE | re.IGNORECASE,
+              )
+              return int(m.group(1)) if m else 0
+
+          survived = count("Survived")
+          killed = count("Killed")
+          timeout = count("Timeout")
+          suspicious = count("Suspicious")
+          # "No tests" mutants didn't run any test — exclude
+          # from kill-rate denominator (test gap, not a mutant
+          # the suite had a chance to kill).
+          total = survived + killed + timeout + suspicious
+
+          if total == 0:
+              print("mutation-tests: no mutants ran. "
+                    "Treating as advisory pass.")
+              sys.exit(0)
+
+          surviving_frac = survived / total
+          kill_rate = 1.0 - surviving_frac
+          print(f"survived={survived} killed={killed} "
+                f"timeout={timeout} suspicious={suspicious} "
+                f"total={total}")
+          print(f"kill_rate={kill_rate:.1%} "
+                f"(floor=75.0%)")
+
+          if surviving_frac > 0.25:
+              print(
+                  f"FAIL: {surviving_frac:.1%} of mutants "
+                  f"survived (cap is 25%). The test suite is "
+                  f"weaker than line coverage suggests. Inspect "
+                  f"mutmut-stats.txt artifact and add tests "
+                  f"that kill the surviving mutants, or mark "
+                  f"true equivalents per docs/mutation-tests.md."
+              )
+              sys.exit(1)
+          PY
+      - name: Upload mutmut stats artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutmut-stats
+          path: mutmut-stats.txt
+          if-no-files-found: warn

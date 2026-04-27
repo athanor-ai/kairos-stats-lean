@@ -30,9 +30,13 @@ jobs:
           python-version: '3.11'
       - name: Lint all tracked .md files
         run: |
+          # Skip .github/ since issue + PR templates use YAML
+          # frontmatter (literal `---` delimiters) that the
+          # no_dashes rule misreads as triple-hyphen prose.
+          # GitHub requires the frontmatter for templates to work.
           set -e
           fail=0
           while IFS= read -r f; do
             python3 tools/md_lint.py "$f" --format github || fail=1
-          done < <(git ls-files '*.md')
+          done < <(git ls-files '*.md' | grep -v '^\.github/')
           exit $fail

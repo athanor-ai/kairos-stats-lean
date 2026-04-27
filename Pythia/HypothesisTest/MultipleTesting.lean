@@ -37,9 +37,23 @@ theorem bonferroni_fwer
     (h_individual : ∀ i, μ (reject i) ≤ ENNReal.ofReal (α / m)) :
     -- FWER = P(at least one false rejection) ≤ α
     μ (⋃ i : Fin m, reject i) ≤ ENNReal.ofReal α := by
-  -- Union bound: μ(⋃ A_i) ≤ Σ μ(A_i) ≤ Σ (α/m) = α.
-  -- Aristotle queue item 44 will close this rigorously; the proof is short.
-  sorry  -- Easy close: this is a Sonnet-shape proof.
+  -- Step 1: union bound across the finite family.
+  have h_union : μ (⋃ i : Fin m, reject i) ≤ ∑ i, μ (reject i) :=
+    measure_iUnion_fintype_le μ reject
+  -- Step 2: bound each summand by α/m using the per-test hypothesis.
+  have h_bound : (∑ i : Fin m, μ (reject i)) ≤
+      ∑ _i : Fin m, ENNReal.ofReal (α / m) :=
+    Finset.sum_le_sum (fun i _ => h_individual i)
+  -- Step 3: simplify the constant sum to ENNReal.ofReal α.
+  have hm_pos : (0 : ℝ) < m := by exact_mod_cast hm
+  have h_simp : (∑ _i : Fin m, ENNReal.ofReal (α / m)) = ENNReal.ofReal α := by
+    rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    rw [show ((m : ENNReal)) = ENNReal.ofReal (m : ℝ) from
+        (ENNReal.ofReal_natCast m).symm]
+    rw [← ENNReal.ofReal_mul (Nat.cast_nonneg m)]
+    congr 1
+    field_simp
+  exact h_union.trans (h_bound.trans h_simp.le)
 
 /-- Holm-Bonferroni step-down: same FWER guarantee as Bonferroni, but
 strictly more powerful (rejects at least as many hypotheses).

@@ -49,6 +49,8 @@ import Pythia.StochasticApproximation.Dvoretzky
 import Pythia.TimeSeries.NeweyWest
 import Pythia.Control.LyapunovODE
 import Pythia.Risk.CoherentMeasures
+import Pythia.HypothesisTest.MultipleTesting
+import Pythia.Numerical.Lyapunov
 
 namespace Pythia.AxiomAudit
 
@@ -158,5 +160,18 @@ open Pythia
 #print axioms Pythia.Risk.CoherentMeasures.adehSet_nonempty
 #print axioms Pythia.Risk.CoherentMeasures.adeh_representation
 #print axioms Pythia.Risk.CoherentMeasures.isCoherent_sup_expect
+
+/-! ## Multiple-testing corrections (sorry-cleanup 2026-04-27) -/
+
+-- Bonferroni FWER bound: union bound over m tests at level α/m.
+#print axioms Pythia.HypothesisTest.MultipleTesting.bonferroni_fwer
+
+/-! ## Lyapunov stability (sorry-cleanup 2026-04-27 — paper §3.5) -/
+
+-- Scalar Lyapunov stability theorem (Khalil Thm 4.1, first half):
+-- continuous-positive-definite V with non-positive Lie-derivative
+-- gives ε-δ stability of the equilibrium. Closed by hand via IVT +
+-- monotonicity of V along trajectories.
+#print axioms Pythia.Numerical.Lyapunov.lyapunov_stable
 
 end Pythia.AxiomAudit

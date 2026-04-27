@@ -350,6 +350,57 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         mathlib_status="extension",
         summary="Cauchy-Schwarz (2 reals): (a*c+b*d)^2 <= (a^2+b^2)*(c^2+d^2). Direct via discriminant trick.",
     ),
+    # ── Thermodynamics ────────────────────────────────────────────
+    TheoremEntry(
+        domain="thermodynamics",
+        name="carnot_efficiency_upper_bound",
+        lean_path="Pythia/Thermodynamics/CarnotEfficiencyUpperBound.lean",
+        lean_theorem="Pythia.Thermodynamics.carnot_efficiency_upper_bound",
+        sim_path="tools/sim/thermodynamics_carnot_efficiency_upper_bound.py",
+        sim_test="test_carnot_efficiency_upper_bound",
+        mathlib_status="novel",
+        summary="Carnot heat-engine efficiency 1 - T_c/T_h is bounded above by 1.",
+        references=["Carnot, S. Réflexions sur la puissance motrice du feu (1824)"],
+    ),
+
+    # ── Biology (batch 8) ────────────────────────────────────────
+    TheoremEntry(
+        domain="biology",
+        name="michaelis_menten_saturation",
+        lean_path="Pythia/Bio/MichaelisMentenSaturation.lean",
+        lean_theorem="Pythia.Bio.michaelis_menten_saturation",
+        sim_path="tools/sim/bio_michaelis_menten_saturation.py",
+        sim_test="test_michaelis_menten_saturation",
+        mathlib_status="novel",
+        summary="Michaelis-Menten reaction velocity v = Vmax*S/(Km+S) is bounded above by Vmax.",
+        references=["Michaelis, L. and Menten, M.L. Biochem. Z. 49: 333-369 (1913)"],
+    ),
+
+    # ── Numerical methods ────────────────────────────────────────
+    TheoremEntry(
+        domain="numerical",
+        name="newton_quadratic_iter_pos",
+        lean_path="Pythia/Numerical/NewtonQuadraticIterPos.lean",
+        lean_theorem="Pythia.Numerical.newton_quadratic_iter_pos",
+        sim_path="tools/sim/numerical_newton_quadratic_iter_pos.py",
+        sim_test="test_newton_quadratic_iter_pos",
+        mathlib_status="novel",
+        summary="Newton iteration on f(x)=x^2-c keeps positive iterates: (x + c/x)/2 > 0 when x > 0 and c > 0.",
+        references=["Newton, I. De analysi per aequationes numero terminorum infinitas (1669)"],
+    ),
+
+    # ── Information theory (batch 8) ─────────────────────────────
+    TheoremEntry(
+        domain="info_theory",
+        name="hamming_distance_triangle",
+        lean_path="Pythia/InfoTheory/HammingDistanceTriangle.lean",
+        lean_theorem="Pythia.InfoTheory.hamming_distance_triangle",
+        sim_path="tools/sim/infotheory_hamming_distance_triangle.py",
+        sim_test="test_hamming_distance_triangle",
+        mathlib_status="novel",
+        summary="Hamming distance on 3-bit binary tuples satisfies the triangle inequality.",
+        references=["Hamming, R.W. Bell System Technical Journal 29(2): 147-160 (1950)"],
+    ),
 )
 
 

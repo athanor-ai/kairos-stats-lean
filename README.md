@@ -8,6 +8,15 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
+<!-- pythia-stats-auto-begin -->
+**Coverage**:
+- 464 theorem/lemma declarations in `Pythia/`
+- 55 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
+- 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
+
+Auto-tracked from [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py) and the `Pythia/` source tree; regenerate via `python3 tools/refresh_readme_stats.py`.
+<!-- pythia-stats-auto-end -->
+
 A Lean 4 tactic library for closing proofs across applied mathematics.
 Probability, statistics, biology, actuarial science, control theory,
 information theory, queueing, time series, and numerical analysis

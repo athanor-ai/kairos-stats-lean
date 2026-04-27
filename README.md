@@ -8,6 +8,12 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
+<!-- pythia-stats-auto-begin -->
+**Coverage**: 28 cross-domain theorems shipped across 11 domains
+(biology, chemistry, control, economics, engineering, info_theory, mathlib_tags, mechanical, numerical, or, thermodynamics). Auto-tracked
+in [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py); regenerate this block via `python3 tools/refresh_readme_stats.py`.
+<!-- pythia-stats-auto-end -->
+
 A Lean 4 tactic library for closing proofs across applied mathematics.
 Probability, statistics, biology, actuarial science, control theory,
 information theory, queueing, time series, and numerical analysis

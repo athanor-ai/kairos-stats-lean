@@ -51,6 +51,7 @@ import Pythia.Control.LyapunovODE
 import Pythia.Risk.CoherentMeasures
 import Pythia.HypothesisTest.MultipleTesting
 import Pythia.Numerical.Lyapunov
+import Pythia.Bio.MassAction
 
 namespace Pythia.AxiomAudit
 
@@ -173,5 +174,21 @@ open Pythia
 -- gives ε-δ stability of the equilibrium. Closed by hand via IVT +
 -- monotonicity of V along trajectories.
 #print axioms Pythia.Numerical.Lyapunov.lyapunov_stable
+
+/-! ## Mass-action / chemical reaction networks (Aristotle import 2026-04-27, project dad65893) -/
+
+-- Local existence of solutions to the mass-action ODE (Picard-Lindelöf).
+#print axioms Pythia.Bio.MassAction.massAction_existence
+
+-- Nonnegativity invariance: nonneg orthant is positively invariant under mass-action.
+#print axioms Pythia.Bio.MassAction.massAction_nonnegativity
+
+-- Mass conservation along trajectories under a conservative CRN.
+#print axioms Pythia.Bio.MassAction.mass_conservation
+
+-- Detailed-balance equilibrium: trivial Lyapunov-shaped existence (signature
+-- has `True` conjunct upstream — see ATH ticket for upgrading to a real
+-- Lyapunov claim).
+#print axioms Pythia.Bio.MassAction.detailed_balance_equilibrium
 
 end Pythia.AxiomAudit

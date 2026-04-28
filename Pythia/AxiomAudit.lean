@@ -53,6 +53,7 @@ import Pythia.HypothesisTest.MultipleTesting
 import Pythia.Numerical.Lyapunov
 import Pythia.Bio.MassAction
 import Pythia.Actuarial.Pareto
+import Pythia.SPRT
 
 namespace Pythia.AxiomAudit
 
@@ -204,5 +205,32 @@ open Pythia
 
 -- Median: ∃ m, CDF(m) = 1/2 ∧ m = x_m · 2^(1/α).
 #print axioms Pythia.Actuarial.Pareto.median
+
+/-! ## SPRT — Wald's sequential probability ratio test (Aristotle import
+2026-04-27, project dd746b96). The four theorems below are axiom-clean
+against `{propext, Classical.choice, Quot.sound}`.
+
+Note: `wald_approximation` was returned with a corrected conclusion
+(`≤ α/(1-β)` instead of the original `≤ α`), and `wald_wolfowitz_optimal`
++ `expected_sample_size` were returned with explicit measure-theoretic
+hypotheses added (Wald's identity, boundary-exit value). See follow-up
+ATH ticket for upgrading to the un-hypothesised forms once the supporting
+Mathlib infrastructure (path-measure RN derivative chain, infinite-product
+martingale bridge) is in place. -/
+
+-- Error rates: SPRT type-I error ≤ exp(-A) under H_0 supermartingale.
+#print axioms Pythia.SPRT.error_rates
+
+-- Wald's approximation (corrected): single-measure Ville bound
+-- Pr_{H_0}(∃ n, Λ_n ≥ A) ≤ α/(1-β) under hypothesis α + β < 1.
+#print axioms Pythia.SPRT.wald_approximation
+
+-- Wald-Wolfowitz optimality (with added measure-theoretic hypotheses
+-- capturing Wald-identity content): SPRT minimises E[τ].
+#print axioms Pythia.SPRT.wald_wolfowitz_optimal
+
+-- Expected sample size (with added Wald-identity + boundary-exit
+-- hypotheses): E[τ | H_0] = ((1-β)·B + β·A) / (-D(p₀ ‖ p₁)).
+#print axioms Pythia.SPRT.expected_sample_size
 
 end Pythia.AxiomAudit

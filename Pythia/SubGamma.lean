@@ -45,8 +45,8 @@ structure SubGammaMG
     Integrable (fun ω => Real.exp (lam * (process (t + 1) ω - process t ω))) μ
   /-- Conditional MGF bound: $\mathbb{E}_\mu[e^{\lambda \Delta_t} \mid
   \mathcal{F}_t] \leq e^{\nu \lambda^2 / (2 (1 - c \lambda))}$ almost
-  surely, for every `c * |λ| < 1`. -/
-  increments_subGamma : ∀ t : ℕ, ∀ lam : ℝ, c * |lam| < 1 →
+  surely, for every non-negative `λ` with `c * λ < 1`. -/
+  increments_subGamma : ∀ t : ℕ, ∀ lam : ℝ, 0 ≤ lam → c * lam < 1 →
     ∀ᵐ ω ∂μ,
       (μ[fun ω' => Real.exp (lam *
         (process (t + 1) ω' - process t ω')) | 𝓕 t]) ω ≤
@@ -72,7 +72,7 @@ theorem SubGaussianMG_to_SubGammaMG
   · exact M.integrable_exp t lam;
   · intro t lam _;
     convert M.increments_subG t |> fun h => h.integrable_exp_mul lam using 1;
-  · intro t lam _;
+  · intro t lam hlam_nonneg hlam_bound;
     have := M.increments_subG t;
     convert this.ae_condExp_le lam using 1;
     rw [ Real.coe_toNNReal _ ( sq_nonneg σ ) ] ; ring;
@@ -96,6 +96,7 @@ theorem exp_subGamma_supermartingale
   set Y : ℕ → Ω → ℝ := fun t ω =>
       Real.exp (lam * M.process t ω) / Real.exp (K * ↑t) with hY_def
   have hlam' : c * |lam| < 1 := by rwa [abs_of_pos hlam_pos]
+  have hlam_nonneg : 0 ≤ lam := hlam_pos.le
   have hK_pos : 0 < K := by
     apply div_pos (mul_pos M.nu_pos (sq_pos_of_pos hlam_pos))
     exact mul_pos two_pos (sub_pos.mpr hlam_bound)
@@ -126,7 +127,7 @@ theorem exp_subGamma_supermartingale
   -- MGF bound
   have h_subG_bound :
       ∀ᵐ ω ∂μ, (μ[fun ω' => Real.exp (lam * ΔM ω') | 𝓕 t]) ω ≤ eK :=
-    M.increments_subGamma t lam hlam'
+    M.increments_subGamma t lam hlam_nonneg hlam_bound
   -- g = exp(lam * ΔM) / eK
   set g : Ω → ℝ := fun ω => Real.exp (lam * ΔM ω) / eK with hg_def
   -- Factor: Y(t+1) = Y t * g

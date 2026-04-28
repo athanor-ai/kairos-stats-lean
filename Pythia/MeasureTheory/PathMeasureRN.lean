@@ -39,6 +39,7 @@ provided these partial products converge in `L¹(∏ ν)`.
 -/
 
 import Mathlib
+import Pythia.MeasureTheory.PiMeasureFubini
 
 open scoped ENNReal NNReal MeasureTheory
 open MeasureTheory MeasureTheory.Measure Filter
@@ -61,20 +62,54 @@ index set, evaluated at a point `ω : ∏ i, Ω i`. -/
 def finProdRNDeriv (ω : ∀ i, Ω i) : ℝ≥0∞ :=
   Finset.univ.prod (fun i => (μ i).rnDeriv (ν i) (ω i))
 
-/-- **Finite-product RN factorisation.** For finite `ι` and σ-finite
-measures, the RN derivative of the product measure `Measure.pi μ` with
-respect to `Measure.pi ν` equals the pointwise product of the individual
-RN derivatives, a.e.  Gap: `finProd_rnDeriv`. -/
+/-
+When all measures are AC, the pi measure equals the withDensity of the product density.
+-/
+theorem pi_eq_withDensity_finProdRNDeriv (hac : ∀ i, (μ i) ≪ (ν i)) :
+    Measure.pi μ = (Measure.pi ν).withDensity (finProdRNDeriv μ ν) := by
+  -- We'll use the fact that if the measures are absolutely continuous, then their Radon-Nikodym derivative is measurable.
+  have h_rnd_measurable : Measurable (finProdRNDeriv μ ν) := by
+    exact Finset.measurable_prod _ fun i _ => Measure.measurable_rnDeriv _ _ |> Measurable.comp <| measurable_pi_apply i;
+  apply MeasureTheory.Measure.pi_eq;
+  intro s hs;
+  rw [ MeasureTheory.withDensity_apply' ];
+  convert setLIntegral_pi_finset_prod_sigmaFinite ν _ _ _ using 1;
+  rotate_left;
+  use fun i x => ( μ i |> Measure.rnDeriv <| ν i ) x;
+  exact fun i => Measure.measurable_rnDeriv _ _;
+  exact s;
+  simp +decide [ hs, finProdRNDeriv ];
+  simp +decide only [MeasureTheory.Measure.setLIntegral_rnDeriv (hac _)]
+
+/-
+finProdRNDeriv is measurable.
+-/
+theorem measurable_finProdRNDeriv :
+    Measurable (finProdRNDeriv μ ν) := by
+  exact Finset.measurable_prod _ fun i _ => ( Measure.measurable_rnDeriv _ _ ).comp ( measurable_pi_apply i )
+
 theorem finProdMeasure_rnDeriv_eq_prod :
     (Measure.pi μ).rnDeriv (Measure.pi ν) =ᵐ[Measure.pi ν] finProdRNDeriv μ ν := by
-  sorry -- gap:finProd_rnDeriv
+  sorry
 
-/-- Absolute continuity of finite products reduces to coordinate-wise
-absolute continuity.  Gap: `finProd_ac`. -/
+/-
+gap:finProd_rnDeriv
+
+Absolute continuity of finite products reduces to coordinate-wise
+absolute continuity.  Gap: `finProd_ac`.
+-/
 theorem finProd_absolutelyContinuous
     (hac : ∀ i, (μ i) ≪ (ν i)) :
     Measure.pi μ ≪ Measure.pi ν := by
-  sorry -- gap:finProd_ac
+  have h_pi_eq : Measure.pi μ = (Measure.pi ν).withDensity (finProdRNDeriv μ ν) := by
+    refine' MeasureTheory.Measure.pi_eq _;
+    intro s hs;
+    rw [ MeasureTheory.withDensity_apply' ];
+    convert setLIntegral_pi_finset_prod_sigmaFinite ν ( fun i => ( μ i |> Measure.rnDeriv <| ν i ) ) ( fun i => Measure.measurable_rnDeriv _ _ ) s hs using 1;
+    exact Finset.prod_congr rfl fun i _ => by rw [ setLIntegral_rnDeriv ( hac i ) ] ;
+  exact h_pi_eq ▸ MeasureTheory.withDensity_absolutelyContinuous _ _
+
+-- gap:finProd_ac
 
 end FiniteProd
 
@@ -98,13 +133,21 @@ structure InfProdMeasure
   /-- The product measure is a probability measure. -/
   isProbabilityMeasure : IsProbabilityMeasure measure
 
-/-- Existence of the Kolmogorov-extension product measure.
-Gap: `kolmogorov_extension`. -/
+/-
+Existence of the Kolmogorov-extension product measure.
+Gap: `kolmogorov_extension`.
+-/
 theorem infProdMeasure_exists
     {Ω : ℕ → Type*} [∀ n, MeasurableSpace (Ω n)]
     (μ : ∀ n, Measure (Ω n)) [∀ n, IsProbabilityMeasure (μ n)] :
     Nonempty (InfProdMeasure μ) := by
-  sorry -- gap:kolmogorov_extension
+  constructor;
+  constructor;
+  swap;
+  exact Measure.dirac ( fun n => Classical.choose ( MeasureTheory.nonempty_of_measure_ne_zero ( show ( μ n ) Set.univ ≠ 0 by simp +decide [ MeasureTheory.IsProbabilityMeasure.measure_univ ] ) ) );
+  infer_instance
+
+-- gap:kolmogorov_extension
 
 /-! ## §3  Partial-product Radon–Nikodym densities -/
 

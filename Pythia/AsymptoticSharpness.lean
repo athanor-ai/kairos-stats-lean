@@ -129,7 +129,8 @@ lemma aCS_error_term_le_half (s : ℕ) (hs : 1 ≤ s) :
 
 /-! ## Aristotle targets (honest scaffold sorries) -/
 
-/-- **Asymptotic Gaussian density lower bound at the aCS window
+/-
+**Asymptotic Gaussian density lower bound at the aCS window
 boundary** (Aristotle target).
 
 For the scaled-Gaussian adversary with variance `σ²` and scale
@@ -143,16 +144,26 @@ proof body imported here is left as `sorry` rather than copied
 across because the original used `Continuous.tendsto` /
 `tendsto_pow_atTop_atTop_of_one_lt` glue that is fragile across
 Mathlib versions; closing this on current `mathlib4 v4.28.0` is the
-follow-up Aristotle target. -/
+follow-up Aristotle target.
+-/
 lemma asymptotic_gaussian_density_at_boundary_aCS
     (σ : ℝ) (hσ : 0 < σ) (ε : ℝ) (hε : 0 < ε) (s : ℕ) (_hs : 1 ≤ s) :
     ∃ s₀ : ℕ, ∀ s' ≥ s₀,
     c_aCS_sharp * 2 / σ - ε ≤
       ProbabilityTheory.gaussianPDFReal 0 (Real.toNNReal (σ ^ 2))
         (σ * (2 : ℝ) ^ (1 - (s' : ℤ))) := by
-  sorry
+  -- By continuity of the Gaussian density function, we have that
+  have h_cont : Filter.Tendsto (fun s' : ℕ => gaussianPDFReal 0 (Real.toNNReal (σ^2)) (σ * 2 ^ (1 - (s' : ℤ)))) Filter.atTop (nhds (gaussianPDFReal 0 (Real.toNNReal (σ^2)) 0)) := by
+    have h_cont : Filter.Tendsto (fun s' : ℕ => σ * 2 ^ (1 - (s' : ℤ))) Filter.atTop (nhds 0) := by
+      norm_num [ zpow_sub₀ ];
+      exact le_trans ( tendsto_const_nhds.mul ( tendsto_const_nhds.div_atTop ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two ) ) ) ( by norm_num );
+    exact Filter.Tendsto.mul tendsto_const_nhds <| Real.continuous_exp.continuousAt.tendsto.comp <| Filter.Tendsto.div_const ( Filter.Tendsto.neg <| Filter.Tendsto.pow ( h_cont.sub_const 0 ) 2 ) _;
+  have h_gauss_zero : gaussianPDFReal 0 (Real.toNNReal (σ ^ 2)) 0 = c_aCS_sharp * 2 / σ := by
+    unfold gaussianPDFReal c_aCS_sharp; norm_num [ hσ.le ] ; ring;
+  exact Filter.eventually_atTop.mp ( h_cont.eventually ( le_mem_nhds <| by linarith ) )
 
-/-- **`c_aCS_sharp` is the asymptotic matching-lower-bound constant
+/-
+**`c_aCS_sharp` is the asymptotic matching-lower-bound constant
 for the aCS family** (Aristotle target).
 
 For every `ε > 0`, there exists `T₀ : ℕ` such that for all `T ≥ T₀`
@@ -171,7 +182,8 @@ where:
 Hypothesis `hσ1 : σ ≤ 1` is the paper-aligned normalised-endpoint
 regime. Without it the bound scales unboundedly in `σ`; with it the
 leading-order dominates the mass-crossing contribution by a bounded
-factor `≤ √(log 2) < 1`. -/
+factor `≤ √(log 2) < 1`.
+-/
 theorem c_aCS_sharp_asymptotic_matching
     (σ : ℝ) (hσ : 0 < σ) (hσ1 : σ ≤ 1) (α : ℝ) (hα : 0 < α) (hα1 : α < 1)
     (s : ℕ) (hs : 1 ≤ s) (ε : ℝ) (hε : 0 < ε) :
@@ -182,6 +194,18 @@ theorem c_aCS_sharp_asymptotic_matching
     (ProbabilityTheory.gaussianReal 0 (Real.toNNReal (σ ^ 2))).real
       (Set.Icc (-(σ * (2 : ℝ) ^ (1 - (s : ℤ)))) 0)
     + ε := by
-  sorry
+  refine' ⟨ 0, fun T _ => le_trans _ ( le_add_of_nonneg_right hε.le ) ⟩;
+  refine' le_trans _ ( gaussian_adversary_constant_leading_order σ hσ s hs );
+  unfold gaussianPDFReal;
+  unfold c_aCS_sharp etaAsymptotic; norm_num [ Real.sqrt_mul, Real.pi_pos.le, hσ.le ] ; ring_nf ; norm_num [ hσ.ne', hσ1 ] ;
+  refine' le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg _ _ ) _;
+  · -- Simplify the inequality.
+    field_simp;
+    refine' le_trans _ ( mul_le_mul_of_nonneg_left ( Real.add_one_le_exp _ ) zero_le_two );
+    rcases s with ( _ | _ | s ) <;> norm_num [ zpow_add₀, zpow_sub₀ ] at *;
+    · exact le_trans ( mul_le_of_le_one_right ( Real.sqrt_nonneg _ ) hσ1 ) ( Real.sqrt_le_iff.mpr ⟨ by positivity, by have := Real.log_two_lt_d9; norm_num1 at *; linarith ⟩ );
+    · nlinarith [ show ( Real.sqrt ( Real.log 2 ) ) ≤ 1 by rw [ Real.sqrt_le_left ] <;> norm_num ; exact Real.log_two_lt_d9.le.trans <| by norm_num, show ( 2 ^ s : ℝ ) ⁻¹ ^ 2 ≤ 1 by exact pow_le_one₀ ( by positivity ) <| inv_le_one_of_one_le₀ <| one_le_pow₀ <| by norm_num ];
+  · positivity;
+  · positivity
 
 end Pythia

@@ -1,78 +1,6 @@
 /-
 Pythia.Bernstein — Bernstein's inequality + Bennett-Bernstein
 maximal inequality for martingales.
-
-# Mathlib v4.28 status (verified 2026-04-25)
-
-`grep -r "Bernstein" .lake/packages/mathlib/Mathlib/Probability/` returns
-*nothing* probability-theoretic: the only `Bernstein`-named files are
-the Bernstein polynomial (`RingTheory.Polynomial.Bernstein` /
-`Analysis.SpecialFunctions.Bernstein`) and the Schroeder-Bernstein
-cardinality theorem. Mathlib's probability layer ships only the
-sub-Gaussian / Hoeffding family in
-`Mathlib.Probability.Moments.SubGaussian`. The variance-aware
-Bernstein form is not present.
-
-This module therefore supplies Bernstein within `Pythia`. The
-key wrapper lemma `bernstein_of_subGamma` is **closed without sorries**:
-the proof is a one-liner reduction to `Pythia.subGamma_ville_ineq`
-(which is itself fully closed in `Pythia.SubGamma`).
-
-# Statement family
-
-Given iid bounded random variables `X₁, …, X_n` with `|X_i| ≤ b`,
-zero mean, and variance `σ²`, Bernstein's inequality bounds:
-
-    P(S_n ≥ ε) ≤ exp(−ε² / (2 (n σ² + b ε / 3)))
-
-Hoeffding gives `exp(−ε² / (2 n b²))`. When `σ² ≪ b²` (low-variance
-bounded RVs), Bernstein wins by a factor of `b² / σ²` in the exponent.
-
-This module supplies:
-
-1. `bernstein_of_subGamma` — Bernstein's tail bound for sub-gamma
-   martingales. **Fully closed**, registered with `@[stat_lemma]`. The
-   universal black-box: every Bernstein-shaped concentration result
-   in this library is supposed to factor through this lemma.
-2. `bernstein_iid` — Bernstein for iid bounded RVs (unchanged
-   scaffold; closure requires the bounded-implies-subGamma MGF
-   embedding, which has no Mathlib support yet — see status note).
-3. `bennett_iid` — Bennett's tighter Bernstein with explicit log
-   factor (scaffold).
-4. `bernstein_martingale` — Bennett-Bernstein maximal inequality for
-   martingales with conditionally-bounded increments (scaffold).
-5. `freedman` — Freedman's inequality (scaffold).
-
-# Closure plan for the four remaining sorries
-
-Each of `bernstein_iid`, `bennett_iid`, `bernstein_martingale`,
-`freedman` reduces to constructing a `SubGammaMG` instance from
-hypotheses about bounded random variables / martingales, then invoking
-`bernstein_of_subGamma` (or the underlying `subGamma_ville_ineq`).
-
-The blocking gap is the textbook MGF embedding for bounded centered
-random variables: if `|X| ≤ b` a.s., `E[X|F] = 0`, `E[X²|F] ≤ ν`, then
-
-    E[exp(λ X) | F]  ≤  exp(ν λ² / (2 (1 − b |λ| / 3)))   for `b|λ| < 3`.
-
-The proof is a Taylor-series argument:
-    exp(λ X) = 1 + λ X + (λ X)² · g(λ X)/2,
-    g(x)    := 2 (exp(x) − 1 − x) / x²    (with g(0) = 1)
-    g(x)    ≤ Σ_{k≥0} |x|^k / (k+2)!  ≤  Σ_{k≥0} (b|λ|/3)^k / 3^?  ≤  1 / (1 − b|λ|/3).
-This requires:
-  • `Real.exp_taylor_remainder` or equivalent (not yet in Mathlib v4.28).
-  • `condExp_mul_le` for the cross term (in Mathlib).
-  • `condExp_const_le` (in Mathlib).
-The Taylor remainder is the only genuine gap. The path is either
-(a) prove `g_bound : ∀ x, |x| ≤ r → g(x) ≤ 1 / (1 - r/3)` directly via
-    the sum identity, or
-(b) external-prover hammer once it's online for SubGamma.lean
-    completion (Aidan 2026-04-25 directive: "local Mathlib closure first").
-
-Tagging the wrapper `bernstein_of_subGamma` with `@[stat_lemma]`
-means any downstream author who builds a `SubGammaMG` (e.g. via the
-upcoming `bounded_to_subGamma : (...) → SubGammaMG (V) (b/3) 𝓕 μ`
-helper) can close their Bernstein goal with `pythia`.
 -/
 import Mathlib
 import Pythia.Basic
@@ -85,39 +13,8 @@ namespace Pythia
 open MeasureTheory ProbabilityTheory
 open scoped ENNReal NNReal
 
-/-! ## Section 1 — Bernstein for sub-gamma martingales (CLOSED)
+/-! ## Section 1 — Bernstein for sub-gamma martingales (CLOSED) -/
 
-This is the core lemma. It is a thin reparametrisation of
-`subGamma_ville_ineq` that exposes the Bernstein-shape rate
-
-    exp(-τ² / (2 (V + b τ / 3)))
-
-instead of the sub-gamma-shape rate
-
-    exp(-τ² / (2 ν N + 2 c τ)).
-
-The two coincide under the substitution `(ν, c) := (V / N, b / 3)`,
-i.e. the textbook embedding of bounded-increment martingales into
-the sub-gamma class. -/
-
-/-- **Bernstein's inequality, sub-gamma form.**
-
-If `M : ℕ → Ω → ℝ` is a sub-gamma martingale with parameters
-`(V / N, b / 3)` — that is, increments have conditional MGF bounded
-by `exp((V/N) λ² / (2 (1 − (b/3) λ)))` for `b λ < 3` — and
-starts at zero a.s., then for every `τ > 0` and `N ≥ 1`,
-
-  ℙ{∃ t ≤ N, M_t ≥ τ} ≤ exp(− τ² / (2 (V + b τ / 3))).
-
-The constants `V` and `b` correspond exactly to the textbook
-parameters: `V` is the variance budget over `N` steps, `b` the
-magnitude bound on the increments.
-
-Proof: direct application of `subGamma_ville_ineq`, with the algebraic
-identity `2 (V/N) N + 2 (b/3) τ = 2 V + (2/3) b τ = 2 (V + b τ/3)`.
-
-Tagged `@[stat_lemma]` so `pythia` will dispatch to it for goals of
-this exact shape (sub-gamma martingale + Bernstein-shape rate). -/
 @[stat_lemma]
 theorem bernstein_of_subGamma
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
@@ -129,12 +26,7 @@ theorem bernstein_of_subGamma
     {τ : ℝ} (hτ : 0 < τ) :
     μ {ω | ∃ t : ℕ, t ≤ N ∧ M.process t ω ≥ τ} ≤
       ENNReal.ofReal (Real.exp (-(τ^2) / (2 * (V + b * τ / 3)))) := by
-  -- Apply the sub-gamma Ville inequality as a black box.
   have h := subGamma_ville_ineq (M := M) hM0 τ hτ N hN
-  -- Reshape the rate `exp(-τ²/(2(V/N)N + 2(b/3)τ))` into Bernstein form
-  -- `exp(-τ²/(2(V + bτ/3)))`. The two denominators are equal as real
-  -- numbers (algebra), hence the two exponentials are equal, hence the
-  -- two ENNReal.ofReal images are equal.
   have hN_ne : (N : ℝ) ≠ 0 := by exact_mod_cast hN.ne'
   have h_denom_eq :
       (2 * (V / N) * N + 2 * (b / 3) * τ) = 2 * (V + b * τ / 3) := by
@@ -146,89 +38,323 @@ theorem bernstein_of_subGamma
   rw [h_rate_eq] at h
   exact h
 
-/-! ## Section 2 — Bernstein for iid bounded RVs (SCAFFOLD)
+/-! ## Section 2 — Helper lemmas -/
 
-The classical textbook statement. Closure requires the bounded-→
-sub-gamma MGF embedding (see file docstring). -/
+/-
+Martingale increments have zero conditional mean.
+-/
+lemma martingale_increment_zero_condExp
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsFiniteMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
+    (h_mart : Martingale M 𝓕 μ) (t : ℕ) :
+    μ[fun ω => M (t + 1) ω - M t ω | 𝓕 t] =ᵐ[μ] 0 := by
+  have := h_mart.2 t;
+  have h_condExp_sub : μ[fun ω => M (t + 1) ω - M t ω | 𝓕 t] =ᵐ[μ] μ[fun ω => M (t + 1) ω | 𝓕 t] - μ[fun ω => M t ω | 𝓕 t] := by
+    apply_rules [ MeasureTheory.condExp_sub ];
+    · exact h_mart.integrable _;
+    · exact h_mart.integrable _;
+  filter_upwards [ h_condExp_sub, this ( t + 1 ) ( Nat.le_succ _ ), this t le_rfl ] with ω hω₁ hω₂ hω₃ using by aesop;
 
-/-- **Bernstein's inequality** for iid bounded random variables.
-Given `X_i` iid with `|X_i| ≤ b` a.s., `E[X_i] = 0`, `Var(X_i) ≤ σ²`,
-and `n` samples:
-$$ P\left( \sum_{i=1}^n X_i \geq \varepsilon \right)
-   \leq \exp\left( -\frac{\varepsilon^2}{2 (n \sigma^2 + b\varepsilon/3)} \right). $$
+/-
+Exponential integrability for bounded martingales starting at 0.
+-/
+lemma integrable_exp_of_bounded_martingale
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
+    (h_mart : Martingale M 𝓕 μ)
+    {b : ℝ} (hb : 0 < b)
+    (h_bounded : ∀ t, ∀ᵐ ω ∂μ, |M (t + 1) ω - M t ω| ≤ b)
+    (hM0 : ∀ᵐ ω ∂μ, M 0 ω = 0)
+    (t : ℕ) (lam : ℝ) :
+    Integrable (fun ω => Real.exp (lam * M t ω)) μ := by
+  -- Since $|M_t| \leq t \cdot b$ almost surely, we have $|\lambda M_t| \leq |\lambda| \cdot t \cdot b$ almost surely.
+  have h_abs : ∀ᵐ ω ∂μ, |lam * M t ω| ≤ |lam| * t * b := by
+    have h_abs : ∀ᵐ ω ∂μ, |M t ω| ≤ t * b := by
+      induction' t with t ih <;> simp_all +decide [ Nat.cast_succ, add_mul ];
+      filter_upwards [ ih, h_bounded t ] with ω hω₁ hω₂ using abs_le.mpr ⟨ by linarith [ abs_le.mp hω₁, abs_le.mp hω₂ ], by linarith [ abs_le.mp hω₁, abs_le.mp hω₂ ] ⟩;
+    filter_upwards [ h_abs ] with ω hω using by rw [ abs_mul, mul_assoc ] ; exact mul_le_mul_of_nonneg_left hω ( abs_nonneg lam ) ;
+  refine' MeasureTheory.Integrable.mono' _ _ _;
+  refine' fun ω => Real.exp ( |lam| * t * b );
+  · norm_num;
+  · exact Real.continuous_exp.comp_aestronglyMeasurable ( h_mart.integrable t |> fun h => h.aestronglyMeasurable.const_mul _ );
+  · filter_upwards [ h_abs ] with ω hω using by simpa using Real.exp_le_exp.2 ( le_of_abs_le hω ) ;
 
-Closure path: needs the bounded-implies-subGamma MGF embedding (gap
-flagged in file docstring). Once that ships, this reduces to
-`bernstein_of_subGamma` with `V := n σ²`. -/
+/-
+Exponential integrability of bounded increment.
+-/
+lemma integrable_exp_increment_of_bounded
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
+    (h_mart : Martingale M 𝓕 μ)
+    {b : ℝ}
+    (h_bounded : ∀ᵐ ω ∂μ, |M (t + 1) ω - M t ω| ≤ b)
+    (lam : ℝ) :
+    Integrable (fun ω => Real.exp (lam * (M (t + 1) ω - M t ω))) μ := by
+  refine' MeasureTheory.Integrable.mono' _ _ _;
+  refine' fun ω => Real.exp ( |lam| * b );
+  · norm_num;
+  · have h_integrable : MeasureTheory.Integrable (fun ω => M (t + 1) ω - M t ω) μ := by
+      exact MeasureTheory.Integrable.sub ( h_mart.integrable _ ) ( h_mart.integrable _ );
+    exact Real.continuous_exp.comp_aestronglyMeasurable ( h_integrable.aestronglyMeasurable.const_mul _ );
+  · filter_upwards [ h_bounded ] with ω hω using by simpa using Real.exp_le_exp.2 ( by cases abs_cases lam <;> nlinarith [ abs_le.mp hω ] ) ;
+
+/-
+Conditional MGF bound in the form matching `SubGammaMG.increments_subGamma`.
+-/
+lemma condExp_exp_le_subGamma_form
+    {Ω : Type*} {mΩ : MeasurableSpace Ω}
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} {t : ℕ}
+    {M : ℕ → Ω → ℝ} {b V : ℝ}
+    (hb : 0 < b)
+    (h_mart : Martingale M 𝓕 μ)
+    (h_bounded : ∀ᵐ ω ∂μ, |M (t + 1) ω - M t ω| ≤ b)
+    (h_var : ∀ᵐ ω ∂μ,
+      (μ[fun ω' => (M (t + 1) ω' - M t ω')^2 | 𝓕 t]) ω ≤ V)
+    {lam : ℝ} (hlam_nn : 0 ≤ lam) (hlam : b / 3 * lam < 1) :
+    ∀ᵐ ω ∂μ,
+      (μ[fun ω' => Real.exp (lam *
+        (M (t + 1) ω' - M t ω')) | 𝓕 t]) ω ≤
+      Real.exp (V * lam^2 / (2 * (1 - b / 3 * lam))) := by
+  have h_condExp_mono : ∀ᵐ ω ∂μ, (μ[fun ω' => Real.exp (lam * (M (t + 1) ω' - M t ω')) | 𝓕 t]) ω ≤ (μ[fun ω' => 1 + lam * (M (t + 1) ω' - M t ω') + (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω := by
+    apply_rules [ MeasureTheory.condExp_mono ];
+    · apply_rules [ integrable_exp_increment_of_bounded ];
+    · refine' MeasureTheory.Integrable.add _ _;
+      · exact MeasureTheory.Integrable.add ( MeasureTheory.integrable_const _ ) ( MeasureTheory.Integrable.const_mul ( h_mart.integrable _ |> fun h => h.sub ( h_mart.integrable _ ) ) _ );
+      · refine' MeasureTheory.Integrable.div_const _ _;
+        have h_integrable : Integrable (fun ω' => (M (t + 1) ω' - M t ω')^2) μ := by
+          refine' MeasureTheory.Integrable.mono' _ _ _;
+          refine' fun ω => b ^ 2;
+          · norm_num;
+          · have := h_mart.integrable ( t + 1 );
+            simpa only [ sq ] using this.aestronglyMeasurable.sub ( h_mart.integrable t |> MeasureTheory.Integrable.aestronglyMeasurable ) |> fun h => h.mul h;
+          · filter_upwards [ h_bounded ] with ω hω using by simpa using pow_le_pow_left₀ ( abs_nonneg _ ) hω 2;
+        simpa only [ mul_pow ] using h_integrable.const_mul _;
+    · filter_upwards [ h_bounded ] with ω hω;
+      convert exp_mul_le_one_add_add_sq_div hb.le hω hlam_nn ( show b * lam < 3 by linarith ) using 1;
+      ring;
+  have h_condExp_add : ∀ᵐ ω ∂μ, (μ[fun ω' => 1 + lam * (M (t + 1) ω' - M t ω') + (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω = 1 + (μ[fun ω' => lam * (M (t + 1) ω' - M t ω') | 𝓕 t]) ω + (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω := by
+    have h_condExp_add : ∀ᵐ ω ∂μ, (μ[fun ω' => 1 + lam * (M (t + 1) ω' - M t ω') + (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω = (μ[fun ω' => 1 | 𝓕 t]) ω + (μ[fun ω' => lam * (M (t + 1) ω' - M t ω') | 𝓕 t]) ω + (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω := by
+      have h_condExp_add : Integrable (fun ω' => 1 : Ω → ℝ) μ ∧ Integrable (fun ω' => lam * (M (t + 1) ω' - M t ω')) μ ∧ Integrable (fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam))) μ := by
+        have h_integrable : Integrable (fun ω' => (M (t + 1) ω' - M t ω') ^ 2) μ := by
+          refine' MeasureTheory.Integrable.mono' _ _ _;
+          refine' fun ω => b ^ 2;
+          · norm_num;
+          · have := h_mart.integrable ( t + 1 );
+            have := h_mart.integrable t;
+            simpa only [ sq ] using ( ‹Integrable ( M ( t + 1 ) ) μ›.sub ‹Integrable ( M t ) μ› ).aestronglyMeasurable.mul ( ‹Integrable ( M ( t + 1 ) ) μ›.sub ‹Integrable ( M t ) μ› ).aestronglyMeasurable;
+          · filter_upwards [ h_bounded ] with ω hω using by simpa using pow_le_pow_left₀ ( abs_nonneg _ ) hω 2;
+        simp_all +decide [ mul_pow ];
+        exact ⟨ by exact MeasureTheory.Integrable.const_mul ( h_mart.integrable _ |> fun h => h.sub ( h_mart.integrable _ ) ) _, by exact MeasureTheory.Integrable.div_const ( MeasureTheory.Integrable.const_mul h_integrable _ ) _ ⟩;
+      have h_condExp_add : ∀ᵐ ω ∂μ, (μ[fun ω' => 1 + lam * (M (t + 1) ω' - M t ω') | 𝓕 t]) ω = (μ[fun ω' => 1 | 𝓕 t]) ω + (μ[fun ω' => lam * (M (t + 1) ω' - M t ω') | 𝓕 t]) ω := by
+        apply_rules [ MeasureTheory.condExp_add ];
+        · exact h_condExp_add.1;
+        · exact h_condExp_add.2.1;
+      have h_condExp_add : ∀ᵐ ω ∂μ, (μ[fun ω' => 1 + lam * (M (t + 1) ω' - M t ω') + (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω = (μ[fun ω' => 1 + lam * (M (t + 1) ω' - M t ω') | 𝓕 t]) ω + (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω := by
+        apply_rules [ MeasureTheory.condExp_add ];
+        · exact MeasureTheory.Integrable.add ( MeasureTheory.integrable_const _ ) ( by tauto );
+        · tauto;
+      filter_upwards [ h_condExp_add, ‹∀ᵐ ω ∂μ, μ[fun ω' => 1 + lam * (M (t + 1) ω' - M t ω') | 𝓕 t] ω = μ[fun ω' => 1 | 𝓕 t] ω + μ[fun ω' => lam * (M (t + 1) ω' - M t ω') | 𝓕 t] ω› ] with ω hω₁ hω₂ using by rw [ hω₁, hω₂ ] ;
+    filter_upwards [ h_condExp_add ] with ω hω;
+    rw [ hω, MeasureTheory.condExp_of_stronglyMeasurable ] <;> norm_num;
+    exact stronglyMeasurable_const;
+  have h_condExp_mul : ∀ᵐ ω ∂μ, (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω ≤ (lam ^ 2 * V) / (2 * (1 - b / 3 * lam)) := by
+    have h_condExp_mul : ∀ᵐ ω ∂μ, (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 | 𝓕 t]) ω ≤ lam ^ 2 * V := by
+      have h_condExp_mul : ∀ᵐ ω ∂μ, (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 | 𝓕 t]) ω = lam ^ 2 * (μ[fun ω' => (M (t + 1) ω' - M t ω') ^ 2 | 𝓕 t]) ω := by
+        have h_condExp_mul : ∀ᵐ ω ∂μ, (μ[fun ω' => lam ^ 2 * (M (t + 1) ω' - M t ω') ^ 2 | 𝓕 t]) ω = lam ^ 2 * (μ[fun ω' => (M (t + 1) ω' - M t ω') ^ 2 | 𝓕 t]) ω := by
+          apply_rules [ MeasureTheory.condExp_mul_of_stronglyMeasurable_left ];
+          · exact stronglyMeasurable_const;
+          · refine' MeasureTheory.Integrable.const_mul _ _;
+            refine' MeasureTheory.MemLp.integrable_sq _;
+            refine' MemLp.mono' _ _ _;
+            exact fun ω => b;
+            · exact memLp_const _;
+            · exact MeasureTheory.Integrable.aestronglyMeasurable ( h_mart.integrable _ |> fun h => h.sub ( h_mart.integrable _ ) );
+            · exact h_bounded;
+          · refine' MeasureTheory.MemLp.integrable_sq _;
+            refine' MemLp.mono' _ _ _;
+            exact fun ω => b;
+            · exact memLp_const _;
+            · exact MeasureTheory.Integrable.aestronglyMeasurable ( h_mart.integrable _ |> fun h => h.sub ( h_mart.integrable _ ) );
+            · exact h_bounded;
+        simpa only [ mul_pow ] using h_condExp_mul;
+      filter_upwards [ h_condExp_mul, h_var ] with ω hω₁ hω₂ using by rw [ hω₁ ] ; exact mul_le_mul_of_nonneg_left hω₂ ( sq_nonneg _ ) ;
+    have h_condExp_mul : ∀ᵐ ω ∂μ, (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 / (2 * (1 - b / 3 * lam)) | 𝓕 t]) ω = (μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 | 𝓕 t]) ω / (2 * (1 - b / 3 * lam)) := by
+      convert MeasureTheory.condExp_mul_of_stronglyMeasurable_right _ _ _ using 1;
+      · exact stronglyMeasurable_const;
+      · refine' MeasureTheory.Integrable.mul_const _ _;
+        have h_integrable : Integrable (fun ω' => (M (t + 1) ω' - M t ω') ^ 2) μ := by
+          refine' MeasureTheory.Integrable.mono' _ _ _;
+          use fun ω => b ^ 2;
+          · norm_num;
+          · have h_integrable : MeasureTheory.Integrable (fun ω' => M (t + 1) ω' - M t ω') μ := by
+              exact MeasureTheory.Integrable.sub ( h_mart.integrable _ ) ( h_mart.integrable _ );
+            simpa only [ sq ] using h_integrable.aestronglyMeasurable.mul h_integrable.aestronglyMeasurable;
+          · filter_upwards [ h_bounded ] with ω hω using by simpa using pow_le_pow_left₀ ( abs_nonneg _ ) hω 2;
+        convert h_integrable.const_mul ( lam ^ 2 ) using 2 ; ring;
+      · have h_integrable : Integrable (fun ω' => (M (t + 1) ω' - M t ω') ^ 2) μ := by
+          refine' MeasureTheory.Integrable.mono' _ _ _;
+          use fun ω => b ^ 2;
+          · norm_num;
+          · have h_integrable : MeasureTheory.Integrable (fun ω' => M (t + 1) ω' - M t ω') μ := by
+              exact MeasureTheory.Integrable.sub ( h_mart.integrable _ ) ( h_mart.integrable _ );
+            simpa only [ sq ] using h_integrable.aestronglyMeasurable.mul h_integrable.aestronglyMeasurable;
+          · filter_upwards [ h_bounded ] with ω hω using by simpa using pow_le_pow_left₀ ( abs_nonneg _ ) hω 2;
+        convert h_integrable.const_mul ( lam ^ 2 ) using 2 ; ring;
+    filter_upwards [ h_condExp_mul, ‹∀ᵐ ω ∂μ, μ[fun ω' => (lam * (M (t + 1) ω' - M t ω')) ^ 2 | 𝓕 t] ω ≤ lam ^ 2 * V› ] with ω hω₁ hω₂ using by rw [ hω₁ ] ; exact div_le_div_of_nonneg_right hω₂ ( by nlinarith ) ;
+  have h_condExp_zero : ∀ᵐ ω ∂μ, (μ[fun ω' => lam * (M (t + 1) ω' - M t ω') | 𝓕 t]) ω = 0 := by
+    have h_condExp_zero : ∀ᵐ ω ∂μ, (μ[fun ω' => M (t + 1) ω' - M t ω' | 𝓕 t]) ω = 0 := by
+      convert martingale_increment_zero_condExp h_mart t using 1;
+    have h_condExp_zero : ∀ᵐ ω ∂μ, (μ[fun ω' => lam * (M (t + 1) ω' - M t ω') | 𝓕 t]) ω = lam * (μ[fun ω' => M (t + 1) ω' - M t ω' | 𝓕 t]) ω := by
+      apply_rules [ MeasureTheory.condExp_mul_of_stronglyMeasurable_left ];
+      · exact stronglyMeasurable_const;
+      · exact MeasureTheory.Integrable.const_mul ( h_mart.integrable _ |> fun h => h.sub ( h_mart.integrable _ ) ) _;
+      · exact MeasureTheory.Integrable.sub ( h_mart.integrable _ ) ( h_mart.integrable _ );
+    filter_upwards [ h_condExp_zero, ‹∀ᵐ ω ∂μ, μ[fun ω' => M ( t + 1 ) ω' - M t ω' | ( 𝓕 t : MeasurableSpace Ω ) ] ω = 0› ] with ω hω₁ hω₂ using by rw [ hω₁, hω₂, MulZeroClass.mul_zero ] ;
+  filter_upwards [ h_condExp_mono, h_condExp_add, h_condExp_mul, h_condExp_zero ] with ω hω₁ hω₂ hω₃ hω₄;
+  exact hω₁.trans ( by rw [ hω₂, hω₄ ] ; linarith [ Real.add_one_le_exp ( V * lam ^ 2 / ( 2 * ( 1 - b / 3 * lam ) ) ), show lam ^ 2 * V / ( 2 * ( 1 - b / 3 * lam ) ) = V * lam ^ 2 / ( 2 * ( 1 - b / 3 * lam ) ) by ring ] )
+
+/-- Construct a `SubGammaMG` from a martingale with bounded increments
+and a uniform conditional variance bound. `process = M` definitionally. -/
+noncomputable def subGammaMG_of_bounded_martingale
+    {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
+    (h_mart : Martingale M 𝓕 μ)
+    (b V : ℝ) (hb : 0 < b) (hV : 0 < V)
+    (h_bounded : ∀ t, ∀ᵐ ω ∂μ, |M (t + 1) ω - M t ω| ≤ b)
+    (h_var : ∀ t, ∀ᵐ ω ∂μ,
+      (μ[fun ω' => (M (t + 1) ω' - M t ω')^2 | 𝓕 t]) ω ≤ V)
+    (hM0 : ∀ᵐ ω ∂μ, M 0 ω = 0) :
+    SubGammaMG V (b / 3) 𝓕 μ where
+  process := M
+  adapted := fun i =>
+    (h_mart.stronglyMeasurable i).measurable
+  integrable := h_mart.integrable
+  integrable_exp := fun t lam _ =>
+    integrable_exp_of_bounded_martingale h_mart hb h_bounded hM0 t lam
+  increments_exp_integrable := fun t lam _ =>
+    integrable_exp_increment_of_bounded h_mart (h_bounded t) lam
+  increments_subGamma := fun t lam hlam_nn hlam =>
+    condExp_exp_le_subGamma_form hb h_mart (h_bounded t) (h_var t) hlam_nn hlam
+  increments_zero_mean := fun t => martingale_increment_zero_condExp h_mart t
+  nu_pos := hV
+  c_nonneg := by positivity
+
+/-! ## Section 3 — Bernstein for iid bounded RVs
+
+The original statement of `bernstein_iid` had a too-weak independence
+hypothesis: `∀ t, IndepFun (X 0) (X t) μ` only gives pairwise
+independence of each `X t` with `X 0`, not mutual independence.
+A counterexample: take `X 1 = X 2 = ⋯ = X_{n-1}` (all equal), each
+independent of `X 0 = 0` a.s. Then `∑ X_i ≈ (n-1) X_1`, whose tail
+probability is ~0.5 but the bound goes to 0 as n → ∞.
+
+The corrected version uses `iIndepFun` (mutual independence) and
+adds the `Measurable` hypothesis needed for `iIndepFun.mgf_sum`.
+
+**Original (false) statement — commented out:**
+
+  theorem bernstein_iid_original
+      {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
+      [IsProbabilityMeasure μ]
+      {X : ℕ → Ω → ℝ} {b : ℝ} {sigma_sq : ℝ}
+      (hb_pos : 0 < b) (hsigma_sq_nonneg : 0 ≤ sigma_sq)
+      (h_iid : ∀ t, ProbabilityTheory.IndepFun (X 0) (X t) μ)
+      (h_bounded : ∀ t, ∀ᵐ ω ∂μ, |X t ω| ≤ b)
+      (h_zero_mean : ∀ t, ∫ ω, X t ω ∂μ = 0)
+      (h_var_bound : ∀ t, ∫ ω, (X t ω)^2 ∂μ ≤ sigma_sq)
+      (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
+      μ {ω | (Finset.range n).sum (fun i => X i ω) ≥ eps} ≤
+        ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (n * sigma_sq + b * eps / 3)))) := by
+    sorry
+-/
+
+/-
+**Bernstein's inequality** for iid bounded random variables
+(corrected). Uses `iIndepFun` for mutual independence.
+-/
 theorem bernstein_iid
     {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
     [IsProbabilityMeasure μ]
     {X : ℕ → Ω → ℝ} {b : ℝ} {sigma_sq : ℝ}
     (hb_pos : 0 < b) (hsigma_sq_nonneg : 0 ≤ sigma_sq)
-    (h_iid : ∀ t, ProbabilityTheory.IndepFun (X 0) (X t) μ)
+    (h_indep : ProbabilityTheory.iIndepFun X μ)
+    (hX_meas : ∀ i, Measurable (X i))
     (h_bounded : ∀ t, ∀ᵐ ω ∂μ, |X t ω| ≤ b)
     (h_zero_mean : ∀ t, ∫ ω, X t ω ∂μ = 0)
     (h_var_bound : ∀ t, ∫ ω, (X t ω)^2 ∂μ ≤ sigma_sq)
     (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
     μ {ω | (Finset.range n).sum (fun i => X i ω) ≥ eps} ≤
       ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (n * sigma_sq + b * eps / 3)))) := by
-  -- Closure plan (blocking on Pythia.MGFBoundedSubGamma):
-  --   1. Build SubGammaMG (n * sigma_sq / n) (b / 3) 𝓕 μ from the iid hypotheses,
-  --      using mgf_le_subGamma_of_bounded (in Pythia.MGFBoundedSubGamma) for the
-  --      increment MGF bound. Requires StandardBorelSpace Ω (add to hypotheses).
-  --   2. The partial-sum process S_t = Σ_{i<t} X_i is adapted to 𝓕_t = σ(X_0,...,X_{t-1}).
-  --   3. Apply bernstein_of_subGamma with V := n * sigma_sq, hN := hn, τ := eps.
-  --   4. The rate exponent matches: exp(-eps²/(2*(n*sigma_sq + b*eps/3)))
-  --      = exp(-eps²/(2*(V + b*eps/3))) with V = n*sigma_sq.
-  --   5. Structural detail: need iIndepFun hypothesis (stronger than h_iid) to construct
-  --      the filtration and independence correctly. Current h_iid uses pairwise IndepFun.
-  -- Unblocked once exp_le_bernstein_abs closes in MGFBoundedSubGamma.lean (§1).
-  sorry
+  by_cases h_sigma_sq : sigma_sq = 0;
+  · -- Since $\sigma^2 = 0$, we have $X_i = 0$ almost surely for all $i$.
+    have h_X_zero : ∀ i, ∀ᵐ ω ∂μ, X i ω = 0 := by
+      intro i
+      have h_X_zero_i : ∫ ω, X i ω ^ 2 ∂μ = 0 := by
+        exact le_antisymm ( le_trans ( h_var_bound i ) h_sigma_sq.le ) ( MeasureTheory.integral_nonneg fun _ => sq_nonneg _ );
+      rw [ MeasureTheory.integral_eq_zero_iff_of_nonneg ( fun _ => sq_nonneg _ ) ] at h_X_zero_i;
+      · exact h_X_zero_i.mono fun ω hω => sq_eq_zero_iff.mp hω;
+      · refine' MeasureTheory.Integrable.mono' _ _ _;
+        exacts [ fun ω => b ^ 2, by norm_num, by exact ( hX_meas i |> Measurable.pow_const <| 2 ) |> Measurable.aestronglyMeasurable, by filter_upwards [ h_bounded i ] with ω hω using by simpa using pow_le_pow_left₀ ( abs_nonneg _ ) hω 2 ];
+    rw [ MeasureTheory.measure_mono_null ( fun ω hω => ?_ ) ( MeasureTheory.ae_all_iff.2 h_X_zero ) ] ; aesop;
+    contrapose! hω; aesop;
+  · by_cases hn : n = 0;
+    · simp +decide [ hn, hε.not_ge ];
+    · have h_mgf : ∀ lam : ℝ, 0 ≤ lam → lam * b < 3 → mgf (fun ω => ∑ i ∈ Finset.range n, X i ω) μ lam ≤ Real.exp (n * sigma_sq * lam ^ 2 / (2 * (1 - b * lam / 3))) := by
+        intro lam hl hlam
+        have h_mgf : mgf (fun ω => ∑ i ∈ Finset.range n, X i ω) μ lam = ∏ i ∈ Finset.range n, mgf (X i) μ lam := by
+          convert h_indep.mgf_sum _ _;
+          · rw [ Finset.sum_apply ];
+          · assumption;
+        have h_mgf_bound : ∀ i, mgf (X i) μ lam ≤ Real.exp (sigma_sq * lam ^ 2 / (2 * (1 - b * lam / 3))) := by
+          exact fun i => mgf_le_subGamma_of_bounded ( hX_meas i ) hb_pos.le ( h_bounded i ) ( h_zero_mean i ) ( h_var_bound i ) hl ( by linarith );
+        exact h_mgf.symm ▸ le_trans ( Finset.prod_le_prod ( fun _ _ => by exact MeasureTheory.integral_nonneg fun _ => Real.exp_nonneg _ ) fun _ _ => h_mgf_bound _ ) ( by simp +decide [ mul_assoc, mul_div_assoc, ← Real.exp_nat_mul ] );
+      have h_chernoff : ∀ lam : ℝ, 0 ≤ lam → lam * b < 3 → μ {ω | ∑ i ∈ Finset.range n, X i ω ≥ eps} ≤ ENNReal.ofReal (Real.exp (-lam * eps) * Real.exp (n * sigma_sq * lam ^ 2 / (2 * (1 - b * lam / 3)))) := by
+        intro lam hl hl';
+        have := @ProbabilityTheory.measure_ge_le_exp_mul_mgf;
+        convert ENNReal.ofReal_le_ofReal ( this eps hl _ ) |> le_trans <| ENNReal.ofReal_le_ofReal <| mul_le_mul_of_nonneg_left ( h_mgf lam hl hl' ) <| Real.exp_nonneg _ using 1;
+        · simp +decide [ MeasureTheory.measureReal_def ];
+        · refine' MeasureTheory.Integrable.mono' _ _ _;
+          refine' fun ω => Real.exp ( lam * n * b );
+          · norm_num;
+          · exact Measurable.aestronglyMeasurable ( by measurability );
+          · filter_upwards [ MeasureTheory.ae_all_iff.2 h_bounded ] with ω hω using by simpa using Real.exp_le_exp.2 ( show lam * ∑ i ∈ Finset.range n, X i ω ≤ lam * n * b by exact le_trans ( mul_le_mul_of_nonneg_left ( Finset.sum_le_sum fun _ _ => le_of_abs_le ( hω _ ) ) hl ) ( by simp +decide [ mul_assoc, mul_comm, mul_left_comm ] ) ) ;
+      convert h_chernoff ( eps / ( n * sigma_sq + b * eps / 3 ) ) ( by positivity ) ( by rw [ div_mul_eq_mul_div, div_lt_iff₀ ] <;> nlinarith [ show ( n : ℝ ) * sigma_sq > 0 by positivity ] ) using 1;
+      rw [ ← Real.exp_add ] ; congr 1 ; field_simp ; ring;
+      rw [ show ( eps * b * 2 + n * sigma_sq * 6 : ℝ ) = ( eps * n * sigma_sq * b * 6 + n ^ 2 * sigma_sq ^ 2 * 18 ) / ( n * sigma_sq * 3 ) by rw [ eq_div_iff ( by positivity ) ] ; ring ] ; norm_num ; ring
 
--- `bennett_iid` was a `True := by sorry` placeholder here. The real
--- inequality with the closed-form Bennett ψ-function landed in
--- `Pythia.Bennett` (Aristotle import 2026-04-26, project 7e11d4c4).
--- See `Pythia/Bennett.lean`.
+/-! ## Section 4 — Freedman's inequality
 
-/-- **Bernstein's inequality for martingales** (Freedman): a
-martingale with conditionally-bounded increments and predictable
-variance process satisfies a Bernstein-type bound. Supersedes
-Azuma-Hoeffding when conditional variance is small.
+The original `freedman` had no variance hypothesis at all — `V_n`
+was an unconstrained positive real. The bound is false for small
+`V_n`. For example: `n = 1`, `b = 1`, `V_n = 0.001`, `ε = 0.5`:
+a martingale with `M₁ = ±1` equiprobably has `P(M₁ ≥ 0.5) = 0.5`,
+but `exp(-0.25 / (2 (0.001 + 1/6))) ≈ 0.474 < 0.5`.
 
-Reduces to `bernstein_of_subGamma` once the conditional-MGF embedding
-is available. -/
-theorem bernstein_martingale
-    {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
-    {μ : Measure Ω} [IsProbabilityMeasure μ]
-    {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
-    (h_mart : MeasureTheory.Martingale M 𝓕 μ)
-    (b : ℝ) (hb_pos : 0 < b)
-    (h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ,
-      |M (t + 1) ω - M t ω| ≤ b)
-    (V_n : ℝ) (hV_pos : 0 < V_n)
-    (h_predictable_var : ∀ t,
-      μ[fun ω => (M (t + 1) ω - M t ω)^2 | 𝓕 t] =ᵐ[μ] (fun _ => V_n / (t + 1 : ℝ)))
-    (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
-    μ {ω | M n ω ≥ eps} ≤
-      ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
-  -- Closure plan (structural work beyond MGFBoundedSubGamma):
-  --   1. Derive conditional MGF bound from h_bounded_increments and h_predictable_var:
-  --      E[exp(lam * (M_{t+1} - M_t)) | 𝓕_t] ≤ exp(V_n/(t+1) * lam² / (2*(1-b*lam/3))) a.s.
-  --      This uses mgf_le_subGamma_of_bounded applied conditionally (conditional Jensen).
-  --   2. Construct SubGammaMG (V_n/n) (b/3) 𝓕 μ from M.
-  --   3. Apply bernstein_of_subGamma to get the MAXIMAL inequality form,
-  --      then extract the fixed-time bound P(M_n ≥ eps) by set monotonicity
-  --      ({M_n ≥ eps} ⊆ {∃ t ≤ n, M_t ≥ eps}).
-  -- Blocking: (a) conditional MGF application requires conditional Jensen in Mathlib,
-  -- (b) non-iid martingale increments need a different independence argument.
-  sorry
+The corrected version adds a uniform conditional variance bound.
 
-/-- **Freedman's inequality**: the maximal-inequality form of
-`bernstein_martingale`. Bounds `P(sup_{t ≤ n} M_t ≥ ε)` rather than
-the fixed-time `P(M_n ≥ ε)`. Useful for sequential stopping
-problems.
+**Original (false) statement — commented out:**
 
-Closes via `bernstein_of_subGamma`. -/
+  theorem freedman_original
+      {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
+      {μ : Measure Ω} [IsProbabilityMeasure μ]
+      {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
+      (h_mart : MeasureTheory.Martingale M 𝓕 μ)
+      (b : ℝ) (hb_pos : 0 < b)
+      (h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ,
+        |M (t + 1) ω - M t ω| ≤ b)
+      (V_n : ℝ) (hV_pos : 0 < V_n)
+      (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
+      μ {ω | ∃ t : ℕ, t ≤ n ∧ M t ω ≥ eps} ≤
+        ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
+    sorry
+-/
+
+/-- **Freedman's inequality** (corrected): maximal Bernstein for martingales. -/
 theorem freedman
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
     {μ : Measure Ω} [IsProbabilityMeasure μ]
@@ -237,22 +363,74 @@ theorem freedman
     (b : ℝ) (hb_pos : 0 < b)
     (h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ,
       |M (t + 1) ω - M t ω| ≤ b)
-    (V_n : ℝ) (hV_pos : 0 < V_n)
-    (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
+    (V : ℝ) (hV_pos : 0 < V)
+    (h_var : ∀ t, ∀ᵐ ω ∂μ,
+      (μ[fun ω' => (M (t + 1) ω' - M t ω')^2 | 𝓕 t]) ω ≤ V)
+    (hM0 : ∀ᵐ ω ∂μ, M 0 ω = 0)
+    {n : ℕ} (hn : 0 < n) (eps : ℝ) (hε : 0 < eps) :
     μ {ω | ∃ t : ℕ, t ≤ n ∧ M t ω ≥ eps} ≤
-      ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
-  -- Closure plan (requires SubGammaMG instance from bounded martingale increments):
-  --   1. From h_bounded_increments, apply mgf_le_subGamma_of_bounded conditionally
-  --      to each increment (M_{t+1} - M_t) given 𝓕_t, using the a.s. bound on
-  --      E[(M_{t+1}-M_t)²|𝓕_t] ≤ V_n (from h_mart + h_bounded_increments via
-  --      conditional Jensen on the bounded increment: E[ΔM²|𝓕_t] ≤ b²).
-  --      The predictable variance h_predictable_var gives exact control of
-  --      the conditional second moment, enabling the tighter Bernstein rate.
-  --   2. Construct M' : SubGammaMG (V_n / n) (b / 3) 𝓕 μ from M and h_mart.
-  --   3. Apply bernstein_of_subGamma hN M' hM0 heps directly to conclude.
-  --   Note: M.process 0 = 0 a.s. is a standard assumption; needs to be added
-  --   to the hypotheses or derived from h_mart + martingale initialization.
-  -- Blocking: conditional MGF bound step (same as bernstein_martingale above).
-  sorry
+      ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (↑n * V + b * eps / 3)))) := by
+  -- Construct SubGammaMG V (b/3) from the bounded martingale.
+  -- SG.process = M definitionally.
+  let SG := subGammaMG_of_bounded_martingale h_mart b V hb_pos hV_pos
+    h_bounded_increments h_var hM0
+  -- Apply subGamma_ville_ineq directly.
+  have h := subGamma_ville_ineq (M := SG) hM0 eps hε n hn
+  -- The denominators differ only algebraically.
+  -- 2 * V * ↑n + 2 * (b / 3) * eps = 2 * (↑n * V + b * eps / 3)
+  convert h using 2
+  field_simp
+
+/-! ## Section 5 — Bernstein for martingales
+
+The original `bernstein_martingale` used `h_predictable_var` with
+conditional variance `V_n / (t+1)` at step `t`, giving total
+predictable quadratic variation `V_n · H_n` (the n-th harmonic
+number), but the bound used `V_n` alone. For `n ≥ 2` the stated
+bound is too tight and the statement is false.
+
+The corrected version uses a uniform per-step conditional variance
+bound `V` and uses `n * V` in the rate.
+
+**Original (false) statement — commented out:**
+
+  theorem bernstein_martingale_original
+      {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
+      {μ : Measure Ω} [IsProbabilityMeasure μ]
+      {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
+      (h_mart : MeasureTheory.Martingale M 𝓕 μ)
+      (b : ℝ) (hb_pos : 0 < b)
+      (h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ,
+        |M (t + 1) ω - M t ω| ≤ b)
+      (V_n : ℝ) (hV_pos : 0 < V_n)
+      (h_predictable_var : ∀ t,
+        μ[fun ω => (M (t + 1) ω - M t ω)^2 | 𝓕 t] =ᵐ[μ]
+        (fun _ => V_n / (t + 1 : ℝ)))
+      (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
+      μ {ω | M n ω ≥ eps} ≤
+        ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
+    sorry
+-/
+
+/-- **Bernstein for martingales** (corrected). Reduces to `freedman`. -/
+theorem bernstein_martingale
+    {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
+    (h_mart : MeasureTheory.Martingale M 𝓕 μ)
+    (b : ℝ) (hb_pos : 0 < b)
+    (h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ,
+      |M (t + 1) ω - M t ω| ≤ b)
+    (V : ℝ) (hV_pos : 0 < V)
+    (h_var : ∀ t, ∀ᵐ ω ∂μ,
+      (μ[fun ω' => (M (t + 1) ω' - M t ω')^2 | 𝓕 t]) ω ≤ V)
+    (hM0 : ∀ᵐ ω ∂μ, M 0 ω = 0)
+    {n : ℕ} (hn : 0 < n) (eps : ℝ) (hε : 0 < eps) :
+    μ {ω | M n ω ≥ eps} ≤
+      ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (↑n * V + b * eps / 3)))) :=
+  calc μ {ω | M n ω ≥ eps}
+      ≤ μ {ω | ∃ t : ℕ, t ≤ n ∧ M t ω ≥ eps} := by
+        apply measure_mono; intro ω hω; exact ⟨n, le_refl _, hω⟩
+    _ ≤ _ := freedman h_mart b hb_pos h_bounded_increments V hV_pos h_var hM0 hn eps hε
 
 end Pythia

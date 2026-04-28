@@ -35,7 +35,8 @@ open MeasureTheory ProbabilityTheory Real Set
 Once Pareto.mean closes, this reduces to norm_num: 3*1/(3-1) = 3/2 <= 5. -/
 example :
     ∫ x, x ∂(Pythia.Actuarial.Pareto.paretoMeasure (x_m := 1) (alpha := 3)) ≤ 5 := by
-  have h_mean := Pythia.Actuarial.Pareto.mean (x_m := 1) (alpha := 3) (h1 := by norm_num)
+  have h_mean := Pythia.Actuarial.Pareto.mean (x_m := 1) (alpha := 3)
+    (hm := by norm_num) (ha := by norm_num) (h1 := by norm_num)
   rw [h_mean]; norm_num
 
 /-! ### Example 2: Pareto tail at t=4 -/
@@ -46,7 +47,7 @@ example :
     (Pythia.Actuarial.Pareto.paretoMeasure (x_m := 2) (alpha := 3)).real (Set.Ioi 4) =
     1 / 8 := by
   have h_tail := Pythia.Actuarial.Pareto.tail (x_m := 2) (alpha := 3) (t := 4)
-    (ht := by norm_num)
+    (hm := by norm_num) (ha := by norm_num) (ht := by norm_num)
   rw [h_tail]; norm_num
 
 /-! ### Example 3: Weibull mean uses Gamma function -/

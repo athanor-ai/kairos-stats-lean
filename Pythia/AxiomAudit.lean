@@ -53,6 +53,7 @@ import Pythia.HypothesisTest.MultipleTesting
 import Pythia.Numerical.Lyapunov
 import Pythia.Bio.MassAction
 import Pythia.Actuarial.Pareto
+import Pythia.Numerical.KKT
 
 namespace Pythia.AxiomAudit
 
@@ -204,5 +205,20 @@ open Pythia
 
 -- Median: ∃ m, CDF(m) = 1/2 ∧ m = x_m · 2^(1/α).
 #print axioms Pythia.Actuarial.Pareto.median
+
+/-! ## KKT conditions (Aristotle import 2026-04-27, project 4e773a1c) -/
+
+-- KKT necessary: existence of multipliers at a feasible local minimum.
+-- Trivial proof against `stationarity = True` placeholder; signature
+-- gained an explicit primal-feasibility hypothesis `h_feas` (see follow-up
+-- ATH ticket for upgrading `stationarity` to a real gradient condition).
+#print axioms Pythia.Numerical.KKT.kkt_necessary
+
+-- KKT sufficient (convex case): KKT + Lagrangian-minimality ⇒ global
+-- optimum. Real proof structure (Lagrangian duality + linarith), but
+-- gained an explicit `h_lagrangian_opt` hypothesis that substitutes
+-- for the un-formalised `∇L = 0 + convexity ⇒ Lagrangian min` chain
+-- (see follow-up ATH ticket).
+#print axioms Pythia.Numerical.KKT.kkt_sufficient_convex
 
 end Pythia.AxiomAudit

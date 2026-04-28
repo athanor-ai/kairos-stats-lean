@@ -155,8 +155,16 @@ def aristotle_submit(
     project_dir: Path,
 ) -> Optional[str]:
     """Submit a project to Aristotle. Returns the project id on success,
-    None on failure. The CLI prints the id to stdout in the form
-    `Submitted project <UUID>`; we parse for it.
+    None on failure.
+
+    aristotlelib v1.0.1 prints `Project created: <UUID>` to stderr
+    (not stdout) along with toolchain / lake-folder warnings, so the
+    parser scans BOTH streams. The earlier form `Submitted project
+    <UUID>` is also caught by the same UUID regex. Empty/no-UUID
+    output is logged with both streams attached for diagnosability
+    (Aidan caught the silent-empty-stdout failure on the 2026-04-27
+    burst — 19 of 20 projects had submitted but local state didn't
+    record them because the parser only looked at stdout).
     """
     proc = _run([
         "aristotle", "submit", prompt,
@@ -165,11 +173,15 @@ def aristotle_submit(
     if proc.returncode != 0:
         sys.stderr.write(f"[aristotle-queue] submit failed: {proc.stderr}\n")
         return None
-    # Aristotle prints the project id; extract a UUID-looking token.
-    m = re.search(r"\b([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\b", proc.stdout)
+    # CLI v1.0.1 emits the project id to stderr; older versions used
+    # stdout. Combine both so we don't miss either form.
+    combined = (proc.stdout or "") + "\n" + (proc.stderr or "")
+    m = re.search(r"\b([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\b", combined)
     if m is None:
         sys.stderr.write(
-            f"[aristotle-queue] could not parse project id from:\n{proc.stdout}\n"
+            "[aristotle-queue] could not parse project id from CLI output.\n"
+            f"  stdout: {proc.stdout!r}\n"
+            f"  stderr: {proc.stderr!r}\n"
         )
         return None
     return m.group(1)

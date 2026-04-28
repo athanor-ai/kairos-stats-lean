@@ -73,13 +73,20 @@ theorem freedman_maximal_corrected
   -- Construct SubGammaMG from the hypotheses
   have hnu_pos : 0 < V_n / ↑n := div_pos hV_pos (Nat.cast_pos.mpr hn)
   have hc_nonneg : 0 ≤ b / 3 := div_nonneg hb_pos.le (by norm_num)
+  -- SubGammaMG.increments_subGamma takes 3 hypothesis args:
+  --   `∀ t lam, 0 ≤ lam → c * lam < 1 → ...`
+  -- but the local `h_cond_mgf` is stated with the absolute-value form
+  --   `∀ t lam, b/3 * |lam| < 1 → ...`
+  -- under `0 ≤ lam`, `|lam| = lam`, so the local hypothesis suffices.
   set S : SubGammaMG (V_n / ↑n) (b / 3) 𝓕 μ :=
     { process := M
       adapted := h_adapted
       integrable := h_int
       integrable_exp := h_exp_int
       increments_exp_integrable := h_inc_exp_int
-      increments_subGamma := h_cond_mgf
+      increments_subGamma := fun t lam hlam_nonneg hlam_bound =>
+        h_cond_mgf t lam (by
+          rw [abs_of_nonneg hlam_nonneg]; exact hlam_bound)
       increments_zero_mean := h_zero_mean
       nu_pos := hnu_pos
       c_nonneg := hc_nonneg }

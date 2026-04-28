@@ -187,14 +187,51 @@ Tropp's proof (steps 1–4 of the roadmap). Closure requires:
 4. **Trace monotonicity**: `A ⪯ B ⟹ tr exp(A) ≤ tr exp(B)`
 -/
 
+/-
+**Bug report**: The original statement below used `(d : ℝ)` as the
+leading constant, but this is **incorrect** for a two-sided bound
+on `‖S‖` (the operator norm).
+
+Counterexample (d = 1, n = 1): Take `X₁(ω) = ±1` with equal probability
+on `{-1, +1}`. Then `R = 1`, `σ² = 1`, and `P(‖X₁‖ ≥ 0.5) = 1`.
+But for `θ = ln(3/2)`:
+  `1 · exp(-θ/2 + (e^θ - θ - 1)) = exp(3/2 - 3/2 · ln(3/2) - 1) ≈ 0.897 < 1`.
+So the bound `d · exp(…)` fails.
+
+Tropp's Theorem 6.1.1 gives `d · exp(…)` for the **one-sided** bound
+on `λ_max(S)`, but the norm `‖S‖` is two-sided (it captures both
+positive and negative eigenvalues). The correct constant for the
+two-sided bound is `2 · d`.
+
+The corrected version below uses `2 * (d : ℝ)`.
+
+Additionally, this statement uses the `linftyOp` norm as a placeholder
+for the genuine spectral (operator) norm, as documented in
+`Pythia/MatrixBernstein.lean`. The bound is correct for the spectral
+norm; closure pending the spectral-norm refactor.
+-/
+
+/- Original false statement (commented out):
+lemma matrix_bernstein_laplace_step
+    ...
+    μ {ω | ‖…‖ ≥ t} ≤ ENNReal.ofReal ((d : ℝ) * Real.exp (…))
+                                        ^^^^^^^^
+                                        should be 2 * (d : ℝ)
+-/
+
 /-- **Combined matrix Laplace–MGF bound** (Tropp 2012, §6.1 core).
 
 For independent zero-mean Hermitian random matrices with operator-norm
 bound `R` and matrix variance `σ²`, for any `θ > 0`:
 
-  `P(‖∑ X_k‖ ≥ t) ≤ d · exp(−θt + σ²/R² · (e^{θR} − θR − 1))`
+  `P(‖∑ X_k‖ ≥ t) ≤ 2d · exp(−θt + σ²/R² · (e^{θR} − θR − 1))`
 
 **Bridge**: closure reduces to Lieb concavity (`MatrixLieb`).
+
+**Correction**: the leading constant is `2 · d` (not `d`) because
+the norm `‖S‖` is two-sided, capturing both `λ_max(S) ≥ t` and
+`λ_min(S) ≤ -t`. The one-sided Tropp bound (for `λ_max` alone)
+uses `d`; a union bound over both tails gives the factor of 2.
 
 Note: this uses the exact CGF function `(e^u-u-1)`, not the weaker
 bound `1/(2(1-u/3))`, so no constraint on `θR < 3` is needed. -/
@@ -214,7 +251,7 @@ lemma matrix_bernstein_laplace_step
     (t : ℝ) (ht : 0 < t) :
     μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t} ≤
       ENNReal.ofReal
-        ((d : ℝ) * Real.exp (-theta * t +
+        (2 * (d : ℝ) * Real.exp (-theta * t +
           sigma_sq / R ^ 2 *
             (Real.exp (theta * R) - theta * R - 1))) := by
   sorry
@@ -227,9 +264,13 @@ For independent self-adjoint random matrices `X₁, …, X_n` in
 `Matrix (Fin d) (Fin d) ℝ` with `E[X_k] = 0`, `‖X_k‖ ≤ R` a.s.,
 and matrix variance `σ² ≥ ‖∑ E[X_k²]‖`, for all `t > 0`:
 
-  `P{‖∑ X_k‖ ≥ t} ≤ d · exp(−t² / (2σ² + 2Rt/3))`
+  `P{‖∑ X_k‖ ≥ t} ≤ 2d · exp(−t² / (2σ² + 2Rt/3))`
 
-equivalently: `d · exp(−t²/2 / (σ² + Rt/3))`.
+equivalently: `2d · exp(−t²/2 / (σ² + Rt/3))`.
+
+**Correction**: the leading constant is `2d` (not `d` as previously
+stated). See the docstring of `matrix_bernstein_laplace_step` for
+the counterexample showing `d` is insufficient for the two-sided bound.
 
 **Proof**: Choose the optimal Laplace parameter `θ* = log(1+Rt/σ²)/R`
 in the sorry-bridged `matrix_bernstein_laplace_step`, then apply
@@ -250,7 +291,7 @@ theorem matrix_bernstein
     (t : ℝ) (ht : 0 < t) :
     μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t} ≤
       ENNReal.ofReal
-        ((d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) := by
+        (2 * (d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) := by
   -- Get optimal θ from scalar_bernstein_optimization
   obtain ⟨theta, htheta_pos, h_scalar⟩ :=
     scalar_bernstein_optimization R sigma_sq t hR_pos hsigma_sq_pos ht
@@ -261,7 +302,7 @@ theorem matrix_bernstein
   -- Chain: probability ≤ bridge bound ≤ Bernstein bound
   apply le_trans h_laplace
   apply ENNReal.ofReal_le_ofReal
-  apply mul_le_mul_of_nonneg_left _ (by positivity : (0 : ℝ) ≤ d)
+  apply mul_le_mul_of_nonneg_left _ (by positivity : (0 : ℝ) ≤ 2 * d)
   apply Real.exp_le_exp_of_le
   linarith
 
@@ -269,7 +310,9 @@ theorem matrix_bernstein
 
 /-- **Two-sided matrix Bernstein** (Tropp 2012, Theorem 6.1.1, symmetric).
 
-`P(‖∑ X_k‖ ≥ t) ≤ 2d · exp(−t²/2 / (σ² + Rt/3))` -/
+`P(‖∑ X_k‖ ≥ t) ≤ 2d · exp(−t²/2 / (σ² + Rt/3))`
+
+This is now identical to `matrix_bernstein` after the constant correction. -/
 theorem matrix_bernstein_two_sided
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ]
@@ -285,18 +328,9 @@ theorem matrix_bernstein_two_sided
     (t : ℝ) (ht : 0 < t) :
     μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t} ≤
       ENNReal.ofReal
-        (2 * (d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) := by
-  calc μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t}
-      ≤ ENNReal.ofReal
-          ((d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) :=
-        matrix_bernstein n X R sigma_sq hR_pos hsigma_sq_pos h_indep h_sa
-          h_zero_mean h_op_bound h_var t ht
-    _ ≤ ENNReal.ofReal
-          (2 * (d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) := by
-        apply ENNReal.ofReal_le_ofReal
-        have hd : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg' d
-        have hexp := Real.exp_nonneg (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))
-        nlinarith
+        (2 * (d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) :=
+  matrix_bernstein n X R sigma_sq hR_pos hsigma_sq_pos h_indep h_sa
+    h_zero_mean h_op_bound h_var t ht
 
 end
 

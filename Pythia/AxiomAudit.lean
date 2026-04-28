@@ -53,6 +53,7 @@ import Pythia.HypothesisTest.MultipleTesting
 import Pythia.Numerical.Lyapunov
 import Pythia.Bio.MassAction
 import Pythia.Actuarial.Pareto
+import Pythia.Actuarial.LogNormal
 
 namespace Pythia.AxiomAudit
 
@@ -191,6 +192,7 @@ open Pythia
 -- has `True` conjunct upstream — see ATH ticket for upgrading to a real
 -- Lyapunov claim).
 #print axioms Pythia.Bio.MassAction.detailed_balance_equilibrium
+
 /-! ## Pareto distribution (Aristotle import 2026-04-27, project 4ed8b33f) -/
 
 -- Tail (survival) probability: P(X > t) = (x_m / t)^α for t ≥ x_m.
@@ -204,5 +206,19 @@ open Pythia
 
 -- Median: ∃ m, CDF(m) = 1/2 ∧ m = x_m · 2^(1/α).
 #print axioms Pythia.Actuarial.Pareto.median
+
+/-! ## Log-normal distribution (Aristotle import 2026-04-27, project b0fc114c) -/
+
+-- Mean E[X] = exp(μ + σ²/2) via Gaussian MGF at t=1.
+#print axioms Pythia.Actuarial.LogNormal.mean
+
+-- Variance Var(X) = (exp(σ²) − 1) · exp(2μ + σ²).
+#print axioms Pythia.Actuarial.LogNormal.variance
+
+-- Median = exp(μ) (with added 0 < σ hypothesis, originally false at σ=0).
+#print axioms Pythia.Actuarial.LogNormal.median
+
+-- Tail Chebyshev bound: P(X > t) ≤ exp(2μ + 2σ²)/t².
+#print axioms Pythia.Actuarial.LogNormal.tail_chebyshev
 
 end Pythia.AxiomAudit

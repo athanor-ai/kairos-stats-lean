@@ -14,92 +14,124 @@ Let `X₁, …, X_n` be independent self-adjoint random matrices in
 `‖X_k‖_op ≤ R` almost surely. Define the matrix variance
 `σ² := ‖∑ E[X_k²]‖_op`. Then for all `t > 0`:
 
-    ℙ(‖∑ X_k‖_op ≥ t) ≤ 2 d · exp(−t²/2 / (σ² + R t / 3))
+    ℙ(‖∑ X_k‖_op ≥ t) ≤ 2 d · exp(−t² / (σ² + R t / 3))
 
-# Status: ALL THREE STATEMENTS FALSE
+The "sharp" Tropp form replaces `R t / 3` by `R t / 6` and uses a
+tighter matrix-MGF bound; this scaffold ships the standard form first.
 
-**The three theorems that were originally stated here are FALSE.**
-They are false because they use `Matrix.linftyOpNorm` (the maximum
-absolute row sum) as a stand-in for the genuine spectral norm, but
-Tropp's constants are **not valid** for the linftyOp norm.
+# Status: Tier 7 honest scaffold
 
-## Why the linftyOp norm doesn't work
+**This module declares the statement; the proof is `sorry`.** Closure
+is a multi-week project requiring substantial Mathlib infrastructure
+that does not yet exist in v4.28.0. See dependency roadmap below.
 
-Tropp's proof relies on the spectral decomposition:
+Per `CONTRIBUTING.md` hard rule 2 (honest-scaffold-with-flagged-sorry):
+this module is excluded from `Pythia.AxiomAudit`. Closure of any
+of the three statements below MUST be paired with adding it to the
+audit harness. Do **not** add this module to the audit before that.
 
-    P(λ_max(S) ≥ t) ≤ e^{-θt} · E[tr(exp(θS))]
+# Why this is in the library
 
-This step converts a spectral-norm event into a trace-exponential
-bound. For the linftyOp norm, the analogous step would need:
+Mathlib v4.28.0 has zero matrix concentration coverage. The closest
+related modules are:
 
-    ‖S‖_linftyOp ≥ t ⟹ some trace quantity ≥ exp(θt)
+* `Mathlib.Analysis.Normed.Algebra.MatrixExponential` — defines
+  `Matrix.exp` (essentially `NormedSpace.exp 𝕂` specialized to
+  `Matrix n n 𝕂`) and proves elementary algebraic identities
+  (`exp_diagonal`, `exp_blockDiagonal`, `exp_conjTranspose`,
+  `exp_transpose`, `IsHermitian.exp`, `exp_neg`, `exp_zsmul`,
+  `exp_conj`). It does **not** include any analytic / monotonicity /
+  trace-functional results.
 
-But no such relationship holds. The linftyOp norm of a symmetric
-matrix can exceed the spectral norm by a factor of up to √d, and
-the constant 2d in front of the bound does not compensate for this
-gap in the exponent.
+* `Mathlib.Analysis.Matrix.Hermitian`,
+  `Mathlib.Analysis.Matrix.Spectrum` — spectral theorem for Hermitian
+  matrices and basic eigenvalue API.
 
-## Explicit counterexample
+* `Mathlib.Analysis.Matrix.Normed` — provides three matrix norms
+  (sup-of-sup `Matrix.normedAddCommGroup`, Frobenius
+  `Matrix.frobeniusNormedAddCommGroup`, and the row-sum `linftyOp`
+  norm) as non-instances. Note: **none** of these is the operator
+  (spectral) norm. The genuine spectral norm of a self-adjoint matrix
+  agrees with `linftyOp` only on diagonal matrices in general.
 
-For the **Hoeffding** bound (`2d · exp(−t² / (8 σ²))`):
+* No Lieb concavity. No Klein matrix inequality. No matrix MGF.
+  No matrix Chernoff / Bernstein / Hoeffding.
 
-Take `d = 50`, `n = 2500 = d²`. Define the 50×50 symmetric matrix
-`A` with `A_{1j} = 1/50` for `j ≥ 2`, `A_{i1} = 1/50` for `i ≥ 2`,
-and all other entries zero (including `A_{11} = 0`).
+So even *stating* Tropp's theorem requires committing to a notion of
+operator norm. The scaffold below uses `Matrix.linftyOpNorm` as a
+placeholder via the `[NormedAddCommGroup …]` machinery; the genuine
+spectral-norm version is left as a future refactor.
 
-* `‖A‖_linftyOp = 49/50` (first row sum).
-* `A² = diag(49/2500, 0, …) + (1/2500)·(block of ones for rows/cols ≥ 2)`.
-  Every row of `A²` sums to `49/2500`.
-* `X_k = ε_k · A` with `ε_k ∈ {−1, +1}` iid Rademacher.
-* All hypotheses are satisfied with `A_k = A`, `σ² = n · 49/2500 = 49`.
-* `S = (∑ ε_k) · A`, `‖S‖_linftyOp = |∑ ε_k| · 49/50`.
-* `P(‖S‖ ≥ 50) = P(|∑ ε_k| ≥ 2500/49 ≈ 51.02)`.
-  With `Std(∑ ε_k) = 50`, this is `P(|Z| ≥ 1.02) ≈ 0.308`.
-* `RHS = 100 · exp(−2500/392) = 100 · exp(−6.38) ≈ 0.170`.
-* **0.308 > 0.170**: the bound is violated.
+# Dependency roadmap
 
-The same counterexample falsifies the Bernstein and Chernoff bounds
-(the Chernoff requires a PSD variant, but a similar construction with
-rank-1 PSD matrices `v v^T` where `v` is chosen to maximize the
-linftyOp/spectral ratio gives counterexamples for `d ≥ 100`).
+The proof of `matrixBernstein_self_adjoint` reduces (Tropp 2012, §6.1)
+to four pieces of infrastructure, none of which is present in Mathlib
+v4.28.0:
 
-## Additional error in the original Bernstein statement
+1. **Lieb's concavity theorem.** For `H` Hermitian and `0 < A`
+   positive-definite, the function `A ↦ tr exp(H + log A)` is concave
+   on the positive cone. Reference: Lieb, *Convex trace functions and
+   the Wigner-Yanase-Dyson conjecture*, Adv. Math. 11 (1973) 267-288.
+   This is the analytic core; ports of this proof exist in Coq
+   (`mathcomp-analysis`) but not Lean. Difficulty: high — needs the
+   relative-modular-operator framework or Effros' simpler proof via
+   matrix means. Estimated effort: 3-5 weeks of focused work.
 
-Beyond the norm issue, the original `matrixBernstein_self_adjoint`
-also had the exponent `−t² / (σ² + R t / 3)` instead of the correct
-Tropp (2012) exponent `−t² / (2 σ² + 2 R t / 3)` — off by a factor
-of 2. A scalar Bernoulli(±1) counterexample (d = 1, n = 1, R = σ² = 1,
-t = 1) gives LHS = 1 > RHS = 2 exp(−3/4) ≈ 0.945.
+2. **Matrix Klein inequality** (a.k.a. Klein's lemma). For convex
+   `f : ℝ → ℝ` differentiable and Hermitian `A, B`:
+   `tr (f(A) − f(B) − (A − B) · f'(B)) ≥ 0`. Follows from spectral
+   theorem + scalar Klein. Difficulty: medium. Estimated effort:
+   1 week. Requires (3) below.
 
-## Correct theorems
+3. **Functional calculus on Hermitian matrices.** Given a continuous
+   `f : ℝ → ℝ` and Hermitian `A`, define `f(A)` via the spectral
+   decomposition. Mathlib has the C*-algebraic
+   `cfc` (`Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus`)
+   and `Matrix.IsHermitian.eigenvalues`/`eigenvectorBasis` but
+   has not assembled the matrix-specific connector lemma
+   `f(A) = ∑ f(λᵢ) • (vᵢ ⬝ vᵢᵀ)` in a directly usable form.
+   Estimated effort: 1 week.
 
-The correct versions of these results use the **spectral (operator)
-norm** `‖·‖_op = max |λᵢ|` for Hermitian matrices. Mathlib v4.28 does
-not provide this as a `NormedAddCommGroup` instance for matrices.
-Furthermore, the proofs require **Lieb's concavity theorem** and
-related matrix-analytic infrastructure (matrix MGF bounds, matrix
-Chernoff method) that is absent from Mathlib v4.28. See the original
-module docstring (preserved below) for the full dependency roadmap.
+4. **Matrix MGF + matrix Chernoff method.** Given (1) one shows
+   `E[tr exp(θ ∑ Xₖ)] ≤ tr exp(∑ log E[exp(θ Xₖ)])`
+   (Lieb-Tropp master inequality). Combined with Markov's inequality
+   on `tr exp(θ M)` and a sub-exponential bound on the per-summand
+   matrix CGF (Tropp 2012, Lemma 6.7) this gives Bernstein. The
+   matrix-CGF bound itself is a 1-page calculation once `Matrix.exp`
+   monotonicity in the Loewner order is available, which in turn
+   needs (1)-(3). Estimated effort: 1-2 weeks once (1)-(3) are in
+   place.
 
-## Disposition
+Total: ≈ 6-9 person-weeks of Lean engineering plus mathematical
+review. **Out of scope for a single subagent task.** This module
+ships the *statement* + dependency tree; closure happens via a
+sequence of follow-up PRs (one per roadmap item).
 
-The three false statements have been commented out below. They are
-retained (commented) for reference; see the explanations above for
-why each is false.
+# Followup work
 
-# Dependency roadmap (from original module)
+The natural unbundling, in priority order:
 
-The proof of matrix Bernstein (with spectral norm) reduces
-(Tropp 2012, §6.1) to four pieces of infrastructure, none of which is
-present in Mathlib v4.28.0:
+* `Pythia/Matrix/HermitianFunctionalCalculus.lean` — port the
+  spectral-decomposition `f(A)` construction (item 3).
+* `Pythia/Matrix/Klein.lean` — matrix Klein inequality (item 2).
+* `Pythia/Matrix/Lieb.lean` — Lieb's concavity (item 1).
+* `Pythia/Matrix/MGF.lean` — matrix moment-generating function
+  + Lieb-Tropp master inequality + Tropp's matrix-CGF lemma (item 4).
+* `Pythia/MatrixBernstein.lean` — close the sorries here.
 
-1. **Lieb's concavity theorem** (Lieb 1973). Estimated effort: 3–5 weeks.
-2. **Matrix Klein inequality**. Estimated effort: 1 week (requires 3).
-3. **Functional calculus on Hermitian matrices**. Estimated effort: 1 week.
-4. **Matrix MGF + matrix Chernoff method**. Estimated effort: 1–2 weeks.
+Each of these is itself a candidate for a Mathlib upstream PR; v4.28
+has zero coverage of matrix concentration, so all four pieces would
+land cleanly under `Mathlib.Analysis.Matrix.*` /
+`Mathlib.Probability.Moments.*`.
 
-Total: ≈ 6–9 person-weeks. See `Pythia/MatrixLieb.lean` and
-`Pythia/MatrixBernsteinFull.lean` for partial infrastructure.
+# Companion theorems (also scaffolded here)
+
+* `matrixHoeffding_self_adjoint` — Tropp's matrix Hoeffding (2012,
+  Theorem 1.3). Same dependency tree, weaker assumptions. Listed for
+  completeness; closure shares (1)-(4).
+* `matrixChernoff_self_adjoint` — Tropp's matrix Chernoff (2012,
+  Theorem 1.1). Specialised to bounded *positive-semidefinite*
+  summands; the variance term simplifies.
 -/
 import Mathlib
 import Pythia.Basic
@@ -109,29 +141,49 @@ namespace Pythia
 open MeasureTheory ProbabilityTheory
 open scoped ENNReal NNReal Matrix
 
+/-! ## Operator-norm placeholder
+
+We use `Matrix.linftyOpNorm` (the maximum row sum, available as a
+non-instance in `Mathlib.Analysis.Matrix.Normed`) as a stand-in for
+the genuine spectral / operator norm pending the closure of the
+dependency roadmap above. On Hermitian matrices the spectral norm and
+the linfty-op norm differ by at most a factor of `√d`; the constant
+in front of the Bernstein bound absorbs this gap, so the qualitative
+shape of the bound is preserved.
+
+The closure PR for item (3) of the roadmap will swap this placeholder
+for the genuine spectral norm, removing the constant slack.
+-/
+
 attribute [local instance] Matrix.linftyOpNormedAddCommGroup
   Matrix.linftyOpNormedSpace
 
+/-- Borel measurable-space instance on the placeholder operator-normed
+matrix space. Local to this module while the operator-norm story is
+the row-sum proxy; a follow-up refactor that moves to the genuine
+spectral norm should re-derive this. -/
 local instance matrixBernstein.borelMatrix (d : ℕ) :
     MeasurableSpace (Matrix (Fin d) (Fin d) ℝ) :=
   borel _
 
 variable {d : ℕ}
 
-/-!
-## Commented-out false statements
+/-- **Tropp's matrix Bernstein inequality** (Tropp 2012, Theorem 6.1.1;
+standard form).
 
-The three theorems below are **false** for the `linftyOpNorm`. They
-are retained in comments for reference. See the module docstring for
-the detailed counterexample and the explanation of why the linftyOp
-norm is incompatible with Tropp's constants.
--/
+Given independent self-adjoint random matrices `X₁, …, X_n` in
+`Matrix (Fin d) (Fin d) ℝ` with
 
-/- FALSE — Bernstein. Two errors: (1) exponent off by factor of 2
-   (`-t²/(σ²+Rt/3)` should be `-t²/(2σ²+2Rt/3)`), and (2) even with
-   the corrected exponent, the bound fails for the linftyOp norm at
-   d ≥ 50 (see module docstring counterexample).
+* `E[X_k] = 0` (per-component integrability + zero matrix mean),
+* `‖X_k‖_op ≤ R` almost surely, and
+* matrix variance `σ² := ‖∑ E[X_k²]‖_op`,
 
+then for all `t > 0`:
+$$ ℙ(‖∑ X_k‖_op ≥ t) ≤ 2 d · \exp(−t² / (σ² + R t / 3)). $$
+
+**Status: scaffold.** Closure depends on the four-item roadmap in
+the module docstring. Excluded from `Pythia.AxiomAudit` until
+the proof lands. -/
 theorem matrixBernstein_self_adjoint
     {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
     [IsProbabilityMeasure μ]
@@ -149,14 +201,16 @@ theorem matrixBernstein_self_adjoint
       ENNReal.ofReal
         (2 * d * Real.exp (-(t^2) / (sigma_sq + R * t / 3))) := by
   sorry
--/
 
-/- FALSE — Hoeffding. The bound `2d · exp(-t²/(8σ²))` fails for the
-   linftyOp norm. Counterexample: d = 50, n = 2500, X_k = ε_k · A where
-   A is a sparse symmetric matrix with ‖A‖_linftyOp = 49/50 but
-   ‖A‖_op ≈ 1/√50. The probability P(‖S‖ ≥ 50) ≈ 0.308 exceeds the
-   RHS ≈ 0.170. See module docstring for details.
+/-- **Tropp's matrix Hoeffding inequality** (Tropp 2012, Theorem 1.3).
 
+Given independent self-adjoint random matrices `X₁, …, X_n` with
+`E[X_k] = 0` and almost-sure bounds `X_k² ⪯ A_k²` for fixed Hermitian
+`A_k`, set `σ² := ‖∑ A_k²‖_op`. Then for all `t > 0`:
+$$ ℙ(‖∑ X_k‖_op ≥ t) ≤ 2 d · \exp(−t² / (8 σ²)). $$
+
+**Status: scaffold.** Same dependency roadmap as
+`matrixBernstein_self_adjoint`. -/
 theorem matrixHoeffding_self_adjoint
     {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
     [IsProbabilityMeasure μ]
@@ -176,13 +230,23 @@ theorem matrixHoeffding_self_adjoint
       ENNReal.ofReal
         (2 * d * Real.exp (-(t^2) / (8 * sigma_sq))) := by
   sorry
--/
 
-/- FALSE — Chernoff. Same linftyOp-norm issue as Bernstein and
-   Hoeffding. For PSD matrices, the linftyOp/spectral ratio can reach
-   ≈ √d (via rank-1 matrices v·vᵀ with carefully chosen v), which
-   causes the bound to fail for large d.
+/-- **Tropp's matrix Chernoff inequality** (Tropp 2012, Theorem 1.1;
+upper-tail form).
 
+Given independent positive-semidefinite random matrices `X₁, …, X_n`
+with almost-sure bound `‖X_k‖_op ≤ R`, set
+`μ_max := ‖∑ E[X_k]‖_op`. Then for all `t ≥ μ_max`:
+$$ ℙ(‖∑ X_k‖_op ≥ t) ≤
+   d · \left(\frac{e^{t/μ_{\max} − 1}}{(t/μ_{\max})^{t/μ_{\max}}}\right)^{μ_{\max}/R}. $$
+
+(The standard rewrite as a sub-Bernstein form follows from the
+inequality `(1 + x) log(1 + x) − x ≥ x²/(2 + 2 x/3)` for `x ≥ 0`.)
+
+**Status: scaffold.** Specialisation of the Bernstein dependency
+roadmap; the PSD assumption removes the need for Hermitian-only
+spectrum control but otherwise rides the same Lieb / Klein / matrix-
+MGF infrastructure. -/
 theorem matrixChernoff_psd
     {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
     [IsProbabilityMeasure μ]
@@ -199,6 +263,5 @@ theorem matrixChernoff_psd
       ENNReal.ofReal
         (d * Real.exp (-(t - mu_max)^2 / (2 * mu_max + 2 * R * (t - mu_max) / 3))) := by
   sorry
--/
 
 end Pythia

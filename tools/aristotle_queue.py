@@ -113,21 +113,76 @@ _THEOREM_DECL = re.compile(
 _SORRY_TERM = re.compile(r"\bsorry\b")
 
 
+def _strip_lean_comments(text: str) -> str:
+    """Replace `/- ... -/` block comments and `--` line comments with
+    whitespace, preserving line structure for line-number stability.
+    Used by `discover_targets` to filter out 'sorry' tokens that appear
+    only inside docstrings (which Aristotle correctly reports as
+    'no sorries to close — already proven', then our queue logs as
+    COMPLETE_WITH_ERRORS — wasted compute).
+
+    Caught 2026-04-27 on InputQuantization.lean: the file has the word
+    'sorry' twice in docstring prose ("(sorry)" annotations describing
+    the original conjecture form) but every actual proof is closed.
+    Aristotle correctly noticed there was nothing to close; the queue
+    treated COMPLETE_WITH_ERRORS as failure and resubmitted.
+    """
+    out = []
+    depth = 0
+    i = 0
+    in_line_comment = False
+    while i < len(text):
+        if in_line_comment:
+            if text[i] == "\n":
+                in_line_comment = False
+                out.append("\n")
+            else:
+                out.append(" ")
+            i += 1
+            continue
+        if depth == 0 and i + 1 < len(text) and text[i:i+2] == "--":
+            in_line_comment = True
+            out.append("  ")
+            i += 2
+            continue
+        if i + 1 < len(text) and text[i:i+2] == "/-":
+            depth += 1
+            out.append("  ")
+            i += 2
+            continue
+        if depth > 0 and i + 1 < len(text) and text[i:i+2] == "-/":
+            depth -= 1
+            out.append("  ")
+            i += 2
+            continue
+        if depth > 0:
+            out.append(" " if text[i] != "\n" else "\n")
+            i += 1
+            continue
+        out.append(text[i])
+        i += 1
+    return "".join(out)
+
+
 def discover_targets(repo_root: Path = REPO_ROOT) -> list[TargetEntry]:
     """Walk Pythia/ and return TargetEntry stubs for every file that
-    has at least one `sorry` term outside a doc-comment context.
+    has at least one *real* `sorry` term — i.e. one that survives
+    block-comment + line-comment stripping. Files where `sorry`
+    appears only inside `/- ... -/` docstrings are correctly skipped.
 
-    Heuristic: we treat any file containing `sorry` (anywhere) as having
-    pending Aristotle work. Doc-string `sorry` mentions are uncommon and
-    the small false-positive cost is acceptable. The target name is the
-    NAME of the first theorem/lemma declaration in the file; granularity
-    is per-file, not per-theorem, matching how Aristotle is invoked.
+    The target name is the NAME of the first theorem/lemma declaration
+    in the file; granularity is per-file. (Per-theorem granularity is
+    a follow-up — see ATH-???; would require richer prompt + per-sorry
+    locator for Aristotle.)
     """
     out: list[TargetEntry] = []
     pythia_dir = repo_root / "Pythia"
     for p in sorted(pythia_dir.rglob("*.lean")):
         text = p.read_text()
-        if not _SORRY_TERM.search(text):
+        # Strip comments BEFORE the sorry-token check — files with
+        # 'sorry' only in docstrings are not actually open.
+        code_only = _strip_lean_comments(text)
+        if not _SORRY_TERM.search(code_only):
             continue
         decls = _THEOREM_DECL.findall(text)
         if not decls:
@@ -155,8 +210,16 @@ def aristotle_submit(
     project_dir: Path,
 ) -> Optional[str]:
     """Submit a project to Aristotle. Returns the project id on success,
-    None on failure. The CLI prints the id to stdout in the form
-    `Submitted project <UUID>`; we parse for it.
+    None on failure.
+
+    aristotlelib v1.0.1 prints `Project created: <UUID>` to stderr
+    (not stdout) along with toolchain / lake-folder warnings, so the
+    parser scans BOTH streams. The earlier form `Submitted project
+    <UUID>` is also caught by the same UUID regex. Empty/no-UUID
+    output is logged with both streams attached for diagnosability
+    (Aidan caught the silent-empty-stdout failure on the 2026-04-27
+    burst — 19 of 20 projects had submitted but local state didn't
+    record them because the parser only looked at stdout).
     """
     proc = _run([
         "aristotle", "submit", prompt,
@@ -165,11 +228,15 @@ def aristotle_submit(
     if proc.returncode != 0:
         sys.stderr.write(f"[aristotle-queue] submit failed: {proc.stderr}\n")
         return None
-    # Aristotle prints the project id; extract a UUID-looking token.
-    m = re.search(r"\b([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\b", proc.stdout)
+    # CLI v1.0.1 emits the project id to stderr; older versions used
+    # stdout. Combine both so we don't miss either form.
+    combined = (proc.stdout or "") + "\n" + (proc.stderr or "")
+    m = re.search(r"\b([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\b", combined)
     if m is None:
         sys.stderr.write(
-            f"[aristotle-queue] could not parse project id from:\n{proc.stdout}\n"
+            "[aristotle-queue] could not parse project id from CLI output.\n"
+            f"  stdout: {proc.stdout!r}\n"
+            f"  stderr: {proc.stderr!r}\n"
         )
         return None
     return m.group(1)
@@ -247,7 +314,28 @@ def cmd_restock(args: argparse.Namespace) -> int:
         print("no candidates to submit; run `discover` to refresh")
         return 0
     submitted = 0
+    skipped_no_real_sorry = 0
     for t in candidates:
+        # Defense in depth: re-verify there is a real (non-commented) sorry
+        # in the file *at submission time*. Discover already filters comment-
+        # only-sorry files, but a target could have been added before the
+        # filter landed, OR the file could have been closed locally between
+        # discover and restock. Skipping here costs us nothing; submitting a
+        # comment-only-sorry file wastes Aristotle compute and triggers the
+        # COMPLETE_WITH_ERRORS pattern Aidan flagged.
+        target_path = REPO_ROOT / t.lean_path
+        if target_path.exists():
+            text = target_path.read_text()
+            code_only = _strip_lean_comments(text)
+            if not _SORRY_TERM.search(code_only):
+                skipped_no_real_sorry += 1
+                t.status = "SKIPPED_ALREADY_CLOSED"
+                t.notes = (
+                    f"file at {t.lean_path} has `sorry` only in comments "
+                    "or no `sorry` at all — refusing to submit"
+                )
+                print(f"[skip] {t.name}: no real sorry in {t.lean_path}")
+                continue
         prompt = (
             f"Close the `sorry`(es) in {t.lean_path}. The repo root is "
             f"the project_dir. Use Lean 4 + Mathlib v4.28.0. The result "
@@ -270,7 +358,10 @@ def cmd_restock(args: argparse.Namespace) -> int:
         print(f"submitted {t.name} → {pid}")
     if not args.dry_run:
         state.save()
-    print(f"restock: {submitted}/{len(candidates)} submitted")
+    suffix = ""
+    if skipped_no_real_sorry:
+        suffix = f" ({skipped_no_real_sorry} skipped: no real sorry)"
+    print(f"restock: {submitted}/{len(candidates)} submitted{suffix}")
     return 0
 
 

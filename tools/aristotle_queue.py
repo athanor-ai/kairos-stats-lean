@@ -314,7 +314,28 @@ def cmd_restock(args: argparse.Namespace) -> int:
         print("no candidates to submit; run `discover` to refresh")
         return 0
     submitted = 0
+    skipped_no_real_sorry = 0
     for t in candidates:
+        # Defense in depth: re-verify there is a real (non-commented) sorry
+        # in the file *at submission time*. Discover already filters comment-
+        # only-sorry files, but a target could have been added before the
+        # filter landed, OR the file could have been closed locally between
+        # discover and restock. Skipping here costs us nothing; submitting a
+        # comment-only-sorry file wastes Aristotle compute and triggers the
+        # COMPLETE_WITH_ERRORS pattern Aidan flagged.
+        target_path = REPO_ROOT / t.lean_path
+        if target_path.exists():
+            text = target_path.read_text()
+            code_only = _strip_lean_comments(text)
+            if not _SORRY_TERM.search(code_only):
+                skipped_no_real_sorry += 1
+                t.status = "SKIPPED_ALREADY_CLOSED"
+                t.notes = (
+                    f"file at {t.lean_path} has `sorry` only in comments "
+                    "or no `sorry` at all — refusing to submit"
+                )
+                print(f"[skip] {t.name}: no real sorry in {t.lean_path}")
+                continue
         prompt = (
             f"Close the `sorry`(es) in {t.lean_path}. The repo root is "
             f"the project_dir. Use Lean 4 + Mathlib v4.28.0. The result "
@@ -337,7 +358,10 @@ def cmd_restock(args: argparse.Namespace) -> int:
         print(f"submitted {t.name} → {pid}")
     if not args.dry_run:
         state.save()
-    print(f"restock: {submitted}/{len(candidates)} submitted")
+    suffix = ""
+    if skipped_no_real_sorry:
+        suffix = f" ({skipped_no_real_sorry} skipped: no real sorry)"
+    print(f"restock: {submitted}/{len(candidates)} submitted{suffix}")
     return 0
 
 

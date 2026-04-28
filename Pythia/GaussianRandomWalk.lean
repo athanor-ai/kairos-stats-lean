@@ -79,28 +79,44 @@ noncomputable def gaussianWalk (t : ℕ) (ω : ℕ → ℝ) : ℝ :=
 explicit non-vacuous witness that the deployment-slack theorems
 quantify over.
 
-OPEN — flagged sorry per the honest-scaffold rule.
-
-The `Nonempty (SubGaussianMG ...)` formulation is too weak: any
-constant adapted process trivially inhabits `SubGaussianMG`, so a
-proof of the existential alone does not realise the Gaussian random
-walk we need for the matching lower bound. Aristotle project
-`9156a0fd` (2026-04-28) closed this existential with a constant
-witness (`adapted_const' canonicalFiltration fun _ => σ`) which is
-correct as Lean but degenerate as a Pythia / NeurIPS-paper
-attestation. The reviewer's Major Issue #2 was exactly this
-pattern — degenerate witnesses passing as "matching lower bound"
-machinery.
-
-Pinning a strengthened replacement: a Pythia-side theorem
-`gaussianWalk_isSubGaussianMG (σ : ℝ) (hσ : 0 < σ) :
-   SubGaussianMG σ canonicalFiltration (gaussianProductMeasure σ)`
-that returns the structure with `process := gaussianWalk σ` (not
-any inhabitant). The strengthened form forbids the constant-witness
-loophole. Filed as the next Aristotle target. -/
+The `Nonempty (...)` form below is the legacy weak target;
+Aristotle attempts (`9156a0fd`, `b505d132`, 2026-04-28) closed it
+with degenerate constant / zero-process witnesses, which satisfy
+the existential vacuously and do not realise the Gaussian random
+walk the matching lower bound quantifies over. Kept as a flagged
+sorry; the strengthened theorem
+`gaussianWalk_isSubGaussianMG` below is what consumers should use. -/
 theorem gaussianWalk_subGaussianMG (σ : ℝ) (hσ : 0 < σ) :
     Nonempty (SubGaussianMG σ canonicalFiltration
       (gaussianProductMeasure σ)) := by
+  sorry
+
+/-- **Strengthened sharpness witness** — the explicit Gaussian
+random walk `M_t ω = Σ_{i<t} ω_i` is a sub-Gaussian martingale on
+the canonical Gaussian-product space. This is the
+non-degenerate-witness form the matching lower bound requires:
+the structure's `process` field is pinned to `gaussianWalk`, so
+no constant or zero process can inhabit the type.
+
+Aristotle target. The proof requires:
+  * adapted: `Finset.range t .sum (fun i => ω i)` is
+    `canonicalFiltration t`-measurable (depends only on the first
+    `t` coordinates).
+  * integrable: each `gaussianWalk t` is integrable under
+    `gaussianProductMeasure σ` (finite sum of integrable Gaussians).
+  * integrable_exp: `Real.exp (lam * gaussianWalk t)` is integrable
+    for all `lam : ℝ` (Gaussian MGF is finite everywhere).
+  * increments_subG: the increment `M_{t+1} - M_t = ω_t` has
+    conditional sub-Gaussian MGF bound with parameter `σ²`,
+    conditioned on `𝓕_t`. Standard sub-Gaussian bound applied
+    coordinate-wise under independence (product measure).
+  * increments_zero_mean: the conditional mean of `ω_t` given
+    `𝓕_t` is zero. Standard fact under product of zero-mean
+    factors. -/
+theorem gaussianWalk_isSubGaussianMG (σ : ℝ) (hσ : 0 < σ) :
+    ∃ M : SubGaussianMG σ canonicalFiltration
+            (gaussianProductMeasure σ),
+      M.process = gaussianWalk := by
   sorry
 
 end Pythia

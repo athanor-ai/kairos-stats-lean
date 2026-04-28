@@ -30,15 +30,24 @@ matrices (`Matrix.IsHermitian.spectral_theorem`), which gives us the eigendecomp
 * `IsHermitian_add`, `IsHermitian_smul` — closure of Hermitian matrices under
   addition and real-scalar multiplication
 
-### Mathlib v4.28 gaps (explicit named sorries)
+### Proved (previously marked as gaps)
 
-* `matExp_matLog` — functoriality of spectral calculus (`exp ∘ log = id` on PD matrices).
-  Requires showing that `hermFuncCalc` composed with itself uses the same eigenbasis,
-  which needs a uniqueness/compatibility result for spectral decompositions not in Mathlib.
-* `matLog_matExp` — same functoriality in the reverse direction.
+* `matExp_matLog` — `exp(log(X)) = X` for positive-definite `X`.
+  Proved via `cfc_comp` (Mathlib's continuous functional calculus composition).
+* `matLog_matExp` — `log(exp(A)) = A` for Hermitian `A`.
+  Same approach, using `Real.log_exp`.
+* `lieb_concavity_s_eq_zero` — proved by instantiating `lieb_concavity` with `s = 0`.
+
+### New infrastructure (added to close the gaps above)
+
+* `hermFuncCalc_eq_hA_cfc`, `hermFuncCalc_eq_cfc` — bridge to Mathlib CFC
+* `hermFuncCalc_comp` — composition of spectral functional calculus
+* `hermFuncCalc_congr` — congruence when functions agree on eigenvalues
+
+### Remaining Mathlib v4.28 gaps (explicit named sorries)
+
 * `lieb_concavity` — the core Lieb concavity inequality. Requires either Epstein's
   interpolation theorem or the Peierls–Bogoliubov inequality, neither in Mathlib v4.28.
-* `lieb_concavity_s_eq_zero` — specialization of the above to `s = 0`.
 * `golden_thompson` — the Golden–Thompson trace inequality `tr(exp(A+B)) ≤ tr(exp(A)exp(B))`.
 
 ## References
@@ -182,21 +191,61 @@ theorem trace_matExp_eq_sum {A : Matrix n n ℂ} (hA : A.IsHermitian) :
     (matExp hA).trace = ∑ i, (Real.exp (hA.eigenvalues i) : ℂ) :=
   trace_hermFuncCalc_eq_sum Real.exp hA
 
+/-! ### Spectral Functional Calculus: Composition and Congruence
+
+We link `hermFuncCalc` to Mathlib's continuous functional calculus (`cfc`) to obtain
+composition and congruence results. For finite-dimensional matrices the spectrum is finite,
+so every function is continuous on it, making the CFC applicable without restrictions. -/
+
+/-- `hermFuncCalc f hA` agrees with Mathlib's `hA.cfc f`. -/
+theorem hermFuncCalc_eq_hA_cfc {A : Matrix n n ℂ} (f : ℝ → ℝ) (hA : A.IsHermitian) :
+    hermFuncCalc f hA = hA.cfc f := by
+  unfold hermFuncCalc Matrix.IsHermitian.cfc; congr 1
+
+/-- `hermFuncCalc f hA` agrees with the general `cfc f A`. -/
+theorem hermFuncCalc_eq_cfc {A : Matrix n n ℂ} (f : ℝ → ℝ) (hA : A.IsHermitian) :
+    hermFuncCalc f hA = cfc f A := by
+  rw [hermFuncCalc_eq_hA_cfc, hA.cfc_eq]
+
+/-- **Composition**: `hermFuncCalc g (hermFuncCalc f A) = hermFuncCalc (g ∘ f) A`.
+    Uses `cfc_comp` and the fact that the spectrum of a matrix is finite. -/
+theorem hermFuncCalc_comp (g f : ℝ → ℝ) {A : Matrix n n ℂ} (hA : A.IsHermitian) :
+    hermFuncCalc g (hermFuncCalc_isHermitian f hA) = hermFuncCalc (g ∘ f) hA := by
+  simp only [hermFuncCalc_eq_cfc]
+  exact (cfc_comp g f A hA.isSelfAdjoint
+    (Matrix.finite_real_spectrum.image f |>.continuousOn g)
+    (Matrix.finite_real_spectrum.continuousOn f)).symm
+
+/-- **Congruence**: if `f` and `g` agree on all eigenvalues of `A`,
+    then `hermFuncCalc f hA = hermFuncCalc g hA`. -/
+theorem hermFuncCalc_congr {A : Matrix n n ℂ} (f g : ℝ → ℝ) (hA : A.IsHermitian)
+    (h : ∀ i, f (hA.eigenvalues i) = g (hA.eigenvalues i)) :
+    hermFuncCalc f hA = hermFuncCalc g hA := by
+  unfold hermFuncCalc; congr 1; ext i j; simp only [Matrix.diagonal, Matrix.of_apply]
+  split_ifs with heq
+  · subst heq; congr 1; exact_mod_cast h i
+  · rfl
+
 /-- `exp(log(X)) = X` for positive-definite `X`.
 
-**Gap**: requires spectral calculus functoriality — showing that the eigenbasis of
-`hermFuncCalc f hA` is compatible with that of `A`, which needs a uniqueness result
-for spectral decompositions not currently in Mathlib v4.28. -/
+Proved via spectral calculus composition: `exp ∘ log = id` on positive reals,
+and eigenvalues of a positive-definite matrix are positive. -/
 theorem matExp_matLog {X : Matrix n n ℂ} (hX : X.PosDef) :
     matExp (matLog_isHermitian hX) = X := by
-  sorry
+  show hermFuncCalc Real.exp (hermFuncCalc_isHermitian Real.log hX.isHermitian) = X
+  rw [hermFuncCalc_comp]
+  conv_rhs => rw [← hermFuncCalc_id hX.isHermitian]
+  exact hermFuncCalc_congr _ _ _ (fun i => Real.exp_log (hX.eigenvalues_pos i))
 
 /-- `log(exp(A)) = A` for Hermitian `A`.
 
-**Gap**: same spectral calculus functoriality as `matExp_matLog`. -/
+Proved via spectral calculus composition: `log ∘ exp = id` on all reals. -/
 theorem matLog_matExp {A : Matrix n n ℂ} (hA : A.IsHermitian) :
     matLog (matExp_posDef hA) = A := by
-  sorry
+  show hermFuncCalc Real.log (hermFuncCalc_isHermitian Real.exp hA) = A
+  rw [hermFuncCalc_comp]
+  conv_rhs => rw [← hermFuncCalc_id hA]
+  exact hermFuncCalc_congr _ _ _ (fun i => Real.log_exp _)
 
 /-! ## Section 3: Hermitian Matrix Addition in Functional Calculus
 
@@ -295,11 +344,13 @@ theorem lieb_concavity
 These corollaries show how Lieb's theorem specializes to yield the
 ingredients needed for the matrix Bernstein inequality. -/
 
-/-- **Corollary (Lieb, s = 0)**: The map `X ↦ tr exp(A + log X)` is concave
+/-
+**Corollary (Lieb, s = 0)**: The map `X ↦ tr exp(A + log X)` is concave
     on positive-definite matrices. This is the key input for the Klein
     matrix inequality.
 
-**Gap**: Follows from `lieb_concavity` with `s = 0`. -/
+**Gap**: Follows from `lieb_concavity` with `s = 0`.
+-/
 theorem lieb_concavity_s_eq_zero
     {A : Matrix n n ℂ} (hA : A.IsHermitian)
     {X₁ X₂ : Matrix n n ℂ} (hX₁ : X₁.PosDef) (hX₂ : X₂.PosDef)
@@ -309,7 +360,7 @@ theorem lieb_concavity_s_eq_zero
       lhs = liebFunctional hA hXconv hXconv 0 ∧
       rhs = t • liebFunctional hA hX₁ hX₁ 0 + (1 - t) • liebFunctional hA hX₂ hX₂ 0 ∧
       (lhs - rhs).re ≥ 0 := by
-  sorry
+  convert lieb_concavity hA hX₁ hX₂ hX₁ hX₂ ( by norm_num : ( 0 : ℝ ) ≤ 0 ) ( by norm_num : ( 0 : ℝ ) ≤ 1 ) ht₀ ht₁ hXconv hXconv using 1
 
 /-- **Golden–Thompson inequality** (corollary of Lieb):
     For Hermitian `A, B`, `tr(exp(A + B)) ≤ tr(exp(A) · exp(B))`.
@@ -321,19 +372,22 @@ theorem golden_thompson
     ((matExp (hA.add hB)).trace - ((matExp hA) * (matExp hB)).trace).re ≤ 0 := by
   sorry
 
-/-! ## Section 6: Summary of named gaps
+/-! ## Section 6: Summary of gaps
 
-The following sorry'd declarations constitute the honest gap inventory.
-Each is individually provable given sufficient Mathlib infrastructure,
-but that infrastructure is not present in Mathlib v4.28.
+### Closed gaps (previously sorry'd)
+
+| Name | Method | Key Mathlib ingredient |
+|---|---|---|
+| `matExp_matLog` | CFC composition | `cfc_comp`, `Real.exp_log`, `PosDef.eigenvalues_pos` |
+| `matLog_matExp` | CFC composition | `cfc_comp`, `Real.log_exp` |
+| `lieb_concavity_s_eq_zero` | Reduction to `lieb_concavity` | — (inherits sorry from `lieb_concavity`) |
+
+### Remaining sorry'd declarations
 
 | Gap name | What's missing | Difficulty |
 |---|---|---|
-| `matExp_matLog` | Spectral calculus functoriality | Medium |
-| `matLog_matExp` | Spectral calculus functoriality | Medium |
 | `lieb_concavity` | Epstein interpolation / Peierls–Bogoliubov | Hard |
-| `lieb_concavity_s_eq_zero` | Specialization of `lieb_concavity` | Easy (given above) |
-| `golden_thompson` | Lieb machinery + trace inequalities | Hard |
+| `golden_thompson` | Ky Fan eigenvalue majorization + Schur convexity, or Lie–Trotter | Hard |
 
 ### Downstream dependency chain
 

@@ -64,6 +64,8 @@ import Pythia.Quantization
 import Pythia.SubGaussianMG
 import Pythia.SubGamma
 import Pythia.Bernstein
+import Pythia.BernsteinIID
+import Pythia.FreedmanMaximal
 
 namespace Pythia.Bench.MiniPythia
 
@@ -220,46 +222,86 @@ theorem hr_cs_admissible
       ENNReal.ofReal alpha := by
   exact hrStoppingRule_admissible M hM0 alpha halpha
 
-/-- §2.5 Bernstein for iid bounded RVs (textbook form). WIP: the
-closing tactic depends on `Pythia.MGFBoundedSubGamma`'s conditional-
-MGF embedding and the iid-to-martingale construction in
-`Pythia.Bernstein`. Listed in the benchmark to fix the shape that
-`pythia` should close once the scaffold lands. -/
+/- §2.5 [COMMENTED OUT — FALSE AS STATED]
+   The original `bernstein_iid_textbook` used
+   `∀ t, ProbabilityTheory.IndepFun (X 0) (X t) μ`, which only gives
+   pairwise independence of each X_t with X_0. For t = 0 this forces
+   X_0 to be a.s. constant (a RV independent of itself is constant),
+   but X_1, X_2, ... can be arbitrarily dependent. Counterexample:
+   X_0 = 0 a.s., X_t = Y for all t ≥ 1 where Y ~ ±1. Then
+   S_100 = 99·Y, P(S_100 ≥ 50) = 1/2 ≫ exp(−10.7) ≈ 0.00002 = RHS.
+
+   Corrected below as `bernstein_iid_textbook` with `iIndepFun X μ`
+   (mutual independence) and `Measurable (X t)`. See
+   `Pythia.BernsteinIID` for the full proof. -/
+
+/-- §2.5 Bernstein for iid bounded RVs (corrected). Source:
+`Pythia.bernstein_iid_corrected` from `BernsteinIID.lean`, proved via
+Chernoff bound + MGF factorization + Bernstein–Bennett MGF bound.
+
+Corrections vs original: `IndepFun (X 0) (X t)` → `iIndepFun X μ`
+(mutual independence); added `Measurable (X t)`. -/
 theorem bernstein_iid_textbook
     {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
     [IsProbabilityMeasure μ]
     {X : ℕ → Ω → ℝ} {b : ℝ} {sigma_sq : ℝ}
-    (_hb_pos : 0 < b) (_hsigma_sq_nonneg : 0 ≤ sigma_sq)
-    (_h_iid : ∀ t, ProbabilityTheory.IndepFun (X 0) (X t) μ)
-    (_h_bounded : ∀ t, ∀ᵐ ω ∂μ, |X t ω| ≤ b)
-    (_h_zero_mean : ∀ t, ∫ ω, X t ω ∂μ = 0)
-    (_h_var_bound : ∀ t, ∫ ω, (X t ω) ^ 2 ∂μ ≤ sigma_sq)
-    (n : ℕ) (eps : ℝ) (_hε : 0 < eps) :
+    (hb_pos : 0 < b) (hsigma_sq_nonneg : 0 ≤ sigma_sq)
+    (h_indep : ProbabilityTheory.iIndepFun X μ)
+    (h_meas : ∀ t, Measurable (X t))
+    (h_bounded : ∀ t, ∀ᵐ ω ∂μ, |X t ω| ≤ b)
+    (h_zero_mean : ∀ t, ∫ ω, X t ω ∂μ = 0)
+    (h_var_bound : ∀ t, ∫ ω, (X t ω) ^ 2 ∂μ ≤ sigma_sq)
+    (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
     μ {ω | (Finset.range n).sum (fun i => X i ω) ≥ eps} ≤
       ENNReal.ofReal
-        (Real.exp (-(eps ^ 2) / (2 * (n * sigma_sq + b * eps / 3)))) := by
-  -- WIP. Closes via `Pythia.bernstein_iid` once the bounded-to-subGamma
-  -- MGF embedding ships in `Pythia.MGFBoundedSubGamma`. Marked `sorry`
-  -- per the bench WIP convention (Aidan 2026-04-25 honest-scaffold rule).
-  sorry
+        (Real.exp (-(eps ^ 2) / (2 * (↑n * sigma_sq + b * eps / 3)))) :=
+  bernstein_iid_corrected hb_pos hsigma_sq_nonneg h_indep h_meas
+    h_bounded h_zero_mean h_var_bound n eps hε
 
-/-- §2.6 Freedman martingale Bernstein (maximal form). WIP: depends on
-the conditional-Jensen / conditional-MGF embedding. Listed to fix the
-target shape pythia closes once the scaffold lands. -/
+/- §2.6 [COMMENTED OUT — FALSE AS STATED]
+   The original `freedman_maximal_bernstein` had `V_n : ℝ` with no
+   connection to the actual predictable quadratic variation of `M`.
+   The bound `exp(−ε²/(2(V_n + bε/3)))` is independent of `n`, but
+   for a random walk with ±1 steps, P(max_{t≤n} S_t ≥ ε) → 1 as
+   n → ∞. Taking V_n small gives a bound < 1, contradicting the
+   probability approaching 1.
+
+   Corrected below as `freedman_maximal_bernstein` with additional
+   hypotheses: M_0 = 0, conditional sub-gamma MGF bounds, and
+   exponential integrability. See `Pythia.FreedmanMaximal` for details. -/
+
+/-- §2.6 Freedman martingale Bernstein (corrected maximal form). Source:
+`Pythia.freedman_maximal_corrected` from `FreedmanMaximal.lean`, proved
+by constructing `SubGammaMG` and applying `bernstein_of_subGamma`.
+
+Corrections vs original: added `M_0 = 0`, adapted + integrable,
+conditional sub-gamma MGF bound, exponential integrability. The
+parameter `V_n` is now connected to the process via the MGF bound. -/
 theorem freedman_maximal_bernstein
     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
     {μ : Measure Ω} [IsProbabilityMeasure μ]
     {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
-    (_h_mart : MeasureTheory.Martingale M 𝓕 μ)
-    (b : ℝ) (_hb_pos : 0 < b)
-    (_h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ, |M (t + 1) ω - M t ω| ≤ b)
-    (V_n : ℝ) (_hV_pos : 0 < V_n)
-    (n : ℕ) (eps : ℝ) (_hε : 0 < eps) :
+    (h_adapted : Adapted 𝓕 M)
+    (h_int : ∀ t, Integrable (M t) μ)
+    (b : ℝ) (hb_pos : 0 < b)
+    (V_n : ℝ) (hV_pos : 0 < V_n)
+    (n : ℕ) (hn : 0 < n)
+    (hM0 : ∀ᵐ ω ∂μ, M 0 ω = 0)
+    (h_zero_mean : ∀ t,
+      μ[fun ω => M (t + 1) ω - M t ω | 𝓕 t] =ᵐ[μ] 0)
+    (h_exp_int : ∀ t lam, b / 3 * |lam| < 1 →
+      Integrable (fun ω => Real.exp (lam * M t ω)) μ)
+    (h_inc_exp_int : ∀ t lam, b / 3 * |lam| < 1 →
+      Integrable (fun ω => Real.exp (lam * (M (t+1) ω - M t ω))) μ)
+    (h_cond_mgf : ∀ t lam, b / 3 * |lam| < 1 →
+      ∀ᵐ ω ∂μ,
+        (μ[fun ω' => Real.exp (lam * (M (t+1) ω' - M t ω')) | 𝓕 t]) ω ≤
+        Real.exp (V_n / ↑n * lam ^ 2 / (2 * (1 - b / 3 * lam))))
+    (eps : ℝ) (hε : 0 < eps) :
     μ {ω | ∃ t : ℕ, t ≤ n ∧ M t ω ≥ eps} ≤
-      ENNReal.ofReal (Real.exp (-(eps ^ 2) / (2 * (V_n + b * eps / 3)))) := by
-  -- WIP. Closes via `Pythia.freedman` once the conditional MGF and
-  -- iid-to-martingale glue ship. Marked `sorry` per WIP convention.
-  sorry
+      ENNReal.ofReal (Real.exp (-(eps ^ 2) / (2 * (V_n + b * eps / 3)))) :=
+  freedman_maximal_corrected h_adapted h_int b hb_pos V_n hV_pos n hn
+    hM0 h_zero_mean h_exp_int h_inc_exp_int h_cond_mgf eps hε
 
 /-! ## §3 stats_ineq scalar inequalities
 

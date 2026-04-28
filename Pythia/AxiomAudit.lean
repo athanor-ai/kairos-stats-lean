@@ -52,6 +52,7 @@ import Pythia.Risk.CoherentMeasures
 import Pythia.HypothesisTest.MultipleTesting
 import Pythia.Numerical.Lyapunov
 import Pythia.Bio.MassAction
+import Pythia.Actuarial.Pareto
 
 namespace Pythia.AxiomAudit
 
@@ -190,5 +191,18 @@ open Pythia
 -- has `True` conjunct upstream — see ATH ticket for upgrading to a real
 -- Lyapunov claim).
 #print axioms Pythia.Bio.MassAction.detailed_balance_equilibrium
+/-! ## Pareto distribution (Aristotle import 2026-04-27, project 4ed8b33f) -/
+
+-- Tail (survival) probability: P(X > t) = (x_m / t)^α for t ≥ x_m.
+#print axioms Pythia.Actuarial.Pareto.tail
+
+-- Mean: E[X] = α · x_m / (α − 1) for α > 1.
+#print axioms Pythia.Actuarial.Pareto.mean
+
+-- Variance: Var(X) = α · x_m² / ((α − 1)² · (α − 2)) for α > 2.
+#print axioms Pythia.Actuarial.Pareto.variance
+
+-- Median: ∃ m, CDF(m) = 1/2 ∧ m = x_m · 2^(1/α).
+#print axioms Pythia.Actuarial.Pareto.median
 
 end Pythia.AxiomAudit

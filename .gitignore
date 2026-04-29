@@ -35,3 +35,4 @@ coverage.xml
 # leave .lean files behind. Source-controlled scratch namespaces
 # (SwarmDogfood/, SDKFleetDemo/) are NOT covered by this rule.
 Pythia/Scratch/MdDoctest/
+.pythia/

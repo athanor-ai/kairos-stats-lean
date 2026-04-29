@@ -32,17 +32,23 @@ metastability window and f_clk is the sampling clock frequency. -/
 noncomputable def cascadeMTBF (n : ℕ) (f_clk T_w τ t_slack : ℝ) : ℝ :=
   1 / (f_clk * T_w * (stageFailProb τ t_slack) ^ n)
 
-/-- MTBF grows exponentially with synchronizer depth n. Adding one
-stage multiplies MTBF by exp(t_slack / τ). -/
+/-
+MTBF grows exponentially with synchronizer depth n. Adding one
+stage multiplies MTBF by exp(t_slack / τ).
+-/
 theorem mtbf_exponential_growth
     (n : ℕ) (f_clk T_w τ t_slack : ℝ)
     (hf : 0 < f_clk) (hT : 0 < T_w) (hτ : 0 < τ) (ht : 0 < t_slack) :
     cascadeMTBF (n + 1) f_clk T_w τ t_slack =
       cascadeMTBF n f_clk T_w τ t_slack * exp (t_slack / τ) := by
-  sorry
+  unfold cascadeMTBF stageFailProb;
+  norm_num [ pow_succ, mul_assoc, mul_comm, mul_left_comm, ← Real.exp_add, div_eq_mul_inv ];
+  norm_num [ Real.exp_neg ]
 
-/-- With n ≥ 2 stages and t_slack ≥ τ · log(2), MTBF ≥ 1/(f·T_w·4)
-· 2^n. The standard "doubling per stage" rule of thumb. -/
+/-
+With n ≥ 2 stages and t_slack ≥ τ · log(2), MTBF ≥ 1/(f·T_w·4)
+· 2^n. The standard "doubling per stage" rule of thumb.
+-/
 theorem mtbf_doubling_rule
     (n : ℕ) (hn : 2 ≤ n)
     (f_clk T_w τ t_slack : ℝ)
@@ -50,14 +56,34 @@ theorem mtbf_doubling_rule
     (h_slack : τ * log 2 ≤ t_slack) :
     1 / (f_clk * T_w * 4) * (2 : ℝ) ^ (n : ℤ) ≤
       cascadeMTBF n f_clk T_w τ t_slack := by
-  sorry
+  -- By simplifying, we can see that the inequality holds.
+  have h_simp : 2 ^ (n : ℝ) ≤ 4 / (stageFailProb τ t_slack) ^ n := by
+    -- Since $t_slack \geq \tau \log 2$, we have $stageFailProb τ t_slack \leq \frac{1}{2}$.
+    have h_stageFailProb_le_half : stageFailProb τ t_slack ≤ 1 / 2 := by
+      unfold stageFailProb;
+      rw [ ← Real.log_le_log_iff ( by positivity ) ( by positivity ), Real.log_div ] <;> norm_num;
+      rw [ div_le_iff₀ ] <;> linarith;
+    rw [ le_div_iff₀ ( pow_pos ( by unfold stageFailProb; positivity ) _ ) ];
+    exact le_trans ( mul_le_mul_of_nonneg_left ( pow_le_pow_left₀ ( by unfold stageFailProb; positivity ) h_stageFailProb_le_half _ ) ( by positivity ) ) ( by norm_num [ ← mul_pow ] );
+  convert mul_le_mul_of_nonneg_left h_simp ( by positivity : 0 ≤ 1 / ( f_clk * T_w * 4 ) ) using 1 ; ring;
+  · norm_cast;
+  · unfold cascadeMTBF; ring;
 
-/-- Minimum synchronizer depth to achieve a target MTBF. -/
+/-
+Minimum synchronizer depth to achieve a target MTBF.
+-/
 theorem min_depth_for_mtbf
     (target_mtbf f_clk T_w τ t_slack : ℝ)
     (hf : 0 < f_clk) (hT : 0 < T_w) (hτ : 0 < τ) (ht : 0 < t_slack)
     (h_target : 0 < target_mtbf) :
     ∃ n : ℕ, target_mtbf ≤ cascadeMTBF n f_clk T_w τ t_slack := by
-  sorry
+  -- Show that the stage failure probability $p = \exp(-t_slack / \tau)$ is strictly less than 1
+  have hp_lt_1 : 0 < (Real.exp (-t_slack / τ)) ∧ (Real.exp (-t_slack / τ)) < 1 := by
+    exact ⟨ Real.exp_pos _, Real.exp_lt_one_iff.mpr <| by ring_nf; norm_num; positivity ⟩;
+  -- Using the Archimedean property, we can find an $n$ such that $(\exp(-t_slack / \tau))^n < \frac{1}{f_clk \cdot T_w \cdot \text{target\_mtbf}}$
+  obtain ⟨n, hn⟩ : ∃ n : ℕ, (Real.exp (-t_slack / τ)) ^ n < 1 / (f_clk * T_w * target_mtbf) := by
+    exact exists_pow_lt_of_lt_one ( by positivity ) hp_lt_1.2;
+  use n; unfold cascadeMTBF; unfold stageFailProb; rw [ lt_div_iff₀ ] at hn <;> try positivity;
+  rw [ le_div_iff₀ ] <;> first | positivity | linarith;
 
 end Pythia.Hardware

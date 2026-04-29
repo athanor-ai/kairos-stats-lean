@@ -47,7 +47,7 @@ References
 -/
 import Mathlib
 import Pythia.Basic
-import Pythia.WaldIdentity
+import Pythia.Frontier.WaldIdentity
 import Pythia.SubGaussianMG
 
 namespace Pythia

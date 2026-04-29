@@ -59,9 +59,22 @@ structure KKTConditions
   /-- Complementary slackness: `λ_i * g_i(p.x) = 0`. -/
   complementary_slackness : ∀ i, p.lam i * g i p.x = 0
 
-/-- KKT necessary: at any local minimum satisfying Slater's
-constraint qualification (strict feasibility of the inequality
-constraints), the KKT conditions hold. -/
+/-! ### `kkt_necessary` — original statement (commented out)
+
+The original scaffold statement is **unprovable**: it requires
+showing that `x_star` is primal-feasible, but feasibility of
+`x_star` does not follow from the hypothesis
+`∀ x, feasible x → f x_star ≤ f x`.
+
+**Counterexample.** Take `f ≡ 0`, a single inequality constraint
+`g₁(x) = x₁ − 1` (so the feasible set is `x₁ ≤ 1`), no equality
+constraints, and `x_star = (2,…)`.  Then `h_local_min` holds
+vacuously (since `f ≡ 0`), `h_slater` is satisfied by any strict
+interior point, but `x_star` is *infeasible*.  KKT conditions
+include primal feasibility, which would require `g₁(x_star) ≤ 0`,
+i.e.\ `1 ≤ 0` — false.
+
+```
 theorem kkt_necessary
     {n m_eq m_ineq : ℕ}
     (f : (Fin n → ℝ) → ℝ)
@@ -71,14 +84,51 @@ theorem kkt_necessary
     (h_local_min : ∀ x : Fin n → ℝ,
       (∀ i, g i x ≤ 0) → (∀ j, h j x = 0) → f x_star ≤ f x)
     (h_slater : ∃ x : Fin n → ℝ, (∀ i, g i x < 0) ∧ (∀ j, h j x = 0))
+    (h_diff : True)
+    : ∃ (μ_star : Fin m_eq → ℝ) (lam_star : Fin m_ineq → ℝ),
+        KKTConditions f g h ⟨x_star, μ_star, lam_star⟩ := by
+  sorry
+```
+-/
+
+/-
+**Corrected `kkt_necessary`.**
+
+An explicit feasibility hypothesis `h_feas` is added so that primal
+feasibility is available.  Because `stationarity = True` in
+`KKTConditions`, the remaining conditions (dual feasibility,
+complementary slackness) are satisfied by choosing all multipliers
+equal to zero.
+-/
+theorem kkt_necessary
+    {n m_eq m_ineq : ℕ}
+    (f : (Fin n → ℝ) → ℝ)
+    (g : Fin m_ineq → (Fin n → ℝ) → ℝ)
+    (h : Fin m_eq → (Fin n → ℝ) → ℝ)
+    (x_star : Fin n → ℝ)
+    (h_feas : (∀ i, g i x_star ≤ 0) ∧ (∀ j, h j x_star = 0))
+    (h_local_min : ∀ x : Fin n → ℝ,
+      (∀ i, g i x ≤ 0) → (∀ j, h j x = 0) → f x_star ≤ f x)
+    (h_slater : ∃ x : Fin n → ℝ, (∀ i, g i x < 0) ∧ (∀ j, h j x = 0))
     (h_diff : True)  -- placeholder for differentiability of f, g, h
     : ∃ (μ_star : Fin m_eq → ℝ) (lam_star : Fin m_ineq → ℝ),
         KKTConditions f g h ⟨x_star, μ_star, lam_star⟩ := by
-  sorry  -- Scaffold; Aristotle queue item 35
+  exact ⟨ fun _ => 0, fun _ => 0, ⟨ by trivial, h_feas, by norm_num, by norm_num ⟩ ⟩
 
-/-- KKT sufficient (convex case): if `f` and each `g_i` are convex,
-each `h_j` is affine, and a primal-dual point satisfies KKT, then
-the primal point is a global minimum. -/
+/-! ### `kkt_sufficient_convex` — original statement (commented out)
+
+The original scaffold statement is **unprovable** because
+`stationarity = True` in `KKTConditions` carries no gradient
+information, so the KKT conditions reduce to primal/dual
+feasibility plus complementary slackness — which are insufficient
+to guarantee optimality.
+
+**Counterexample.** `f(x) = x` (convex), one inequality
+`g₁(x) = x − 1`, no equalities, `p.x = 0`, `λ₁ = 0`.
+All KKT conditions hold, but `f(0) = 0 > f(−5) = −5` with
+`−5` feasible.
+
+```
 theorem kkt_sufficient_convex
     {n m_eq m_ineq : ℕ}
     (f : (Fin n → ℝ) → ℝ)
@@ -92,6 +142,50 @@ theorem kkt_sufficient_convex
     (h_kkt : KKTConditions f g h p) :
     ∀ x : Fin n → ℝ,
       (∀ i, g i x ≤ 0) → (∀ j, h j x = 0) → f p.x ≤ f x := by
-  sorry  -- Scaffold; Aristotle queue item 36
+  sorry
+```
+-/
+
+/-
+**Corrected `kkt_sufficient_convex`.**
+
+An explicit Lagrangian-minimisation hypothesis `h_lagrangian_min` is
+added: it asserts that `p.x` minimises the Lagrangian
+`L(x) = f(x) + Σ λᵢ gᵢ(x) + Σ μⱼ hⱼ(x)` over all of `ℝⁿ`.
+
+In a genuine convex programme with a proper stationarity condition
+(`∇L(x*) = 0`), convexity of `L` (which follows from convexity of
+`f` and each `gᵢ`, affineness of each `hⱼ`, and `λᵢ ≥ 0`)
+guarantees this hypothesis automatically. Since the scaffold's
+`stationarity` field is `True`, we supply the consequence directly.
+
+The proof uses the standard Lagrangian-sandwich argument:
+`f(p.x) = L(p.x) ≤ L(x) ≤ f(x)` for every feasible `x`.
+-/
+theorem kkt_sufficient_convex
+    {n m_eq m_ineq : ℕ}
+    (f : (Fin n → ℝ) → ℝ)
+    (g : Fin m_ineq → (Fin n → ℝ) → ℝ)
+    (h : Fin m_eq → (Fin n → ℝ) → ℝ)
+    (h_f_cvx : ConvexOn ℝ Set.univ f)
+    (h_g_cvx : ∀ i, ConvexOn ℝ Set.univ (g i))
+    (h_h_aff : ∀ j, ∃ a : Fin n → ℝ, ∃ b : ℝ,
+      ∀ x : Fin n → ℝ, h j x = (∑ i, a i * x i) + b)
+    (p : KKTPoint n m_eq m_ineq)
+    (h_kkt : KKTConditions f g h p)
+    (h_lagrangian_min : ∀ x : Fin n → ℝ,
+      f p.x + ∑ i : Fin m_ineq, p.lam i * g i p.x +
+        ∑ j : Fin m_eq, p.μ j * h j p.x
+      ≤ f x + ∑ i : Fin m_ineq, p.lam i * g i x +
+          ∑ j : Fin m_eq, p.μ j * h j x) :
+    ∀ x : Fin n → ℝ,
+      (∀ i, g i x ≤ 0) → (∀ j, h j x = 0) → f p.x ≤ f x := by
+  -- By definition of $KKTConditions$, we know that $\sum i, p.lam i * g i p.x = 0$ and $\sum j, p.μ j * h j p.x = 0$.
+  have h_zero_sum : ∑ i, p.lam i * g i p.x = 0 := by
+    exact Finset.sum_eq_zero fun i _ => h_kkt.complementary_slackness i
+  have h_zero_sum_h : ∑ j, p.μ j * h j p.x = 0 := by
+    exact Finset.sum_eq_zero fun j _ => mul_eq_zero_of_right _ ( h_kkt.primal_feasibility.2 j );
+  intros x hx_g hx_h; specialize h_lagrangian_min x; simp_all +decide ;
+  exact h_lagrangian_min.trans ( add_le_of_nonpos_right <| Finset.sum_nonpos fun i _ => mul_nonpos_of_nonneg_of_nonpos ( h_kkt.dual_feasibility i ) ( hx_g i ) )
 
 end Pythia.Numerical.KKT

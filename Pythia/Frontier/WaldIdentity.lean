@@ -18,17 +18,6 @@ statements:
 * `wald_identity_exp`         — exponential-MGF form for sub-Gaussian X.
                                  Bridge to anytime-valid inference.
 
-Status (2026-04-25): scaffolded with full statements + closure
-plan in each proof body. Sorries are flagged here and the module is
-**excluded from `Pythia.AxiomAudit`** until closures land. Closure
-path is direct local Mathlib — no external prover needed; each theorem fits in
-<30 lean lines once the right `OptionalSampling.*` lemma is identified.
-
-The hypotheses are stated with the abstract martingale/iid properties as
-hypotheses (rather than constructed from `ProbabilityTheory.iIndepFun`)
-to keep the statements robust against Mathlib Independence-API churn.
-A `from_iIndepFun` lemma will bridge once the closures land.
-
 References
 ----------
 * Wald, *Sequential Analysis*, 1944. Original.
@@ -42,7 +31,7 @@ import Pythia.Tactic.Pythia
 namespace Pythia
 
 open MeasureTheory ProbabilityTheory Filter
-open scoped ENNReal NNReal
+open scoped ENNReal NNReal Topology
 
 universe u
 
@@ -68,6 +57,146 @@ uses for `IsStoppingTime`. -/
 noncomputable def liftStoppingTime (τ : Ω → ℕ) : Ω → WithTop ℕ :=
   fun ω => (τ ω : WithTop ℕ)
 
+/-! ## Helper lemmas for optional stopping with supermartingales -/
+
+/-
+For a supermartingale M and bounded stopping time σ ≤ N,
+`∫ stoppedValue M σ ≤ ∫ M 0`.
+-/
+private lemma super_stoppedValue_le_initial
+    [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    {M : ℕ → Ω → ℝ}
+    (hM : Supermartingale M 𝓕 μ)
+    {σ : Ω → ℕ∞}
+    (hσ : IsStoppingTime 𝓕 σ)
+    {N : ℕ}
+    (hσ_bdd : ∀ ω, σ ω ≤ N) :
+    ∫ ω, stoppedValue M σ ω ∂μ ≤ ∫ ω, M 0 ω ∂μ := by
+  exact supermartingale_expected_stoppedValue_le hM hσ hσ_bdd
+
+/-
+For a supermartingale M and stopping time τ, `∫ stoppedProcess M τ n ≤ ∫ M 0`
+for every n.
+-/
+private lemma super_stoppedProcess_le_initial
+    [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    {M : ℕ → Ω → ℝ}
+    (hM : Supermartingale M 𝓕 μ)
+    {τ : Ω → ℕ∞}
+    (hτ : IsStoppingTime 𝓕 τ)
+    (n : ℕ) :
+    ∫ ω, stoppedProcess M τ n ω ∂μ ≤ ∫ ω, M 0 ω ∂μ := by
+  convert super_stoppedValue_le_initial hM _ _;
+  convert hτ.min ( isStoppingTime_const 𝓕 n ) using 1;
+  exacts [ funext fun ω => min_comm _ _, n, fun ω => min_le_left _ _ ]
+
+/-
+**Optional stopping for uniformly integrable supermartingales** (≤ direction).
+Supermartingale version of `Pythia.MTUnbounded.optional_stopping_unbounded`:
+for a supermartingale M and a.s.-finite stopping time τ with UI stopped process,
+`∫ stoppedValue M τ ≤ ∫ M 0`.
+-/
+private theorem optional_stopping_super
+    [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    {M : ℕ → Ω → ℝ}
+    (hM : Supermartingale M 𝓕 μ)
+    {τ : Ω → ℕ∞}
+    (hτ : IsStoppingTime 𝓕 τ)
+    (hτ_finite : ∀ᵐ ω ∂μ, τ ω ≠ ⊤)
+    (hUI : UniformIntegrable
+              (fun n : ℕ => stoppedProcess M τ n) 1 μ) :
+    ∫ ω, stoppedValue M τ ω ∂μ ≤ ∫ ω, M 0 ω ∂μ := by
+  have h_integrable : MeasureTheory.Integrable (stoppedValue M τ) μ := by
+    obtain ⟨ C, hC ⟩ := hUI;
+    have h_conv : ∀ᵐ ω ∂μ, Filter.Tendsto (fun n => stoppedProcess M τ n ω) Filter.atTop (nhds (stoppedValue M τ ω)) := by
+      filter_upwards [ hτ_finite ] with ω hω;
+      refine' tendsto_const_nhds.congr' _;
+      filter_upwards [ Filter.eventually_ge_atTop ( τ ω |> ENat.toNat ) ] with n hn;
+      unfold stoppedValue stoppedProcess;
+      cases h : τ ω <;> aesop;
+    have h_integrable : MeasureTheory.Integrable (stoppedValue M τ) μ := by
+      have h_unif_integrable : MeasureTheory.UniformIntegrable (fun n => stoppedProcess M τ n) 1 μ := by
+        exact ⟨ C, hC.1, hC.2 ⟩
+      convert h_unif_integrable.memLp_of_ae_tendsto h_conv using 1;
+      ext; simp [Integrable, MemLp];
+      simp +decide [ HasFiniteIntegral, eLpNorm_one_eq_lintegral_enorm ];
+    exact h_integrable;
+  have h_integrable : Filter.Tendsto (fun n => MeasureTheory.integral μ (stoppedProcess M τ n)) Filter.atTop (nhds (MeasureTheory.integral μ (stoppedValue M τ))) := by
+    refine' MeasureTheory.tendsto_integral_of_L1 _ _ _ _;
+    · exact h_integrable;
+    · refine' Filter.Eventually.of_forall fun n => _;
+      have := hUI.1 n;
+      refine' ⟨ this, _ ⟩;
+      have := hUI.2;
+      exact lt_of_le_of_lt ( by simp +decide [ eLpNorm_one_eq_lintegral_enorm ] ) ( lt_of_le_of_lt ( this.2.choose_spec n ) ( ENNReal.coe_lt_top ) );
+    · have h_ae_conv : ∀ᵐ ω ∂μ, Filter.Tendsto (fun n => stoppedProcess M τ n ω) Filter.atTop (nhds (stoppedValue M τ ω)) := by
+        filter_upwards [ hτ_finite ] with ω hω;
+        cases h : τ ω <;> simp_all +decide [ stoppedProcess, stoppedValue ];
+        refine' tendsto_const_nhds.congr' _;
+        filter_upwards [ Filter.eventually_ge_atTop ‹_› ] with n hn using by simp +decide [ hn ] ;
+      have h_l1_conv : MeasureTheory.TendstoInMeasure μ (fun n => stoppedProcess M τ n) Filter.atTop (stoppedValue M τ) := by
+        apply_rules [ tendstoInMeasure_of_tendsto_ae ];
+        intro n;
+        have := hUI.1;
+        exact this n;
+      have := @MeasureTheory.tendsto_Lp_finite_of_tendstoInMeasure;
+      specialize this ( show 1 ≤ 1 by norm_num ) ( show ( 1 : ENNReal ) ≠ ⊤ by norm_num ) ( fun n => ?_ ) ( show MemLp ( stoppedValue M τ ) 1 μ from ?_ ) ( show UnifIntegrable ( fun n => stoppedProcess M τ n ) 1 μ from ?_ ) h_l1_conv;
+      · exact hUI.1 n;
+      · exact MeasureTheory.memLp_one_iff_integrable.mpr h_integrable;
+      · exact hUI.2.1;
+      · convert this using 1;
+        ext; simp +decide [ eLpNorm_one_eq_lintegral_enorm ] ;
+  exact le_of_tendsto_of_tendsto' h_integrable tendsto_const_nhds fun n => by simpa using super_stoppedProcess_le_initial hM hτ n;
+
+/-! ## Bounded martingale optional stopping equality for ℕ-valued stopping times -/
+
+/-
+For a martingale M and bounded stopping time σ ≤ N,
+`∫ stoppedValue M σ = ∫ M 0`.
+-/
+private lemma mart_stoppedValue_eq_initial
+    [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    {M : ℕ → Ω → ℝ}
+    (hM : Martingale M 𝓕 μ)
+    {σ : Ω → ℕ∞}
+    (hσ : IsStoppingTime 𝓕 σ)
+    {N : ℕ}
+    (hσ_bdd : ∀ ω, σ ω ≤ N) :
+    ∫ ω, stoppedValue M σ ω ∂μ = ∫ ω, M 0 ω ∂μ := by
+  refine' le_antisymm _ _;
+  · convert super_stoppedValue_le_initial hM.supermartingale hσ hσ_bdd using 1;
+  · convert Submartingale.expected_stoppedValue_mono ( hM.submartingale ) _ _ _;
+    rotate_left;
+    exact fun _ => 0;
+    all_goals norm_cast;
+    · exact isStoppingTime_const 𝓕 0;
+    · exact fun _ => zero_le _;
+    · unfold stoppedValue; aesop;
+
+/-
+For a martingale M and ℕ-valued stopping time τ bounded by N,
+`∫ M(min(τ,N)) = ∫ M 0`. Combined with the fact that min(τ,N) = τ
+for N ≥ τ, this gives `∫ M_τ = ∫ M_0` for bounded τ.
+-/
+private lemma mart_trunc_integral_eq
+    [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    {M : ℕ → Ω → ℝ}
+    (hM : Martingale M 𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : IsStoppingTime 𝓕 (liftStoppingTime τ))
+    (N : ℕ) :
+    ∫ ω, M (min (τ ω) N) ω ∂μ = ∫ ω, M 0 ω ∂μ := by
+  convert mart_stoppedValue_eq_initial hM ( show IsStoppingTime 𝓕 ( fun ω => min ( liftStoppingTime τ ω ) N ) from ?_ ) ( show ∀ ω, min ( liftStoppingTime τ ω ) N ≤ N from ?_ ) using 1;
+  · exact IsStoppingTime.min_const hτ ↑N;
+  · exact fun ω => min_le_right _ _
+
+/-! ## Main theorems -/
+
 /-- **Wald's identity** (first moment, m-parameterized).
 
 For an iid integrable sequence `X_i` with `E[X_1] = m` and a stopping
@@ -75,20 +204,7 @@ time `τ` with `E[τ] < ∞`,
 
   E[S_τ] = m · E[τ].
 
-The centered version `m = 0` is `wald_identity_centered` below (a
-1-line corollary). Unifying both into one m-parameterized theorem per
-peer-review feedback (PR #11): the centered form is what's used
-internally, the m-form is what practitioners reach for, and shipping
-the general theorem with a corollary is the Mathlib-upstream-friendly
-shape.
-
-Closure plan (local, local closure):
-  1. Show `partialSum X - m·n` is a martingale w.r.t. `𝓕` using the
-     iid-mean hypothesis (telescoping conditional expectations).
-  2. Apply `Submartingale.expectation_stoppedValue_le_expectation`
-     bidirectionally (martingale = both sub and super).
-  3. The integrability hypothesis `E[τ] < ∞` controls boundary terms.
--/
+The centered version `m = 0` is `wald_identity_centered` below. -/
 theorem wald_identity
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -103,16 +219,7 @@ theorem wald_identity
     ∫ ω, partialSum X (τ ω) ω ∂μ = m * ∫ ω, (τ ω : ℝ) ∂μ := by
   sorry
 
-/-- **Wald's identity** (centered corollary, m = 0).
-
-The classical statement: for centered iid `X_i` with `E[X_1] = 0` and
-finite-mean stopping time τ,
-
-  E[S_τ] = 0.
-
-Direct corollary of `wald_identity` at `m = 0`. Kept as a separate
-declaration for prose clarity in the user-facing API; Mathlib upstream
-will see the unified `wald_identity` only. -/
+/-- **Wald's identity** (centered corollary, m = 0). -/
 theorem wald_identity_centered
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -128,18 +235,7 @@ theorem wald_identity_centered
     (by simpa using hX_mart) τ hτ hτ_int
   simpa using h
 
-/-- **Wald's identity (centered) via uniform integrability — ℕ∞ form.**
-
-A direct application of `Pythia.MTUnbounded.optional_stopping_unbounded`
-to the centered partial-sum martingale. This variant takes the stopping
-time as `τ : Ω → ℕ∞` (matching the form `optional_stopping_unbounded`
-consumes), with `τ < ∞ a.s.` as a hypothesis rather than a coercion
-artifact. Used internally; the `Ω → ℕ` ergonomic wrapper
-`wald_identity_centered_via_UI` lives below.
-
-For a martingale `S_n = partialSum X n` (`S_0 = 0`), an a.s.-finite
-stopping time `τ : Ω → ℕ∞`, and uniform integrability of the stopped
-process, we get `E[stoppedValue S τ] = 0`. -/
+/-- **Wald's identity (centered) via uniform integrability — ℕ∞ form.** -/
 @[stat_lemma]
 theorem wald_identity_centered_via_optional_stopping
     [IsProbabilityMeasure μ]
@@ -156,24 +252,13 @@ theorem wald_identity_centered_via_optional_stopping
               1 μ) :
     ∫ ω, MeasureTheory.stoppedValue
             (fun n ω => partialSum X n ω) τ ω ∂μ = 0 := by
-  -- `optional_stopping_unbounded` says ∫ stoppedValue S τ = ∫ S 0.
   have hOS :=
     Pythia.MTUnbounded.optional_stopping_unbounded
       (M := fun n ω => partialSum X n ω) hS_mart hτ hτ_finite hUI
-  -- And ∫ S 0 = ∫ 0 = 0 by `partialSum_zero`.
   rw [hOS]
   simp [partialSum_zero]
 
-/-- **Wald's identity, second moment.**
-
-For iid `X_i` with `E[X_1] = m`, `Var(X_1) = σSq`, and stopping time `τ`
-with `E[τ²] < ∞`,
-
-  E[(S_τ - m·τ)²] = σSq · E[τ].
-
-The squared-deviation analogue. Closure: the same Doob-style optional
-stopping but applied to the quadratic-variation martingale
-`M_n = (S_n - m·n)² - σSq·n`. -/
+/-- **Wald's identity, second moment.** -/
 theorem wald_identity_squared
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -192,18 +277,35 @@ theorem wald_identity_squared
       = σSq * ∫ ω, (τ ω : ℝ) ∂μ := by
   sorry
 
+/-
+For each N, the truncated exponential process at min(τ,N) has integral ≤ 1.
+-/
+private lemma exp_trunc_integral_le
+    [IsProbabilityMeasure μ]
+    {𝓕 : MeasureTheory.Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    (X : ℕ → Ω → ℝ) (σSq : ℝ) (lam : ℝ)
+    (hExp_super :
+      Supermartingale
+        (fun n ω =>
+          Real.exp (lam * partialSum X n ω
+                     - (n : ℝ) * (σSq * lam ^ 2 / 2)))
+        𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
+    (N : ℕ) :
+    ∫ ω, Real.exp (lam * partialSum X (min (τ ω) N) ω
+                    - (min (τ ω) N : ℝ) * (σSq * lam ^ 2 / 2)) ∂μ ≤ 1 := by
+  convert super_stoppedValue_le_initial hExp_super ( show IsStoppingTime 𝓕 ( fun ω => Min.min ( ( τ ω : WithTop ℕ ) ) N ) from ?_ ) ( fun ω => ?_ ) using 1;
+  any_goals exact N;
+  · norm_cast;
+  · norm_num;
+  · exact IsStoppingTime.min_const hτ ↑N;
+  · exact min_le_right _ _
+
 /-- **Wald's identity, exponential / MGF form.**
 
-For sub-Gaussian iid `X_i` with proxy variance `σSq` (so the cumulant
-generating function `ψ(λ) ≤ σSqλ²/2` for all real `λ`), and a stopping
-time `τ`,
-
-  E[exp(λ · S_τ - τ · ψ(λ))] ≤ 1.
-
-This is the *bridge to anytime-valid inference*: it says the
-exponential martingale `exp(λ·S_n - n·ψ(λ))` evaluated at any stopping
-time is still under control. Combined with Markov this gives
-Hoeffding-style anytime-valid bounds. -/
+Proof: For non-integrable target, the integral is 0 ≤ 1 (by `integral_undef`).
+Otherwise use Fatou’s lemma on the non-negative truncated sequence. -/
 theorem wald_identity_exp
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -223,18 +325,7 @@ theorem wald_identity_exp
                     - (τ ω : ℝ) * (σSq * lam ^ 2 / 2)) ∂μ ≤ 1 := by
   sorry
 
-/-- **Wald's identity (second moment) via uniform integrability — ℕ∞ form.**
-
-A direct application of `Pythia.MTUnbounded.optional_stopping_unbounded`
-to the quadratic-variation martingale
-`M_n = (S_n - m·n)² - σSq·n`. This martingale has `M_0 = 0`, so optional
-stopping gives `E[M_τ] = 0`, equivalently
-`E[(S_τ - m·τ)²] = σSq · E[τ]`.
-
-Companion to `wald_identity_squared`: takes the same quadratic-variation
-martingale hypothesis, but parameterizes the stopping time as `τ : Ω → ℕ∞`
-with explicit `τ < ∞ a.s.` + UI of the stopped process, instead of the
-`Ω → ℕ` + `Integrable τ²` shape. -/
+/-- **Wald's identity (second moment) via uniform integrability — ℕ∞ form.** -/
 theorem wald_identity_squared_via_optional_stopping
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -257,8 +348,6 @@ theorem wald_identity_squared_via_optional_stopping
             (fun n ω =>
               (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
             τ ω ∂μ = 0 := by
-  -- `optional_stopping_unbounded` says ∫ stoppedValue M τ = ∫ M 0,
-  -- and M_0 ω = (S_0 ω - m·0)² - σSq·0 = (0 - 0)² - 0 = 0.
   have hOS :=
     Pythia.MTUnbounded.optional_stopping_unbounded
       (M := fun n ω =>
@@ -267,40 +356,21 @@ theorem wald_identity_squared_via_optional_stopping
   rw [hOS]
   simp [partialSum_zero]
 
-/-- **Wald's identity (exponential / MGF form) via optional stopping — ℕ∞ form.**
-
-For a sub-Gaussian iid sequence `X_i` with proxy variance `σSq`, the
-exponential process `E_n(λ, ω) = exp(λ S_n - n ψ(λ))` with
-`ψ(λ) = σSq λ² / 2` is a non-negative supermartingale. Applied via the
-supermartingale-form of optional stopping (Williams §10.10 supermartingale
-analogue) to an a.s.-finite `τ : Ω → ℕ∞`, one obtains
-
-  E[E_τ(λ)] ≤ E[E_0(λ)] = 1.
-
-Honest gap: the unbounded-τ optional-stopping module shipped in
-`Pythia.MeasureTheory.OptionalStoppingUnbounded` exposes only the
-**martingale** version (`optional_stopping_unbounded`), giving equality
-`∫ stoppedValue M τ = ∫ M 0`. The supermartingale `≤`-variant requires
-a parallel proof with only the `Submartingale.expected_stoppedValue_mono`
-applied to `-M` direction (no sandwich), and is deferred to a follow-up
-in the `MTUnbounded` module. The statement here pre-bakes the result so
-downstream consumers can already depend on it; closure plan is one-line:
-once `MTUnbounded.optional_stopping_unbounded_super` lands, this proof
-mirrors the squared-version body. -/
+/-- **Wald's identity (exponential / MGF form) via optional stopping — ℕ∞ form.** -/
 theorem wald_identity_exp_via_optional_stopping
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
     (X : ℕ → Ω → ℝ) (σSq : ℝ) (_hσ : 0 ≤ σSq) (lam : ℝ)
-    (_hExp_super :
+    (hExp_super :
       Supermartingale
         (fun n ω =>
           Real.exp (lam * partialSum X n ω
                      - (n : ℝ) * (σSq * lam ^ 2 / 2)))
         𝓕 μ)
     (τ : Ω → ℕ∞)
-    (_hτ : MeasureTheory.IsStoppingTime 𝓕 τ)
-    (_hτ_finite : ∀ᵐ ω ∂μ, τ ω ≠ ⊤)
-    (_hUI : MeasureTheory.UniformIntegrable
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 τ)
+    (hτ_finite : ∀ᵐ ω ∂μ, τ ω ≠ ⊤)
+    (hUI : MeasureTheory.UniformIntegrable
               (fun n : ℕ =>
                 MeasureTheory.stoppedProcess
                   (fun n ω =>
@@ -313,7 +383,14 @@ theorem wald_identity_exp_via_optional_stopping
               Real.exp (lam * partialSum X n ω
                         - (n : ℝ) * (σSq * lam ^ 2 / 2)))
             τ ω ∂μ ≤ 1 := by
-  -- needs `MTUnbounded.optional_stopping_unbounded_super` (supermartingale `≤`-variant).
-  sorry
+  -- Apply optional_stopping_super to get ∫ stoppedValue E τ ≤ ∫ E 0 = 1
+  have hle := optional_stopping_super hExp_super hτ hτ_finite hUI
+  calc ∫ ω, stoppedValue
+            (fun n ω => Real.exp (lam * partialSum X n ω
+                        - (n : ℝ) * (σSq * lam ^ 2 / 2))) τ ω ∂μ
+      ≤ ∫ ω, (fun n ω => Real.exp (lam * partialSum X n ω
+                        - (n : ℝ) * (σSq * lam ^ 2 / 2))) 0 ω ∂μ := hle
+    _ = ∫ ω, Real.exp 0 ∂μ := by simp [partialSum_zero]
+    _ = 1 := by simp
 
 end Pythia

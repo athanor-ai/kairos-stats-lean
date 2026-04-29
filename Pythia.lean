@@ -106,6 +106,8 @@ import Pythia.Tactic.DomainRegistry
 import Pythia.InfoTheory.BretagnolleHuberBinary
 -- Measure theory infra (own-implement Mathlib gap).
 import Pythia.MeasureTheory.OptionalStoppingUnbounded
+-- Bridge: ae equality on rationals + ae continuity ⟹ ae equality on reals.
+import Pythia.MeasureTheory.AeRealExtension
 -- Tier 7 scaffold — Tropp matrix Bernstein (sorries; see module
 -- docstring for Lieb / Klein / matrix-MGF dependency roadmap).
 import Pythia.Frontier.MatrixBernstein

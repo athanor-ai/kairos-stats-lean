@@ -27,23 +27,40 @@ PYTHIA_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PYTHIA_ROOT / ".pythia" / "theorem_index.db"
 LEAN_DIR = PYTHIA_ROOT / "Pythia"
 
+# External repos to scan (private, vendored by index not by file copy).
+# Each entry: (display_name, lean_root_path, namespace_prefix)
+EXTERNAL_REPOS = [
+    ("cedar", Path("/home/user/agents/platform/kairos-cedar/cedar-full"), "CedarFull"),
+    ("telos", Path("/home/user/agents/asabi/telos/build/lean"), "Bbrv3"),
+    ("lean-theorem-proving", Path("/home/user/agents/asabi/lean-theorem-proving/root_data/lean"), ""),
+]
 
-def _extract_theorems(lean_dir: Path) -> list[dict]:
+
+def _extract_theorems(lean_dir: Path, *,
+                      repo_root_override: Path | None = None,
+                      domain_override: str | None = None) -> list[dict]:
     """Walk .lean files, extract theorem/lemma declarations with
     their type signatures, sorry status, and domain tags."""
+    root = repo_root_override or PYTHIA_ROOT
     results = []
     for lean_file in sorted(lean_dir.rglob("*.lean")):
         if "Scratch" in str(lean_file) or ".lake" in str(lean_file):
             continue
-        rel = lean_file.relative_to(PYTHIA_ROOT)
+        try:
+            rel = lean_file.relative_to(root)
+        except ValueError:
+            rel = lean_file
         module = str(rel).replace("/", ".").removesuffix(".lean")
 
         # Infer domain tag from path
-        parts = rel.parts
-        if len(parts) >= 2:
-            domain = parts[1]  # Pythia/<Domain>/...
+        if domain_override:
+            domain = domain_override
         else:
-            domain = "core"
+            parts = rel.parts
+            if len(parts) >= 2:
+                domain = parts[1]
+            else:
+                domain = "core"
 
         try:
             lines = lean_file.read_text(errors="replace").splitlines()
@@ -146,6 +163,18 @@ def build_index() -> None:
     """)
 
     theorems = _extract_theorems(LEAN_DIR)
+
+    # Scan external repos
+    for repo_name, repo_path, ns_prefix in EXTERNAL_REPOS:
+        if repo_path.exists():
+            ext = _extract_theorems(repo_path, repo_root_override=repo_path.parent,
+                                    domain_override=repo_name)
+            print(f"  + {repo_name}: {len(ext)} declarations "
+                  f"({sum(1 for t in ext if t['proved'])} proved)")
+            theorems.extend(ext)
+        else:
+            print(f"  - {repo_name}: path not found ({repo_path}), skipping")
+
     for t in theorems:
         conn.execute(
             "INSERT INTO theorems (module, name, kind, signature, line, file, "

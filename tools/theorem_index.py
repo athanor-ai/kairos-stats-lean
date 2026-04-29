@@ -30,9 +30,16 @@ LEAN_DIR = PYTHIA_ROOT / "Pythia"
 # External repos to scan (private, vendored by index not by file copy).
 # Each entry: (display_name, lean_root_path, namespace_prefix)
 EXTERNAL_REPOS = [
+    # Athanor private repos (our proofs)
     ("cedar", Path("/home/azureuser/agents/platform/kairos-cedar/cedar-full"), "CedarFull"),
     ("telos", Path("/home/azureuser/agents/asabi/telos/build/lean"), "Bbrv3"),
-    ("lean-theorem-proving", Path("/home/azureuser/agents/asabi/lean-theorem-proving/root_data/lean"), ""),
+    # Upstream cedar-policy/cedar-spec (Apache-2.0, NOT our work — indexed
+    # as read-only references so retrieval can point agents at the right
+    # upstream lemma when a proof needs Cedar's authorization/validation
+    # theorems. We never copy these into Pythia; we just index them.)
+    ("cedar-upstream",
+     Path("/home/azureuser/agents/qa/kairos-cedar/cedar-spec/cedar-lean/Cedar/Thm"),
+     "Cedar.Thm"),
 ]
 
 

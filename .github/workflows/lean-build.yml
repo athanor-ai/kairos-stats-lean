@@ -75,6 +75,9 @@ jobs:
       - name: Fetch Mathlib cache
         run: lake exe cache get
 
+      - name: Check for stale Frontier imports
+        run: bash .github/scripts/check-stale-imports.sh
+
       - name: Build all modules (full Lean sweep — gate)
         run: lake build
 

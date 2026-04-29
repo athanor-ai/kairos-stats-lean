@@ -23,7 +23,7 @@ import Mathlib
 import Pythia.Tactic.Pythia
 import Pythia.Actuarial.Pareto
 import Pythia.Actuarial.Weibull
-import Pythia.Frontier.Actuarial.LogNormal
+import Pythia.Actuarial.LogNormal
 
 namespace Pythia.Actuarial.Test
 

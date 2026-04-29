@@ -19,13 +19,13 @@ namespace Pythia.Hardware
 /-- Addition mod 2^n distributes over mod: the classic hardware
 identity that justifies ignoring high bits in an adder. -/
 theorem add_mod_eq (n : ℕ) (a b : ℕ) :
-    (a + b) % (2 ^ n) = ((a % (2 ^ n)) + (b % (2 ^ n))) % (2 ^ n) := by
-  sorry
+    (a + b) % (2 ^ n) = ((a % (2 ^ n)) + (b % (2 ^ n))) % (2 ^ n) :=
+  Nat.add_mod a b (2 ^ n)
 
 /-- Multiplication mod 2^n distributes similarly. -/
 theorem mul_mod_eq (n : ℕ) (a b : ℕ) :
-    (a * b) % (2 ^ n) = ((a % (2 ^ n)) * (b % (2 ^ n))) % (2 ^ n) := by
-  sorry
+    (a * b) % (2 ^ n) = ((a % (2 ^ n)) * (b % (2 ^ n))) % (2 ^ n) :=
+  Nat.mul_mod a b (2 ^ n)
 
 /-! ## Overflow detection -/
 
@@ -52,8 +52,8 @@ theorem sign_extend_preserves_value (k n : ℕ) (hkn : k ≤ n) (v : ℕ)
 /-- Arithmetic right shift by m equals floor division by 2^m for
 non-negative values. -/
 theorem arith_shift_right_eq_div (n m : ℕ) (v : ℕ) (hv : v < 2 ^ n) :
-    v / (2 ^ m) = Nat.shiftRight v m := by
-  sorry
+    v / (2 ^ m) = Nat.shiftRight v m :=
+  (Nat.shiftRight_eq_div_pow v m).symm
 
 /-! ## Gray code -/
 

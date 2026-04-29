@@ -139,6 +139,8 @@ import Pythia.Numerical
 -- ATH-718 Layer 1: computational biology (mass-action CRN ODEs,
 -- phylogenetic likelihood). Scaffolds + Aristotle queue candidates.
 import Pythia.Bio
+-- ATH-870 expansion: physical chemistry quantitative laws.
+import Pythia.Chemistry
 -- ATH-718 Layer 1: hypothesis testing + multiple-testing corrections
 -- (Wald, Bonferroni, Holm, BH-FDR).
 import Pythia.HypothesisTest

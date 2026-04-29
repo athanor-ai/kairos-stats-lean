@@ -25,22 +25,27 @@ namespace Pythia.Frontier.Chemistry
 noncomputable def vantHoffLogK (deltaH deltaS R T : ℝ) : ℝ :=
   -deltaH / (R * T) + deltaS / R
 
-/-- Endothermic reactions: ln K is monotone increasing in T.
+/-
+Endothermic reactions: ln K is monotone increasing in T.
 
 A reaction with positive standard enthalpy has log-K increasing as
 temperature rises (Le Chatelier's principle for endothermic
-equilibria). -/
+equilibria).
+-/
 theorem vantHoff_endothermic_monotone
     {deltaH deltaS R T1 T2 : ℝ}
     (hΔH : 0 < deltaH) (hR : 0 < R) (hT1 : 0 < T1) (hT12 : T1 ≤ T2) :
     vantHoffLogK deltaH deltaS R T1 ≤ vantHoffLogK deltaH deltaS R T2 := by
-  sorry
+  unfold vantHoffLogK; ring_nf; gcongr;
 
-/-- Exothermic reactions: ln K is monotone decreasing in T. -/
+/-
+Exothermic reactions: ln K is monotone decreasing in T.
+-/
 theorem vantHoff_exothermic_antitone
     {deltaH deltaS R T1 T2 : ℝ}
     (hΔH : deltaH < 0) (hR : 0 < R) (hT1 : 0 < T1) (hT12 : T1 ≤ T2) :
     vantHoffLogK deltaH deltaS R T2 ≤ vantHoffLogK deltaH deltaS R T1 := by
-  sorry
+  unfold vantHoffLogK; gcongr;
+  linarith
 
 end Pythia.Frontier.Chemistry

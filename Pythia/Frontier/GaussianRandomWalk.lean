@@ -237,9 +237,47 @@ lemma coord_mgf_val (σ : ℝ) (t : ℕ) (s : ℝ) :
   simp [Real.coe_toNNReal _ (sq_nonneg σ)]
   left; exact sq_nonneg σ
 
-/-- Hypothesis 4: the increment `gaussianWalk (t+1) - gaussianWalk t
+/-- For each fixed `s`, the conditional MGF of `ω_t` given `canonicalFiltration t`
+equals the unconditional MGF value `exp(σ²s²/2)`, a.e. w.r.t. the trimmed measure. -/
+lemma condExpKernel_mgf_coord_eq (σ : ℝ) (t : ℕ) (s : ℝ) :
+    (fun (ω' : ℕ → ℝ) => mgf (fun (ω : ℕ → ℝ) => ω t)
+      ((condExpKernel (gaussianProductMeasure σ) (canonicalFiltration t)) ω') s)
+    =ᵐ[(gaussianProductMeasure σ).trim (canonicalFiltration.le t)]
+    fun _ => Real.exp (↑(Real.toNNReal (σ ^ 2)) * s ^ 2 / 2) := by
+  -- Step 1: conditional expectation = unconditional by independence
+  have hm1_le : MeasurableSpace.comap (fun ω : ℕ → ℝ => ω t) (borel ℝ) ≤
+      canonicalMeasurableSpace := (measurable_pi_apply t).comap_le
+  have hSM : StronglyMeasurable[MeasurableSpace.comap (fun ω : ℕ → ℝ => ω t) (borel ℝ)]
+      (fun ω : ℕ → ℝ => Real.exp (s * ω t)) := by
+    apply Continuous.comp_stronglyMeasurable (by fun_prop)
+    exact (continuous_const.mul continuous_id).stronglyMeasurable.comp_measurable
+      (Measurable.of_comap_le le_rfl)
+  have h_indep_condExp :
+      (gaussianProductMeasure σ)[fun ω : ℕ → ℝ => Real.exp (s * ω t) | canonicalFiltration t]
+      =ᵐ[gaussianProductMeasure σ]
+      fun _ => ∫ ω : ℕ → ℝ, Real.exp (s * ω t) ∂gaussianProductMeasure σ :=
+    condExp_indep_eq hm1_le (canonicalFiltration.le t) hSM (coord_indep_filtration σ t)
+  -- Step 2: plug in coord_mgf_val
+  rw [coord_mgf_val] at h_indep_condExp
+  -- Step 3: convert from ae-μ to ae-μ.trim
+  have h_trim : (gaussianProductMeasure σ)[fun ω : ℕ → ℝ => Real.exp (s * ω t) | canonicalFiltration t]
+      =ᵐ[(gaussianProductMeasure σ).trim (canonicalFiltration.le t)]
+      fun _ => Real.exp (↑(Real.toNNReal (σ ^ 2)) * s ^ 2 / 2) := by
+    rwa [StronglyMeasurable.ae_eq_trim_iff (canonicalFiltration.le t)
+      stronglyMeasurable_condExp stronglyMeasurable_const]
+  -- Step 4: relate condExp to kernel integral via condExp_ae_eq_trim_integral_condExpKernel
+  have h_kernel := condExp_ae_eq_trim_integral_condExpKernel
+    (canonicalFiltration.le t) (coord_integrable_exp σ t s)
+  -- Step 5: combine: kernel integral =ᵐ condExp =ᵐ exp(...)
+  filter_upwards [h_trim, h_kernel] with ω' h1 h2
+  simp only [mgf]
+  linarith
+
+/-
+Hypothesis 4: the increment `gaussianWalk (t+1) - gaussianWalk t
 = ω_t` has a conditional sub-Gaussian MGF bound with parameter `σ²`
-given `canonicalFiltration t`. -/
+given `canonicalFiltration t`.
+-/
 lemma gaussianWalk_increments_subG (σ : ℝ) (hσ : 0 < σ) :
     ∀ t : ℕ,
       HasCondSubgaussianMGF (canonicalFiltration t)
@@ -256,10 +294,45 @@ lemma gaussianWalk_increments_subG (σ : ℝ) (hσ : 0 < σ) :
     intro s
     rw [condExpKernel_comp_trim]
     exact coord_integrable_exp σ t s
-  · -- mgf_le: For each s, the conditional MGF equals the unconditional MGF (by independence)
-    -- and the unconditional Gaussian MGF is exp(σ² s²/2). Combine over all s via
-    -- ae_all_iff (ℚ countable) + Fatou’s lemma for the extension from ℚ to ℝ.
-    sorry
+  · -- Step 1: ae equality at each rational
+    have h_ae_all_rat : ∀ᵐ (ω' : ℕ → ℝ) ∂(gaussianProductMeasure σ).trim (canonicalFiltration.le t),
+        ∀ q : ℚ, mgf (fun (ω : ℕ → ℝ) => ω t)
+          ((condExpKernel (gaussianProductMeasure σ) (canonicalFiltration t)) ω') (q : ℝ)
+        = Real.exp (↑(Real.toNNReal (σ ^ 2)) * (q : ℝ) ^ 2 / 2) := by
+      rw [eventually_countable_forall]
+      intro q
+      exact condExpKernel_mgf_coord_eq σ t (q : ℝ)
+    -- Step 2: extend from ℚ to ℝ via density + continuity
+    filter_upwards [h_ae_all_rat] with ω' h_rat
+    intro s
+    -- By the continuity of the exponential function and the fact that the mgf is log-convex, we can extend the equality from rationals to reals.
+    have h_cont : ∀ s : ℝ, mgf (fun ω => ω t) ((condExpKernel (gaussianProductMeasure σ) (canonicalFiltration t)) ω') s ≤ Real.exp (↑(σ ^ 2).toNNReal * s ^ 2 / 2) := by
+      intro s
+      have h_seq : ∃ seq : ℕ → ℚ, Filter.Tendsto (fun n => (seq n : ℝ)) Filter.atTop (nhds s) := by
+        exact ⟨ fun n => Classical.choose ( exists_rat_btwn ( show s - 1 / ( n + 1 ) < s by simp +decide ; positivity ) ), by exact tendsto_iff_dist_tendsto_zero.mpr <| squeeze_zero ( fun _ => by positivity ) ( fun n => by simpa using abs_sub_le_iff.mpr ⟨ by linarith [ Classical.choose_spec ( exists_rat_btwn <| sub_lt_self s <| inv_pos.mpr <| Nat.cast_add_one_pos n ) ], by linarith [ Classical.choose_spec ( exists_rat_btwn <| sub_lt_self s <| inv_pos.mpr <| Nat.cast_add_one_pos n ) ] ⟩ ) <| tendsto_one_div_add_atTop_nhds_zero_nat ⟩
+      obtain ⟨ seq, hseq ⟩ := h_seq;
+      have h_liminf : ∫⁻ ω, ENNReal.ofReal (Real.exp (s * ω t)) ∂((condExpKernel (gaussianProductMeasure σ) (canonicalFiltration t)) ω') ≤ Filter.liminf (fun n => ∫⁻ ω, ENNReal.ofReal (Real.exp ((seq n : ℝ) * ω t)) ∂((condExpKernel (gaussianProductMeasure σ) (canonicalFiltration t)) ω')) Filter.atTop := by
+        refine' le_trans _ ( MeasureTheory.lintegral_liminf_le _ );
+        · refine' MeasureTheory.lintegral_mono fun ω => _;
+          rw [ Filter.Tendsto.liminf_eq ];
+          exact ENNReal.tendsto_ofReal ( Real.continuous_exp.continuousAt.tendsto.comp ( hseq.mul_const _ ) );
+        · fun_prop;
+      have h_liminf_eq : Filter.liminf (fun n => ∫⁻ ω, ENNReal.ofReal (Real.exp ((seq n : ℝ) * ω t)) ∂((condExpKernel (gaussianProductMeasure σ) (canonicalFiltration t)) ω')) Filter.atTop = ENNReal.ofReal (Real.exp (↑(σ ^ 2).toNNReal * s ^ 2 / 2)) := by
+        have h_liminf_eq : ∀ n, ∫⁻ ω, ENNReal.ofReal (Real.exp ((seq n : ℝ) * ω t)) ∂((condExpKernel (gaussianProductMeasure σ) (canonicalFiltration t)) ω') = ENNReal.ofReal (Real.exp (↑(σ ^ 2).toNNReal * (seq n : ℝ) ^ 2 / 2)) := by
+          intro n; specialize h_rat ( seq n ) ; simp_all +decide [ mgf ] ;
+          rw [ ← h_rat, MeasureTheory.ofReal_integral_eq_lintegral_ofReal ];
+          · exact ( by contrapose! h_rat; rw [ MeasureTheory.integral_undef h_rat ] ; positivity );
+          · exact Filter.Eventually.of_forall fun x => Real.exp_nonneg _;
+        rw [ Filter.liminf_congr ( Filter.Eventually.of_forall h_liminf_eq ) ];
+        exact Filter.Tendsto.liminf_eq ( by exact ENNReal.tendsto_ofReal ( by exact Filter.Tendsto.rexp ( by exact Filter.Tendsto.div_const ( tendsto_const_nhds.mul ( hseq.pow 2 ) ) _ ) ) );
+      convert ENNReal.toReal_mono _ h_liminf using 1;
+      · unfold mgf;
+        rw [ MeasureTheory.integral_eq_lintegral_of_nonneg_ae ];
+        · exact Filter.Eventually.of_forall fun ω => Real.exp_nonneg _;
+        · exact Measurable.aestronglyMeasurable ( by exact Measurable.exp ( measurable_const.mul ( measurable_pi_apply t ) ) );
+      · rw [ h_liminf_eq, ENNReal.toReal_ofReal ( Real.exp_nonneg _ ) ];
+      · aesop;
+    exact h_cont s
 
 /-- Hypothesis 5: the conditional mean of the increment `ω_t` given
 `canonicalFiltration t` is zero. -/

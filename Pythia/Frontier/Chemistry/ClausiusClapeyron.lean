@@ -30,14 +30,16 @@ namespace Pythia.Frontier.Chemistry
 noncomputable def clausiusClapeyronRatio (L R T1 T2 : ℝ) : ℝ :=
   Real.exp (-(L / R) * (1 / T2 - 1 / T1))
 
-/-- For a phase transition with positive latent heat (L > 0), if
+/-
+For a phase transition with positive latent heat (L > 0), if
     T2 > T1 then the saturation pressure ratio P2/P1 > 1, i.e. the
-    pressure increases with temperature. -/
+    pressure increases with temperature.
+-/
 theorem clausiusClapeyron_pressure_increases_with_T
     {L R T1 T2 : ℝ}
     (hL : 0 < L) (hR : 0 < R) (hT1 : 0 < T1) (hT12 : T1 < T2) :
     1 < clausiusClapeyronRatio L R T1 T2 := by
-  sorry
+  exact lt_of_le_of_lt ( by norm_num ) ( Real.exp_lt_exp.mpr ( mul_lt_mul_of_neg_left ( sub_neg_of_lt <| one_div_lt_one_div_of_lt hT1 hT12 ) <| neg_neg_of_pos <| by positivity ) )
 
 /-- Equal temperatures give a ratio of 1 (no pressure change). -/
 theorem clausiusClapeyron_ratio_at_equal_T

@@ -25,27 +25,34 @@ namespace Pythia.Frontier.Bio
 noncomputable def basicReproductionNumber (beta gamma : ℝ) : ℝ :=
   beta / gamma
 
-/-- Threshold inequality: under R_0 ≤ 1, the rate of new infections
+/-
+Threshold inequality: under R_0 ≤ 1, the rate of new infections
     βSI is at most the recovery rate γI for every (S, I) with
-    S ≤ 1, I ≥ 0, β > 0, γ > 0. -/
+    S ≤ 1, I ≥ 0, β > 0, γ > 0.
+-/
 theorem sir_subcritical_recovery_dominates
     {beta gamma S I : ℝ}
     (hβ : 0 < beta) (hγ : 0 < gamma)
     (hR0 : basicReproductionNumber beta gamma ≤ 1)
     (hS : S ≤ 1) (hI : 0 ≤ I) :
     beta * S * I ≤ gamma * I := by
-  sorry
+  unfold basicReproductionNumber at hR0;
+  rw [ div_le_one hγ ] at hR0;
+  gcongr;
+  nlinarith
 
-/-- Supercritical threshold: under R_0 > 1, there exists a
+/-
+Supercritical threshold: under R_0 > 1, there exists a
     susceptible level S∗ > 0 (specifically S∗ = γ/β = 1/R_0) such that
     βS∗I > γI strictly whenever I > 0; this S∗ is the herd-immunity
-    threshold. -/
+    threshold.
+-/
 theorem sir_supercritical_outbreak_threshold
     {beta gamma : ℝ}
     (hβ : 0 < beta) (hγ : 0 < gamma)
     (hR0 : 1 < basicReproductionNumber beta gamma) :
     ∃ S_star : ℝ, 0 < S_star ∧ S_star < 1 ∧
       ∀ S I : ℝ, S_star < S → 0 < I → gamma * I < beta * S * I := by
-  sorry
+  exact ⟨ gamma / beta, div_pos hγ hβ, by rw [ div_lt_one hβ ] ; unfold basicReproductionNumber at hR0; rw [ lt_div_iff₀ hγ ] at *; linarith, fun S I hS hI => by nlinarith [ mul_lt_mul_of_pos_left hS hI, mul_div_cancel₀ gamma hβ.ne' ] ⟩
 
 end Pythia.Frontier.Bio

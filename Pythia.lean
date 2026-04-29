@@ -23,6 +23,8 @@ import Pythia.PhiTransform
 import Pythia.PowerAnalysis
 import Pythia.Quantization
 import Pythia.Sharpness
+import Pythia.MasterUpperBound
+import Pythia.MasterLowerBound
 import Pythia.StoppingRule
 import Pythia.SubGamma
 import Pythia.SubGaussianMG

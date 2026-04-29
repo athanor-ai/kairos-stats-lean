@@ -153,3 +153,4 @@ import Pythia.StochasticApproximation.Dvoretzky
 import Pythia.TimeSeries.NeweyWest
 import Pythia.Control.LyapunovODE
 import Pythia.Risk.CoherentMeasures
+import Pythia.Hardware

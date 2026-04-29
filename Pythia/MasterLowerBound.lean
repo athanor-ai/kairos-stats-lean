@@ -17,7 +17,7 @@ import Pythia.Basic
 import Pythia.Quantization
 import Pythia.GaussianSmallBall
 import Pythia.SubGaussianMG
-import Pythia.Frontier.GaussianRandomWalk
+import Pythia.GaussianRandomWalk
 
 namespace Pythia
 

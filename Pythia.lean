@@ -12,7 +12,7 @@ import Pythia.BettingStrategy
 import Pythia.DeploymentDesign
 import Pythia.ElegantUnification
 import Pythia.EquivalenceBreak
-import Pythia.Frontier.GaussianRandomWalk
+import Pythia.GaussianRandomWalk
 import Pythia.GaussianSmallBall
 import Pythia.HowardRamdasCS
 import Pythia.InformationTheoretic

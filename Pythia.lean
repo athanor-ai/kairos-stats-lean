@@ -12,7 +12,7 @@ import Pythia.BettingStrategy
 import Pythia.DeploymentDesign
 import Pythia.ElegantUnification
 import Pythia.EquivalenceBreak
-import Pythia.GaussianRandomWalk
+import Pythia.Frontier.GaussianRandomWalk
 import Pythia.GaussianSmallBall
 import Pythia.HowardRamdasCS
 import Pythia.InformationTheoretic
@@ -35,7 +35,7 @@ import Pythia.BernsteinTest
 import Pythia.PACBayesCS
 import Pythia.TimeUniformCLT
 -- Tier 2 sequential-stats scaffolds (sorries — see docstrings).
-import Pythia.WaldIdentity
+import Pythia.Frontier.WaldIdentity
 import Pythia.SPRT
 -- Paper Theorem 1 asymptotic sharpness scaffold (Aristotle target —
 -- 2 honest sorries on headline statements; helpers closed locally).
@@ -108,15 +108,15 @@ import Pythia.InfoTheory.BretagnolleHuberBinary
 import Pythia.MeasureTheory.OptionalStoppingUnbounded
 -- Tier 7 scaffold — Tropp matrix Bernstein (sorries; see module
 -- docstring for Lieb / Klein / matrix-MGF dependency roadmap).
-import Pythia.MatrixBernstein
+import Pythia.Frontier.MatrixBernstein
 
 -- Tier 7 + queueing + path-measure additions
 import Pythia.Queueing.ErlangB
-import Pythia.MeasureTheory.PathMeasureRN
-import Pythia.MatrixBernsteinFull
+import Pythia.Frontier.MeasureTheory.PathMeasureRN
+import Pythia.Frontier.MatrixBernsteinFull
 import Pythia.Control.LyapunovDiscrete
 import Pythia.Queueing.LittlesLaw
-import Pythia.MatrixLieb
+import Pythia.Frontier.MatrixLieb
 import Pythia.Asymptotics.DeltaMethod
 import Pythia.Asymptotics.DeltaMethodMulti
 import Pythia.TimeSeries.WoldDecomposition
@@ -154,3 +154,7 @@ import Pythia.TimeSeries.NeweyWest
 import Pythia.Control.LyapunovODE
 import Pythia.Risk.CoherentMeasures
 import Pythia.Hardware
+-- Networking / protocol verification (ported from bbr3-starvation-bench).
+import Pythia.Networking
+-- Language semantics / type soundness (ported from kairos-cedar).
+import Pythia.LanguageSemantics

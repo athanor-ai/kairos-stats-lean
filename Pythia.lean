@@ -158,3 +158,7 @@ import Pythia.Hardware
 import Pythia.Networking
 -- Language semantics / type soundness (ported from kairos-cedar).
 import Pythia.LanguageSemantics
+-- Theoretical / computational neuroscience (cable equation, Nernst,
+-- LIF, Hodgkin-Huxley gating, Shannon-Hartley, dopamine credit
+-- assignment from credit-assignment-formal-bench).
+import Pythia.Neuroscience

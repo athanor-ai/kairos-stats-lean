@@ -680,17 +680,111 @@ def registry : List TheoremEntry := [
       "T ≥ 0"
     ]
     sourceModule := "Pythia.Numerical.PicardLindelof"
+    confidence := 1.0 },
+  -- Concentration: Cantelli one-sided Chebyshev ---------------------
+  { goalClass := "concentration.cantelli"
+    theoremName := "Pythia.Concentration.Cantelli.cantelli_real"
+    domain := "stats"
+    applicableHypotheses := [
+      "one-sided tail bound for a random variable with finite mean and variance",
+      "want P(X - μ ≥ t) ≤ σ²/(σ² + t²)"
+    ]
+    obligationsList := [
+      "Integrable X μ",
+      "Integrable (X ^ 2) μ",
+      "t > 0"
+    ]
+    sourceModule := "Pythia.Concentration.Cantelli"
+    confidence := 1.0 },
+  -- Asymptotics: Slutsky's theorem ----------------------------------
+  { goalClass := "asymptotics.slutsky.addition"
+    theoremName := "Pythia.Asymptotics.Slutsky.slutsky_addition"
+    domain := "asymptotics"
+    applicableHypotheses := [
+      "Xₙ converges in distribution to X",
+      "Yₙ converges in probability to a constant c",
+      "want Xₙ + Yₙ converges in distribution to X + c"
+    ]
+    obligationsList := [
+      "TendstoInDistribution Xₙ X",
+      "TendstoInMeasure Yₙ (const c)"
+    ]
+    sourceModule := "Pythia.Asymptotics.Slutsky"
+    confidence := 1.0 },
+  { goalClass := "asymptotics.slutsky.multiplication"
+    theoremName := "Pythia.Asymptotics.Slutsky.slutsky_multiplication"
+    domain := "asymptotics"
+    applicableHypotheses := [
+      "Xₙ converges in distribution to X",
+      "Yₙ converges in probability to a constant c",
+      "want Xₙ · Yₙ converges in distribution to c · X"
+    ]
+    obligationsList := [
+      "TendstoInDistribution Xₙ X",
+      "TendstoInMeasure Yₙ (const c)"
+    ]
+    sourceModule := "Pythia.Asymptotics.Slutsky"
+    confidence := 1.0 },
+  -- Asymptotics: scalar delta method --------------------------------
+  { goalClass := "asymptotics.delta_method.scalar"
+    theoremName := "Pythia.Asymptotics.DeltaMethodScalar.delta_method_scalar"
+    domain := "asymptotics"
+    applicableHypotheses := [
+      "√n(X̄ₙ - θ) → N(0, σ²) in distribution",
+      "g differentiable at θ with g'(θ) ≠ 0",
+      "want √n(g(X̄ₙ) - g(θ)) → N(0, (g'θ)²σ²)"
+    ]
+    obligationsList := [
+      "HasDerivAt g (g'θ) θ",
+      "CLT-type convergence for X̄ₙ"
+    ]
+    sourceModule := "Pythia.Asymptotics.DeltaMethodScalar"
+    confidence := 1.0 },
+  -- SPRT: group-sequential type-I error -----------------------------
+  { goalClass := "sprt.gsprt.type_i"
+    theoremName := "Pythia.SPRT.GSPRT.gsprt_type_I"
+    domain := "hypothesis_testing"
+    applicableHypotheses := [
+      "group-sequential test with K looks",
+      "per-look type-I error bound via Bonferroni",
+      "want overall type-I error ≤ α"
+    ]
+    obligationsList := [
+      "per-look α/K spending",
+      "K ≥ 1"
+    ]
+    sourceModule := "Pythia.SPRT.GSPRT"
+    confidence := 1.0 },
+  -- Clinical trials: Pocock alpha-spending boundary -----------------
+  { goalClass := "clinical_trials.pocock.boundary_alpha"
+    theoremName := "Pythia.ClinicalTrials.Pocock.boundary_alpha"
+    domain := "stats"
+    applicableHypotheses := [
+      "Pocock equal-alpha-spending boundary with K looks",
+      "want overall type-I error ≤ α"
+    ]
+    obligationsList := [
+      "per-look α/K spending",
+      "K ≥ 1"
+    ]
+    sourceModule := "Pythia.ClinicalTrials.Pocock"
+    confidence := 1.0 },
+  -- Clinical trials: stratified anytime-valid CS --------------------
+  { goalClass := "clinical_trials.stratified.admissible"
+    theoremName := "Pythia.ClinicalTrials.Stratified.stratified_admissible"
+    domain := "stats"
+    applicableHypotheses := [
+      "S strata each with per-stratum coverage error ≤ α/S",
+      "want joint coverage error ≤ α via Bonferroni"
+    ]
+    obligationsList := [
+      "per-stratum measure bound ≤ α/S",
+      "S ≥ 1"
+    ]
+    sourceModule := "Pythia.ClinicalTrials.Stratified"
     confidence := 1.0 }
   -- TODO (when headline theorems land):
-  --   • asymptotics.delta_method.scalar (DeltaMethod headline)
   --   • time_series.newey_west.consistency (NeweyWest headline)
-  --   • hypothesis_testing.bonferroni (HypothesisTest headline)
-  --   • hardware.float.ieee754_round_trip (IEEE754 headline)
-  --   • clinical_trials.multi_arm.alpha_spending (group-sequential
-  --     O'Brien-Fleming / Pocock — extends MultiArmCS once stopping-
-  --     boundary library lands)
-  --   • clinical_trials.covariate_adjustment.* (stratified CS,
-  --     AIPW under sequential analysis)
   --   • nki.kernels.* (Dafny-side, qa lane — registry stub when
   --     Dafny→Lean cert path lands)
 ]

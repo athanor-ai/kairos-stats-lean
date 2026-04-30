@@ -175,6 +175,13 @@ import Pythia.ClinicalTrials.MultiArmCS
 -- Frontier 2026-04-30 after Aristotle 26156985 + research's Zorn-chain
 -- hint closed the existence sorry).
 import Pythia.Numerical.PicardLindelof
+-- Aristotle batch integration 2026-04-30: 8 sorry-free results.
+import Pythia.Concentration.Cantelli
+import Pythia.Asymptotics.Slutsky
+import Pythia.Asymptotics.DeltaMethodScalar
+import Pythia.SPRT.GSPRT
+import Pythia.ClinicalTrials.Pocock
+import Pythia.ClinicalTrials.Stratified
 -- ATH-894 cross-vertical MCP router strategy-layer API.
 -- `Pythia.Lookup` is the structured-JSON registry the router queries
 -- for goal-class → theorem-template dispatch.

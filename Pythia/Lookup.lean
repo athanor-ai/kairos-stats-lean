@@ -396,6 +396,14 @@ def queryDomain (domain : String) : List TheoremEntry :=
 def queryDomainPrefix (domain goalPrefix : String) : List TheoremEntry :=
   registry.filter (fun e => e.domain == domain ∧ goalPrefix.isPrefixOf e.goalClass)
 
+/-- Module-keyed query: every entry whose `sourceModule` matches.
+Used by `kairos.spec(target.lean)` — customer passes a `.lean` file,
+the router extracts the module path, this returns the registered
+theorems backed by that module. Complementary to `query` (which is
+goal-class-keyed for `kairos.prove`). -/
+def queryModule (sourceModule : String) : List TheoremEntry :=
+  registry.filter (fun e => e.sourceModule == sourceModule)
+
 /-- Number of registered strategy entries (sanity check / smoke test). -/
 def registrySize : Nat := registry.length
 

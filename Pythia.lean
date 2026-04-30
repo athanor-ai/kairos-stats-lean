@@ -168,6 +168,9 @@ import Pythia.LanguageSemantics
 -- LIF, Hodgkin-Huxley gating, Shannon-Hartley, dopamine credit
 -- assignment from credit-assignment-formal-bench).
 import Pythia.Neuroscience
+-- ATH-895: clinical-trials theorem coverage. Bonferroni union-bound
+-- combiner for K-arm anytime-valid CS.
+import Pythia.ClinicalTrials.MultiArmCS
 -- ATH-894 cross-vertical MCP router strategy-layer API.
 -- `Pythia.Lookup` is the structured-JSON registry the router queries
 -- for goal-class → theorem-template dispatch.

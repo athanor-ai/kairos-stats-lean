@@ -374,13 +374,209 @@ def registry : List TheoremEntry := [
       "orbit stays in V's domain"
     ]
     sourceModule := "Pythia.Control.LyapunovDiscrete"
+    confidence := 1.0 },
+  -- Bio (ATH-897) -------------------------------------------------
+  { goalClass := "bio.kinetics.michaelis_menten_saturation"
+    theoremName := "Pythia.Bio.michaelis_menten_saturation"
+    domain := "bio"
+    applicableHypotheses := [
+      "enzyme-substrate kinetics with Vmax, Km, [S]",
+      "want saturation behavior of reaction velocity"
+    ]
+    obligationsList := [
+      "Vmax > 0", "Km > 0", "[S] ≥ 0"
+    ]
+    sourceModule := "Pythia.Bio.MichaelisMentenSaturation"
+    confidence := 1.0 },
+  { goalClass := "bio.population.hardy_weinberg"
+    theoremName := "Pythia.Bio.Population.hardy_weinberg_conservation"
+    domain := "bio"
+    applicableHypotheses := [
+      "diallelic locus with allele frequencies p, q",
+      "want generation-to-generation conservation under HW assumptions"
+    ]
+    obligationsList := [
+      "p + q = 1"
+    ]
+    sourceModule := "Pythia.Bio.Population"
+    confidence := 1.0 },
+  { goalClass := "bio.population.lotka_volterra_equilibrium"
+    theoremName := "Pythia.Bio.Population.lotka_volterra_equilibrium_x_pos"
+    domain := "bio"
+    applicableHypotheses := [
+      "predator-prey Lotka-Volterra system",
+      "want strict positivity of the non-trivial equilibrium prey count"
+    ]
+    obligationsList := [
+      "all rate parameters strictly positive"
+    ]
+    sourceModule := "Pythia.Bio.Population"
+    confidence := 1.0 },
+  { goalClass := "bio.crn.mass_action_existence"
+    theoremName := "Pythia.Bio.MassAction.massAction_existence"
+    domain := "bio"
+    applicableHypotheses := [
+      "chemical reaction network with mass-action kinetics",
+      "want existence of a unique solution to the CRN ODE system"
+    ]
+    obligationsList := [
+      "rate constants finite",
+      "initial condition nonneg"
+    ]
+    sourceModule := "Pythia.Bio.MassAction"
+    confidence := 1.0 },
+  { goalClass := "bio.crn.mass_action_nonnegativity"
+    theoremName := "Pythia.Bio.MassAction.massAction_nonnegativity"
+    domain := "bio"
+    applicableHypotheses := [
+      "CRN with mass-action kinetics + nonneg initial condition",
+      "want trajectory stays in the nonneg orthant"
+    ]
+    obligationsList := [
+      "rate constants nonneg",
+      "x(0) ≥ 0 componentwise"
+    ]
+    sourceModule := "Pythia.Bio.MassAction"
+    confidence := 1.0 },
+  { goalClass := "bio.phylogenetics.jukes_cantor_pi_sum"
+    theoremName := "Pythia.Bio.Phylogenetics.JukesCantor_pi_sum"
+    domain := "bio"
+    applicableHypotheses := [
+      "Jukes-Cantor 4-state DNA substitution model",
+      "want stationary distribution sums to 1"
+    ]
+    obligationsList := []
+    sourceModule := "Pythia.Bio.Phylogenetics"
+    confidence := 1.0 },
+  -- Chemistry (ATH-897) -------------------------------------------
+  { goalClass := "chemistry.kinetics.arrhenius_positivity"
+    theoremName := "Pythia.Chemistry.arrhenius_pos"
+    domain := "chemistry"
+    applicableHypotheses := [
+      "Arrhenius rate k = A exp(-Ea / (R T))",
+      "want strict positivity of k"
+    ]
+    obligationsList := [
+      "pre-exponential A > 0",
+      "T > 0", "R > 0"
+    ]
+    sourceModule := "Pythia.Chemistry.Arrhenius"
+    confidence := 1.0 },
+  { goalClass := "chemistry.spectroscopy.beer_lambert_monotone"
+    theoremName := "Pythia.Chemistry.beerLambert_monotone_in_concentration"
+    domain := "chemistry"
+    applicableHypotheses := [
+      "Beer-Lambert absorbance A = ε ℓ c",
+      "want absorbance monotone-increasing in concentration"
+    ]
+    obligationsList := [
+      "molar absorptivity ε ≥ 0",
+      "path-length ℓ ≥ 0",
+      "concentration nonneg"
+    ]
+    sourceModule := "Pythia.Chemistry.BeerLambert"
+    confidence := 1.0 },
+  { goalClass := "chemistry.acid_base.henderson_hasselbalch_monotone"
+    theoremName := "Pythia.Chemistry.hh_monotone_in_ratio"
+    domain := "chemistry"
+    applicableHypotheses := [
+      "Henderson-Hasselbalch pH = pKa + log10([A-]/[HA])",
+      "want pH monotone-increasing in conjugate-base / acid ratio"
+    ]
+    obligationsList := [
+      "ratio strictly positive"
+    ]
+    sourceModule := "Pythia.Chemistry.HendersonHasselbalch"
+    confidence := 1.0 },
+  { goalClass := "chemistry.stoichiometry.mass_action_conservation"
+    theoremName := "Pythia.Chemistry.mass_action_conservation_pair"
+    domain := "chemistry"
+    applicableHypotheses := [
+      "single-step reaction A → B with extent ξ",
+      "want pairwise mole-balance conservation"
+    ]
+    obligationsList := []
+    sourceModule := "Pythia.Chemistry.MassActionConservation"
+    confidence := 1.0 },
+  -- Neuroscience (ATH-897) ----------------------------------------
+  { goalClass := "neuroscience.cable_equation.steady_state_at_zero"
+    theoremName := "Pythia.Neuroscience.cableSteadyState_at_zero"
+    domain := "neuroscience"
+    applicableHypotheses := [
+      "passive cylindrical dendrite cable equation",
+      "want V(0) = V0 boundary value"
+    ]
+    obligationsList := []
+    sourceModule := "Pythia.Neuroscience.CableEquation"
+    confidence := 1.0 },
+  { goalClass := "neuroscience.cable_equation.monotone_decreasing"
+    theoremName := "Pythia.Neuroscience.cableSteadyState_monotone_decreasing"
+    domain := "neuroscience"
+    applicableHypotheses := [
+      "passive cable equation steady state V(x) = V0 exp(-x/λ)",
+      "want V monotone-decreasing in x for V0 ≥ 0, λ > 0"
+    ]
+    obligationsList := [
+      "V0 ≥ 0", "λ > 0"
+    ]
+    sourceModule := "Pythia.Neuroscience.CableEquation"
+    confidence := 1.0 },
+  { goalClass := "neuroscience.nernst.equilibrium_zero"
+    theoremName := "Pythia.Neuroscience.nernstPotential_zero_at_equilibrium"
+    domain := "neuroscience"
+    applicableHypotheses := [
+      "Nernst potential E = (RT/zF) ln([X]_out/[X]_in)",
+      "want E = 0 when [X]_out = [X]_in"
+    ]
+    obligationsList := [
+      "concentrations strictly positive and equal"
+    ]
+    sourceModule := "Pythia.Neuroscience.NernstPotential"
+    confidence := 1.0 },
+  { goalClass := "neuroscience.lif.firing_rate_refractory"
+    theoremName := "Pythia.Neuroscience.firing_rate_bounded_by_refractory"
+    domain := "neuroscience"
+    applicableHypotheses := [
+      "leaky integrate-and-fire neuron with refractory period τ_ref",
+      "want firing rate ≤ 1/τ_ref"
+    ]
+    obligationsList := [
+      "τ_ref > 0"
+    ]
+    sourceModule := "Pythia.Neuroscience.LIF"
+    confidence := 1.0 },
+  { goalClass := "neuroscience.hh_gate.steady_state_in_unit_interval"
+    theoremName := "Pythia.Neuroscience.hhGateSteadyState_le_one"
+    domain := "neuroscience"
+    applicableHypotheses := [
+      "Hodgkin-Huxley gating variable steady-state x_∞(V) = α / (α+β)",
+      "want x_∞ ≤ 1"
+    ]
+    obligationsList := [
+      "α ≥ 0", "β ≥ 0", "α + β > 0"
+    ]
+    sourceModule := "Pythia.Neuroscience.HHGate"
+    confidence := 1.0 },
+  { goalClass := "neuroscience.shannon_hartley.capacity_monotone"
+    theoremName := "Pythia.Neuroscience.shannonHartleyCapacity_monotone_in_snr"
+    domain := "neuroscience"
+    applicableHypotheses := [
+      "Shannon-Hartley capacity C = B log2(1 + S/N)",
+      "want C monotone-increasing in SNR"
+    ]
+    obligationsList := [
+      "bandwidth B > 0",
+      "SNR > 0"
+    ]
+    sourceModule := "Pythia.Neuroscience.ShannonHartley"
     confidence := 1.0 }
   -- TODO (when headline theorems land):
   --   • asymptotics.delta_method.scalar (DeltaMethod headline)
   --   • time_series.newey_west.consistency (NeweyWest headline)
   --   • hypothesis_testing.bonferroni (HypothesisTest headline)
   --   • hardware.float.ieee754_round_trip (IEEE754 headline)
-  --   • neuroscience.cable_equation.steady_state (Neuroscience headline)
+  --   • clinical_trials.multi_arm.union_bound (graduates from Frontier
+  --     when ATH-895 sorries close)
 ]
 
 /-- Prefix-match query. Returns every entry whose `goalClass` starts

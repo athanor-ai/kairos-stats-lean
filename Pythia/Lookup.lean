@@ -623,14 +623,46 @@ def registry : List TheoremEntry := [
       "type τ inhabited at depth n"
     ]
     sourceModule := "Pythia.LanguageSemantics.Cedar.Coverage"
+    confidence := 1.0 },
+  -- Clinical trials (ATH-895) -------------------------------------
+  { goalClass := "clinical_trials.multi_arm.bonferroni_union_bound"
+    theoremName := "Pythia.ClinicalTrials.bonferroni_union_bound_real"
+    domain := "clinical_trials"
+    applicableHypotheses := [
+      "K-arm clinical trial with per-arm non-coverage events",
+      "each arm has μ.real-measure of non-coverage ≤ α/K",
+      "want family-wise non-coverage ≤ α (joint anytime-valid CS)"
+    ]
+    obligationsList := [
+      "K ≥ 1",
+      "per-arm non-coverage measure ≤ α/K (Bonferroni split)",
+      "underlying measure is finite"
+    ]
+    sourceModule := "Pythia.ClinicalTrials.MultiArmCS"
+    confidence := 1.0 },
+  { goalClass := "clinical_trials.multi_arm.bonferroni_union_bound_packaged"
+    theoremName := "Pythia.ClinicalTrials.bonferroni_union_bound_packaged"
+    domain := "clinical_trials"
+    applicableHypotheses := [
+      "MultiArmCS K α structure",
+      "per-arm bound expressed via M.perArmLevel"
+    ]
+    obligationsList := [
+      "MultiArmCS structure constructed (α ∈ (0,1), K ≥ 1)",
+      "per-arm bounds at M.perArmLevel"
+    ]
+    sourceModule := "Pythia.ClinicalTrials.MultiArmCS"
     confidence := 1.0 }
   -- TODO (when headline theorems land):
   --   • asymptotics.delta_method.scalar (DeltaMethod headline)
   --   • time_series.newey_west.consistency (NeweyWest headline)
   --   • hypothesis_testing.bonferroni (HypothesisTest headline)
   --   • hardware.float.ieee754_round_trip (IEEE754 headline)
-  --   • clinical_trials.multi_arm.union_bound (graduates from Frontier
-  --     when ATH-895 sorries close)
+  --   • clinical_trials.multi_arm.alpha_spending (group-sequential
+  --     O'Brien-Fleming / Pocock — extends MultiArmCS once stopping-
+  --     boundary library lands)
+  --   • clinical_trials.covariate_adjustment.* (stratified CS,
+  --     AIPW under sequential analysis)
   --   • nki.kernels.* (Dafny-side, qa lane — registry stub when
   --     Dafny→Lean cert path lands)
 ]

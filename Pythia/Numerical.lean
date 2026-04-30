@@ -28,7 +28,7 @@ machinery (LipschitzWith, ConvexOn, deriv) but does not surface the
 named theorems in applied form.
 -/
 
-import Pythia.Frontier.Numerical.PicardLindelof
+import Pythia.Numerical.PicardLindelof
 import Pythia.Numerical.Lyapunov
 import Pythia.Numerical.Kahan
 import Pythia.Numerical.KKT

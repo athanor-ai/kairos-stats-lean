@@ -171,6 +171,10 @@ import Pythia.Neuroscience
 -- ATH-895: clinical-trials theorem coverage. Bonferroni union-bound
 -- combiner for K-arm anytime-valid CS.
 import Pythia.ClinicalTrials.MultiArmCS
+-- Picard-Lindelöf global existence + uniqueness (graduated from
+-- Frontier 2026-04-30 after Aristotle 26156985 + research's Zorn-chain
+-- hint closed the existence sorry).
+import Pythia.Numerical.PicardLindelof
 -- ATH-894 cross-vertical MCP router strategy-layer API.
 -- `Pythia.Lookup` is the structured-JSON registry the router queries
 -- for goal-class → theorem-template dispatch.

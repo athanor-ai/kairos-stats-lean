@@ -652,6 +652,34 @@ def registry : List TheoremEntry := [
       "per-arm bounds at M.perArmLevel"
     ]
     sourceModule := "Pythia.ClinicalTrials.MultiArmCS"
+    confidence := 1.0 },
+  -- Numerical: ODE existence (PicardLindelof, graduated from Frontier) -
+  { goalClass := "numerical.ode.picard_lindelof_global"
+    theoremName := "Pythia.Numerical.PicardLindelof.picard_lindelof_global"
+    domain := "numerical"
+    applicableHypotheses := [
+      "f : ℝ → ℝ → ℝ globally K-Lipschitz in y",
+      "f continuous in t for each fixed y",
+      "want global existence + uniqueness on all of ℝ"
+    ]
+    obligationsList := [
+      "LipschitzWith K (fun y => f t y) for all t",
+      "Continuous (fun t => f t y) for all y"
+    ]
+    sourceModule := "Pythia.Numerical.PicardLindelof"
+    confidence := 1.0 },
+  { goalClass := "numerical.ode.picard_lindelof_continuous_dependence"
+    theoremName := "Pythia.Numerical.PicardLindelof.picard_lindelof_continuous_dependence"
+    domain := "numerical"
+    applicableHypotheses := [
+      "two ODE solutions y, z to the same f with initial values y₀, z₀",
+      "want exponential divergence bound via Gronwall"
+    ]
+    obligationsList := [
+      "LipschitzWith K (fun y => f t y) for all t",
+      "T ≥ 0"
+    ]
+    sourceModule := "Pythia.Numerical.PicardLindelof"
     confidence := 1.0 }
   -- TODO (when headline theorems land):
   --   • asymptotics.delta_method.scalar (DeltaMethod headline)

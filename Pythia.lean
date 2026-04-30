@@ -168,3 +168,12 @@ import Pythia.LanguageSemantics
 -- LIF, Hodgkin-Huxley gating, Shannon-Hartley, dopamine credit
 -- assignment from credit-assignment-formal-bench).
 import Pythia.Neuroscience
+-- ATH-894 cross-vertical MCP router strategy-layer API.
+-- `Pythia.Lookup` is the structured-JSON registry the router queries
+-- for goal-class → theorem-template dispatch.
+import Pythia.Lookup
+-- ATH-894 router structural-certificate gate. `#pythia_validate T`
+-- composes the four LLM-defense validators (ValidateInvokedLemmas /
+-- FlagConcreteConstants / MinimizeHypotheses / ValidateTypes) into
+-- a single command for `kairos.explain` to shell out against.
+import Pythia.Tactic.PythiaValidate

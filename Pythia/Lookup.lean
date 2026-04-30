@@ -417,4 +417,38 @@ elab "#pythia_lookup" pre:str : command => do
 elab "#pythia_lookup_size" : command => do
   Lean.logInfo m!"Pythia.Lookup registry size: {registrySize}"
 
+/-- Minimal JSON-string escape: `\\` and `"`. Registry entries are
+curated; unicode + control-char escaping isn't needed for v1. -/
+private def jsonEscape (s : String) : String :=
+  s.replace "\\" "\\\\" |>.replace "\"" "\\\""
+
+private def jsonStringList (xs : List String) : String :=
+  let parts := xs.map (fun x => "\"" ++ jsonEscape x ++ "\"")
+  "[" ++ String.intercalate ", " parts ++ "]"
+
+private def entryToJson (e : TheoremEntry) : String :=
+  let fields := [
+    "\"goalClass\": \"" ++ jsonEscape e.goalClass ++ "\"",
+    "\"theoremName\": \"" ++ jsonEscape e.theoremName ++ "\"",
+    "\"domain\": \"" ++ jsonEscape e.domain ++ "\"",
+    "\"applicableHypotheses\": " ++ jsonStringList e.applicableHypotheses,
+    "\"obligationsList\": " ++ jsonStringList e.obligationsList,
+    "\"sourceModule\": \"" ++ jsonEscape e.sourceModule ++ "\"",
+    "\"confidence\": " ++ toString e.confidence
+  ]
+  "  {" ++ String.intercalate ", " fields ++ "}"
+
+/-- `#pythia_registry_json` — emit the entire registry as a single JSON
+array. The MCP router shells out to this once at startup, caches the
+parsed result in-process, and queries locally per request — eliminating
+per-query shell-outs and the hygienic-binder panic in
+`#pythia_validate`. Output is delimited so the router can extract by
+splitting on the marker lines.
+
+Named `_registry_json` rather than `_lookup_json` to avoid the
+`#pythia_lookup STR` syntax-prefix collision. -/
+elab "#pythia_registry_json" : command => do
+  let body := String.intercalate ",\n" (registry.map entryToJson)
+  Lean.logInfo s!"<<<PYTHIA_LOOKUP_JSON_BEGIN>>>\n[\n{body}\n]\n<<<PYTHIA_LOOKUP_JSON_END>>>"
+
 end Pythia.Lookup

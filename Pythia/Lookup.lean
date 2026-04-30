@@ -569,6 +569,60 @@ def registry : List TheoremEntry := [
       "SNR > 0"
     ]
     sourceModule := "Pythia.Neuroscience.ShannonHartley"
+    confidence := 1.0 },
+  -- Networking (ATH-898) ------------------------------------------
+  { goalClass := "networking.congestion_control.reno_cwnd_floor"
+    theoremName := "CC.Reno.cwnd_floor_cwnd_ge_MSS"
+    domain := "networking"
+    applicableHypotheses := [
+      "Reno congestion-control state machine",
+      "want cwnd never drops below MSS (floor invariant)"
+    ]
+    obligationsList := [
+      "initial cwnd ≥ MSS",
+      "transitions are Reno-spec compliant"
+    ]
+    sourceModule := "Pythia.Networking.CC.Reno"
+    confidence := 1.0 },
+  { goalClass := "networking.congestion_control.cubic_cwnd_floor"
+    theoremName := "CC.Cubic.cwnd_floor_cwnd_ge_MSS"
+    domain := "networking"
+    applicableHypotheses := [
+      "CUBIC congestion-control state machine",
+      "want cwnd never drops below MSS (floor invariant)"
+    ]
+    obligationsList := [
+      "initial cwnd ≥ MSS",
+      "transitions are CUBIC-spec compliant"
+    ]
+    sourceModule := "Pythia.Networking.CC.Cubic"
+    confidence := 1.0 },
+  -- Language semantics — Cedar (ATH-898) --------------------------
+  { goalClass := "language_semantics.cedar.vars_of_type_sound"
+    theoremName := "Pythia.LanguageSemantics.Cedar.varsOfType_sound"
+    domain := "language_semantics"
+    applicableHypotheses := [
+      "Cedar policy expression typing context Γ",
+      "want generated variable list is sound w.r.t. typing"
+    ]
+    obligationsList := [
+      "Γ well-formed",
+      "type τ inhabited at depth n"
+    ]
+    sourceModule := "Pythia.LanguageSemantics.Cedar.Soundness"
+    confidence := 1.0 },
+  { goalClass := "language_semantics.cedar.vars_of_type_complete"
+    theoremName := "Pythia.LanguageSemantics.Cedar.varsOfType_complete"
+    domain := "language_semantics"
+    applicableHypotheses := [
+      "Cedar policy expression typing context Γ",
+      "want every variable of given type is generated (completeness)"
+    ]
+    obligationsList := [
+      "Γ well-formed",
+      "type τ inhabited at depth n"
+    ]
+    sourceModule := "Pythia.LanguageSemantics.Cedar.Coverage"
     confidence := 1.0 }
   -- TODO (when headline theorems land):
   --   • asymptotics.delta_method.scalar (DeltaMethod headline)
@@ -577,6 +631,8 @@ def registry : List TheoremEntry := [
   --   • hardware.float.ieee754_round_trip (IEEE754 headline)
   --   • clinical_trials.multi_arm.union_bound (graduates from Frontier
   --     when ATH-895 sorries close)
+  --   • nki.kernels.* (Dafny-side, qa lane — registry stub when
+  --     Dafny→Lean cert path lands)
 ]
 
 /-- Prefix-match query. Returns every entry whose `goalClass` starts

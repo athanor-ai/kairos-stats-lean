@@ -254,6 +254,44 @@ lemma matrix_bernstein_laplace_step
         (2 * (d : ℝ) * Real.exp (-theta * t +
           sigma_sq / R ^ 2 *
             (Real.exp (theta * R) - theta * R - 1))) := by
+  /- **STATUS: Unprovable as stated (false for `linftyOp` norm)**
+
+     COUNTEREXAMPLE (verified computationally):
+     Let `d = 10`, `n = 1000`, `X_k = ε_k · M` where `ε_k` are i.i.d.
+     Rademacher and `M` is the symmetric matrix with `M_{1j} = M_{j1} = 1/√10`
+     for `j ≥ 2`, all other entries zero.  Then:
+
+     • `‖M‖_linftyOp = 9/√10 ≈ 2.85`, so `R = 9/√10`
+     • `‖M‖_spectral = √(9/10) ≈ 0.95`   (ratio = `√(d−1) = 3`)
+     • `∑_k E[X_k²] = 1000 · M²`,  `‖1000·M²‖_linftyOp = 900`,  so `σ² = 900`
+     • `S = (∑ ε_k) · M`,  `‖S‖_linftyOp = |∑ ε_k| · 9/√10`
+     • At `t = 200`, `θ = 0.1`:  bound gives `≈ 6 × 10⁻⁶`
+     • True probability `P(|∑ ε_k| ≥ 70.2) ≈ 0.026`
+     • **0.026 ≫ 6 × 10⁻⁶** — the bound is violated.
+
+     The optimized Bernstein form `2d · exp(−t²/(2σ²+2Rt/3))` is also
+     violated: exponent ≈ −18.35, giving bound ≈ 2×10⁻⁷ ≪ 0.026.
+
+     ROOT CAUSE: The file comment claims "the spectral norm and the
+     linfty-op norm differ by at most a factor of √d; the constant in
+     front of the Bernstein bound absorbs this gap".  This is incorrect:
+     the √d factor enters the *exponent* (not just the constant),
+     which causes an exponential blowup that the `2d` prefactor cannot
+     absorb.  The correct bound for the linftyOp norm would be:
+
+       `P(‖S‖_∞ ≥ t) ≤ 2d · exp(−t²/(2dσ² + (2√d/3)Rt))`
+
+     i.e., `d·σ²` and `√d · R` in the denominator.
+
+     RESOLUTION OPTIONS:
+     1. Replace `linftyOp` with the genuine spectral norm once Mathlib
+        provides it.
+     2. Weaken the bound to the corrected linftyOp-norm version above.
+     3. Leave as `sorry` until (1) is available.
+
+     Currently (3) is chosen; the sorry cannot be closed because the
+     statement is false.
+  -/
   sorry
 
 /-! ## Section 3: Main theorem — assembly from bridge + scalar optimization -/
@@ -275,6 +313,11 @@ the counterexample showing `d` is insufficient for the two-sided bound.
 **Proof**: Choose the optimal Laplace parameter `θ* = log(1+Rt/σ²)/R`
 in the sorry-bridged `matrix_bernstein_laplace_step`, then apply
 `scalar_bernstein_optimization` to bound the exponent.
+
+**Warning**: This statement inherits the falsity of
+`matrix_bernstein_laplace_step` for the `linftyOp` norm placeholder.
+See the counterexample documented in that lemma. The bound is correct
+only for the genuine spectral norm.
 -/
 theorem matrix_bernstein
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
@@ -312,7 +355,10 @@ theorem matrix_bernstein
 
 `P(‖∑ X_k‖ ≥ t) ≤ 2d · exp(−t²/2 / (σ² + Rt/3))`
 
-This is now identical to `matrix_bernstein` after the constant correction. -/
+This is now identical to `matrix_bernstein` after the constant correction.
+
+**Warning**: inherits falsity for `linftyOp` norm; see
+`matrix_bernstein_laplace_step` counterexample. -/
 theorem matrix_bernstein_two_sided
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ]

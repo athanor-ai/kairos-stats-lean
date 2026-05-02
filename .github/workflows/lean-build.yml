@@ -93,8 +93,10 @@ jobs:
           #   - VilleMathlibPR.lean — Mathlib-PR-style draft, namespaced
           #     under `MeasureTheory` not `Pythia`, excluded from the
           #     umbrella for the same reason.
+          #   - Pythia/Scratch/** — agent-scratch / dogfood artifacts
+          #     that intentionally are not part of the build target.
           set -e
-          for f in $(find Pythia -name '*.lean' -not -path '*/Tactic/*Test.lean' -not -name 'VilleMathlibPR.lean' | sort); do
+          for f in $(find Pythia -name '*.lean' -not -path '*/Tactic/*Test.lean' -not -name 'VilleMathlibPR.lean' -not -path 'Pythia/Scratch/*' | sort); do
             echo "::group::lake env lean $f"
             lake env lean "$f"
             echo "::endgroup::"

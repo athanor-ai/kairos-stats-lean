@@ -57,6 +57,7 @@ Mathlib's Gamma_three_div_two_lt_one closes the bound directly. -/
 example :
     ∫ x, x ∂(Pythia.Actuarial.Weibull.weibullMeasure 1 2) < 1 := by
   have h_mean := Pythia.Actuarial.Weibull.mean (lambda := 1) (k := 2)
+    (hl := by norm_num) (hk := by norm_num)
   rw [h_mean]
   simp only [one_mul, show (1 : ℝ) + 1 / 2 = 3 / 2 by norm_num]
   exact Real.Gamma_three_div_two_lt_one

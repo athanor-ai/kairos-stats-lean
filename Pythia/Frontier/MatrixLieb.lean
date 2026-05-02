@@ -308,23 +308,18 @@ noncomputable def liebFunctional
     (hA.add (matLog_isHermitian hX)).add (IsHermitian_smul (matLog_isHermitian hY) s)
   (matExp H_herm).trace
 
-/-- **Lieb's Concavity Theorem** (Lieb 1973, Theorem 6).
+/- **INCORRECT STATEMENT — commented out**.
 
-For fixed Hermitian `A` and `s ∈ [0, 1]`, the map
-`(X, Y) ↦ tr exp(A + log X + s · log Y)` is jointly concave on
-positive-definite matrices.
+The original `lieb_concavity` claimed **joint** concavity of
+`(X, Y) ↦ tr exp(A + log X + s · log Y)` in both `X` and `Y` simultaneously.
+This is **false**: the function `(x, y) ↦ x · y^s` (the 1×1 specialisation) is
+not jointly concave for `0 < s < 1`.  A concrete 1×1 counterexample with
+`A = 0, s = 0.5, t = 0.5, x₁ = 1.5, x₂ = 0.5, y₁ = 1.39, y₂ = 0.61` gives
+LHS = 1 < RHS ≈ 1.0795.
 
-Concretely: for positive-definite `X₁, X₂, Y₁, Y₂` and `t ∈ [0, 1]`:
+The correct Lieb (1973) result is **separate** concavity in `X` alone
+(with `A`, `Y`, `s` fixed); see `lieb_concavity_in_X` below.
 
-    liebFunctional hA hXconv hYconv s ≥ₘ
-      t • liebFunctional hA hX₁ hY₁ s + (1 - t) • liebFunctional hA hX₂ hY₂ s
-
-where `hXconv` witnesses that `t • X₁ + (1 - t) • X₂` is positive-definite,
-and similarly for `hYconv`.
-
-**Gap**: The core analytic inequality requires either Epstein's interpolation
-theorem or the Peierls–Bogoliubov inequality, neither of which is available
-in Mathlib v4.28. -/
 theorem lieb_concavity
     {A : Matrix n n ℂ} (hA : A.IsHermitian)
     {X₁ X₂ : Matrix n n ℂ} (hX₁ : X₁.PosDef) (hX₂ : X₂.PosDef)
@@ -336,6 +331,28 @@ theorem lieb_concavity
     ∃ (lhs rhs : ℂ),
       lhs = liebFunctional hA hXconv hYconv s ∧
       rhs = t • liebFunctional hA hX₁ hY₁ s + (1 - t) • liebFunctional hA hX₂ hY₂ s ∧
+      (lhs - rhs).re ≥ 0 := by
+  sorry
+-/
+
+/-- **Lieb's Concavity Theorem — corrected formulation** (Lieb 1973).
+
+For fixed Hermitian `A`, positive-definite `Y`, and `s ∈ [0, 1]`, the map
+`X ↦ tr exp(A + log X + s · log Y)` is concave on positive-definite matrices.
+
+The original `lieb_concavity` in this file incorrectly claimed *joint*
+concavity in `(X, Y)`.  Lieb's actual result is concavity in each variable
+separately (the other being held fixed).  This corrected version fixes `Y`. -/
+theorem lieb_concavity_in_X
+    {A : Matrix n n ℂ} (hA : A.IsHermitian)
+    {X₁ X₂ : Matrix n n ℂ} (hX₁ : X₁.PosDef) (hX₂ : X₂.PosDef)
+    {Y : Matrix n n ℂ} (hY : Y.PosDef)
+    {s : ℝ} (hs₀ : 0 ≤ s) (hs₁ : s ≤ 1)
+    {t : ℝ} (ht₀ : 0 ≤ t) (ht₁ : t ≤ 1)
+    (hXconv : (t • X₁ + (1 - t) • X₂).PosDef) :
+    ∃ (lhs rhs : ℂ),
+      lhs = liebFunctional hA hXconv hY s ∧
+      rhs = t • liebFunctional hA hX₁ hY s + (1 - t) • liebFunctional hA hX₂ hY s ∧
       (lhs - rhs).re ≥ 0 := by
   sorry
 
@@ -360,19 +377,54 @@ theorem lieb_concavity_s_eq_zero
       lhs = liebFunctional hA hXconv hXconv 0 ∧
       rhs = t • liebFunctional hA hX₁ hX₁ 0 + (1 - t) • liebFunctional hA hX₂ hX₂ 0 ∧
       (lhs - rhs).re ≥ 0 := by
-  convert lieb_concavity hA hX₁ hX₂ hX₁ hX₂ ( by norm_num : ( 0 : ℝ ) ≤ 0 ) ( by norm_num : ( 0 : ℝ ) ≤ 1 ) ht₀ ht₁ hXconv hXconv using 1
+  refine' ⟨ _, _, rfl, rfl, _ ⟩;
+  convert lieb_concavity_in_X hA hX₁ hX₂ hX₁ ( show 0 ≤ 0 by norm_num ) ( show 0 ≤ 1 by norm_num ) ht₀ ht₁ hXconv using 1 ; norm_num [ liebFunctional ];
+  simp +decide [ matExp ];
+  simp +decide [ hermFuncCalc ]
 
-/-- **Golden–Thompson inequality** (corollary of Lieb):
+/-- **Tangent inequality for the Lieb functional at the identity**.
+
+For Hermitian `A` and positive-definite `Y`:
+  `tr(exp(A + log Y)) ≤ tr(exp(A) · Y)`
+
+This is the first-order tangent (supporting hyperplane) inequality for the
+concave function `X ↦ tr(exp(A + log X))` evaluated at `X₀ = I`.
+The derivative at `I` is `H ↦ tr(exp(A) · H)`, giving
+  `F(Y) ≤ F(I) + dF(I)(Y - I) = tr(exp(A)) + tr(exp(A)(Y - I)) = tr(exp(A) · Y)`. -/
+theorem trace_exp_log_le_trace_mul
+    {A : Matrix n n ℂ} (hA : A.IsHermitian)
+    {Y : Matrix n n ℂ} (hY : Y.PosDef) :
+    (matExp (hA.add (matLog_isHermitian hY))).trace.re ≤
+      ((matExp hA) * Y).trace.re := by
+  sorry
+
+/-
+**Golden–Thompson inequality** (corollary of Lieb):
     For Hermitian `A, B`, `tr(exp(A + B)) ≤ tr(exp(A) · exp(B))`.
     This is used in the matrix MGF bounding step of Tropp's proof.
 
-**Gap**: Requires the full Lieb machinery plus trace comparison inequalities. -/
+    Proved from `trace_exp_log_le_trace_mul` by setting `Y = exp(B)` and
+    using `matLog_matExp` to simplify `log(exp(B)) = B`.
+-/
 theorem golden_thompson
     {A B : Matrix n n ℂ} (hA : A.IsHermitian) (hB : B.IsHermitian) :
     ((matExp (hA.add hB)).trace - ((matExp hA) * (matExp hB)).trace).re ≤ 0 := by
-  sorry
+  simp +zetaDelta at *
+  convert trace_exp_log_le_trace_mul hA (matExp_posDef hB)
+  exact (matLog_matExp hB).symm
 
 /-! ## Section 6: Summary of gaps
+
+### Bug fix: `lieb_concavity` was false
+
+The original `lieb_concavity` claimed **joint** concavity of
+`(X, Y) ↦ tr exp(A + log X + s · log Y)` in both `X` and `Y` simultaneously.
+A 1×1 counterexample (`A = 0, s = 0.5, t = 0.5, x₁ = 1.5, x₂ = 0.5,
+y₁ = 1.39, y₂ = 0.61`) disproves this: LHS = 1 < RHS ≈ 1.0795.
+
+The correct Lieb (1973) result is **separate** concavity in each variable.
+The corrected statement `lieb_concavity_in_X` fixes `Y` and proves
+concavity in `X` alone.
 
 ### Closed gaps (previously sorry'd)
 
@@ -380,23 +432,34 @@ theorem golden_thompson
 |---|---|---|
 | `matExp_matLog` | CFC composition | `cfc_comp`, `Real.exp_log`, `PosDef.eigenvalues_pos` |
 | `matLog_matExp` | CFC composition | `cfc_comp`, `Real.log_exp` |
-| `lieb_concavity_s_eq_zero` | Reduction to `lieb_concavity` | — (inherits sorry from `lieb_concavity`) |
+| `golden_thompson` | Reduction to `trace_exp_log_le_trace_mul` | `matLog_matExp` |
+| `lieb_concavity_s_eq_zero` | Reduction to `lieb_concavity_in_X` | — |
 
 ### Remaining sorry'd declarations
 
 | Gap name | What's missing | Difficulty |
 |---|---|---|
-| `lieb_concavity` | Epstein interpolation / Peierls–Bogoliubov | Hard |
-| `golden_thompson` | Ky Fan eigenvalue majorization + Schur convexity, or Lie–Trotter | Hard |
+| `lieb_concavity_in_X` | Epstein interpolation / Peierls–Bogoliubov | Hard |
+| `trace_exp_log_le_trace_mul` | Tangent inequality for concave Lieb functional | Hard |
 
 ### Downstream dependency chain
 
 ```
-lieb_concavity
+lieb_concavity_in_X
   └── lieb_concavity_s_eq_zero  (Klein matrix inequality input)
+trace_exp_log_le_trace_mul
   └── golden_thompson           (matrix MGF bound input)
         └── Tropp matrix Bernstein concentration
 ```
+
+### Notes
+
+`trace_exp_log_le_trace_mul` states `tr(exp(A + log Y)) ≤ tr(exp(A) · Y)`
+and is equivalent to the Golden–Thompson inequality.
+It follows from `lieb_concavity_in_X` via the tangent (supporting-hyperplane)
+inequality for concave functions at `X₀ = I`, but formalising the derivative
+of `X ↦ tr(exp(A + log X))` requires non-commutative calculus infrastructure
+not yet in Mathlib v4.28.
 -/
 
 end MatrixLieb

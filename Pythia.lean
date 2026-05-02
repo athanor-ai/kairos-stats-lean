@@ -191,3 +191,9 @@ import Pythia.Lookup
 -- FlagConcreteConstants / MinimizeHypotheses / ValidateTypes) into
 -- a single command for `kairos.explain` to shell out against.
 import Pythia.Tactic.PythiaValidate
+
+-- Frontier Networking leaves imported by other Frontier files; added so per-file sweep can find oleans.
+import Pythia.Frontier.Networking.OnsetTheorem
+-- Frontier Neuroscience CreditAssignment leaves imported by other Frontier files.
+import Pythia.Frontier.Neuroscience.CreditAssignment.TD0
+import Pythia.Frontier.Neuroscience.CreditAssignment.ActorCritic

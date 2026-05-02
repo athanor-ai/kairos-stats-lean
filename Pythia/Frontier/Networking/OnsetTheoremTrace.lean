@@ -105,7 +105,7 @@ lemma foldr_max_zero (l : List Real) (h : ∀ x ∈ l, x = 0) :
   | nil => simp
   | cons a t ih =>
     simp only [List.foldr_cons]
-    rw [h a (List.mem_cons_self a t),
+    rw [h a List.mem_cons_self,
         ih (fun x hx => h x (List.mem_cons_of_mem a hx))]
     simp
 

@@ -302,10 +302,125 @@ private lemma exp_trunc_integral_le
   · exact IsStoppingTime.min_const hτ ↑N;
   · exact min_le_right _ _
 
+/-  Pointwise convergence: the truncated exponential converges to the
+    full exponential as N → ∞. -/
+private lemma exp_trunc_tendsto
+    (X : ℕ → Ω → ℝ) (σSq lam : ℝ) (τ : Ω → ℕ) (ω : Ω) :
+    Filter.Tendsto
+      (fun N => Real.exp (lam * partialSum X (min (τ ω) N) ω
+                          - (min (τ ω) N : ℝ) * (σSq * lam ^ 2 / 2)))
+      Filter.atTop
+      (nhds (Real.exp (lam * partialSum X (τ ω) ω
+                        - (τ ω : ℝ) * (σSq * lam ^ 2 / 2)))) := by
+  refine' Filter.Tendsto.congr' _ tendsto_const_nhds;
+  filter_upwards [ Filter.eventually_ge_atTop ( τ ω ) ] with N hN using by simp +decide [ hN ] ;
+
+/-
+The truncated exponential is integrable for each N.
+-/
+private lemma exp_trunc_integrable
+    [IsProbabilityMeasure μ]
+    {𝓕 : MeasureTheory.Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    (X : ℕ → Ω → ℝ) (σSq lam : ℝ)
+    (hExp_super :
+      Supermartingale
+        (fun n ω =>
+          Real.exp (lam * partialSum X n ω
+                     - (n : ℝ) * (σSq * lam ^ 2 / 2)))
+        𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
+    (N : ℕ) :
+    Integrable (fun ω => Real.exp (lam * partialSum X (min (τ ω) N) ω
+                    - (min (τ ω) N : ℝ) * (σSq * lam ^ 2 / 2))) μ := by
+  -- Since the stopping time min (τ ω) N is bounded by N, the stopped process up to that time is a finite sum of the original process values. Each of these values is integrable because the original process is integrable.
+  have h_integrable : ∀ n, Integrable (fun ω => Real.exp (lam * partialSum X n ω - n * (σSq * lam ^ 2 / 2))) μ := by
+    exact fun n => hExp_super.integrable n;
+  convert MeasureTheory.integrable_finset_sum ( Finset.range ( N + 1 ) ) fun n _hn => MeasureTheory.Integrable.indicator ( h_integrable n ) ( show MeasurableSet { ω : Ω | min ( τ ω ) N = n } from ?_ ) using 1;
+  · ext ω; simp +decide [ Set.indicator ] ;
+  · have h_measurable : ∀ n, MeasurableSet {ω | τ ω ≤ n} := by
+      intro n
+      have := hτ.measurableSet_le n
+      simp_all +decide [ liftStoppingTime ];
+      exact this.mono ( 𝓕.le n ) le_rfl;
+    have h_measurable : ∀ n, MeasurableSet {ω | τ ω = n} := by
+      intro n;
+      induction' n with n ih;
+      · simpa using h_measurable 0;
+      · have h_measurable : MeasurableSet {ω | τ ω ≤ n + 1} ∧ MeasurableSet {ω | τ ω ≤ n} := by
+          exact ⟨ h_measurable _, h_measurable _ ⟩;
+        convert h_measurable.1.diff h_measurable.2 using 1 ; ext ω ; simp +decide;
+        exact ⟨ fun h => ⟨ h.le, h.symm ▸ Nat.lt_succ_self _ ⟩, fun h => le_antisymm h.1 ( Nat.succ_le_of_lt h.2 ) ⟩;
+    convert MeasurableSet.inter ( h_measurable n ) ( show MeasurableSet { ω | n ≤ N } from ?_ ) |> MeasurableSet.union <| MeasurableSet.inter ( show MeasurableSet { ω | τ ω ≥ N + 1 } from ?_ ) ( show MeasurableSet { ω | N = n } from ?_ ) using 1;
+    · ext ω; simp [min_def];
+      grind;
+    · simp +decide [ Finset.mem_range_succ_iff.mp _hn ];
+    · convert MeasurableSet.compl ( ‹∀ n, MeasurableSet { ω | τ ω ≤ n } › N ) using 1 ; ext ; simp +decide [ not_le ];
+    · by_cases h : N = n <;> simp +decide [ h ]
+
+/-
+The lintegral of the truncated exponential (via ENNReal.ofReal) is ≤ 1 for each N.
+-/
+private lemma exp_trunc_lintegral_le_one
+    [IsProbabilityMeasure μ]
+    {𝓕 : MeasureTheory.Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    (X : ℕ → Ω → ℝ) (σSq lam : ℝ)
+    (hExp_super :
+      Supermartingale
+        (fun n ω =>
+          Real.exp (lam * partialSum X n ω
+                     - (n : ℝ) * (σSq * lam ^ 2 / 2)))
+        𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
+    (N : ℕ) :
+    ∫⁻ ω, ENNReal.ofReal
+      (Real.exp (lam * partialSum X (min (τ ω) N) ω
+                  - (min (τ ω) N : ℝ) * (σSq * lam ^ 2 / 2))) ∂μ ≤ 1 := by
+  have h_integrable : Integrable (fun ω => Real.exp (lam * partialSum X (min (τ ω) N) ω - (min (τ ω) N : ℝ) * (σSq * lam ^ 2 / 2))) μ := by
+    convert exp_trunc_integrable X σSq lam hExp_super τ hτ N using 1;
+  convert ENNReal.ofReal_le_ofReal ( exp_trunc_integral_le X σSq lam hExp_super τ hτ N ) using 1;
+  · rw [ MeasureTheory.ofReal_integral_eq_lintegral_ofReal h_integrable ];
+    exact Filter.Eventually.of_forall fun ω => Real.exp_nonneg _;
+  · norm_num
+
+/-
+The lintegral of the exponential (via ENNReal.ofReal) is ≤ 1.
+   Proved by Fatou's lemma + exp_trunc_lintegral_le_one.
+-/
+private lemma exp_lintegral_le_one
+    [IsProbabilityMeasure μ]
+    {𝓕 : MeasureTheory.Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    (X : ℕ → Ω → ℝ) (σSq lam : ℝ)
+    (hExp_super :
+      Supermartingale
+        (fun n ω =>
+          Real.exp (lam * partialSum X n ω
+                     - (n : ℝ) * (σSq * lam ^ 2 / 2)))
+        𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ)) :
+    ∫⁻ ω, ENNReal.ofReal
+      (Real.exp (lam * partialSum X (τ ω) ω
+                  - (τ ω : ℝ) * (σSq * lam ^ 2 / 2))) ∂μ ≤ 1 := by
+  -- Apply Fatou's lemma to the sequence of functions.
+  have h_fatou : ∫⁻ ω, ENNReal.ofReal (Real.exp (lam * partialSum X (τ ω) ω - (τ ω : ℝ) * (σSq * lam ^ 2 / 2))) ∂μ ≤ Filter.liminf (fun N => ∫⁻ ω, ENNReal.ofReal (Real.exp (lam * partialSum X (min (τ ω) N) ω - (min (τ ω) N : ℝ) * (σSq * lam ^ 2 / 2))) ∂μ) Filter.atTop := by
+    convert MeasureTheory.lintegral_liminf_le' _;
+    · refine' Eq.symm ( Filter.Tendsto.liminf_eq _ );
+      exact tendsto_const_nhds.congr' ( by filter_upwards [ Filter.eventually_ge_atTop ( τ ‹_› ) ] with n hn; simp +decide [ hn ] );
+    · intro n;
+      have := exp_trunc_integrable X σSq lam hExp_super τ hτ n;
+      exact ENNReal.continuous_ofReal.measurable.comp_aemeasurable this.1.aemeasurable;
+  refine' le_trans h_fatou ( le_trans ( Filter.liminf_le_of_frequently_le _ _ ) _ );
+  exact 1;
+  · exact Filter.frequently_atTop.2 fun N => ⟨ N, le_rfl, by simpa using exp_trunc_lintegral_le_one X σSq lam hExp_super τ hτ N ⟩;
+  · exact ⟨ 0, Filter.Eventually.of_forall fun N => zero_le _ ⟩;
+  · simp +decide
+
 /-- **Wald's identity, exponential / MGF form.**
 
 Proof: For non-integrable target, the integral is 0 ≤ 1 (by `integral_undef`).
-Otherwise use Fatou’s lemma on the non-negative truncated sequence. -/
+Otherwise use Fatou's lemma on the non-negative truncated sequence. -/
 theorem wald_identity_exp
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -323,7 +438,17 @@ theorem wald_identity_exp
     (_hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ)) (lam : ℝ) :
     ∫ ω, Real.exp (lam * partialSum X (τ ω) ω
                     - (τ ω : ℝ) * (σSq * lam ^ 2 / 2)) ∂μ ≤ 1 := by
-  sorry
+  by_cases hint : Integrable (fun ω => Real.exp (lam * partialSum X (τ ω) ω
+      - (τ ω : ℝ) * (σSq * lam ^ 2 / 2))) μ
+  · rw [integral_eq_lintegral_of_nonneg_ae
+        (ae_of_all μ fun ω => le_of_lt (Real.exp_pos _))
+        hint.aestronglyMeasurable]
+    have hle := exp_lintegral_le_one X σSq lam (_hExp_super lam) τ _hτ
+    calc (∫⁻ ω, ENNReal.ofReal (Real.exp (lam * partialSum X (τ ω) ω
+              - (τ ω : ℝ) * (σSq * lam ^ 2 / 2))) ∂μ).toReal
+        ≤ (1 : ENNReal).toReal := ENNReal.toReal_mono ENNReal.one_ne_top hle
+      _ = 1 := by simp
+  · rw [integral_undef hint]; exact zero_le_one
 
 /-- **Wald's identity (second moment) via uniform integrability — ℕ∞ form.** -/
 theorem wald_identity_squared_via_optional_stopping

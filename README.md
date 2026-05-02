@@ -56,6 +56,7 @@ All mainline theorems are sorry-free. Work-in-progress proofs live in
 
 Add to `lakefile.lean`:
 
+<!-- doctest: skip-reason: lakefile syntax (require), not a Lean program -->
 ```lean
 require pythia from git
   "https://github.com/athanor-ai/pythia.git" @ "main"
@@ -147,6 +148,7 @@ Every public theorem closes under the Lean 4 + Mathlib axiom set
 axioms. Verify any theorem locally:
 
 ```lean
+import Pythia
 #print axioms Pythia.ville_supermartingale
 ```
 

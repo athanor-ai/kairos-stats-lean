@@ -150,3 +150,11 @@ jobs:
       - name: Markdown doctest
         run: |
           python3 -m pytest tools/markdown_doctest/test_doctest.py -v --tb=short
+
+      # README number-drift gate: every numeric claim in README.md
+      # (theorem counts, tactic counts, n_pbt headline, toolchain pins)
+      # must match repo reality. Catches the class of bug where the
+      # README claims a stale total while the repo has grown.
+      - name: README numbers gate
+        run: |
+          python3 -m pytest tools/test_check_readme_numbers.py -v --tb=short

@@ -88,6 +88,9 @@ MODULE_ROLLUP: Dict[str, Tuple[str, ...]] = {
     "Pythia.Numerical": ("Numerical",),
     "Pythia.Networking": ("Networking",),
     "Pythia.Bio": ("Bio",),
+    "Pythia.MechanismDesign": ("MechanismDesign",),
+    "Pythia.Distributed": ("Distributed",),
+    "Pythia.InformationTheory": ("InformationTheory",),
     # Domains not yet headlined in README (kept for total-count reconciliation):
     "Pythia.Other": (
         "Chemistry",

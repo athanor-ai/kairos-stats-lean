@@ -32,3 +32,4 @@ import Pythia.Numerical.PicardLindelof
 import Pythia.Numerical.Lyapunov
 import Pythia.Numerical.Kahan
 import Pythia.Numerical.KKT
+import Pythia.Numerical.ForwardEuler

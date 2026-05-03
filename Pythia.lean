@@ -106,6 +106,9 @@ import Pythia.Tactic.PythiaBang
 import Pythia.Tactic.DomainRegistry
 -- Information theory (Bretagnolle-Huber binary form).
 import Pythia.InfoTheory.BretagnolleHuberBinary
+-- ATH-938: discrete information theory (channel capacity, mutual info).
+-- Basic.lean (shannonEntropy_nonneg) pending Aristotle ec7f9f8e.
+import Pythia.InformationTheory
 -- Measure theory infra (own-implement Mathlib gap).
 import Pythia.MeasureTheory.OptionalStoppingUnbounded
 -- Bridge: ae equality on rationals + ae continuity ⟹ ae equality on reals.
@@ -136,7 +139,7 @@ import Pythia.Bench.MiniPythia
 -- Moment + tail formulas; see each module for Aristotle queue candidates.
 import Pythia.Actuarial
 -- ATH-718 Layer 1: numerical methods (Picard-Lindelöf, Lyapunov,
--- Kahan summation, KKT). Theorem signatures + scaffold sorries.
+-- Kahan summation, KKT, Forward Euler LTE). Theorem signatures + scaffold sorries.
 import Pythia.Numerical
 -- ATH-718 Layer 1: computational biology (mass-action CRN ODEs,
 -- phylogenetic likelihood). Scaffolds + Aristotle queue candidates.
@@ -207,3 +210,10 @@ import Pythia.Frontier.Survival.CoxConsistency
 
 -- Frontier Lundberg ruin (1 measure-theoretic sorry on supermartingale construction).
 import Pythia.Frontier.Lundberg
+
+-- Mechanism design: auction theory + social choice (ATH-939 easy tier).
+import Pythia.MechanismDesign
+
+-- ATH-940 distributed systems theorem library (Paxos, Lamport, 2PC).
+-- Basic.lean (paxos_quorum_intersection) added when Aristotle starter returns.
+import Pythia.Distributed

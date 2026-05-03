@@ -22,3 +22,7 @@ Aristotle queue items 37-42.
 
 import Pythia.Bio.MassAction
 import Pythia.Bio.Phylogenetics
+import Pythia.Bio.PKPD
+import Pythia.Bio.PopGenetics
+import Pythia.Bio.SEIR
+import Pythia.Bio.RCT

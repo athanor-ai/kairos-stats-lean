@@ -200,3 +200,10 @@ import Pythia.Frontier.Neuroscience.CreditAssignment.ActorCritic
 
 -- Sparre Andersen renewal-theory generalization of Cramér-Lundberg.
 import Pythia.SparreAndersen
+
+-- Frontier survival analysis (Cox proportional hazards consistency).
+import Pythia.Frontier.Survival.Defs
+import Pythia.Frontier.Survival.CoxConsistency
+
+-- Frontier Lundberg ruin (1 measure-theoretic sorry on supermartingale construction).
+import Pythia.Frontier.Lundberg

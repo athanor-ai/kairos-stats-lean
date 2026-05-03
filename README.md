@@ -8,7 +8,7 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 711 sorry-free theorems
+mathematics and computer science. It provides 654 sorry-free theorems
 spanning probability theory, hardware verification, networking
 protocols, programming language semantics, actuarial science, and
 numerical optimization. All proofs close under the standard Lean 4
@@ -41,13 +41,13 @@ paired empirical verification.
 
 | Module | Theorems | Coverage |
 |--------|----------|----------|
-| `Pythia.Probability` | ~400 | Anytime-valid confidence sequences (Howard-Ramdas, betting), Ville's inequality, sub-Gaussian and sub-gamma concentration, Bernstein and Bennett inequalities, optional stopping, e-detectors, Robbins-Monro and Dvoretzky stochastic approximation |
+| `Pythia.Probability` | 352 | Anytime-valid confidence sequences (Howard-Ramdas, betting), Ville's inequality, sub-Gaussian and sub-gamma concentration, Bernstein and Bennett inequalities, optional stopping, e-detectors, Robbins-Monro and Dvoretzky stochastic approximation |
 | `Pythia.LanguageSemantics` | 134 | Cedar policy-language type soundness and coverage completeness, Palamedes generator correctness (totality, support characterization, data-structure invariants for lists, trees, natural numbers, STLC types and terms, stacks) |
-| `Pythia.Actuarial` | 23 | Pareto, Weibull, and log-normal loss distributions: moment formulas, tail bounds, medians, Chebyshev tail inequalities |
-| `Pythia.Hardware` | 22 | k-induction soundness, bit-vector modular arithmetic, Gray code single-bit adjacency, FIFO pointer conditions, Hamming distance metric and detection/correction capacity, Singleton bound, CDC synchronizer MTBF exponential growth |
-| `Pythia.Numerical` | 13 | KKT necessary conditions (Slater qualification) and sufficient conditions (convex programs, Lagrangian sandwich), Picard-Lindelof local existence, Lyapunov stability, Kahan compensated summation |
-| `Pythia.Networking` | 9 | Reno (AIMD) and CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness (from the FMCAD 2026 starvation paper) |
-| `Pythia.Bio` | scaffolds | Mass-action CRN conservation, phylogenetic likelihood |
+| `Pythia.Hardware` | 32 | k-induction soundness, bit-vector modular arithmetic, Gray code single-bit adjacency, FIFO pointer conditions, Hamming distance metric and detection/correction capacity, Singleton bound, CDC synchronizer MTBF exponential growth |
+| `Pythia.Actuarial` | 21 | Pareto, Weibull, log-normal loss distributions; Cramér-Lundberg ruin, Sparre Andersen renewal-theory ruin, Bornhuetter-Ferguson reserving |
+| `Pythia.Numerical` | 14 | KKT necessary conditions (Slater qualification) and sufficient conditions (convex programs, Lagrangian sandwich), Picard-Lindelof local existence, Lyapunov stability, Kahan compensated summation |
+| `Pythia.Bio` | 11 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold, Wright-Fisher, Michaelis-Menten saturation |
+| `Pythia.Networking` | 8 | Reno (AIMD) and CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness (from the FMCAD 2026 starvation paper) |
 
 All mainline theorems are sorry-free. Work-in-progress proofs live in
 `Pythia/Frontier/` and do not affect the CI build gate.
@@ -87,7 +87,7 @@ example
 
 ## Tactics
 
-Pythia registers eleven tactics into the Lean elaborator.
+Pythia registers twelve tactics into the Lean elaborator.
 
 | Tactic | Scope |
 |--------|-------|
@@ -123,7 +123,7 @@ Each domain pairs formal proofs with a computational verification layer:
 
 ## Theorem retrieval
 
-The repository includes a full-text search index over all 711
+The repository includes a full-text search index over all 654
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the

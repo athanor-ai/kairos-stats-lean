@@ -58,7 +58,7 @@ paired empirical verification.
 | `Pythia.Actuarial` | 21 | Pareto, Weibull, log-normal loss distributions; Cramér-Lundberg ruin, Sparre Andersen renewal-theory ruin, Bornhuetter-Ferguson reserving |
 | `Pythia.Numerical` | 23 | KKT necessary conditions (Slater qualification) and sufficient conditions (convex programs, Lagrangian sandwich), Picard-Lindelof local existence, Lyapunov stability, Kahan compensated summation, Forward Euler local truncation error, IEEE-754 round-to-nearest, QR factorization, Weyl eigenvalue inequality, Bauer-Fike eigenvalue perturbation, gradient descent geometric convergence |
 | `Pythia.Bio` | 20 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold + Kermack-McKendrick final size, Wright-Fisher, Michaelis-Menten + Hill Emax saturation, PK/PD AUC + half-life + Bateman positivity, Hardy-Weinberg invariance, Kimura neutral fixation, SEIR R0 threshold, RCT identifiability |
-| `Pythia.Networking` | 20 | Reno (AIMD) + New Reno fast retransmit recovery + CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness + BDP cap (from the FMCAD 2026 starvation paper), SACK pairwise disjointness, DCTCP + RED marking monotonicity, AIMD additive-increase rate, Bellman-Ford non-negativity, QUIC packet-number-space disjointness + 0-RTT replay-resistance, CoDel sojourn-time bound, split-horizon termination |
+| `Pythia.Networking` | 20 | Reno (AIMD) + New Reno fast retransmit recovery + CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness + BDP cap, SACK pairwise disjointness, DCTCP + RED marking monotonicity, AIMD additive-increase rate, Bellman-Ford non-negativity, QUIC packet-number-space disjointness + 0-RTT replay-resistance, CoDel sojourn-time bound, split-horizon termination |
 | `Pythia.MechanismDesign` | 12 | VCG efficiency + truthfulness (DSIC), second-price allocation, Vickrey individual rationality + truthfulness (2-bidder), Bulow-Klemperer corollary, VCG budget-balance counter-example, Myerson optimal reserve price (regular distributions), Condorcet winner uniqueness, first-price symmetric BNE bid |
 | `Pythia.Distributed` | 11 | Paxos quorum-intersection (canonical) + single-decree safety + corollaries (no two leaders, prepare-response uniqueness), Lamport clock monotonicity + happens-before clock condition, vector-clock causality completeness, Byzantine quorum intersection, two-phase commit agreement + validity + coordinator-failure blocking |
 | `Pythia.InformationTheory` | 9 | Shannon entropy non-negativity + log-card upper bound, channel capacity = sup mutual information, mutual-info nonneg via Gibbs (parametrized), source-coding lower bound (Kraft + Gibbs), data processing inequality (parametrized chain rule), Kraft inequality, AEP for Bernoulli, BSC capacity = log 2 - binEntropy(δ) |
@@ -171,9 +171,8 @@ Full audit: [`docs/axiom_audit.md`](docs/axiom_audit.md).
 ## Acknowledgments
 
 Pythia is built on [Lean 4](https://github.com/leanprover/lean4) and
-[Mathlib](https://github.com/leanprover-community/mathlib4).
-Networking proofs originate from the FMCAD 2026 BBRv3 starvation
-analysis. Language semantics proofs originate from the
+[Mathlib](https://github.com/leanprover-community/mathlib4). Language
+semantics proofs originate from the
 [kairos-cedar](https://github.com/athanor-ai/kairos-cedar) Palamedes
 framework. Several measure-theoretic, hardware, actuarial, and
 numerical theorems were closed with assistance from

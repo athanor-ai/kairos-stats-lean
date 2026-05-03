@@ -6,3 +6,6 @@ import Pythia.Distributed.PaxosCorollaries
 import Pythia.Distributed.Lamport
 import Pythia.Distributed.TwoPhaseCommit
 import Pythia.Distributed.Basic
+import Pythia.Distributed.ByzantineQuorum
+import Pythia.Distributed.HappensBefore
+import Pythia.Distributed.TwoPCBlocking

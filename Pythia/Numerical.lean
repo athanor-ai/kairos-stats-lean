@@ -33,3 +33,6 @@ import Pythia.Numerical.Lyapunov
 import Pythia.Numerical.Kahan
 import Pythia.Numerical.KKT
 import Pythia.Numerical.ForwardEuler
+import Pythia.Numerical.IEEE754
+import Pythia.Numerical.QR
+import Pythia.Numerical.Weyl

@@ -8,7 +8,7 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 701 sorry-free theorems
+mathematics and computer science. It provides 702 sorry-free theorems
 spanning probability theory, hardware verification, networking
 protocols, programming language semantics, actuarial science, numerical
 optimization, information theory, mechanism design, and distributed
@@ -48,7 +48,7 @@ paired empirical verification.
 | `Pythia.Actuarial` | 21 | Pareto, Weibull, log-normal loss distributions; Cramér-Lundberg ruin, Sparre Andersen renewal-theory ruin, Bornhuetter-Ferguson reserving |
 | `Pythia.Numerical` | 19 | KKT necessary conditions (Slater qualification) and sufficient conditions (convex programs, Lagrangian sandwich), Picard-Lindelof local existence, Lyapunov stability, Kahan compensated summation, Forward Euler local truncation error, IEEE-754 round-to-nearest, QR factorization, Weyl eigenvalue inequality |
 | `Pythia.Bio` | 17 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold, Wright-Fisher, Michaelis-Menten saturation, PK/PD AUC + half-life, Hardy-Weinberg invariance, Kimura neutral fixation, SEIR R0 threshold, RCT identifiability |
-| `Pythia.Networking` | 19 | Reno (AIMD) and CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness + BDP cap (from the FMCAD 2026 starvation paper), SACK pairwise disjointness, DCTCP + RED marking monotonicity, AIMD additive-increase rate, Bellman-Ford non-negativity, QUIC packet-number-space disjointness + 0-RTT replay-resistance, CoDel sojourn-time bound, split-horizon termination |
+| `Pythia.Networking` | 20 | Reno (AIMD) + New Reno fast retransmit recovery + CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness + BDP cap (from the FMCAD 2026 starvation paper), SACK pairwise disjointness, DCTCP + RED marking monotonicity, AIMD additive-increase rate, Bellman-Ford non-negativity, QUIC packet-number-space disjointness + 0-RTT replay-resistance, CoDel sojourn-time bound, split-horizon termination |
 | `Pythia.MechanismDesign` | 10 | VCG efficiency, second-price allocation, Vickrey individual rationality + truthfulness (2-bidder), Bulow-Klemperer corollary, VCG budget-balance counter-example, Myerson optimal reserve price (regular distributions), Condorcet winner uniqueness |
 | `Pythia.Distributed` | 10 | Paxos quorum-intersection (canonical) + corollaries (no two leaders, prepare-response uniqueness), Lamport clock monotonicity + happens-before clock condition, vector-clock causality completeness, Byzantine quorum intersection, two-phase commit agreement + validity + coordinator-failure blocking |
 | `Pythia.InformationTheory` | 5 | Shannon entropy non-negativity, channel capacity = sup mutual information, mutual-info nonneg via Gibbs (parametrized), source-coding lower bound (Kraft + Gibbs), data processing inequality (parametrized chain rule) |
@@ -127,7 +127,7 @@ Each domain pairs formal proofs with a computational verification layer:
 
 ## Theorem retrieval
 
-The repository includes a full-text search index over all 701
+The repository includes a full-text search index over all 702
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the

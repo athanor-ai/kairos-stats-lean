@@ -8,11 +8,12 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 654 sorry-free theorems
+mathematics and computer science. It provides 675 sorry-free theorems
 spanning probability theory, hardware verification, networking
-protocols, programming language semantics, actuarial science, and
-numerical optimization. All proofs close under the standard Lean 4
-axiom set `{propext, Classical.choice, Quot.sound}`.
+protocols, programming language semantics, actuarial science, numerical
+optimization, information theory, mechanism design, and distributed
+systems. All proofs close under the standard Lean 4 axiom set
+`{propext, Classical.choice, Quot.sound}`.
 
 ## Motivation
 
@@ -45,9 +46,12 @@ paired empirical verification.
 | `Pythia.LanguageSemantics` | 134 | Cedar policy-language type soundness and coverage completeness, Palamedes generator correctness (totality, support characterization, data-structure invariants for lists, trees, natural numbers, STLC types and terms, stacks) |
 | `Pythia.Hardware` | 32 | k-induction soundness, bit-vector modular arithmetic, Gray code single-bit adjacency, FIFO pointer conditions, Hamming distance metric and detection/correction capacity, Singleton bound, CDC synchronizer MTBF exponential growth |
 | `Pythia.Actuarial` | 21 | Pareto, Weibull, log-normal loss distributions; Cramér-Lundberg ruin, Sparre Andersen renewal-theory ruin, Bornhuetter-Ferguson reserving |
-| `Pythia.Numerical` | 14 | KKT necessary conditions (Slater qualification) and sufficient conditions (convex programs, Lagrangian sandwich), Picard-Lindelof local existence, Lyapunov stability, Kahan compensated summation |
-| `Pythia.Bio` | 11 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold, Wright-Fisher, Michaelis-Menten saturation |
-| `Pythia.Networking` | 8 | Reno (AIMD) and CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness (from the FMCAD 2026 starvation paper) |
+| `Pythia.Numerical` | 15 | KKT necessary conditions (Slater qualification) and sufficient conditions (convex programs, Lagrangian sandwich), Picard-Lindelof local existence, Lyapunov stability, Kahan compensated summation, Forward Euler local truncation error |
+| `Pythia.Bio` | 17 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold, Wright-Fisher, Michaelis-Menten saturation, PK/PD AUC + half-life, Hardy-Weinberg invariance, Kimura neutral fixation, SEIR R0 threshold, RCT identifiability |
+| `Pythia.Networking` | 10 | Reno (AIMD) and CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness (from the FMCAD 2026 starvation paper), SACK pairwise disjointness |
+| `Pythia.MechanismDesign` | 5 | VCG efficiency, second-price allocation, Vickrey individual rationality, Bulow-Klemperer corollary, VCG budget-balance counter-example |
+| `Pythia.Distributed` | 5 | Paxos quorum-intersection corollaries (no two leaders, prepare-response uniqueness), Lamport clock monotonicity, two-phase commit agreement + validity |
+| `Pythia.InformationTheory` | 2 | Shannon entropy non-negativity, channel capacity = sup mutual information |
 
 All mainline theorems are sorry-free. Work-in-progress proofs live in
 `Pythia/Frontier/` and do not affect the CI build gate.
@@ -123,7 +127,7 @@ Each domain pairs formal proofs with a computational verification layer:
 
 ## Theorem retrieval
 
-The repository includes a full-text search index over all 654
+The repository includes a full-text search index over all 675
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the

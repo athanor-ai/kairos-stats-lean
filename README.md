@@ -15,6 +15,16 @@ optimization, information theory, mechanism design, and distributed
 systems. All proofs close under the standard Lean 4 axiom set
 `{propext, Classical.choice, Quot.sound}`.
 
+
+<!-- pythia-stats-auto-begin -->
+**Coverage**:
+- 1170 theorem/lemma declarations in `Pythia/`
+- 65 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
+- 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
+
+Auto-tracked from [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py) and the `Pythia/` source tree; regenerate via `python3 tools/refresh_readme_stats.py`.
+<!-- pythia-stats-auto-end -->
+
 ## Motivation
 
 [Mathlib](https://github.com/leanprover-community/mathlib4) provides

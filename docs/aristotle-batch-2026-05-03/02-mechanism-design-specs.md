@@ -1,4 +1,4 @@
-# Pythia.MechanismDesign — 20 theorem specs (ATH-939)
+# Pythia.MechanismDesign  -  20 theorem specs (ATH-939)
 
 Filed 2026-05-03 by Sonnet sub-agent at asabi's direction.
 
@@ -8,7 +8,7 @@ Filed 2026-05-03 by Sonnet sub-agent at asabi's direction.
 
 Mathlib HAS to build on: `Fintype`, `Fin n`, `LinearOrder`, `Monotone`/`StrictMono`, `MeasureTheory.integral`, `Finset.sup'`, `IsGreatest`/`IsLeast`, Hall's marriage theorem, Farkas' lemma. None of these contain mechanism-design content.
 
----
+
 
 ## Single-Item Auctions (5)
 
@@ -48,12 +48,12 @@ Mathlib HAS to build on: `Fintype`, `Fin n`, `LinearOrder`, `Monotone`/`StrictMo
 ## Difficulty mix
 
 | | Easy | Medium | Hard |
-|---|---:|---:|---:|
+| - | - :| - :| - :|
 | Count | 7 | 6 | 7 |
 
 ## Starter theorem (fire to Aristotle today)
 
-**vcg_efficiency** — easy, ~3 line proof unfolding `IsGreatest` + applying hypothesis. Concrete and headline-named.
+**vcg_efficiency**  -  easy, ~3 line proof unfolding `IsGreatest` + applying hypothesis. Concrete and headline-named.
 
 ## Build order
 

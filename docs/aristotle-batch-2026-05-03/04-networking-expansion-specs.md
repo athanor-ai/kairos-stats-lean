@@ -1,4 +1,4 @@
-# Pythia.Networking expansion — 12 theorems (ATH-941)
+# Pythia.Networking expansion  -  12 theorems (ATH-941)
 
 Filed 2026-05-03 by Sonnet sub-agent at asabi's direction. Grows module from 8 → 20.
 
@@ -12,7 +12,7 @@ Confirmed absent across all 8132 Mathlib `.lean` files: zero networking-specific
 - CC.Cubic: same four-theorem pattern  
 - Frontier networking: minrtt_monotone, ack_agg_inflates, cwnd_gain_insufficient, onset bounds + tight, starves_within, etc.
 
----
+
 
 ## TCP Variants (3)
 
@@ -47,12 +47,12 @@ Confirmed absent across all 8132 Mathlib `.lean` files: zero networking-specific
 ## Difficulty mix
 
 | | Easy | Medium | Hard |
-|---|---:|---:|---:|
+| - | - :| - :| - :|
 | Count | 7 | 4 | 1 |
 
 ## Starter theorem (fire to Aristotle today)
 
-**aimd_additive_increase_rate** — easy, induction on n closes via `mul_succ`; foundational for the AIMD framework.
+**aimd_additive_increase_rate**  -  easy, induction on n closes via `mul_succ`; foundational for the AIMD framework.
 
 ## Build order
 

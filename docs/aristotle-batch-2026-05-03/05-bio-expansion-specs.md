@@ -1,4 +1,4 @@
-# Pythia.Bio expansion — 9 theorems (ATH-942)
+# Pythia.Bio expansion  -  9 theorems (ATH-942)
 
 Filed 2026-05-03 by Sonnet sub-agent at asabi's direction. Grows module from 11 → 20.
 
@@ -12,7 +12,7 @@ Mathlib HAS to build on: `integral_exp_mul_Ioi`, `Real.exp_log`, `IsProbabilityM
 
 Mainline Bio (11): massAction_existence/nonneg/conservation, detailed_balance_equilibrium, felsenstein_correct_spec, JukesCantor_pi_sum, hardy_weinberg_conservation, lotka_volterra_equilibrium_x/y_pos, sir_total_population_derivative_zero, michaelis_menten_saturation. Frontier Bio (WIP): hillSaturation_*, sir_subcritical/supercritical, wrightFisherFixation_*.
 
----
+
 
 ## PK/PD (3)
 
@@ -41,12 +41,12 @@ Mainline Bio (11): massAction_existence/nonneg/conservation, detailed_balance_eq
 ## Difficulty mix
 
 | | Easy | Medium | Hard |
-|---|---:|---:|---:|
+| - | - :| - :| - :|
 | Count | 6 | 3 | 0 |
 
 ## Starter theorem (fire to Aristotle today)
 
-**hwe_allele_frequency_invariance** — easy, `ring` closes after `rw [hq]`. Concrete and headline-named.
+**hwe_allele_frequency_invariance**  -  easy, `ring` closes after `rw [hq]`. Concrete and headline-named.
 
 ## Build order
 

@@ -1,4 +1,4 @@
-# Pythia.Numerical expansion — 16 theorems (ATH-943)
+# Pythia.Numerical expansion  -  16 theorems (ATH-943)
 
 Filed 2026-05-03 by Sonnet sub-agent at asabi's direction. Grows module from 14 → 30.
 
@@ -12,7 +12,7 @@ Mathlib HAS to build on: `Matrix`, `Matrix.IsHermitian`, `IsHermitian.eigenvalue
 
 `kkt_necessary`, `kkt_sufficient_convex`, `picard_lindelof_local/global/global_existence/continuous_dependence`, `lyapunov_stable/asymptotic`, `lasalle_invariance`, `kahan_error_bound`, `naive_error_bound`, `newton_quadratic_iter_pos`.
 
----
+
 
 ## Matrix Decompositions (5)
 
@@ -48,12 +48,12 @@ Mathlib HAS to build on: `Matrix`, `Matrix.IsHermitian`, `IsHermitian.eigenvalue
 ## Difficulty mix
 
 | | Easy | Medium | Hard |
-|---|---:|---:|---:|
+| - | - :| - :| - :|
 | Count | 1 | 7 | 8 |
 
 ## Starter theorem (fire to Aristotle today)
 
-**forward_euler_local_truncation_error** — easy, follows from Taylor's theorem with remainder. ~25 lines. Note this isn't a NEW domain so no starter is being fired today; the new-domain starters (IT, MD, Distributed) take priority. Numerical starter will be in tomorrow's batch.
+**forward_euler_local_truncation_error**  -  easy, follows from Taylor's theorem with remainder. ~25 lines. Note this isn't a NEW domain so no starter is being fired today; the new-domain starters (IT, MD, Distributed) take priority. Numerical starter will be in tomorrow's batch.
 
 ## Build order
 

@@ -1,4 +1,4 @@
-# Pythia.Distributed — 20 theorem specs (ATH-940)
+# Pythia.Distributed  -  20 theorem specs (ATH-940)
 
 Filed 2026-05-03 by Sonnet sub-agent at asabi's direction.
 
@@ -8,7 +8,7 @@ Filed 2026-05-03 by Sonnet sub-agent at asabi's direction.
 
 Mathlib HAS: `Finset.card_union_add_card_inter` (combinatorial primitive), `Relation.TransGen`, `IsLinearOrder`, `Fintype.card`. None applied to distributed events.
 
----
+
 
 ## Paxos / Single-Decree Consensus (6)
 
@@ -48,12 +48,12 @@ Mathlib HAS: `Finset.card_union_add_card_inter` (combinatorial primitive), `Rela
 ## Difficulty mix
 
 | | Easy | Medium | Hard |
-|---|---:|---:|---:|
+| - | - :| - :| - :|
 | Count | 7 | 6 | 7 |
 
 ## Starter theorem (fire to Aristotle today)
 
-**paxos_quorum_intersection** — easy, reduces to `Finset.card_union_add_card_inter` + Nat arithmetic, foundational for Paxos chain.
+**paxos_quorum_intersection**  -  easy, reduces to `Finset.card_union_add_card_inter` + Nat arithmetic, foundational for Paxos chain.
 
 ## Build order
 

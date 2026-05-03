@@ -1,4 +1,4 @@
-# Pythia.InformationTheory — 20 theorem specs (ATH-938)
+# Pythia.InformationTheory  -  20 theorem specs (ATH-938)
 
 Filed 2026-05-03 by Sonnet sub-agent at asabi's direction. Source enumeration covers all 5 sub-areas: discrete entropy foundations, AEP/typicality, channel capacity, Fano's inequality, large deviations, source-channel separation, rate-distortion + DPI.
 
@@ -12,12 +12,13 @@ grep -rn "shannonEntropy|kraft|aep|AEP|channelCapacity|mutualInfo|fano|Fano|cond
 
 What Mathlib HAS to build on: `Real.negMulLog`, `Real.binEntropy`, `Real.qaryEntropy`, `InformationTheory.klDiv`, `ProbabilityTheory.strong_law_ae`, `InformationTheory.hammingDist`.
 
----
+
 
 ## Discrete entropy foundations (5)
 
-### 1. `shannonEntropy_nonneg` [easy] — STARTER
+### 1. `shannonEntropy_nonneg` [easy]  -  STARTER
 PMF-level Shannon entropy is nonneg.
+<!-- doctest: skip-reason: spec target signature, not a complete proof -->
 ```lean
 theorem shannonEntropy_nonneg
     {α : Type*} [Fintype α]
@@ -115,7 +116,7 @@ Citation: Shannon 1948; Cover-Thomas Theorem 10.2.1.
 X → Y → Z Markov ⟹ I(X;Z) ≤ I(X;Y). Chain rule + Markov factorization.
 Citation: Cover-Thomas Theorem 2.8.1.
 
----
+
 
 ## Build order
 

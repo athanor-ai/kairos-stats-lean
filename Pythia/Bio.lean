@@ -26,3 +26,6 @@ import Pythia.Bio.PKPD
 import Pythia.Bio.PopGenetics
 import Pythia.Bio.SEIR
 import Pythia.Bio.RCT
+import Pythia.Bio.Bateman
+import Pythia.Bio.SIRFinalSize
+import Pythia.Bio.HillEmax

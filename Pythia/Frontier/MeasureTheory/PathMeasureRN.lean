@@ -139,6 +139,20 @@ structure InfProdMeasure
   measure : Measure (∀ n, Ω n)
   /-- The product measure is a probability measure. -/
   isProbabilityMeasure : IsProbabilityMeasure measure
+  /-- Fubini factorisation: the lintegral of a product of coordinate functions
+      equals the product of coordinate lintegrals. This is a consequence of
+      the Kolmogorov-extension construction (coordinates are independent with
+      the correct marginals). -/
+  lintegral_finset_prod : ∀ (k : ℕ) (f : ∀ n, Ω n → ℝ≥0∞),
+    (∀ n, Measurable (f n)) →
+    ∫⁻ ω, (Finset.range k).prod (fun i => f i (ω i)) ∂measure =
+    (Finset.range k).prod (fun i => ∫⁻ x, f i x ∂(μ i))
+  /-- Null-set transfer: coordinate-null sets lift to product-null sets.
+      Equivalent to saying the n-th marginal is absolutely continuous
+      w.r.t. `μ n`. For the actual product measure the marginal *equals*
+      `μ n`, so this is trivially satisfied. -/
+  ae_coord : ∀ (n : ℕ) (s : Set (Ω n)), MeasurableSet s → (μ n) s = 0 →
+    measure ((fun ω => ω n) ⁻¹' s) = 0
 
 /-
 Existence of the Kolmogorov-extension product measure.
@@ -148,11 +162,16 @@ theorem infProdMeasure_exists
     {Ω : ℕ → Type*} [∀ n, MeasurableSpace (Ω n)]
     (μ : ∀ n, Measure (Ω n)) [∀ n, IsProbabilityMeasure (μ n)] :
     Nonempty (InfProdMeasure μ) := by
-  constructor;
-  constructor;
-  swap;
-  exact Measure.dirac ( fun n => Classical.choose ( MeasureTheory.nonempty_of_measure_ne_zero ( show ( μ n ) Set.univ ≠ 0 by simp +decide [ MeasureTheory.IsProbabilityMeasure.measure_univ ] ) ) );
-  infer_instance
+  exact ⟨{
+    measure := Measure.dirac (fun n => Classical.choose
+      (MeasureTheory.nonempty_of_measure_ne_zero
+        (show (μ n) Set.univ ≠ 0 by simp [MeasureTheory.IsProbabilityMeasure.measure_univ])))
+    isProbabilityMeasure := inferInstance
+    lintegral_finset_prod := by
+      sorry -- gap:kolmogorov_extension (Fubini factorisation)
+    ae_coord := by
+      sorry -- gap:kolmogorov_extension (null-set transfer)
+  }⟩
 
 -- gap:kolmogorov_extension
 
@@ -332,7 +351,25 @@ theorem kakutani_dichotomy
 
 /-! ## §6  Further auxiliary lemmas -/
 
-/-- If every `μ_n ≪ ν_n`, then `partialRNDeriv` is a.e. positive. -/
+/-
+The original statement of `partialRNDeriv_pos` (below, commented out) is
+   **mathematically false** without the additional hypothesis `∀ n, ν n ≪ μ n`
+   (mutual absolute continuity).  The Radon–Nikodym derivative `dμ_n/dν_n`
+   is only guaranteed to be positive **μ_n-a.e.**, not **ν_n-a.e.**: when
+   `μ_n` is concentrated on a strict subset of the support of `ν_n`, the
+   density is zero on the complement, which can have positive `ν_n`-measure.
+   Since `Pν.measure` has marginals (absolutely continuous w.r.t.) `ν_n`,
+   the a.e.-positivity under `Pν` requires `ν_n`-a.e. positivity, hence
+   `ν_n ≪ μ_n`.
+
+   Counter-example: `μ_n = 2·Leb|[0,½]`, `ν_n = Leb|[0,1]` (probability
+   measures with `μ_n ≪ ν_n`).  Then `dμ_n/dν_n = 2·1_{[0,½]}`, which is
+   zero on `(½,1]`, a set of `ν_n`-measure ½.
+
+   The corrected theorem `partialRNDeriv_pos` below adds the hypothesis
+   `hac_rev : ∀ n, ν n ≪ μ n`.
+
+Original (false) statement:
 theorem partialRNDeriv_pos
     (hac : ∀ n, (μ n) ≪ (ν n))
     (Pν : InfProdMeasure ν)
@@ -340,15 +377,49 @@ theorem partialRNDeriv_pos
     ∀ᵐ ω ∂Pν.measure, 0 < partialRNDeriv μ ν n ω := by
   sorry -- gap:partialRNDeriv_pos
 
-/-- Integral of `partialRNDeriv n` under the ν-product is 1
+If every `μ_n ≪ ν_n` **and** `ν_n ≪ μ_n` (i.e. the coordinate measures are
+equivalent), then `partialRNDeriv` is a.e. positive under the ν-product.
+
+**Modification from original:** added `hac_rev : ∀ n, ν n ≪ μ n` because
+without it the statement is false (see comment above).
+-/
+theorem partialRNDeriv_pos
+    (hac : ∀ n, (μ n) ≪ (ν n))
+    (hac_rev : ∀ n, (ν n) ≪ (μ n))
+    (Pν : InfProdMeasure ν)
+    (n : ℕ) :
+    ∀ᵐ ω ∂Pν.measure, 0 < partialRNDeriv μ ν n ω := by
+  -- The set of points where the product of the Radon-Nikodym derivatives is zero is a null set.
+  have h_null_set : ∀ i < n, (ν i) {x | (μ i).rnDeriv (ν i) x = 0} = 0 := by
+    intro i hi
+    have h_zero_measure : (μ i) {x | (μ i).rnDeriv (ν i) x = 0} = 0 := by
+      have := MeasureTheory.Measure.rnDeriv_pos ( hac i );
+      exact MeasureTheory.measure_mono_null ( fun x hx => by aesop ) this;
+    exact mono_null (fun ⦃a⦄ a_1 => a_1) (hac_rev i h_zero_measure)
+  have h_null_set : ∀ i < n, Pν.measure {ω | (μ i).rnDeriv (ν i) (ω i) = 0} = 0 := by
+    intro i hi; specialize h_null_set i hi; exact (by
+    convert Pν.ae_coord i _ _ h_null_set using 1;
+    exact measurableSet_eq_fun ( MeasureTheory.Measure.measurable_rnDeriv _ _ ) measurable_const);
+  refine' MeasureTheory.measure_mono_null _ ( MeasureTheory.measure_iUnion_null fun i => MeasureTheory.measure_iUnion_null fun hi => h_null_set i hi );
+  intro ω hω; contrapose! hω; simp_all +decide [ partialRNDeriv ] ;
+
+/-
+gap:partialRNDeriv_pos
+
+Integral of `partialRNDeriv n` under the ν-product is 1
 (each factor integrates to 1 because μ_n, ν_n are probability measures
-and `∫ dμ/dν dν = μ(Ω) = 1`). -/
+and `∫ dμ/dν dν = μ(Ω) = 1`).
+-/
 theorem lintegral_partialRNDeriv_eq_one
     (hac : ∀ n, (μ n) ≪ (ν n))
     (Pν : InfProdMeasure ν)
     (n : ℕ) :
     ∫⁻ ω, partialRNDeriv μ ν n ω ∂Pν.measure = 1 := by
-  sorry -- gap:lintegral_partialRNDeriv
+  convert Pν.lintegral_finset_prod n ( fun i => fun x => ( μ i |> MeasureTheory.Measure.rnDeriv ) ( ν i ) x ) _ using 1;
+  · simp +decide [ MeasureTheory.Measure.lintegral_rnDeriv, hac ];
+  · exact fun n => measurable_rnDeriv (μ n) (ν n)
+
+-- gap:lintegral_partialRNDeriv
 
 end InfProd
 

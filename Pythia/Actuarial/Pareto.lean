@@ -103,6 +103,23 @@ theorem tail (hm : 0 < x_m) (ha : 0 < alpha) (t : ℝ) (ht : x_m ≤ t) :
   · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioi ] with x hx using mul_nonneg ( mul_nonneg ha.le ( Real.rpow_nonneg hm.le _ ) ) ( Real.rpow_nonneg ( by linarith [ hx.out ] ) _ );
   · exact Measurable.aestronglyMeasurable ( by exact Measurable.mul ( measurable_const ) ( measurable_id.pow_const _ ) )
 
+/-
+**Pareto tail probability (alternate signature).**
+For `t ≥ x_m`, `P(X > t) = (x_m / t) ^ α`.
+
+This is the same result as `tail` but stated directly in terms of
+`ProbabilityTheory.paretoMeasure x_m α` (Mathlib convention: first arg = scale,
+second arg = shape) with all parameters explicit.
+
+Note: Mathlib's `paretoMeasure` takes `(scale, shape)`, so the correct call
+for scale `x_m` and shape `α` is `paretoMeasure x_m α`, **not** `paretoMeasure α x_m`.
+-/
+theorem pareto_tail
+    (α x_m : ℝ) (hα : 0 < α) (hxm : 0 < x_m)
+    {t : ℝ} (ht : x_m ≤ t) :
+    (ProbabilityTheory.paretoMeasure x_m α).real (Set.Ioi t) = (x_m / t) ^ α := by
+  convert tail hxm hα t ht using 1
+
 /-! ### Mean -/
 
 /-

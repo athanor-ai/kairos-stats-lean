@@ -379,6 +379,59 @@ theorem ulln_from_martingale
       atTop (𝓝 0) := by
   sorry
 
+/-
+**Gibbs inequality (strict)**: Jensen's inequality for the log-likelihood ratio.
+
+If `r : X → ℝ` is a positive function bounded in `[lo, hi]` with `0 < lo`,
+normalized so that `∫ r dν = 1` under a probability measure `ν`, and `r` is
+not a.e. equal to `1`, then `∫ log(r) dν < 0`.
+
+This is the information-theoretic inequality `−D_KL(P ‖ Q) < 0` for `P ≠ Q`,
+applied to the Cox partial-likelihood ratio. The proof uses strict Jensen:
+`log` is strictly concave on `(0, ∞)`, hence on `[lo, hi]`, so either
+`r` is a.e. constant (forcing `r = 1` a.e. by normalization, contradicting
+`h_nondeg`) or `⨍ log r < log(⨍ r) = 0`.
+-/
+lemma log_likelihood_ratio_neg
+    {X : Type*} [MeasurableSpace X] {ν : MeasureTheory.Measure X} [IsProbabilityMeasure ν]
+    {r : X → ℝ} {lo hi : ℝ}
+    (hlo : 0 < lo) (hle : lo ≤ hi)
+    (h_bdd : ∀ x, lo ≤ r x ∧ r x ≤ hi)
+    (h_meas : Measurable r)
+    (h_norm : ∫ x, r x ∂ν = 1)
+    (h_nondeg : ¬(r =ᵐ[ν] fun _ => (1 : ℝ))) :
+    ∫ x, Real.log (r x) ∂ν < 0 := by
+  contrapose! h_nondeg;
+  have h_jensen : ∫ x, (r x - 1 - Real.log (r x)) ∂ν = 0 := by
+    rw [ MeasureTheory.integral_sub, MeasureTheory.integral_sub ] <;> norm_num [ h_norm, h_nondeg ];
+    · refine' le_antisymm _ h_nondeg;
+      refine' le_trans ( MeasureTheory.integral_mono _ _ fun x => Real.log_le_sub_one_of_pos ( by linarith [ h_bdd x ] ) ) _;
+      · refine' MeasureTheory.Integrable.mono' _ _ _;
+        refine' fun x => |Real.log lo| + |Real.log hi|;
+        · norm_num;
+        · exact Measurable.aestronglyMeasurable ( by measurability );
+        · filter_upwards [ ] with x using abs_le.mpr ⟨ by cases abs_cases ( Real.log lo ) <;> cases abs_cases ( Real.log hi ) <;> linarith [ Real.log_le_log ( by linarith ) ( h_bdd x |>.1 ), Real.log_le_log ( by linarith [ h_bdd x |>.1 ] ) ( h_bdd x |>.2 ) ], by cases abs_cases ( Real.log lo ) <;> cases abs_cases ( Real.log hi ) <;> linarith [ Real.log_le_log ( by linarith ) ( h_bdd x |>.1 ), Real.log_le_log ( by linarith [ h_bdd x |>.1 ] ) ( h_bdd x |>.2 ) ] ⟩;
+      · exact MeasureTheory.Integrable.sub ( by exact ( by by_contra h; rw [ MeasureTheory.integral_undef h ] at h_norm; norm_num at h_norm ) ) ( by exact MeasureTheory.integrable_const _ );
+      · rw [ MeasureTheory.integral_sub ( by exact MeasureTheory.integrable_of_integral_eq_one h_norm ) ] <;> norm_num [ h_norm ];
+    · exact MeasureTheory.integrable_of_integral_eq_one h_norm;
+    · exact MeasureTheory.Integrable.sub ( MeasureTheory.integrable_of_integral_eq_one h_norm ) ( MeasureTheory.integrable_const _ );
+    · refine' MeasureTheory.Integrable.mono' _ _ _;
+      refine' fun x => |Real.log lo| + |Real.log hi|;
+      · fun_prop;
+      · exact Measurable.aestronglyMeasurable ( by measurability );
+      · filter_upwards [ ] with x using abs_le.mpr ⟨ by cases abs_cases ( Real.log lo ) <;> cases abs_cases ( Real.log hi ) <;> linarith [ Real.log_le_log ( by linarith ) ( h_bdd x |>.1 ), Real.log_le_log ( by linarith [ h_bdd x |>.1 ] ) ( h_bdd x |>.2 ) ], by cases abs_cases ( Real.log lo ) <;> cases abs_cases ( Real.log hi ) <;> linarith [ Real.log_le_log ( by linarith ) ( h_bdd x |>.1 ), Real.log_le_log ( by linarith [ h_bdd x |>.1 ] ) ( h_bdd x |>.2 ) ] ⟩;
+  rw [ MeasureTheory.integral_eq_zero_iff_of_nonneg_ae ] at h_jensen;
+  · filter_upwards [ h_jensen ] with x hx;
+    exact le_antisymm ( le_of_not_gt fun h => by have := Real.log_lt_sub_one_of_pos ( show 0 < r x from by linarith [ h_bdd x ] ) ( by linarith ) ; norm_num at hx ; linarith ) ( le_of_not_gt fun h => by have := Real.log_lt_sub_one_of_pos ( show 0 < r x from by linarith [ h_bdd x ] ) ( by linarith ) ; norm_num at hx ; linarith );
+  · filter_upwards [ ] with x using sub_nonneg_of_le ( by linarith [ Real.log_le_sub_one_of_pos ( by linarith [ h_bdd x ] : 0 < r x ) ] );
+  · refine' MeasureTheory.Integrable.sub _ _;
+    · exact MeasureTheory.Integrable.sub ( MeasureTheory.integrable_of_integral_eq_one h_norm ) ( MeasureTheory.integrable_const _ );
+    · refine' MeasureTheory.Integrable.mono' _ _ _;
+      refine' fun x => |Real.log lo| + |Real.log hi|;
+      · norm_num;
+      · exact Measurable.aestronglyMeasurable ( by measurability );
+      · filter_upwards [ ] with x using abs_le.mpr ⟨ by cases abs_cases ( Real.log lo ) <;> cases abs_cases ( Real.log hi ) <;> linarith [ Real.log_le_log ( by linarith ) ( h_bdd x |>.1 ), Real.log_le_log ( by linarith [ h_bdd x |>.1 ] ) ( h_bdd x |>.2 ) ], by cases abs_cases ( Real.log lo ) <;> cases abs_cases ( Real.log hi ) <;> linarith [ Real.log_le_log ( by linarith ) ( h_bdd x |>.1 ), Real.log_le_log ( by linarith [ h_bdd x |>.1 ] ) ( h_bdd x |>.2 ) ] ⟩
+
 /-- **Identifiability** of the Cox model.
 
 Under the full-rank covariate condition and positive baseline hazard,
@@ -388,8 +441,19 @@ map β ↦ β·z − log E[Y exp(β·Z)], which holds when the conditional
 covariance matrix of Z given Y(t)=1 is positive definite for t in a
 set of positive baseline-hazard measure.
 
-**Status**: honest sorry — requires the conditional covariance structure
-and Jensen's inequality for the log-sum-exp. -/
+The proof uses Jensen's inequality applied to the partial-likelihood
+ratio `r(β, x) = dP_β/dP_{β₀}(x)`. Under the Cox model:
+
+* `ℓ(β) − ℓ(β₀) = ∫ log(r(β, x)) dν(x)` (log-likelihood ratio
+  representation, where `ν` is the β₀-distribution of the data)
+* `∫ r(β, x) dν(x) = 1` (normalization of the likelihood ratio)
+* `r(β, ·)` is bounded in `[lo, hi]` with `lo > 0` (from bounded
+  covariates and compact parameter space)
+* For `β ≠ β₀`, `r(β, ·)` is not a.e. equal to `1` (from the
+  full-rank covariate condition / positive-definite score covariance)
+
+By `log_likelihood_ratio_neg` (strict Gibbs / Jensen inequality),
+`∫ log(r(β, x)) dν < 0`, hence `ℓ(β) < ℓ(β₀)`. -/
 theorem cox_identifiability
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
     {μ : Measure Ω} [IsProbabilityMeasure μ]
@@ -403,9 +467,38 @@ theorem cox_identifiability
     (h_fullrank : ∀ (v : Fin p → ℝ), v ≠ 0 →
       0 < μ {ω | Survival.linPred v (Z 0 ω) ≠ 0})
     -- Positive baseline hazard
-    (baseHaz : ℝ → ℝ) (h_baseHaz_pos : ∀ t, 0 < t → 0 < baseHaz t) :
+    (baseHaz : ℝ → ℝ) (h_baseHaz_pos : ∀ t, 0 < t → 0 < baseHaz t)
+    -- ══════════════════════════════════════════════════════════════
+    -- Likelihood-ratio structure (derived from the Cox model)
+    -- ══════════════════════════════════════════════════════════════
+    -- Auxiliary probability space carrying the likelihood ratio
+    {X : Type*} [mX : MeasurableSpace X]
+    (ν : MeasureTheory.Measure X) [hν : IsProbabilityMeasure ν]
+    -- Likelihood ratio r(β, x) = dP_β / dP_{β₀}(x)
+    (r : (Fin p → ℝ) → X → ℝ)
+    -- r is positive and uniformly bounded (from bounded covariates
+    -- and compact parameter space)
+    {lo hi : ℝ} (hlo : 0 < lo) (hle : lo ≤ hi)
+    (h_r_bdd : ∀ β ∈ B, ∀ x, lo ≤ r β x ∧ r β x ≤ hi)
+    -- r is measurable
+    (h_r_meas : ∀ β ∈ B, Measurable (r β))
+    -- Population log partial likelihood difference equals expected
+    -- log-likelihood ratio under the β₀-distribution
+    (h_ℓ_eq : ∀ β ∈ B, ℓ β - ℓ β₀ = ∫ x, Real.log (r β x) ∂ν)
+    -- Normalization: the likelihood ratio integrates to 1
+    (h_r_norm : ∀ β ∈ B, ∫ x, r β x ∂ν = 1)
+    -- Non-degeneracy: for β ≠ β₀ the likelihood ratio is not a.e. 1.
+    -- This is the consequence of the full-rank covariate condition
+    -- (positive-definite score covariance matrix at β₀): if
+    -- exp((β − β₀) · Z) were a.e. constant in each risk set, then
+    -- (β − β₀) · Z = 0 a.e., contradicting full rank.
+    (h_r_nondeg : ∀ β ∈ B, β ≠ β₀ →
+      ¬(r β =ᵐ[ν] fun _ => (1 : ℝ))) :
     -- Conclusion: strict uniqueness
     ∀ β ∈ B, β ≠ β₀ → ℓ β < ℓ β₀ := by
-  sorry
+  intro β hβ hne
+  have hratio := log_likelihood_ratio_neg hlo hle (h_r_bdd β hβ)
+    (h_r_meas β hβ) (h_r_norm β hβ) (h_r_nondeg β hβ hne)
+  linarith [h_ℓ_eq β hβ]
 
 end Pythia

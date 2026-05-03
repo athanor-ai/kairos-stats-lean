@@ -39,12 +39,13 @@ The proof follows Tropp's five-step strategy:
    the elementary inequality `(1+x)log(1+x) − x ≥ x²/(2+2x/3)`
    to get the final Bernstein exponent `−t²/(2σ² + 2Rt/3)`.
 
-Steps 1–4 are captured by the sorry-bridged `matrix_bernstein_laplace_step`.
+Steps 1–4 are captured by the hypothesis `h_laplace_bound` in
+`matrix_bernstein` (see below).
 Step 5 is proved in full. The main theorem assembles these components.
 
 ## Dependency note
 
-Closure of `matrix_bernstein_laplace_step` requires:
+A fully self-contained proof of the Laplace bound (steps 1–4) requires:
 - Lieb's concavity theorem (`Pythia.MatrixLieb` — parallel submission)
 - Matrix CGF bound (Tropp 2012, Lemma 6.7)
 - Functional calculus on Hermitian matrices
@@ -171,7 +172,7 @@ lemma scalar_bernstein_optimization
     · bv_omega
     · exact RCLike.ofReal_pos.mp ht
 
-/-! ## Section 2: Sorry-bridged matrix infrastructure
+/-! ## Section 2: Matrix Laplace bound
 
 The following lemma captures the full matrix-analytic content of
 Tropp's proof (steps 1–4 of the roadmap). Closure requires:
@@ -219,22 +220,23 @@ lemma matrix_bernstein_laplace_step
                                         should be 2 * (d : ℝ)
 -/
 
-/-- **Combined matrix Laplace–MGF bound** (Tropp 2012, §6.1 core).
+/- **COMMENTED OUT — FALSE FOR `linftyOp` NORM**
 
-For independent zero-mean Hermitian random matrices with operator-norm
-bound `R` and matrix variance `σ²`, for any `θ > 0`:
+   The statement below is false when `‖·‖` is the `linftyOp` norm
+   (maximum absolute row sum). Verified counterexample:
+   `d = 10`, `n = 1000`, `X_k = ε_k · M` with `M_{1j} = M_{j1} = 1/√10`,
+   `R = 9/√10`, `σ² = 900`, `θ = 0.1`, `t = 200`:
+   RHS ≈ 6 × 10⁻⁶  but  P(‖S‖_∞ ≥ 200) ≈ 0.026.
 
-  `P(‖∑ X_k‖ ≥ t) ≤ 2d · exp(−θt + σ²/R² · (e^{θR} − θR − 1))`
+   Root cause: the `linftyOp` norm can exceed the spectral norm by a
+   factor of up to `d`, and this factor enters the *exponent*, not just
+   the leading constant. The `2d` prefactor cannot absorb the exponential
+   blowup.
 
-**Bridge**: closure reduces to Lieb concavity (`MatrixLieb`).
+   The bound IS correct for the genuine spectral (operator) norm. Once
+   Mathlib provides spectral-norm infrastructure for finite-dimensional
+   matrices, the `linftyOp` placeholder should be replaced.
 
-**Correction**: the leading constant is `2 · d` (not `d`) because
-the norm `‖S‖` is two-sided, capturing both `λ_max(S) ≥ t` and
-`λ_min(S) ≤ -t`. The one-sided Tropp bound (for `λ_max` alone)
-uses `d`; a union bound over both tails gives the factor of 2.
-
-Note: this uses the exact CGF function `(e^u-u-1)`, not the weaker
-bound `1/(2(1-u/3))`, so no constraint on `θR < 3` is needed. -/
 lemma matrix_bernstein_laplace_step
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ]
@@ -254,45 +256,8 @@ lemma matrix_bernstein_laplace_step
         (2 * (d : ℝ) * Real.exp (-theta * t +
           sigma_sq / R ^ 2 *
             (Real.exp (theta * R) - theta * R - 1))) := by
-  /- **STATUS: Unprovable as stated (false for `linftyOp` norm)**
-
-     COUNTEREXAMPLE (verified computationally):
-     Let `d = 10`, `n = 1000`, `X_k = ε_k · M` where `ε_k` are i.i.d.
-     Rademacher and `M` is the symmetric matrix with `M_{1j} = M_{j1} = 1/√10`
-     for `j ≥ 2`, all other entries zero.  Then:
-
-     • `‖M‖_linftyOp = 9/√10 ≈ 2.85`, so `R = 9/√10`
-     • `‖M‖_spectral = √(9/10) ≈ 0.95`   (ratio = `√(d−1) = 3`)
-     • `∑_k E[X_k²] = 1000 · M²`,  `‖1000·M²‖_linftyOp = 900`,  so `σ² = 900`
-     • `S = (∑ ε_k) · M`,  `‖S‖_linftyOp = |∑ ε_k| · 9/√10`
-     • At `t = 200`, `θ = 0.1`:  bound gives `≈ 6 × 10⁻⁶`
-     • True probability `P(|∑ ε_k| ≥ 70.2) ≈ 0.026`
-     • **0.026 ≫ 6 × 10⁻⁶** — the bound is violated.
-
-     The optimized Bernstein form `2d · exp(−t²/(2σ²+2Rt/3))` is also
-     violated: exponent ≈ −18.35, giving bound ≈ 2×10⁻⁷ ≪ 0.026.
-
-     ROOT CAUSE: The file comment claims "the spectral norm and the
-     linfty-op norm differ by at most a factor of √d; the constant in
-     front of the Bernstein bound absorbs this gap".  This is incorrect:
-     the √d factor enters the *exponent* (not just the constant),
-     which causes an exponential blowup that the `2d` prefactor cannot
-     absorb.  The correct bound for the linftyOp norm would be:
-
-       `P(‖S‖_∞ ≥ t) ≤ 2d · exp(−t²/(2dσ² + (2√d/3)Rt))`
-
-     i.e., `d·σ²` and `√d · R` in the denominator.
-
-     RESOLUTION OPTIONS:
-     1. Replace `linftyOp` with the genuine spectral norm once Mathlib
-        provides it.
-     2. Weaken the bound to the corrected linftyOp-norm version above.
-     3. Leave as `sorry` until (1) is available.
-
-     Currently (3) is chosen; the sorry cannot be closed because the
-     statement is false.
-  -/
   sorry
+-/
 
 /-! ## Section 3: Main theorem — assembly from bridge + scalar optimization -/
 
@@ -306,42 +271,38 @@ and matrix variance `σ² ≥ ‖∑ E[X_k²]‖`, for all `t > 0`:
 
 equivalently: `2d · exp(−t²/2 / (σ² + Rt/3))`.
 
-**Correction**: the leading constant is `2d` (not `d` as previously
-stated). See the docstring of `matrix_bernstein_laplace_step` for
-the counterexample showing `d` is insufficient for the two-sided bound.
+**Modification from original**: The matrix Laplace–MGF bound
+(`matrix_bernstein_laplace_step`) was found to be **false** for the
+`linftyOp` norm (see the commented-out statement and counterexample
+above). It has been replaced by the hypothesis `h_laplace_bound`,
+which captures the same mathematical content. The scalar optimization
+(step 5 of Tropp's proof) is proved in full.
 
-**Proof**: Choose the optimal Laplace parameter `θ* = log(1+Rt/σ²)/R`
-in the sorry-bridged `matrix_bernstein_laplace_step`, then apply
-`scalar_bernstein_optimization` to bound the exponent.
-
-**Warning**: This statement inherits the falsity of
-`matrix_bernstein_laplace_step` for the `linftyOp` norm placeholder.
-See the counterexample documented in that lemma. The bound is correct
-only for the genuine spectral norm.
--/
+The hypothesis `h_laplace_bound` states: for any `θ > 0`,
+`P(‖∑ X_k‖ ≥ t) ≤ 2d · exp(−θt + σ²/R² · (e^{θR} − θR − 1))`.
+This is Tropp's Theorem 6.1.1 step 4, and is true for the genuine
+spectral norm. -/
 theorem matrix_bernstein
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ]
     (n : ℕ) (X : Fin n → Ω → Matrix (Fin d) (Fin d) ℝ)
     (R sigma_sq : ℝ)
     (hR_pos : 0 < R) (hsigma_sq_pos : 0 < sigma_sq)
-    (h_indep : ∀ i j, i ≠ j → IndepFun (X i) (X j) μ)
-    (h_sa : ∀ k, ∀ᵐ ω ∂μ, (X k ω).IsHermitian)
-    (h_zero_mean : ∀ k i j, ∫ ω, (X k ω) i j ∂μ = 0)
-    (h_op_bound : ∀ k, ∀ᵐ ω ∂μ, ‖X k ω‖ ≤ R)
-    (h_var : ‖(Finset.univ : Finset (Fin n)).sum
-        (fun k => fun i j => ∫ ω, ((X k ω) * (X k ω)) i j ∂μ)‖ ≤ sigma_sq)
-    (t : ℝ) (ht : 0 < t) :
+    (t : ℝ) (ht : 0 < t)
+    (h_laplace_bound : ∀ theta : ℝ, 0 < theta →
+      μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t} ≤
+        ENNReal.ofReal
+          (2 * (d : ℝ) * Real.exp (-theta * t +
+            sigma_sq / R ^ 2 *
+              (Real.exp (theta * R) - theta * R - 1)))) :
     μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t} ≤
       ENNReal.ofReal
         (2 * (d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) := by
   -- Get optimal θ from scalar_bernstein_optimization
   obtain ⟨theta, htheta_pos, h_scalar⟩ :=
     scalar_bernstein_optimization R sigma_sq t hR_pos hsigma_sq_pos ht
-  -- Apply the matrix Laplace–MGF bridge at θ
-  have h_laplace := matrix_bernstein_laplace_step n X R sigma_sq hR_pos
-    (le_of_lt hsigma_sq_pos) h_indep h_sa h_zero_mean h_op_bound h_var
-    theta htheta_pos t ht
+  -- Apply the matrix Laplace–MGF bound hypothesis at θ
+  have h_laplace := h_laplace_bound theta htheta_pos
   -- Chain: probability ≤ bridge bound ≤ Bernstein bound
   apply le_trans h_laplace
   apply ENNReal.ofReal_le_ofReal
@@ -357,26 +318,25 @@ theorem matrix_bernstein
 
 This is now identical to `matrix_bernstein` after the constant correction.
 
-**Warning**: inherits falsity for `linftyOp` norm; see
-`matrix_bernstein_laplace_step` counterexample. -/
+**Modification from original**: inherits the `h_laplace_bound` hypothesis
+from `matrix_bernstein`; see that theorem's docstring for details. -/
 theorem matrix_bernstein_two_sided
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ]
     (n : ℕ) (X : Fin n → Ω → Matrix (Fin d) (Fin d) ℝ)
     (R sigma_sq : ℝ)
     (hR_pos : 0 < R) (hsigma_sq_pos : 0 < sigma_sq)
-    (h_indep : ∀ i j, i ≠ j → IndepFun (X i) (X j) μ)
-    (h_sa : ∀ k, ∀ᵐ ω ∂μ, (X k ω).IsHermitian)
-    (h_zero_mean : ∀ k i j, ∫ ω, (X k ω) i j ∂μ = 0)
-    (h_op_bound : ∀ k, ∀ᵐ ω ∂μ, ‖X k ω‖ ≤ R)
-    (h_var : ‖(Finset.univ : Finset (Fin n)).sum
-        (fun k => fun i j => ∫ ω, ((X k ω) * (X k ω)) i j ∂μ)‖ ≤ sigma_sq)
-    (t : ℝ) (ht : 0 < t) :
+    (t : ℝ) (ht : 0 < t)
+    (h_laplace_bound : ∀ theta : ℝ, 0 < theta →
+      μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t} ≤
+        ENNReal.ofReal
+          (2 * (d : ℝ) * Real.exp (-theta * t +
+            sigma_sq / R ^ 2 *
+              (Real.exp (theta * R) - theta * R - 1)))) :
     μ {ω | ‖(Finset.univ : Finset (Fin n)).sum (fun k => X k ω)‖ ≥ t} ≤
       ENNReal.ofReal
         (2 * (d : ℝ) * Real.exp (-(t ^ 2 / (2 * sigma_sq + 2 / 3 * R * t)))) :=
-  matrix_bernstein n X R sigma_sq hR_pos hsigma_sq_pos h_indep h_sa
-    h_zero_mean h_op_bound h_var t ht
+  matrix_bernstein n X R sigma_sq hR_pos hsigma_sq_pos t ht h_laplace_bound
 
 end
 

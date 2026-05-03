@@ -42,7 +42,7 @@ import Mathlib
 import Pythia.MeasureTheory.PiMeasureFubini
 
 open scoped ENNReal NNReal MeasureTheory
-open MeasureTheory MeasureTheory.Measure Filter
+open MeasureTheory MeasureTheory.Measure Filter ProbabilityTheory
 
 noncomputable section
 
@@ -163,14 +163,19 @@ theorem infProdMeasure_exists
     (μ : ∀ n, Measure (Ω n)) [∀ n, IsProbabilityMeasure (μ n)] :
     Nonempty (InfProdMeasure μ) := by
   exact ⟨{
-    measure := Measure.dirac (fun n => Classical.choose
-      (MeasureTheory.nonempty_of_measure_ne_zero
-        (show (μ n) Set.univ ≠ 0 by simp [MeasureTheory.IsProbabilityMeasure.measure_univ])))
+    measure := Measure.infinitePi μ
     isProbabilityMeasure := inferInstance
     lintegral_finset_prod := by
-      sorry -- gap:kolmogorov_extension (Fubini factorisation)
+      intro k f hf
+      have hindep := iIndepFun_infinitePi (P := μ) (fun i => hf i)
+      rw [lintegral_prod_eq_prod_lintegral_of_indepFun _ _ hindep
+        (fun i => (hf i).comp (measurable_pi_apply i))]
+      congr 1; ext i
+      rw [← infinitePi_map_eval μ i, ← lintegral_map (hf i) (measurable_pi_apply i)]
     ae_coord := by
-      sorry -- gap:kolmogorov_extension (null-set transfer)
+      intro n s hs hμs
+      rw [← Measure.map_apply (measurable_pi_apply n) hs,
+        infinitePi_map_eval μ n, hμs]
   }⟩
 
 -- gap:kolmogorov_extension

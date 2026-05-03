@@ -197,3 +197,6 @@ import Pythia.Frontier.Networking.OnsetTheorem
 -- Frontier Neuroscience CreditAssignment leaves imported by other Frontier files.
 import Pythia.Frontier.Neuroscience.CreditAssignment.TD0
 import Pythia.Frontier.Neuroscience.CreditAssignment.ActorCritic
+
+-- Sparre Andersen renewal-theory generalization of Cramér-Lundberg.
+import Pythia.SparreAndersen

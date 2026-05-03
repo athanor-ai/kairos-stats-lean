@@ -36,3 +36,5 @@ import Pythia.Numerical.ForwardEuler
 import Pythia.Numerical.IEEE754
 import Pythia.Numerical.QR
 import Pythia.Numerical.Weyl
+import Pythia.Numerical.BauerFike
+import Pythia.Numerical.GradientDescent

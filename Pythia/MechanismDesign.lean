@@ -24,3 +24,5 @@ import Pythia.MechanismDesign.VCGCounter
 import Pythia.MechanismDesign.Vickrey2Bidder
 import Pythia.MechanismDesign.MyersonReserve
 import Pythia.MechanismDesign.Condorcet
+import Pythia.MechanismDesign.VCGTruthfulness
+import Pythia.MechanismDesign.FirstPrice

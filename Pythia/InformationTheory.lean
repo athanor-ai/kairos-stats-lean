@@ -41,3 +41,6 @@ import Pythia.InformationTheory.ChannelCapacity
 import Pythia.InformationTheory.MutualInfo
 import Pythia.InformationTheory.SourceCoding
 import Pythia.InformationTheory.DPI
+import Pythia.InformationTheory.AEPBernoulli
+import Pythia.InformationTheory.BSCCapacity
+import Pythia.InformationTheory.KraftInequality

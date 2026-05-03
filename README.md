@@ -8,7 +8,7 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 681 sorry-free theorems
+mathematics and computer science. It provides 682 sorry-free theorems
 spanning probability theory, hardware verification, networking
 protocols, programming language semantics, actuarial science, numerical
 optimization, information theory, mechanism design, and distributed
@@ -50,7 +50,7 @@ paired empirical verification.
 | `Pythia.Bio` | 17 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold, Wright-Fisher, Michaelis-Menten saturation, PK/PD AUC + half-life, Hardy-Weinberg invariance, Kimura neutral fixation, SEIR R0 threshold, RCT identifiability |
 | `Pythia.Networking` | 16 | Reno (AIMD) and CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness (from the FMCAD 2026 starvation paper), SACK pairwise disjointness, DCTCP + RED marking monotonicity, AIMD additive-increase rate, Bellman-Ford non-negativity, QUIC packet-number-space disjointness + 0-RTT replay-resistance |
 | `Pythia.MechanismDesign` | 5 | VCG efficiency, second-price allocation, Vickrey individual rationality, Bulow-Klemperer corollary, VCG budget-balance counter-example |
-| `Pythia.Distributed` | 5 | Paxos quorum-intersection corollaries (no two leaders, prepare-response uniqueness), Lamport clock monotonicity, two-phase commit agreement + validity |
+| `Pythia.Distributed` | 6 | Paxos quorum-intersection (canonical) + corollaries (no two leaders, prepare-response uniqueness), Lamport clock monotonicity, two-phase commit agreement + validity |
 | `Pythia.InformationTheory` | 2 | Shannon entropy non-negativity, channel capacity = sup mutual information |
 
 All mainline theorems are sorry-free. Work-in-progress proofs live in
@@ -127,7 +127,7 @@ Each domain pairs formal proofs with a computational verification layer:
 
 ## Theorem retrieval
 
-The repository includes a full-text search index over all 681
+The repository includes a full-text search index over all 682
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the

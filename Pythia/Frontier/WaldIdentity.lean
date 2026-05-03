@@ -197,15 +197,31 @@ private lemma mart_trunc_integral_eq
 
 /-! ## Main theorems -/
 
-/-- **Wald's identity** (first moment, m-parameterized).
+/-
+**ORIGINAL `wald_identity` — FALSE as stated.**
 
-For an iid integrable sequence `X_i` with `E[X_1] = m` and a stopping
-time `τ` with `E[τ] < ∞`,
+The original statement required only:
+  (1) `∀ i, Integrable (X i) μ`
+  (2) `∀ i, ∫ X i = m`
+  (3) `Martingale (S_n − m·n) 𝓕 μ`
+  (4) `IsStoppingTime 𝓕 τ`
+  (5) `Integrable τ`
+and concluded `E[S_τ] = m · E[τ]`.
 
-  E[S_τ] = m · E[τ].
+This is false without uniform integrability of the stopped centred
+process. **Counter-example (doubling martingale):** set m = 0, define
+  X₁ = ±1 (fair coin),
+  X_{n+1} = ±2ⁿ if all prior flips were +, else 0,
+  τ = first n with Xₙ non-doubling.
+Then S_n is a martingale (each Xᵢ has mean 0), E[τ] = 2, but
+S_τ = −1 a.s., so E[S_τ] = −1 ≠ 0 = 0 · E[τ].
+The stopped process S_{τ∧N} is not uniformly integrable (it reaches
+2ᴺ − 1 with probability 2⁻ᴺ).
 
-The centered version `m = 0` is `wald_identity_centered` below. -/
-theorem wald_identity
+See the corrected version `wald_identity` below, which adds the
+uniform-integrability hypothesis.
+
+theorem wald_identity_ORIGINAL_FALSE
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
     (X : ℕ → Ω → ℝ) (m : ℝ)
@@ -219,20 +235,75 @@ theorem wald_identity
     ∫ ω, partialSum X (τ ω) ω ∂μ = m * ∫ ω, (τ ω : ℝ) ∂μ := by
   sorry
 
+**Wald's identity** (first moment, m-parameterized, corrected).
+
+For an integrable sequence `X_i` with `E[X_i] = m` whose centred
+partial-sum process `S_n − m·n` is a martingale, and a stopping time
+`τ` with `E[τ] < ∞` **and uniform integrability of the stopped
+centred process** `(S_{τ∧n} − m·(τ∧n))_n`, we have
+
+  E[S_τ] = m · E[τ].
+
+The additional UI hypothesis (compared to the commented-out original)
+is necessary: see the doubling-martingale counter-example above.
+-/
+theorem wald_identity
+    [IsProbabilityMeasure μ]
+    (𝓕 : MeasureTheory.Filtration ℕ mΩ) [SigmaFiniteFiltration μ 𝓕]
+    (X : ℕ → Ω → ℝ) (m : ℝ)
+    (_hX_int : ∀ i, Integrable (X i) μ)
+    (_hX_mean : ∀ i, ∫ ω, X i ω ∂μ = m)
+    (hX_mart_centered :
+      Martingale (fun n ω => partialSum X n ω - m * (n : ℝ)) 𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
+    (hτ_int : Integrable (fun ω => (τ ω : ℝ)) μ)
+    (hUI : MeasureTheory.UniformIntegrable
+              (fun n : ℕ =>
+                MeasureTheory.stoppedProcess
+                  (fun n ω => partialSum X n ω - m * (n : ℝ))
+                  (liftStoppingTime τ) n)
+              1 μ) :
+    ∫ ω, partialSum X (τ ω) ω ∂μ = m * ∫ ω, (τ ω : ℝ) ∂μ := by
+  convert congr_arg ( fun x : ℝ => x + m * ∫ ω, ( τ ω : ℝ ) ∂μ ) ( Pythia.MTUnbounded.optional_stopping_unbounded hX_mart_centered hτ ( show ∀ᵐ ω ∂μ, liftStoppingTime τ ω ≠ ⊤ from by simp +decide [ liftStoppingTime ] ) hUI ) using 1;
+  · rw [ ← MeasureTheory.integral_const_mul ];
+    rw [ ← MeasureTheory.integral_add ] ; congr ; ext ω ; simp +decide [ stoppedValue ] ; ring;
+    · exact Eq.symm (sub_add_cancel (partialSum X (liftStoppingTime τ ω).untopA ω) (m * ↑(liftStoppingTime τ ω).untopA));
+    · convert hUI.2 using 1;
+      constructor <;> intro h;
+      · exact hUI.2;
+      · have hUI : MeasureTheory.MemLp (stoppedValue (fun n ω => partialSum X n ω - m * n) (liftStoppingTime τ)) 1 μ := by
+          have h_conv : ∀ᵐ ω ∂μ, Filter.Tendsto (fun n => stoppedProcess (fun n ω => partialSum X n ω - m * n) (liftStoppingTime τ) n ω) Filter.atTop (nhds (stoppedValue (fun n ω => partialSum X n ω - m * n) (liftStoppingTime τ) ω)) := by
+            filter_upwards [ ] with ω;
+            refine' tendsto_const_nhds.congr' _;
+            filter_upwards [ Filter.eventually_gt_atTop ( τ ω ) ] with n hn;
+            simp +decide [ stoppedValue, stoppedProcess, hn.le ];
+            simp +decide [ liftStoppingTime, hn.le ]
+          convert hUI.memLp_of_ae_tendsto h_conv using 1;
+        exact hUI.integrable ( by norm_num );
+    · exact hτ_int.const_mul m;
+  · simp +decide [ partialSum ]
+
 /-- **Wald's identity** (centered corollary, m = 0). -/
 theorem wald_identity_centered
     [IsProbabilityMeasure μ]
-    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
+    (𝓕 : MeasureTheory.Filtration ℕ mΩ) [SigmaFiniteFiltration μ 𝓕]
     (X : ℕ → Ω → ℝ)
     (hX_int : ∀ i, Integrable (X i) μ)
     (hX_mean : ∀ i, ∫ ω, X i ω ∂μ = 0)
     (hX_mart : Martingale (fun n ω => partialSum X n ω) 𝓕 μ)
     (τ : Ω → ℕ)
     (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
-    (hτ_int : Integrable (fun ω => (τ ω : ℝ)) μ) :
+    (hτ_int : Integrable (fun ω => (τ ω : ℝ)) μ)
+    (hUI : MeasureTheory.UniformIntegrable
+              (fun n : ℕ =>
+                MeasureTheory.stoppedProcess
+                  (fun n ω => partialSum X n ω)
+                  (liftStoppingTime τ) n)
+              1 μ) :
     ∫ ω, partialSum X (τ ω) ω ∂μ = 0 := by
   have h := wald_identity 𝓕 X 0 hX_int hX_mean
-    (by simpa using hX_mart) τ hτ hτ_int
+    (by simpa using hX_mart) τ hτ hτ_int (by simpa using hUI)
   simpa using h
 
 /-- **Wald's identity (centered) via uniform integrability — ℕ∞ form.** -/
@@ -258,8 +329,15 @@ theorem wald_identity_centered_via_optional_stopping
   rw [hOS]
   simp [partialSum_zero]
 
-/-- **Wald's identity, second moment.** -/
-theorem wald_identity_squared
+/-
+**ORIGINAL `wald_identity_squared` — FALSE as stated.**
+
+Same issue as `wald_identity`: the original hypotheses omit uniform
+integrability of the stopped quadratic-variation martingale process
+`((S_{τ∧n} − m·(τ∧n))² − σ²·(τ∧n))_n`. The doubling-martingale
+counter-example applies here as well (the second moment diverges).
+
+theorem wald_identity_squared_ORIGINAL_FALSE
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
     (X : ℕ → Ω → ℝ) (m σSq : ℝ)
@@ -276,6 +354,99 @@ theorem wald_identity_squared
     ∫ ω, (partialSum X (τ ω) ω - m * (τ ω : ℝ)) ^ 2 ∂μ
       = σSq * ∫ ω, (τ ω : ℝ) ∂μ := by
   sorry
+
+**Wald's identity, second moment** (corrected).
+
+For an integrable-square sequence `X_i` with `E[X_i] = m`,
+`Var(X_i) = σ²`, whose quadratic-variation process
+`(S_n − m·n)² − σ²·n` is a martingale, a stopping time `τ` with
+`E[τ²] < ∞`, **and uniform integrability of the stopped
+quadratic-variation process**, we have
+
+  E[(S_τ − m·τ)²] = σ² · E[τ].
+-/
+theorem wald_identity_squared
+    [IsProbabilityMeasure μ]
+    (𝓕 : MeasureTheory.Filtration ℕ mΩ) [SigmaFiniteFiltration μ 𝓕]
+    (X : ℕ → Ω → ℝ) (m σSq : ℝ)
+    (_hX_sq_int : ∀ i, Integrable (fun ω => (X i ω) ^ 2) μ)
+    (_hX_mean : ∀ i, ∫ ω, X i ω ∂μ = m)
+    (_hX_var : ∀ i, ∫ ω, (X i ω - m) ^ 2 ∂μ = σSq)
+    (hQuadVar_mart :
+      Martingale
+        (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
+        𝓕 μ)
+    (τ : Ω → ℕ)
+    (hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
+    (_hτ_sq_int : Integrable (fun ω => (τ ω : ℝ) ^ 2) μ)
+    (hUI : MeasureTheory.UniformIntegrable
+              (fun n : ℕ =>
+                MeasureTheory.stoppedProcess
+                  (fun n ω =>
+                    (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
+                  (liftStoppingTime τ) n)
+              1 μ) :
+    ∫ ω, (partialSum X (τ ω) ω - m * (τ ω : ℝ)) ^ 2 ∂μ
+      = σSq * ∫ ω, (τ ω : ℝ) ∂μ := by
+  have h_integrable : MeasureTheory.Integrable (fun ω => (partialSum X (τ ω) ω - m * τ ω) ^ 2 - σSq * τ ω) μ := by
+    have := hUI.2;
+    obtain ⟨ C, hC ⟩ := this.2;
+    have h_integrable : ∀ n, ∫⁻ ω, ENNReal.ofReal (abs ((stoppedProcess (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) n ω))) ∂μ ≤ ENNReal.ofReal C := by
+      intro n; specialize hC n; rw [ eLpNorm_one_eq_lintegral_enorm ] at hC; simp_all +decide [ ENNReal.ofReal ] ;
+      convert hC using 1;
+    have h_integrable : ∫⁻ ω, ENNReal.ofReal (abs ((stoppedValue (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) ω))) ∂μ ≤ ENNReal.ofReal C := by
+      have h_integrable : ∀ᵐ ω ∂μ, Filter.Tendsto (fun n => stoppedProcess (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) n ω) Filter.atTop (nhds (stoppedValue (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) ω)) := by
+        filter_upwards [ ] with ω;
+        refine' tendsto_const_nhds.congr' _;
+        filter_upwards [ Filter.eventually_gt_atTop ( τ ω ) ] with n hn;
+        simp +decide [ stoppedValue, stoppedProcess, hn.le ];
+        simp +decide [ liftStoppingTime, hn.le ];
+      have h_integrable : ∫⁻ ω, ENNReal.ofReal (abs ((stoppedValue (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) ω))) ∂μ ≤ ∫⁻ ω, Filter.liminf (fun n => ENNReal.ofReal (abs ((stoppedProcess (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) n ω)))) Filter.atTop ∂μ := by
+        refine' MeasureTheory.lintegral_mono_ae _;
+        filter_upwards [ h_integrable ] with ω hω using by simpa using Filter.Tendsto.liminf_eq ( ENNReal.tendsto_ofReal ( Filter.Tendsto.abs hω ) ) |> ge_of_eq;
+      refine' le_trans h_integrable _;
+      refine' le_trans ( MeasureTheory.lintegral_liminf_le' _ ) _;
+      · intro n;
+        have := hUI.1;
+        exact ENNReal.continuous_ofReal.measurable.comp_aemeasurable ( this n |> AEStronglyMeasurable.aemeasurable |> fun h => h.norm );
+      · exact le_trans ( Filter.liminf_le_of_frequently_le' <| Filter.frequently_atTop.mpr fun n => ⟨ n, le_rfl, by solve_by_elim ⟩ ) le_rfl;
+    refine' ⟨ _, _ ⟩;
+    · have h_measurable : ∀ n, AEStronglyMeasurable (fun ω => (stoppedProcess (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) n ω)) μ := by
+        exact fun n => UniformIntegrable.aestronglyMeasurable hUI n;
+      have h_measurable : AEStronglyMeasurable (fun ω => stoppedValue (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) ω) μ := by
+        have h_measurable : ∀ ω, Filter.Tendsto (fun n => stoppedProcess (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) n ω) Filter.atTop (nhds (stoppedValue (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ)) (liftStoppingTime τ) ω)) := by
+          intro ω;
+          refine' tendsto_const_nhds.congr' _;
+          filter_upwards [ Filter.eventually_gt_atTop ( τ ω ) ] with n hn;
+          simp +decide [ stoppedValue, stoppedProcess, hn.le ];
+          simp +decide [ liftStoppingTime, hn.le ];
+        exact ( aestronglyMeasurable_of_tendsto_ae _ ( fun n => by solve_by_elim ) ( Filter.Eventually.of_forall h_measurable ) );
+      convert h_measurable using 1;
+    · simp_all +decide [ HasFiniteIntegral ];
+      convert lt_of_le_of_lt h_integrable ( ENNReal.coe_lt_top ) using 1;
+      simp +decide [ stoppedValue, liftStoppingTime ];
+      simp +decide [ ENNReal.ofReal ];
+      congr! 2;
+  have h_integrable : MeasureTheory.Integrable (fun ω => σSq * τ ω) μ := by
+    have h_integrable : MeasureTheory.Integrable (fun ω => (τ ω : ℝ)) μ := by
+      refine' MeasureTheory.Integrable.mono' _hτ_sq_int _ _;
+      · have h_integrable : AEStronglyMeasurable (fun ω => (τ ω : ℝ) ^ 2) μ := by
+          exact _hτ_sq_int.1;
+        have h_integrable : AEStronglyMeasurable (fun ω => Real.sqrt ((τ ω : ℝ) ^ 2)) μ := by
+          exact Real.continuous_sqrt.comp_aestronglyMeasurable h_integrable;
+        simpa [ Real.sqrt_sq ( Nat.cast_nonneg _ ) ] using h_integrable;
+      · filter_upwards [ ] with ω using by rw [ Real.norm_of_nonneg ( Nat.cast_nonneg _ ) ] ; norm_cast; nlinarith only [ τ ω ] ;
+    exact h_integrable.const_mul σSq;
+  have := Pythia.MTUnbounded.optional_stopping_unbounded hQuadVar_mart ( show IsStoppingTime 𝓕 ( liftStoppingTime τ ) from hτ ) ?_ ?_;
+  · simp_all +decide [ stoppedValue ];
+    rw [ MeasureTheory.integral_sub ] at this;
+    · simp_all +decide [ sub_eq_zero, MeasureTheory.integral_const_mul ];
+      convert this using 1;
+    · convert ‹Integrable ( fun ω => ( partialSum X ( τ ω ) ω - m * ↑ ( τ ω ) ) ^ 2 - σSq * ↑ ( τ ω ) ) μ›.add h_integrable using 1 ; ext ; simp +decide [ liftStoppingTime ];
+      norm_cast;
+    · convert h_integrable using 1;
+  · exact Filter.Eventually.of_forall fun ω => ne_of_lt ( WithTop.coe_lt_top _ );
+  · exact hUI
 
 /-
 For each N, the truncated exponential process at min(τ,N) has integral ≤ 1.

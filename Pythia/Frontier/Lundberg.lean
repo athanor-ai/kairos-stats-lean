@@ -239,7 +239,8 @@ lemma ruin_event_eq_union
     ⋃ n : ℕ, {ω | (∑ i ∈ range n, (X i ω - c / lam)) ≥ u} := by
   ext ω; simp
 
-/-- The exponential process `M_n = exp(R * S_n^Y)` is a supermartingale with respect
+/-
+The exponential process `M_n = exp(R * S_n^Y)` is a supermartingale with respect
     to a suitable filtration (the "shifted" natural filtration where
     `𝔾_n = σ(X_0, ..., X_{n-1})`), via the standard exponential
     tilting argument.
@@ -248,7 +249,8 @@ lemma ruin_event_eq_union
     The proof constructs a shifted filtration `𝔾` where `𝔾_n = σ(X_0,...,X_{n-1})`
     (one step behind the natural filtration) so that M_n is 𝔾_n-adapted
     and the next increment `exp(R·Y_n)` is independent of `𝔾_n`.
-    The supermartingale property then follows from `E[exp(R·Y)] ≤ 1`. -/
+    The supermartingale property then follows from `E[exp(R·Y)] ≤ 1`.
+-/
 lemma exp_process_supermartingale
     {Ω : Type*} {mΩ : MeasurableSpace Ω}
     {μ : Measure Ω} [IsProbabilityMeasure μ]
@@ -262,7 +264,130 @@ lemma exp_process_supermartingale
     (hR_def : lam * (∫ ω, exp (R * X 0 ω) - 1 ∂μ) = R * c) :
     let M : ℕ → Ω → ℝ := fun n ω => exp (R * ∑ i ∈ range n, (X i ω - c / lam))
     ∃ 𝔾 : Filtration ℕ mΩ, Supermartingale M 𝔾 μ := by
-  sorry
+  intro M
+  -- Define the shifted natural filtration: 𝔾_n = σ(X_0, ..., X_{n-1})
+  set 𝔾 : Filtration ℕ mΩ := ⟨
+    fun n => ⨆ (j : ℕ) (_ : j < n), MeasurableSpace.comap (X j) inferInstance,
+    fun _ _ hmn => biSup_mono fun _ hj => lt_of_lt_of_le hj hmn,
+    fun _ => iSup₂_le fun j _ => MeasurableSpace.comap_le_iff_le_map.mpr (h_meas j)⟩ with h𝔾
+  -- Key fact: X j is measurable w.r.t. 𝔾 n when j < n
+  have hX_meas_𝔾 : ∀ n j, j < n →
+      @Measurable Ω ℝ (𝔾 n) inferInstance (X j) := by
+    intro n j hjn
+    exact (comap_measurable (X j)).mono (le_iSup₂_of_le j hjn le_rfl) le_rfl
+  -- M n is @Measurable w.r.t. 𝔾 n
+  have hM_meas : ∀ n, @Measurable Ω ℝ (𝔾 n) inferInstance (M n) := by
+    intro n
+    apply Measurable.exp
+    apply Measurable.const_mul
+    apply Finset.measurable_sum
+    intro i hi
+    exact (hX_meas_𝔾 n i (Finset.mem_range.mp hi)).sub measurable_const
+  -- Integrability of exp(R * X_i)
+  have h_int_exp : Integrable (fun ω => exp (R * X 0 ω)) μ :=
+    integrable_exp_of_adjustment c hc lam hlam R hR_pos hR_def
+  -- Integral of exp(R * (X n - c/lam)) equals exp(-R*c/lam) * (1 + R*c/lam)
+  have h_exp_integral : ∀ n, ∫ ω, exp (R * (X n ω - c / lam)) ∂μ =
+      exp (-(R * c / lam)) * (1 + R * c / lam) := by
+    -- By the properties of the exponential function and the definition of the moment generating function, we can rewrite the integral.
+    have h_int_exp : ∀ n, ∫ ω, Real.exp (R * (X n ω - c / lam)) ∂μ = Real.exp (-(R * c / lam)) * ∫ ω, Real.exp (R * X n ω) ∂μ := by
+      intro n; rw [ ← MeasureTheory.integral_const_mul ] ; congr; ext ω; rw [ ← Real.exp_add ] ; ring;
+    intro n
+    have h_int_exp_n : ∫ ω, Real.exp (R * X n ω) ∂μ = ∫ ω, Real.exp (R * X 0 ω) ∂μ := by
+      have := h_dist n;
+      exact this.comp ( measurable_id'.const_mul R |> Measurable.exp ) |> IdentDistrib.integral_eq;
+    rw [ h_int_exp, h_int_exp_n, MeasureTheory.integral_sub ] at * <;> norm_num at *;
+    · rw [ ← hR_def, mul_div_cancel_left₀ _ hlam.ne', add_sub_cancel ];
+    · assumption
+  -- Integral of exp(R * (X n - c/lam)) ≤ 1
+  have h_exp_le_one : ∀ n, ∫ ω, exp (R * (X n ω - c / lam)) ∂μ ≤ 1 := by
+    intro n; rw [h_exp_integral]; exact mgf_net_loss_le_one c hc lam hlam R hR_pos
+  -- Integrability of exp(R * (X n - c/lam))
+  have h_int_net : ∀ n, Integrable (fun ω => exp (R * (X n ω - c / lam))) μ := by
+    intro n;
+    exact ( by have := h_exp_integral n; exact ( by by_contra h; rw [ MeasureTheory.integral_undef h ] at this; exact absurd this ( by positivity ) ) )
+  -- Independence: X n is independent of 𝔾 n
+  have h_indep : ∀ n, ProbabilityTheory.Indep
+      (MeasurableSpace.comap (X n) inferInstance) (𝔾 n) μ := by
+    intro n;
+    induction' n with n ih;
+    · simp [𝔾];
+      exact?;
+    · have h_indep_succ : Indep (MeasurableSpace.comap (X (n + 1)) inferInstance) (⨆ j < n + 1, MeasurableSpace.comap (X j) inferInstance) μ := by
+        have h_indep_succ : Indep (MeasurableSpace.comap (X (n + 1)) inferInstance) (⨆ j ≤ n, MeasurableSpace.comap (X j) inferInstance) μ := by
+          have h_indep_succ : ∀ (n : ℕ), Indep (MeasurableSpace.comap (X (n + 1)) inferInstance) (⨆ j ≤ n, MeasurableSpace.comap (X j) inferInstance) μ := by
+            intro n;
+            convert h_iid.indep_comap_natural_of_lt _ using 1;
+            rotate_left;
+            exact n;
+            exact n + 1;
+            exact fun i => h_meas i |> Measurable.stronglyMeasurable;
+            simp +decide [ Filtration.natural ];
+          exact h_indep_succ n;
+        simpa only [ Nat.lt_succ_iff ] using h_indep_succ;
+      exact h_indep_succ
+  -- M n is integrable
+  have h_int_M : ∀ n, Integrable (M n) μ := by
+    -- By induction on $n$, we can show that $M_n$ is integrable for all $n$.
+    have h_int_M_ind : ∀ n, Integrable (M n) μ := by
+      have h_base : Integrable (M 0) μ := by
+        simp +zetaDelta at *
+      have h_step : ∀ n, Integrable (M n) μ → Integrable (M (n + 1)) μ := by
+        intro n hn
+        have h_prod : Integrable (fun ω => M n ω * Real.exp (R * (X n ω - c / lam))) μ := by
+          apply_rules [ ProbabilityTheory.IndepFun.integrable_mul, h_indep ];
+          have h_indep : IndepFun (fun ω => M n ω) (fun ω => X n ω) μ := by
+            have := h_indep n;
+            rw [ ProbabilityTheory.indepFun_iff_measure_inter_preimage_eq_mul ];
+            intro s t hs ht;
+            convert this ( ( fun ω => X n ω ) ⁻¹' t ) ( ( fun ω => M n ω ) ⁻¹' s ) ( by
+              exact ⟨ t, ht, rfl ⟩ ) ( by
+              exact hM_meas n hs ) using 1;
+            simp +decide [ Set.inter_comm, MeasureTheory.ae_dirac_eq ];
+            rw [ mul_comm ];
+          exact h_indep.comp ( measurable_id' ) ( measurable_id'.exp.comp ( measurable_const.mul ( measurable_id'.sub measurable_const ) ) );
+        convert h_prod using 1;
+        ext ω; simp +decide [ M, Finset.sum_range_succ ] ; ring;
+        rw [ ← Real.exp_add ] ; ring
+      exact fun n => Nat.recOn n h_base h_step;
+    exact h_int_M_ind
+  refine ⟨𝔾, supermartingale_nat ?_ ?_ ?_⟩
+  -- StronglyAdapted: M n is strongly measurable w.r.t. 𝔾 n
+  · intro n
+    exact (hM_meas n).stronglyMeasurable
+  -- Integrable
+  · exact h_int_M
+  -- Conditional expectation inequality: μ[M(n+1) | 𝔾 n] ≤ M n  a.e.
+  · intro n
+    -- Rewrite M(n+1) = M n * exp(R * (X n - c/lam))
+    set g : Ω → ℝ := fun ω => exp (R * (X n ω - c / lam))
+    have h_eq : M (n + 1) = M n * g := by
+      ext ω; simp only [M, g, Pi.mul_apply, Finset.sum_range_succ, mul_add, Real.exp_add]
+    rw [h_eq]
+    -- Pull out M n using condExp_mul_of_stronglyMeasurable_left
+    have h_sm : @StronglyMeasurable Ω ℝ _ (𝔾 n) (M n) := (hM_meas n).stronglyMeasurable
+    have h_int_Mg : Integrable (M n * g) μ := (h_int_M (n + 1)).congr (by rw [h_eq])
+    have h_pullout := condExp_mul_of_stronglyMeasurable_left (m := 𝔾 n)
+      h_sm h_int_Mg (h_int_net n)
+    -- Independence gives condexp = integral
+    have hle1 : MeasurableSpace.comap (X n) inferInstance ≤ mΩ :=
+      MeasurableSpace.comap_le_iff_le_map.mpr (h_meas n)
+    haveI : SigmaFinite (μ.trim (𝔾.le' n)) := by
+      haveI : IsFiniteMeasure (μ.trim (𝔾.le' n)) := isFiniteMeasure_trim _
+      infer_instance
+    have h_sm_net : @StronglyMeasurable Ω ℝ _
+        (MeasurableSpace.comap (X n) inferInstance) g := by
+      apply @Measurable.stronglyMeasurable (mα := MeasurableSpace.comap (X n) inferInstance)
+      exact ((comap_measurable (X n)).sub measurable_const |>.const_mul R |>.exp)
+    have h_condexp_eq := condExp_indep_eq (m := mΩ) hle1 (𝔾.le' n)
+      h_sm_net (h_indep n)
+    -- Combine: μ[M n * g | 𝔾 n] =ᵐ M n * E[g] ≤ M n
+    have h_step1 : μ[M n * g | 𝔾 n] =ᵐ[μ] M n * μ[g | 𝔾 n] := h_pullout
+    have h_step2 : μ[g | 𝔾 n] =ᵐ[μ] fun _ => ∫ ω, g ω ∂μ := h_condexp_eq
+    filter_upwards [h_step1, h_step2] with ω h1 h2
+    simp only [Pi.mul_apply] at h1 ⊢
+    rw [h1, h2]
+    exact mul_le_of_le_one_right (exp_nonneg _) (h_exp_le_one n)
 
 lemma ruin_prob_le_exp
     {Ω : Type*} {mΩ : MeasurableSpace Ω}

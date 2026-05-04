@@ -22,18 +22,21 @@ applied mathematicians and information theorists quote.
   — expected code length ≥ Shannon entropy (parametrized form).
 - `Pythia.InformationTheory.DPI`: data-processing inequality
   I(X;Z) ≤ I(X;Y) for Markov chains X → Y → Z (parametrized form).
+- `Pythia.InformationTheory.GibbsInequality`: discrete KL divergence
+  non-negativity (Gibbs’ inequality / information inequality).
+- `Pythia.InformationTheory.KLChainRule`: KL divergence chain rule
+  for product distributions.
+- `Pythia.InformationTheory.FanoInequality`: Fano’s inequality
+  converse and capacity bound.
+- `Pythia.InformationTheory.ConditionalEntropy`: conditional entropy
+  definition and conditioning-reduces-entropy theorem.
+- `Pythia.InformationTheory.SanovFinite`: Sanov-style large deviation
+  bounds and exponential consistency.
 
 ## Status
 
-`ChannelCapacity`: sorry-free (channel_capacity_eq_sup_mutual_info
-closes by rfl).
-`Basic` (shannonEntropy_nonneg): sorry-free.
-`MutualInfo` (mutual_info_nonneg_via_gibbs): sorry-free; parametrized
-  over Gibbs hypothesis pending discrete KL nonneg API in Mathlib.
-`SourceCoding` (optimal_code_length_lower_bound): sorry-free;
-  parametrized over Gibbs / Kraft hypothesis.
-`DPI` (data_processing_inequality): sorry-free; parametrized over
-  chain-rule hypothesis pending conditional-entropy infrastructure.
+All modules are sorry-free and axiom-clean (propext, Classical.choice,
+Quot.sound only).
 -/
 
 import Pythia.InformationTheory.Basic
@@ -44,3 +47,8 @@ import Pythia.InformationTheory.DPI
 import Pythia.InformationTheory.AEPBernoulli
 import Pythia.InformationTheory.BSCCapacity
 import Pythia.InformationTheory.KraftInequality
+import Pythia.InformationTheory.GibbsInequality
+import Pythia.InformationTheory.KLChainRule
+import Pythia.InformationTheory.FanoInequality
+import Pythia.InformationTheory.ConditionalEntropy
+import Pythia.InformationTheory.SanovFinite

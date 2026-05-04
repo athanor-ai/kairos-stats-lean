@@ -284,4 +284,18 @@ martingale bridge) is in place. -/
 #print axioms Pythia.Hardware.SEC.chain_refines
 #print axioms Pythia.Hardware.SEC.arbMerge_refines
 
+-- 2026-05-04 ATH-992 (cross-arm child of ATH-988 Annapurna LLM-
+-- orchestrated RTL area optimization closed loop): cto-side
+-- refinement-relation primitive that LLM-generated abstraction
+-- functions check against on the Lean side.
+
+-- Cross-structure refinement under abstraction function: reflexivity.
+#print axioms Pythia.Hardware.SEC.refines_under_id
+
+-- Cross-structure refinement under abstraction function: transitivity.
+#print axioms Pythia.Hardware.SEC.refines_under_trans
+
+-- Worked example smoke-test (FlopFifoState ↔ MemFifoState abstraction).
+#print axioms Pythia.Hardware.SEC.WorkedExample.absMemToFlop_reset_smoke
+
 end Pythia.AxiomAudit

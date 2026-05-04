@@ -14,3 +14,4 @@ import Pythia.Hardware.SEC.FifoContract
 import Pythia.Hardware.SEC.PacketTransform
 import Pythia.Hardware.SEC.RoundRobinContract
 import Pythia.Hardware.SEC.ChainComposition
+import Pythia.Hardware.SEC.RefinementRelation

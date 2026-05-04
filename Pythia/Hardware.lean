@@ -7,3 +7,4 @@ import Pythia.Hardware.IEEE754
 import Pythia.Hardware.RefinementComposition
 import Pythia.Hardware.InvariantObligation
 import Pythia.Hardware.ACL2Bridge
+import Pythia.Hardware.SEC

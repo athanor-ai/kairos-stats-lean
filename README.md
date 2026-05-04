@@ -8,7 +8,7 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 728 sorry-free theorems
+mathematics and computer science. It provides 735 sorry-free theorems
 spanning probability theory, hardware verification, networking
 protocols, programming language semantics, actuarial science, numerical
 optimization, information theory, mechanism design, and distributed
@@ -18,7 +18,7 @@ systems. All proofs close under the standard Lean 4 axiom set
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 1182 theorem/lemma declarations in `Pythia/`
+- 1189 theorem/lemma declarations in `Pythia/`
 - 65 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
@@ -54,7 +54,7 @@ paired empirical verification.
 |--------|----------|----------|
 | `Pythia.Probability` | 351 | Anytime-valid confidence sequences (Howard-Ramdas, betting), Ville's inequality, sub-Gaussian and sub-gamma concentration, Bernstein and Bennett inequalities, optional stopping, e-detectors, Robbins-Monro and Dvoretzky stochastic approximation |
 | `Pythia.LanguageSemantics` | 134 | Cedar policy-language type soundness and coverage completeness, Palamedes generator correctness (totality, support characterization, data-structure invariants for lists, trees, natural numbers, STLC types and terms, stacks) |
-| `Pythia.Hardware` | 32 | k-induction soundness, bit-vector modular arithmetic, Gray code single-bit adjacency, FIFO pointer conditions, Hamming distance metric and detection/correction capacity, Singleton bound, CDC synchronizer MTBF exponential growth |
+| `Pythia.Hardware` | 39 | k-induction soundness, bit-vector modular arithmetic, Gray code single-bit adjacency, FIFO pointer conditions, Hamming distance metric and detection/correction capacity, Singleton bound, CDC synchronizer MTBF exponential growth, sequential-equivalence-checking (SEC) refinement contracts: FIFO Mealy-machine spec + addHeader pure-function transform + round-robin safety contract + chain composition lemmas |
 | `Pythia.Actuarial` | 21 | Pareto, Weibull, log-normal loss distributions; Cramér-Lundberg ruin, Sparre Andersen renewal-theory ruin, Bornhuetter-Ferguson reserving |
 | `Pythia.Numerical` | 23 | KKT necessary conditions (Slater qualification) and sufficient conditions (convex programs, Lagrangian sandwich), Picard-Lindelof local existence, Lyapunov stability, Kahan compensated summation, Forward Euler local truncation error, IEEE-754 round-to-nearest, QR factorization, Weyl eigenvalue inequality, Bauer-Fike eigenvalue perturbation, gradient descent geometric convergence |
 | `Pythia.Bio` | 20 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold + Kermack-McKendrick final size, Wright-Fisher, Michaelis-Menten + Hill Emax saturation, PK/PD AUC + half-life + Bateman positivity, Hardy-Weinberg invariance, Kimura neutral fixation, SEIR R0 threshold, RCT identifiability |
@@ -137,7 +137,7 @@ Each domain pairs formal proofs with a computational verification layer:
 
 ## Theorem retrieval
 
-The repository includes a full-text search index over all 728
+The repository includes a full-text search index over all 735
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the

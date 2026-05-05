@@ -298,4 +298,31 @@ martingale bridge) is in place. -/
 -- Worked example smoke-test (FlopFifoState ↔ MemFifoState abstraction).
 #print axioms Pythia.Hardware.SEC.WorkedExample.absMemToFlop_reset_smoke
 
+-- 2026-05-05 cto W2 deliverable: fifoWidget bridge invariants for the
+-- v2 toy_fifo_chain Annapurna demo. Two invariants whose discharge
+-- moved EBMC properties from INCONCLUSIVE to PROVED. The cert can drop
+-- the conditional "PROVED under {bridge_inv_full, bridge_inv_empty}"
+-- framing once these audit clean.
+
+-- Spec-side: fifoStep preserves full / empty invariants under the
+-- input-disabling hypotheses (closes EBMC k-induction's spec-side
+-- preservation obligation).
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoStep_preserves_full
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoStep_preserves_empty
+
+-- Reset state satisfies the flag-count consistency predicate.
+#print axioms Pythia.Hardware.SEC.FifoWidget.resetState_isValid
+
+-- Bridge invariants relating impl-side flag flops to abstract count
+-- predicates via the abstraction function.
+#print axioms Pythia.Hardware.SEC.FifoWidget.bridge_inv_full
+#print axioms Pythia.Hardware.SEC.FifoWidget.bridge_inv_empty
+
+-- isValidState preservation under fifoWidgetStep (inductive step).
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoWidgetStep_preserves_isValidState
+
+-- Composite refinement claim: fifoWidget refines fifoStep under
+-- absFifoWidget. This is the customer-cert payload theorem.
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoWidget_refines_fifoSpec
+
 end Pythia.AxiomAudit

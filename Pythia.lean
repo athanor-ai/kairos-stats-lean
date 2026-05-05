@@ -217,3 +217,6 @@ import Pythia.MechanismDesign
 -- ATH-940 distributed systems theorem library (Paxos, Lamport, 2PC).
 -- Basic.lean (paxos_quorum_intersection) added when Aristotle starter returns.
 import Pythia.Distributed
+import Pythia.Hardware.SEC.FifoWidgetGoldGateRefinement
+import Pythia.Hardware.SEC.FifoWidgetInvariants
+import Pythia.Hardware.SEC.RefinementRelation

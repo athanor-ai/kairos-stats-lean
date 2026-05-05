@@ -16,3 +16,4 @@ import Pythia.Hardware.SEC.RoundRobinContract
 import Pythia.Hardware.SEC.ChainComposition
 import Pythia.Hardware.SEC.RefinementRelation
 import Pythia.Hardware.SEC.FifoWidgetInvariants
+import Pythia.Hardware.SEC.FifoWidgetGoldGateRefinement

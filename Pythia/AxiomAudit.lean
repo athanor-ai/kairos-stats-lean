@@ -43,6 +43,14 @@ import Pythia.BDG
 import Pythia.Bennett
 import Pythia.MeasureTheory.ConditionalJensen
 import Pythia.InfoTheory.DataProcessing
+import Pythia.InformationTheory.GibbsInequality
+import Pythia.InformationTheory.KLChainRule
+import Pythia.InformationTheory.FanoInequality
+import Pythia.InformationTheory.ConditionalEntropy
+import Pythia.InformationTheory.SanovFinite
+import Pythia.InformationTheory.DPI
+import Pythia.TimeUniformCLT
+import Pythia.Hardware.SEC
 import Pythia.StochasticApproximation.RobbinsSiegmund
 import Pythia.StochasticApproximation.RobbinsMonro
 import Pythia.StochasticApproximation.Dvoretzky
@@ -232,5 +240,89 @@ martingale bridge) is in place. -/
 -- Expected sample size (with added Wald-identity + boundary-exit
 -- hypotheses): E[τ | H_0] = ((1-β)·B + β·A) / (-D(p₀ ‖ p₁)).
 #print axioms Pythia.SPRT.expected_sample_size
+
+-- 2026-05-04 InformationTheory frontier expansion (5 new files +
+-- DPI rewrite from Aristotle batch G).
+
+-- Gibbs' inequality / KL non-negativity (Cover-Thomas Thm 2.6.3).
+#print axioms Pythia.InformationTheory.klFinite_nonneg
+
+-- KL chain rule for product distributions (Cover-Thomas Thm 2.7.3).
+#print axioms Pythia.InformationTheory.klFinite_prod
+
+-- Fano's inequality converse (Cover-Thomas §2.10).
+#print axioms Pythia.InformationTheory.fano_converse
+
+-- Conditioning reduces entropy (Cover-Thomas Thm 2.6.5).
+#print axioms Pythia.InformationTheory.condEntropy_le_entropy
+
+-- Sanov-style large-deviation exponential bound (Cover-Thomas Thm 11.1.4).
+#print axioms Pythia.InformationTheory.sanov_consistency
+
+-- Real measure-theoretic Data Processing Inequality (Cover-Thomas Thm 2.8.1).
+#print axioms Pythia.InformationTheory.data_processing_inequality
+
+-- Time-uniform CLT (LP-distance convergence via FddGaussianRate bundle).
+#print axioms Pythia.time_uniform_clt
+#print axioms Pythia.asymptotic_confidence_sequence
+#print axioms Pythia.aCS_sharp_universal
+
+-- 2026-05-04 Pythia.Hardware.SEC contract layer (ATH-984 child of
+-- ATH-983 SEC pivot; per-block refinement contracts that EBMC
+-- harness output discharges).
+
+-- FIFO refinement: capacity / no-underflow / no-silent-drop.
+#print axioms Pythia.Hardware.SEC.fifoStep_count_le_cap
+#print axioms Pythia.Hardware.SEC.fifoStep_count_nonneg
+#print axioms Pythia.Hardware.SEC.fifoStep_no_silent_drop
+
+-- Pure-function packet-transform refinement (addHeader worked example).
+#print axioms Pythia.Hardware.SEC.addHeader_header_const
+#print axioms Pythia.Hardware.SEC.addHeader_payload_preserves_input
+
+-- Chain composition refinement-preservation lemmas.
+#print axioms Pythia.Hardware.SEC.chain_refines
+#print axioms Pythia.Hardware.SEC.arbMerge_refines
+
+-- 2026-05-04 ATH-992 (cross-arm child of ATH-988 Annapurna LLM-
+-- orchestrated RTL area optimization closed loop): cto-side
+-- refinement-relation primitive that LLM-generated abstraction
+-- functions check against on the Lean side.
+
+-- Cross-structure refinement under abstraction function: reflexivity.
+#print axioms Pythia.Hardware.SEC.refines_under_id
+
+-- Cross-structure refinement under abstraction function: transitivity.
+#print axioms Pythia.Hardware.SEC.refines_under_trans
+
+-- Worked example smoke-test (FlopFifoState ↔ MemFifoState abstraction).
+#print axioms Pythia.Hardware.SEC.WorkedExample.absMemToFlop_reset_smoke
+
+-- 2026-05-05 cto W2 deliverable: fifoWidget bridge invariants for the
+-- v2 toy_fifo_chain Annapurna demo. Two invariants whose discharge
+-- moved EBMC properties from INCONCLUSIVE to PROVED. The cert can drop
+-- the conditional "PROVED under {bridge_inv_full, bridge_inv_empty}"
+-- framing once these audit clean.
+
+-- Spec-side: fifoStep preserves full / empty invariants under the
+-- input-disabling hypotheses (closes EBMC k-induction's spec-side
+-- preservation obligation).
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoStep_preserves_full
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoStep_preserves_empty
+
+-- Reset state satisfies the flag-count consistency predicate.
+#print axioms Pythia.Hardware.SEC.FifoWidget.resetState_isValid
+
+-- Bridge invariants relating impl-side flag flops to abstract count
+-- predicates via the abstraction function.
+#print axioms Pythia.Hardware.SEC.FifoWidget.bridge_inv_full
+#print axioms Pythia.Hardware.SEC.FifoWidget.bridge_inv_empty
+
+-- isValidState preservation under fifoWidgetStep (inductive step).
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoWidgetStep_preserves_isValidState
+
+-- Composite refinement claim: fifoWidget refines fifoStep under
+-- absFifoWidget. This is the customer-cert payload theorem.
+#print axioms Pythia.Hardware.SEC.FifoWidget.fifoWidget_refines_fifoSpec
 
 end Pythia.AxiomAudit

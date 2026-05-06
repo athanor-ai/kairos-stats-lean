@@ -278,19 +278,28 @@ private lemma phi_ge_sq_div (u : ℝ) (hu : 0 ≤ u) :
   contrapose! this;
   exact ⟨ ContinuousOn.sub ( ContinuousOn.sub ( ContinuousOn.mul ( continuousOn_const.add continuousOn_id ) ( ContinuousOn.log ( continuousOn_const.add continuousOn_id ) fun x hx => by linarith [ hx.1 ] ) ) continuousOn_id ) ( ContinuousOn.div ( continuousOn_const.mul ( continuousOn_pow 2 ) ) ( continuousOn_const.add ( continuousOn_const.mul continuousOn_id ) ) fun x hx => by linarith [ hx.1 ] ), fun x hx => DifferentiableAt.differentiableWithinAt ( by norm_num [ add_comm, mul_comm, show x + 1 ≠ 0 from by linarith [ hx.1 ], show x * 2 + 6 ≠ 0 from by linarith [ hx.1 ] ] ), fun c hc => by rw [ ne_eq, eq_div_iff ] <;> nlinarith [ h_deriv_nonneg c hc.1.le ] ⟩
 
-/-- **Scalar optimisation** for the Chernoff bound.
+/-
+**Scalar optimisation** for the Chernoff bound.
 
 There exists `θ > 0` such that
 `−θ t + μ_max · (eᶿᴿ − 1) / R ≤ −(t − μ_max)² / (2 μ_max + 2 R (t − μ_max) / 3)`.
 
-Uses `phi_ge_sq_div` with `u = (t − μ_max) / μ_max` and `θ = log(t/μ_max)/R`. -/
+Uses `phi_ge_sq_div` with `u = (t − μ_max) / μ_max` and `θ = log(t/μ_max)/R`.
+-/
 private lemma chernoff_scalar_opt
     (t R mu_max : ℝ) (ht : mu_max < t) (hR : 0 < R)
     (hμ : 0 < mu_max) :
     ∃ θ : ℝ, 0 < θ ∧
       -θ * t + mu_max * (Real.exp (θ * R) - 1) / R ≤
         -((t - mu_max) ^ 2) / (2 * R * mu_max + 2 * R * (t - mu_max) / 3) := by
-  sorry
+  refine' ⟨ Real.log ( t / mu_max ) / R, _, _ ⟩;
+  · exact div_pos ( Real.log_pos ( by rw [ lt_div_iff₀ hμ ] ; linarith ) ) hR;
+  · field_simp;
+    rw [ Real.exp_log ( div_pos ( by linarith ) hμ ) ];
+    rw [ ← neg_le_neg_iff ] ; ring_nf;
+    have := phi_ge_sq_div ( ( t - mu_max ) / mu_max ) ( div_nonneg ( by linarith ) hμ.le );
+    field_simp at this ⊢;
+    rw [ div_le_iff₀ ] at * <;> ring_nf at * <;> nlinarith
 
 /-! ## Main theorems -/
 

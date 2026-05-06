@@ -207,16 +207,39 @@ def _stage_branch(
         shutil.copy2(src, dst)
         print(f"[aristotle-import] copied {rel}")
 
-    # Update Pythia.lean umbrella with `import` lines for any new
-    # top-level Pythia modules.
+    # Guard: warn on out-of-scope modifications. Aristotle sometimes
+    # guts sibling files to stubs (e.g. replacing an 83-line file with
+    # a 3-line stub to satisfy its own build). Flag any modified file
+    # where the Aristotle version is significantly shorter than main.
+    for rel in modified:
+        main_file = REPO_ROOT / rel
+        aristotle_file = aristotle_root / rel
+        if main_file.is_file() and aristotle_file.is_file():
+            main_lines = len(main_file.read_text().splitlines())
+            arist_lines = len(aristotle_file.read_text().splitlines())
+            if arist_lines < main_lines * 0.5 and main_lines > 10:
+                print(
+                    f"[aristotle-import] ⚠ OUT-OF-SCOPE WARNING: {rel} "
+                    f"gutted from {main_lines} → {arist_lines} lines. "
+                    f"Aristotle may have replaced a real file with a stub. "
+                    f"Restoring from main is likely needed.",
+                    file=sys.stderr,
+                )
+
+    # Update Pythia.lean umbrella with `import` lines for ALL new
+    # .lean files under Pythia/ (not just Aristotle-reported new files).
+    # This catches manually-copied dependency files that the tool
+    # doesn't know about.
     umbrella = REPO_ROOT / "Pythia.lean"
-    if umbrella.is_file() and new:
+    if umbrella.is_file():
         existing = umbrella.read_text()
         added: list[str] = []
-        for rel in new:
-            # Pythia/Foo.lean → import Pythia.Foo
+        for lean_file in sorted((REPO_ROOT / "Pythia").rglob("*.lean")):
+            rel = lean_file.relative_to(REPO_ROOT)
             mod = ".".join(rel.with_suffix("").parts)
             if not mod.startswith("Pythia."):
+                continue
+            if mod.startswith("Pythia.Scratch"):
                 continue
             line = f"import {mod}\n"
             if line not in existing:
@@ -245,6 +268,35 @@ def _stage_branch(
                 f"branch staged anyway for human review",
                 file=sys.stderr,
             )
+
+    # Post-import audit: check for sorry/admit/native_decide in proof
+    # positions and warn. Saves the manual grep every time.
+    banned_re = __import__("re").compile(r"^\s*sorry\s*$|:= by sorry|:= sorry|\badmit\b|\bnative_decide\b")
+    for rel in new + modified:
+        if rel.suffix != ".lean":
+            continue
+        dst = REPO_ROOT / rel
+        if not dst.is_file():
+            continue
+        lines = dst.read_text().splitlines()
+        in_comment = False
+        hits: list[tuple[int, str]] = []
+        for i, line in enumerate(lines, 1):
+            if "/-" in line and "-/" not in line:
+                in_comment = True
+            if "-/" in line:
+                in_comment = False
+                continue
+            if in_comment or line.strip().startswith("--"):
+                continue
+            if banned_re.search(line):
+                hits.append((i, line.strip()[:60]))
+        if hits:
+            print(f"[aristotle-import] ⚠ BANNED CONSTRUCTS in {rel}:")
+            for ln, txt in hits:
+                print(f"  L{ln}: {txt}")
+        else:
+            print(f"[aristotle-import] ✓ {rel}: no sorry/admit/native_decide")
 
     # Emit a SUGGESTED PR body that satisfies the repo's
     # tools/check_pr_body.py CI gate (non-empty `## Summary` section).

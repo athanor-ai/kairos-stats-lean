@@ -31,7 +31,7 @@ Total error ≤ 2^{-10} · ‖A‖·‖B‖ + γ₁₃₀ · |A|·|B|.
 -/
 import Mathlib
 import Pythia.Numerical.IEEE754
-import Pythia.Numerical.ReductionTree
+import Pythia.Numerical.Accelerator.ReductionTree
 
 namespace Pythia.Numerical.QuantizedReduction
 

@@ -34,7 +34,7 @@ NKI matmul_512_f32 kernel: k=512, T=128, num_tiles=4.
 -/
 import Mathlib
 import Pythia.Numerical.IEEE754
-import Pythia.Numerical.ReductionTree
+import Pythia.Numerical.Accelerator.ReductionTree
 
 namespace Pythia.Numerical.TiledMatMul
 

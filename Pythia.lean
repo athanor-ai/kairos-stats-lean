@@ -223,3 +223,6 @@ import Pythia.Hardware.SEC.FifoWidgetInvariants
 import Pythia.Hardware.SEC.PacketTransform
 import Pythia.Hardware.SEC.RefinementRelation
 import Pythia.Hardware.SEC.RoundRobinContract
+import Pythia.Numerical.Accelerator.ReductionTree
+import Pythia.Numerical.Accelerator.TiledMatMul
+import Pythia.Numerical.Accelerator.QuantizedReduction

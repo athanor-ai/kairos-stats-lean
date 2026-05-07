@@ -110,7 +110,6 @@ import Pythia.InfoTheory.BretagnolleHuberBinary
 -- Basic.lean (shannonEntropy_nonneg) pending Aristotle ec7f9f8e.
 import Pythia.InformationTheory
 -- Measure theory infra (own-implement Mathlib gap).
-import Pythia.MeasureTheory.OptionalStoppingUnbounded
 -- Bridge: ae equality on rationals + ae continuity ⟹ ae equality on reals.
 import Pythia.MeasureTheory.AeRealExtension
 -- Tier 7 scaffold — Tropp matrix Bernstein (sorries; see module

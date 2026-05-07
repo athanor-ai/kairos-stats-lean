@@ -50,7 +50,7 @@ For a supermartingale M and bounded stopping time σ ≤ N,
   `∫ stoppedValue M σ ≤ ∫ M 0`. Derived from the submartingale version
   `Submartingale.expected_stoppedValue_mono` via negation.
 -/
-lemma supermartingale_expected_stoppedValue_le
+private lemma wald_supermartingale_expected_stoppedValue_le
     [IsProbabilityMeasure μ]
     {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
     {M : ℕ → Ω → ℝ}
@@ -164,7 +164,7 @@ theorem optional_stopping_unbounded
   refine' le_antisymm _ _;
   convert this ( show Submartingale M 𝓕 μ from hM.submartingale ) ( show IsStoppingTime 𝓕 ( fun _ => 0 ) from isStoppingTime_const _ _ ) ( show IsStoppingTime 𝓕 ( fun ω => min ( τ ω ) n ) from hτ.min ( isStoppingTime_const _ _ ) ) ( fun ω => by simp +decide ) ( show ∀ ω, min ( τ ω ) n ≤ n from fun ω => min_le_right _ _ ) using 1;
   · rw [ hstoppedProcess_eq ];
-  · convert supermartingale_expected_stoppedValue_le ( show Supermartingale M 𝓕 μ from hM.supermartingale ) ( show IsStoppingTime 𝓕 ( fun ω => min ( τ ω ) n ) from hτ.min ( isStoppingTime_const _ _ ) ) ( show ∀ ω, min ( τ ω ) n ≤ n from fun ω => min_le_right _ _ ) using 1;
+  · convert wald_supermartingale_expected_stoppedValue_le ( show Supermartingale M 𝓕 μ from hM.supermartingale ) ( show IsStoppingTime 𝓕 ( fun ω => min ( τ ω ) n ) from hτ.min ( isStoppingTime_const _ _ ) ) ( show ∀ ω, min ( τ ω ) n ≤ n from fun ω => min_le_right _ _ ) using 1;
     rw [ hstoppedProcess_eq ]
 
 end MTUnbounded
@@ -204,7 +204,7 @@ private lemma super_stoppedValue_le_initial
     {N : ℕ}
     (hσ_bdd : ∀ ω, σ ω ≤ N) :
     ∫ ω, stoppedValue M σ ω ∂μ ≤ ∫ ω, M 0 ω ∂μ := by
-  exact supermartingale_expected_stoppedValue_le hM hσ hσ_bdd
+  exact wald_supermartingale_expected_stoppedValue_le hM hσ hσ_bdd
 
 /-
 For a supermartingale M and stopping time τ, `∫ stoppedProcess M τ n ≤ ∫ M 0`

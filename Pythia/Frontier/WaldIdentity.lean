@@ -24,11 +24,16 @@ References
 * Williams, *Probability with Martingales*, §10.10.
 -/
 import Mathlib
-import Pythia.Basic
-import Pythia.MeasureTheory.OptionalStoppingUnbounded
-import Pythia.Tactic.Pythia
 
 namespace Pythia
+
+/-- Tagging attribute for statistical lemmas. -/
+register_option Pythia.statLemma : Bool := {
+  defValue := false
+  descr := "Tag a declaration as a statistical lemma."
+}
+
+macro "stat_lemma" : attr => `(attr| simp)
 
 open MeasureTheory ProbabilityTheory Filter
 open scoped ENNReal NNReal Topology
@@ -37,6 +42,132 @@ universe u
 
 variable {Ω : Type u} {mΩ : MeasurableSpace Ω}
 variable {μ : Measure Ω}
+
+/-! ## Infrastructure: supermartingale optional stopping (bounded case) -/
+
+/-
+For a supermartingale M and bounded stopping time σ ≤ N,
+  `∫ stoppedValue M σ ≤ ∫ M 0`. Derived from the submartingale version
+  `Submartingale.expected_stoppedValue_mono` via negation.
+-/
+private lemma wald_supermartingale_expected_stoppedValue_le
+    [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    {M : ℕ → Ω → ℝ}
+    (hM : Supermartingale M 𝓕 μ)
+    {σ : Ω → ℕ∞}
+    (hσ : IsStoppingTime 𝓕 σ)
+    {N : ℕ}
+    (hσ_bdd : ∀ ω, σ ω ≤ N) :
+    ∫ ω, stoppedValue M σ ω ∂μ ≤ ∫ ω, M 0 ω ∂μ := by
+  have h_neg : MeasureTheory.Submartingale (-M) 𝓕 μ := by
+    exact?;
+  convert neg_le_neg ( h_neg.expected_stoppedValue_mono ( show IsStoppingTime 𝓕 ( fun _ => 0 ) from ?_ ) hσ ( fun _ => by simp +decide ) hσ_bdd ) using 1;
+  · rw [ ← MeasureTheory.integral_neg ] ; congr ; ext ; simp +decide [ stoppedValue ] ;
+  · rw [ ← MeasureTheory.integral_neg ] ; congr ; ext ; simp +decide [ stoppedValue ] ;
+  · exact?
+
+/-! ## Infrastructure: unbounded optional stopping for martingales -/
+
+/-! ## Optional stopping for martingales (unbounded stopping time) -/
+
+namespace MTUnbounded
+
+theorem optional_stopping_unbounded
+    [IsProbabilityMeasure μ]
+    {𝓕 : Filtration ℕ mΩ} [SigmaFiniteFiltration μ 𝓕]
+    {M : ℕ → Ω → ℝ}
+    (hM : Martingale M 𝓕 μ)
+    {τ : Ω → ℕ∞}
+    (hτ : IsStoppingTime 𝓕 τ)
+    (hτ_finite : ∀ᵐ ω ∂μ, τ ω ≠ ⊤)
+    (hUI : UniformIntegrable
+              (fun n : ℕ => stoppedProcess M τ n) 1 μ) :
+    ∫ ω, stoppedValue M τ ω ∂μ = ∫ ω, M 0 ω ∂μ := by
+  -- By the definition of `stoppedProcess`, we have `stoppedProcess M τ n = stoppedValue M (min τ n)`.
+  have hstoppedProcess_eq : ∀ n, stoppedProcess M τ n = stoppedValue M (fun ω => min (τ ω) n) := by
+    intro n
+    funext ω
+    simp [stoppedProcess, stoppedValue];
+    rw [ min_comm ];
+  -- Since `stoppedProcess M τ n` is uniformly integrable and converges to `stoppedValue M τ` almost surely,
+  -- we can apply the dominated convergence theorem to conclude that `∫ stoppedValue M τ = lim ∫ stoppedProcess M τ n`.
+  have h_dominated_convergence : Filter.Tendsto (fun n => ∫ ω, stoppedProcess M τ n ω ∂μ) Filter.atTop (nhds (∫ ω, stoppedValue M τ ω ∂μ)) := by
+    have h_integrable : MeasureTheory.Integrable (stoppedValue M τ) μ := by
+      have := hUI.2;
+      have h_integrable : ∀ n, MeasureTheory.Integrable (stoppedProcess M τ n) μ := by
+        intro n
+        have := this.2
+        obtain ⟨C, hC⟩ := this
+        have h_integrable : MeasureTheory.Integrable (stoppedProcess M τ n) μ := by
+          have := hC n;
+          rw [ eLpNorm_one_eq_lintegral_enorm ] at this;
+          constructor;
+          · have := hUI.1;
+            exact this n;
+          · exact lt_of_le_of_lt this ( ENNReal.coe_lt_top )
+        exact h_integrable;
+      have h_integrable : MeasureTheory.Integrable (stoppedValue M τ) μ := by
+        have h_conv : ∀ᵐ ω ∂μ, Filter.Tendsto (fun n => stoppedProcess M τ n ω) Filter.atTop (nhds (stoppedValue M τ ω)) := by
+          filter_upwards [ hτ_finite ] with ω hω;
+          cases h : τ ω <;> simp_all +decide [ stoppedProcess, stoppedValue ];
+          refine' tendsto_const_nhds.congr' _;
+          filter_upwards [ Filter.eventually_ge_atTop ‹_› ] with n hn using by simp +decide [ hn, min_eq_right ] ;
+        have h_integrable : MeasureTheory.Integrable (stoppedValue M τ) μ := by
+          have h_bdd : ∃ C, ∀ n, ∫⁻ ω, ENNReal.ofReal (|stoppedProcess M τ n ω|) ∂μ ≤ ENNReal.ofReal C := by
+            simp_all +decide [ eLpNorm_eq_lintegral_rpow_enorm_toReal ];
+            simp_all +decide [ ENNReal.ofReal, Real.enorm_eq_ofReal_abs ];
+            exact ⟨ this.2.choose, fun n => le_trans ( this.2.choose_spec n ) ( by simp +decide [ ENNReal.ofReal ] ) ⟩
+          have h_integrable : ∫⁻ ω, ENNReal.ofReal (|stoppedValue M τ ω|) ∂μ ≤ ENNReal.ofReal (h_bdd.choose) := by
+            have h_integrable : ∫⁻ ω, ENNReal.ofReal (|stoppedValue M τ ω|) ∂μ ≤ ∫⁻ ω, Filter.liminf (fun n => ENNReal.ofReal (|stoppedProcess M τ n ω|)) Filter.atTop ∂μ := by
+              refine' MeasureTheory.lintegral_mono_ae _;
+              filter_upwards [ h_conv ] with ω hω using by simpa using Filter.Tendsto.liminf_eq ( ENNReal.tendsto_ofReal ( Filter.Tendsto.abs hω ) ) |> ge_of_eq;
+            refine' le_trans h_integrable _;
+            refine' le_trans ( MeasureTheory.lintegral_liminf_le' _ ) _;
+            · exact fun n => ( ‹∀ n, Integrable ( stoppedProcess M τ n ) μ› n |> MeasureTheory.Integrable.aemeasurable |> fun h => h.norm.ennreal_ofReal );
+            · exact le_trans ( Filter.liminf_le_of_frequently_le' <| Filter.frequently_atTop.2 fun n => ⟨ n, le_rfl, h_bdd.choose_spec n ⟩ ) le_rfl;
+          refine' ⟨ _, _ ⟩;
+          · exact ( aestronglyMeasurable_of_tendsto_ae _ ( fun n => ( ‹∀ n, Integrable ( stoppedProcess M τ n ) μ› n |> Integrable.aestronglyMeasurable ) ) h_conv );
+          · simp_all +decide [ hasFiniteIntegral_iff_norm ];
+            exact lt_of_le_of_lt h_integrable ( ENNReal.ofReal_lt_top );
+        exact h_integrable;
+      exact h_integrable;
+    refine' MeasureTheory.tendsto_integral_of_L1 _ _ _ _;
+    · exact h_integrable;
+    · have := hUI.2;
+      filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
+      have := this.2.choose_spec n;
+      rw [ eLpNorm_one_eq_lintegral_enorm ] at this;
+      constructor;
+      · have := hUI.1 n;
+        exact this;
+      · exact lt_of_le_of_lt this ( ENNReal.coe_lt_top );
+    · have := @MeasureTheory.tendsto_Lp_finite_of_tendstoInMeasure;
+      specialize this ( show 1 ≤ ( 1 : ℝ≥0∞ ) by norm_num ) ( by norm_num ) ( fun n => ?_ ) ( show MemLp ( stoppedValue M τ ) 1 μ from ?_ ) ( show UnifIntegrable ( fun n => stoppedProcess M τ n ) 1 μ from ?_ ) ( show TendstoInMeasure μ ( fun n => stoppedProcess M τ n ) atTop ( stoppedValue M τ ) from ?_ );
+      · have := hUI.1 n;
+        exact this;
+      · exact MeasureTheory.memLp_one_iff_integrable.mpr h_integrable;
+      · exact hUI.2.1;
+      · refine' MeasureTheory.tendstoInMeasure_of_tendsto_ae _ _;
+        · intro n;
+          have := hUI.1;
+          exact this n;
+        · filter_upwards [ hτ_finite ] with ω hω;
+          cases' hω' : τ ω with n <;> simp_all +decide [ stoppedProcess, stoppedValue ];
+          exact tendsto_const_nhds.congr' ( by filter_upwards [ Filter.eventually_ge_atTop n ] with m hm; simp +decide [ hm, min_eq_right ] );
+      · convert this using 1;
+        ext1 n; simp +decide [ eLpNorm_one_eq_lintegral_enorm ] ;
+  refine' tendsto_nhds_unique h_dominated_convergence _;
+  refine' tendsto_const_nhds.congr' _;
+  filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
+  have := @MeasureTheory.Submartingale.expected_stoppedValue_mono;
+  refine' le_antisymm _ _;
+  convert this ( show Submartingale M 𝓕 μ from hM.submartingale ) ( show IsStoppingTime 𝓕 ( fun _ => 0 ) from isStoppingTime_const _ _ ) ( show IsStoppingTime 𝓕 ( fun ω => min ( τ ω ) n ) from hτ.min ( isStoppingTime_const _ _ ) ) ( fun ω => by simp +decide ) ( show ∀ ω, min ( τ ω ) n ≤ n from fun ω => min_le_right _ _ ) using 1;
+  · rw [ hstoppedProcess_eq ];
+  · convert wald_supermartingale_expected_stoppedValue_le ( show Supermartingale M 𝓕 μ from hM.supermartingale ) ( show IsStoppingTime 𝓕 ( fun ω => min ( τ ω ) n ) from hτ.min ( isStoppingTime_const _ _ ) ) ( show ∀ ω, min ( τ ω ) n ≤ n from fun ω => min_le_right _ _ ) using 1;
+    rw [ hstoppedProcess_eq ]
+
+end MTUnbounded
 
 /-- Partial-sum process `S_n = X_1 + … + X_n` of a real-valued process
 indexed by `ℕ`. We define it directly on the path space; downstream
@@ -73,7 +204,7 @@ private lemma super_stoppedValue_le_initial
     {N : ℕ}
     (hσ_bdd : ∀ ω, σ ω ≤ N) :
     ∫ ω, stoppedValue M σ ω ∂μ ≤ ∫ ω, M 0 ω ∂μ := by
-  exact supermartingale_expected_stoppedValue_le hM hσ hσ_bdd
+  exact wald_supermartingale_expected_stoppedValue_le hM hσ hσ_bdd
 
 /-
 For a supermartingale M and stopping time τ, `∫ stoppedProcess M τ n ≤ ∫ M 0`

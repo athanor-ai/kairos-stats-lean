@@ -38,3 +38,7 @@ import Pythia.Numerical.QR
 import Pythia.Numerical.Weyl
 import Pythia.Numerical.BauerFike
 import Pythia.Numerical.GradientDescent
+import Pythia.Numerical.MatMul
+import Pythia.Numerical.Softmax
+import Pythia.Numerical.Attention
+import Pythia.Numerical.LayerNorm

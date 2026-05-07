@@ -56,12 +56,14 @@ theorem causalSet_sum_pos (logits : Fin n → ℝ) (i : Fin n) :
 theorem partialSoftmax_causal_sum (logits : Fin n → ℝ) (i : Fin n) :
     ∑ j ∈ causalSet i, partialSoftmax logits i j = 1 := by
   have hpos := causalSet_sum_pos logits i
-  simp only [partialSoftmax, causalSet, Finset.mem_filter, Finset.mem_univ, true_and]
-  conv_lhs =>
-    arg 2
-    ext j
-    rw [if_pos j.2]
-  rw [Finset.sum_div]
+  simp only [partialSoftmax]
+  have hstep : ∀ j ∈ causalSet i, (if j ≤ i then Real.exp (logits j) /
+      ∑ k ∈ causalSet i, Real.exp (logits k) else 0) =
+      Real.exp (logits j) / ∑ k ∈ causalSet i, Real.exp (logits k) := by
+    intro j hj
+    simp [causalSet] at hj
+    exact if_pos hj
+  rw [Finset.sum_congr rfl hstep, ← Finset.sum_div]
   exact div_self (ne_of_gt hpos)
 
 theorem causal_mask_eq_partial_softmax (logits : Fin n → ℝ) (i j : Fin n) :

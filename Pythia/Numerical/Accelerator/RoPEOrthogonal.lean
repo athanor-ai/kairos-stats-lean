@@ -216,11 +216,11 @@ This follows by direct expansion: (cos θ · v₀ - sin θ · v₁)² + (sin θ 
 theorem rope_rotation_norm_sq (θ : ℝ) (v : Fin 2 → ℝ) :
     ∑ i : Fin 2, ((rotationMatrix θ).mulVec v i) ^ 2 =
     ∑ i : Fin 2, (v i) ^ 2 := by
-  simp only [Matrix.mulVec, Matrix.dotProduct, rotationMatrix, Fin.sum_univ_two,
-             Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.head_fin_const]
-  ring_nf
-  nlinarith [sin_sq_add_cos_sq θ, sq_nonneg (sin θ), sq_nonneg (cos θ),
-             sq_nonneg (v 0), sq_nonneg (v 1)]
+  simp only [Fin.sum_univ_two, Matrix.mulVec, dotProduct,
+             rotationMatrix_00, rotationMatrix_01, rotationMatrix_10, rotationMatrix_11]
+  have h := sin_sq_add_cos_sq θ
+  nlinarith [sq_nonneg (cos θ * v 0 - sin θ * v 1),
+             sq_nonneg (sin θ * v 0 + cos θ * v 1)]
 
 /-- **Summary: RoPE rotation matrices are orthogonal.**
 

@@ -15,16 +15,8 @@ name: Pythia simulation sweep
 on:
   push:
     branches: ['**']
-    paths:
-      - 'tools/**'
-      - 'pyproject.toml'
-      - '.github/workflows/pythia-sim.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'tools/**'
-      - 'pyproject.toml'
-      - '.github/workflows/pythia-sim.yml'
   workflow_dispatch:
 
 permissions:

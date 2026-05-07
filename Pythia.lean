@@ -165,6 +165,7 @@ import Pythia.Hardware
 -- ATH-1109: hardware equivalence trust layers for cert tarballs.
 import Pythia.Hardware.Equivalence.BMCSoundness
 import Pythia.Hardware.Equivalence.InitialStateCorrespondence
+import Pythia.Hardware.Equivalence.MiterCorrectness
 -- Networking / protocol verification (ported from bbr3-starvation-bench).
 import Pythia.Networking
 -- Language semantics / type soundness (ported from kairos-cedar).

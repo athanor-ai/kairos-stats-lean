@@ -162,10 +162,6 @@ import Pythia.TimeSeries.NeweyWest
 import Pythia.Control.LyapunovODE
 import Pythia.Risk.CoherentMeasures
 import Pythia.Hardware
--- ATH-1109: hardware equivalence trust layers for cert tarballs.
-import Pythia.Hardware.Equivalence.BMCSoundness
-import Pythia.Hardware.Equivalence.InitialStateCorrespondence
-import Pythia.Hardware.Equivalence.MiterCorrectness
 -- Networking / protocol verification (ported from bbr3-starvation-bench).
 import Pythia.Networking
 -- Language semantics / type soundness (ported from kairos-cedar).
@@ -235,3 +231,4 @@ import Pythia.Numerical.Accelerator.GQAReplication
 import Pythia.Numerical.Accelerator.KVCacheMonotone
 import Pythia.Numerical.Accelerator.RoPEOrthogonal
 import Pythia.Numerical.Accelerator.SoftcapLipschitz
+import Pythia.Numerical.Accelerator.GELULipschitz

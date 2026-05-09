@@ -30,8 +30,8 @@ Once your engine satisfies `EngineSoundness`, Pythia gives you:
 
 ## Files
 
-- `MyEngine.lean` — starter template with inline comments
-- `README.md` — this file
+- `MyEngine.lean`: starter template with inline comments
+- `README.md`: this file
 
 ## Dependencies
 

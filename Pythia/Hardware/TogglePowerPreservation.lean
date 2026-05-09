@@ -37,12 +37,12 @@ theorem remove_gate_reduces_toggles
   exact Finset.sum_le_sum_of_subset ( Finset.erase_subset _ _ )
 
 /-
-Fewer gates means fewer or equal total toggles (upper bound).
-The optimized circuit's gates (`gates'`) must be a restriction of the original
-circuit's first `k` gates. The original statement with arbitrary `gates'` was
-false (counterexample: `gates` constant, `gates'` toggling). Added hypothesis
-`h_restrict` to relate `gates'` to `gates`. The `2×` slack on the RHS follows
-from `Finset.sum_nonneg`.
+Fewer gates means fewer or equal total toggles (tight bound).
+The optimized circuit's gates (`gates'`) are a restriction of the original
+circuit's gates via the injection `Fin.castLE hk : Fin k → Fin m`.
+Since `Fin.castLE hk` is injective, the image of `Finset.univ (Fin k)` under
+it is a sub-multiset of `Finset.univ (Fin m)`, so the sum over k gates is at
+most the sum over all m gates.  No 2× slack is needed.
 -/
 theorem fewer_gates_fewer_toggles
     (k : ℕ) (hk : k ≤ m)
@@ -51,9 +51,14 @@ theorem fewer_gates_fewer_toggles
     (h_restrict : ∀ i : Fin k, gates' i = gates (Fin.castLE hk i))
     (inputs : List (Fin n → Bool)) :
     ∑ i : Fin k, toggleCount (gates' i) inputs ≤
-    ∑ i : Fin m, toggleCount (gates i) inputs +
-      ∑ i : Fin m, toggleCount (gates i) inputs := by
-  -- By definition of `gates'`, we can replace each `gates' i` with `gates (Fin.castLE hk i)` in the sum.
-  have h_sum_restrict : ∑ i, toggleCount (gates' i) inputs = ∑ i ∈ Finset.univ.image (Fin.castLE hk), toggleCount (gates i) inputs := by
-    rw [ Finset.sum_image <| by intros a ha b hb hab; simpa [ Fin.ext_iff ] using hab ] ; aesop;
-  exact h_sum_restrict.symm ▸ le_add_of_le_of_nonneg ( Finset.sum_le_sum_of_subset ( Finset.subset_univ _ ) ) ( Nat.zero_le _ )
+    ∑ i : Fin m, toggleCount (gates i) inputs := by
+  -- Rewrite LHS: replace gates' i with gates (Fin.castLE hk i) everywhere.
+  conv_lhs =>
+    arg 2; ext i; rw [h_restrict i]
+  -- After rewriting, the LHS is ∑ i : Fin k, toggleCount (gates (Fin.castLE hk i)) inputs.
+  -- Reindex as a sum over the image of Fin.castLE hk inside Finset.univ (Fin m).
+  have h_inj : Function.Injective (Fin.castLE hk) := Fin.castLE_injective hk
+  rw [← Finset.sum_image (f := fun j => toggleCount (gates j) inputs)
+        (by intros a _ b _ hab; exact h_inj hab)]
+  -- The image is a subset of Finset.univ, so its sum is ≤ the full sum.
+  exact Finset.sum_le_sum_of_subset (Finset.subset_univ _)

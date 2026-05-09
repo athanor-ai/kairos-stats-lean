@@ -162,6 +162,10 @@ import Pythia.TimeSeries.NeweyWest
 import Pythia.Control.LyapunovODE
 import Pythia.Risk.CoherentMeasures
 import Pythia.Hardware
+-- ATH-1120: compression moves + per-optimization proof objects.
+import Pythia.Hardware.CompressionMoves
+import Pythia.Hardware.EngineContract
+import Pythia.Hardware.HammingOptProof
 -- Networking / protocol verification (ported from bbr3-starvation-bench).
 import Pythia.Networking
 -- Language semantics / type soundness (ported from kairos-cedar).

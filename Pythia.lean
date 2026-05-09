@@ -94,6 +94,9 @@ import Pythia.Tactic.MinimizeHypothesesTest
 -- LLM-defense layer (ATH-725 Guard D): type-shape sanity guard.
 import Pythia.Tactic.ValidateTypes
 import Pythia.Tactic.ValidateTypesTest
+-- LLM-defense layer 2 (post-build): elaboration-level vacuity detection.
+-- Provides #check_vacuity and #audit_module commands.
+import Pythia.Tactic.VacuityCheck
 -- Counterexample-finder tactic — disprove (Phase 1, dual of z3_check).
 import Pythia.Tactic.Disprove
 import Pythia.Tactic.DisproveTest

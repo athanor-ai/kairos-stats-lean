@@ -57,3 +57,23 @@ theorem uf_reduces_search_space
     (h : ∀ r : Result, P r) (i : Fin n) :
     P (concrete_values i) := by
   exact h (concrete_values i)
+
+-- CEGAR with UF terminates on finite abstract domains.
+-- Each refinement strictly reduces the number of spurious counterexamples.
+-- After at most |initial_spurious| refinements, no spurious cex remain.
+theorem uf_cegar_terminates
+    (num_spurious : ℕ)
+    (remaining : ℕ → ℕ)
+    (h_init : remaining 0 = num_spurious)
+    (h_decrease : ∀ k, 0 < remaining k → remaining (k + 1) < remaining k) :
+    ∃ k, remaining k = 0 := by
+  by_contra h
+  push_neg at h
+  have h_pos : ∀ k, 0 < remaining k := fun k => Nat.pos_of_ne_zero (h k)
+  have h_strict : ∀ k, remaining (k + 1) < remaining k := fun k => h_decrease k (h_pos k)
+  have : ∀ k, remaining k + k ≤ num_spurious := by
+    intro k; induction k with
+    | zero => simp [h_init]
+    | succ n ih => have := h_strict n; omega
+  have := this (num_spurious + 1)
+  omega

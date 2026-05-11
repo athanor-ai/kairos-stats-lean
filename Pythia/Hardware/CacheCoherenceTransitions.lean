@@ -10,20 +10,27 @@ CacheCoherence.lean establishes invariants (AtMostOneModified, SharedAgreement,
 etc.) but ASSUMES they hold. This file closes that gap: it models concrete
 read/write transitions and proves each one maintains the invariant.
 
-Three theorems are established:
+Key results:
 
   1. `write_preserves_coherence`  — write transition (writer→M, others→I)
-                                    preserves AtMostOneModified.
+                                    preserves full Coherent invariant
+                                    (unconditionally).
   2. `read_preserves_coherence`   — read transition (M→S downgrade, requester→S)
-                                    preserves AtMostOneModified.
+                                    preserves full Coherent invariant
+                                    GIVEN that the read value is consistent
+                                    with existing cached data (3 preconditions).
   3. `initial_state_coherent`     — all-Invalid initial state satisfies
-                                    AtMostOneModified.
-  4. `write_preserves_shared_agreement` — write invalidates all sharers,
-                                          so SharedAgreement holds vacuously.
-  5. `read_preserves_data_consistency`  — after read, shared copies hold
-                                          consistent data.
-  6. `inductive_coherence`        — by induction on any trace of valid
-                                    transitions, coherence is maintained.
+                                    Coherent.
+  4. `trace_preserves_modified`   — any trace of read/write ops preserves
+                                    AtMostOneModified (weaker than full
+                                    Coherent; full trace coherence requires
+                                    threading the read consistency
+                                    preconditions).
+
+Limitation: read_preserves_coherence requires caller to prove that the
+read value matches existing shared/modified/exclusive data. This is a
+real protocol requirement (the bus provides the correct value), but the
+theorem does not model the bus — the caller must supply this evidence.
 
 No sorries.
 -/

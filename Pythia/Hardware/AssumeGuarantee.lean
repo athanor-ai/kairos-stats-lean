@@ -12,16 +12,29 @@ each verify a block under stated assumptions, the composition theorem
 proves the combined design is correct — provided each block's assumptions
 are discharged by other blocks' guarantees.
 
-Seven theorems are established:
+Key results:
 
   1. `ag_sequential_2`        — 2-component sequential composition (pipeline).
-  2. `ag_sequential_n`        — N-component sequential pipeline composition.
-  3. `ag_parallel_independent` — N independent parallel blocks (no assumptions).
-  4. `ag_parallel_discharged`  — N parallel blocks with discharged assumptions.
-  5. `ag_circular_2`          — 2-component circular assume-guarantee.
-  6. `ag_dag`                 — DAG-structured multi-component composition.
-  7. `ag_fleet_composition`   — fleet orchestration: Fin n blocks, each verified
-                                by a separate agent, compose to full-design proof.
+  2. `ag_sequential_n`        — N-component sequential pipeline (induction).
+  3. `ag_parallel_independent` — N independent parallel blocks.
+  4. `ag_parallel_discharged`  — N parallel blocks with env assumptions.
+  5. `ag_seeded_2`            — 2-component seeded AG (NOT full circular;
+                                requires external seed A₁∨A₂).
+  6. `ag_dag`                 — DAG-structured composition (well-founded
+                                recursion on topological order — this IS
+                                the real composition theorem).
+  7. `ag_fleet_composition`   — extraction lemma: applies FleetBlock.verified
+                                to each block. Structurally trivial; the work
+                                is in constructing the FleetBlock instances.
+
+Honest limitations:
+  - ag_seeded_2 is NOT full circular AG. Real circular AG needs a
+    well-foundedness argument (Alur & Henzinger 1999).
+  - ag_fleet_composition delegates the hard part (proving env_needed
+    for each block) to the caller. The theorem just extracts specs
+    from pre-verified blocks.
+  - ag_dag IS substantive: well-founded recursion on a topological
+    order resolves all dependencies without external seeds.
 
 No sorries.
 -/
@@ -88,10 +101,16 @@ theorem ag_parallel_discharged {n : ℕ}
   fun i => (blocks i).valid (h_discharge i h_env)
 
 -- ---------------------------------------------------------------------------
--- §6  Circular assume-guarantee (2 components)
+-- §6  Seeded assume-guarantee (2 components)
+--
+-- NOTE: This is NOT full circular assume-guarantee (which requires a
+-- well-foundedness argument to break circularity, cf. Alur & Henzinger 1999).
+-- This is the SEEDED variant: given an external seed (A₁ ∨ A₂), the
+-- dependencies can be resolved sequentially. The seed is a real requirement,
+-- not a dodge — it represents the "first mover" in a non-circular ordering.
 -- ---------------------------------------------------------------------------
 
-theorem ag_circular_2
+theorem ag_seeded_2
     (A₁ A₂ G₁ G₂ : Prop)
     (h₁ : A₁ → G₁) (h₂ : A₂ → G₂)
     (h_discharge₁ : G₂ → A₁) (h_discharge₂ : G₁ → A₂)

@@ -53,6 +53,9 @@ omit = [
   # Templates / scratch.
   "tools/sim/*_template*.py",
   "tools/sim/Scratch/*",
+  # lean_race_guide requires kairos + external API keys (Gemini);
+  # cannot run in CI. Dogfood tool, not library code.
+  "tools/lean_race_guide.py",
 ]
 
 [tool.coverage.report]

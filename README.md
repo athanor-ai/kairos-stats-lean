@@ -8,7 +8,7 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 1274 sorry-free theorems
+mathematics and computer science. It provides 1339 sorry-free theorems
 spanning probability theory, hardware verification, networking
 protocols, programming language semantics, actuarial science, numerical
 optimization, information theory, mechanism design, and distributed
@@ -18,7 +18,7 @@ systems. All proofs close under the standard Lean 4 axiom set
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 1814 theorem/lemma declarations in `Pythia/`
+- 1869 theorem/lemma declarations in `Pythia/`
 - 65 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 

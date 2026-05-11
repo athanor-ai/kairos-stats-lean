@@ -62,10 +62,20 @@ def tree_depth : ℕ → ℕ
   termination_by n => n
   decreasing_by omega
 
-/-- tree_depth is at most log₂ n (for NKI, this means depth 9 for 512 elements). -/
-theorem tree_depth_le_log (n : ℕ) (hn : 0 < n) :
-    tree_depth n ≤ Nat.log 2 n := by
-  sorry
+/-- tree_depth is at most ⌈log₂ n⌉ (ceiling log, not floor log).
+    The original `tree_depth_le_log` (floor log) was FALSE:
+    counterexample tree_depth 3 = 2 > 1 = Nat.log 2 3.
+    Corrected by Aristotle to use `Nat.clog`. -/
+theorem tree_depth_le_clog (n : ℕ) (hn : 0 < n) :
+    tree_depth n ≤ Nat.clog 2 n := by
+  -- We'll use induction on $n$ to prove that $tree\_depth(n) \leq Nat.clog 2 n$.
+  induction' n using Nat.strong_induction_on with n ih;
+  rcases n with ( _ | _ | n ) <;> simp_all +arith +decide [ Nat.clog_of_two_le ];
+  · native_decide +revert;
+  · rw [ show tree_depth ( n + 2 ) = 1 + tree_depth ( ( n + 3 ) / 2 ) from ?_ ];
+    · grind;
+    · -- By definition of tree_depth, we have tree_depth (n + 2) = 1 + tree_depth ((n + 3) / 2).
+      rw [tree_depth]
 
 /-- tree_depth is always ≤ n (tree is never deeper than sequential). -/
 theorem tree_depth_le : ∀ n : ℕ, tree_depth n ≤ n := by
@@ -95,18 +105,20 @@ This is the NKI-relevant bound: a 512-element tile reduction
 has error ≤ γ₉ · Σ|aᵢ| instead of γ₅₁₂ · Σ|aᵢ|. -/
 theorem tree_reduce_error
     (n : ℕ) (a : Fin n → ℝ) (fl_sum : ℝ)
-    (hku : (tree_depth n : ℝ) * unitRoundoff < 1)
+    (_hku : (tree_depth n : ℝ) * unitRoundoff < 1)
     (h_bound : |fl_sum - ∑ i, a i| ≤
       gamma (tree_depth n) * ∑ i, |a i|) :
     |fl_sum - ∑ i, a i| ≤
       gamma (tree_depth n) * ∑ i, |a i| :=
   h_bound
 
-/-- **Tree reduction dominates sequential (error comparison).**
+/-
+**Tree reduction dominates sequential (error comparison).**
 
 γ_{tree_depth n} ≤ γ_n, so tree reduction is always at least as
 accurate as sequential accumulation. This follows from monotonicity
-of γ and tree_depth n ≤ n. -/
+of γ and tree_depth n ≤ n.
+-/
 theorem tree_reduce_error_le_sequential
     (n : ℕ) (a : Fin n → ℝ) (fl_sum : ℝ)
     (hku_seq : (n : ℝ) * unitRoundoff < 1)
@@ -116,7 +128,14 @@ theorem tree_reduce_error_le_sequential
       gamma n * ∑ i, |a i| := by
   have h_depth_le : tree_depth n ≤ n := tree_depth_le n
   have h_mono : gamma (tree_depth n) ≤ gamma n := by
-    sorry
+    -- Since $\gamma$ is monotonically increasing, we have $\gamma (tree\_depth n) \le \gamma n$ if $tree\_depth n \le n$.
+    have h_gamma_monotone : ∀ k m : ℕ, k ≤ m → (k : ℝ) * unitRoundoff < 1 → (m : ℝ) * unitRoundoff < 1 → gamma k ≤ gamma m := by
+      intro k m hkm hk hm; rw [ gamma, gamma ] ; gcongr;
+      · exact mul_nonneg ( Nat.cast_nonneg _ ) ( by exact div_nonneg ( by exact le_of_lt ( by exact show ( 0 : ℝ ) < 2 ^ ( -52 : ℤ ) by positivity ) ) zero_le_two );
+      · linarith;
+      · exact div_nonneg ( show 0 ≤ Pythia.Numerical.machineEpsilon by exact by unfold Pythia.Numerical.machineEpsilon; positivity ) zero_le_two;
+      · exact div_nonneg ( show 0 ≤ Pythia.Numerical.machineEpsilon by exact by unfold Pythia.Numerical.machineEpsilon; positivity ) zero_le_two;
+    exact h_gamma_monotone _ _ h_depth_le ( by exact lt_of_le_of_lt ( mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr h_depth_le ) ( by exact div_nonneg ( show ( 0 : ℝ ) ≤ 2 ^ ( -52 : ℤ ) by positivity ) zero_le_two ) ) hku_seq ) hku_seq
   have h_sum_nn : 0 ≤ ∑ i, |a i| := Finset.sum_nonneg (fun i _ => abs_nonneg _)
   exact le_trans h_tree (mul_le_mul_of_nonneg_right h_mono h_sum_nn)
 

@@ -42,13 +42,27 @@ open Finset BigOperators
 
 noncomputable section
 
-/-- Tiling a sum: splitting a sum over Fin (m * T) into m groups of T.
-    This is exact — no floating-point error from the partitioning itself. -/
+/-
+Tiling a sum: splitting a sum over Fin (m * T) into m groups of T.
+    This is exact — no floating-point error from the partitioning itself.
+-/
 theorem tiling_exact (m T : ℕ) (a : Fin (m * T) → ℝ) :
     ∑ i, a i = ∑ tile : Fin m, ∑ j : Fin T,
       a ⟨tile.val * T + j.val, by
         have := tile.isLt; have := j.isLt; nlinarith⟩ := by
-  sorry
+  induction' m with m ih T a;
+  · convert rfl;
+    norm_num;
+  · rw [ Fin.sum_univ_add ] ; simp_all +decide [ Nat.succ_mul, Fin.sum_univ_succ ];
+    rw [ show ( Finset.univ : Finset ( Fin ( ( m + 1 ) * T ) ) ) = Finset.image ( fun i : Fin ( m * T ) => ⟨ i, by nlinarith [ Fin.is_lt i ] ⟩ ) Finset.univ ∪ Finset.image ( fun i : Fin T => ⟨ m * T + i, by nlinarith [ Fin.is_lt i ] ⟩ ) Finset.univ from ?_, Finset.sum_union ];
+    · rw [ Finset.sum_image, Finset.sum_image ] <;> norm_num [ Fin.ext_iff ];
+      · convert ih _ using 1;
+      · exact fun i j h => by simpa [ Fin.ext_iff ] using h;
+      · exact fun i j h => Fin.ext <| by simpa using congr_arg Fin.val h;
+    · norm_num [ Fin.ext_iff, Finset.disjoint_left ];
+      grind;
+    · ext ⟨ i, hi ⟩ ; simp +decide [ Fin.ext_iff ];
+      exact if h : i < m * T then Or.inl ⟨ ⟨ i, by linarith ⟩, rfl ⟩ else Or.inr ⟨ ⟨ i - m * T, by rw [ tsub_lt_iff_left ] <;> linarith ⟩, by rw [ add_tsub_cancel_of_le ( by linarith ) ] ⟩
 
 /-- Concrete: 512 / 128 = 4 tiles. -/
 theorem tile_count_512_128 : 512 / 128 = 4 := by decide

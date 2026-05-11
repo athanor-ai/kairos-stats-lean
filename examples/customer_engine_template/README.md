@@ -35,6 +35,7 @@ Once your engine satisfies `EngineSoundness`, Pythia gives you:
 
 ## Dependencies
 
+<!-- doctest: skip-reason: lakefile syntax (require), not a Lean program -->
 ```lean
 require pythia from git
   "https://github.com/athanor-ai/pythia.git" @ "main"

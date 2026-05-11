@@ -34,6 +34,8 @@ import Pythia.Numerical.Accelerator.ReductionTree
 import Pythia.Numerical.Accelerator.TiledMatMul
 import Pythia.Numerical.Accelerator.QuantizedReduction
 
+open Pythia.Numerical
+
 -- Your NKI kernel has 512-element reductions with tree depth 9:
 #check ReductionTree.tree_depth_512  -- : tree_depth 512 = 9
 

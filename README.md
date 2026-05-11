@@ -18,7 +18,8 @@ systems. All proofs close under the standard Lean 4 axiom set
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 1886 theorem/lemma declarations in `Pythia/`
+- **1337 sorry-free theorems** across 10 domains (see table below)
+- 1886 total theorem/lemma declarations in `Pythia/` (includes frontier work-in-progress)
 - 65 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 

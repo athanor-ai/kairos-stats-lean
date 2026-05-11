@@ -95,7 +95,6 @@ state space (counted with multiplicity across all `k+1` frames).
 The termination measure `frameVecSize` is a natural number bounded
 below by 0; each refinement decreases it by at least 1.
 -/
-omit [DecidableEq State] [Fintype State] in
 theorem frame_refinement_bounded (k : ℕ) (initial : FrameVec State k) :
     ∀ (steps : ℕ),
       ∀ (sequence : Fin (steps + 1) → FrameVec State k),
@@ -177,7 +176,6 @@ must be finite; equivalently, there is no infinite strictly-descending
 chain in `ℕ`.
 -/
 
-omit [DecidableEq State] [Fintype State] in
 /-- An IC3 run is modelled as a sequence of frame vectors where each
     consecutive pair is a strict refinement.  We prove no such infinite
     sequence exists (well-foundedness of ℕ under <). -/

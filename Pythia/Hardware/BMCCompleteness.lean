@@ -64,13 +64,15 @@ theorem bmc_finite_complete (init : State → Prop) (next : State → State → 
       · grind +revert
 
 /-
-Diameter: minimum k such that BMC at k is complete
-For finite state spaces, diameter ≤ |S|
+Diameter bound: BMC at depth |S| is COMPLETE for finite-state systems.
+This is the non-trivial claim: bounded checking at the diameter implies
+unbounded safety. Uses bmc_finite_complete (the pigeonhole theorem).
 -/
-theorem diameter_bounded :
-    ∀ (init : State → Prop) (next : State → State → Prop),
-      ∃ k : ℕ, k ≤ Fintype.card State ∧
-        ∀ (bad : State → Prop),
-          bmcSafe init next bad k →
-          bmcSafe init next bad (Fintype.card State) := by
-  intro init next; use Fintype.card State; simp +decide ;
+theorem diameter_bounded_complete (init : State → Prop) (next : State → State → Prop)
+    (bad : State → Prop) :
+    bmcSafe init next bad (Fintype.card State) →
+    ∀ (n : ℕ) (trace : Fin (n + 1) → State),
+      init (trace 0) →
+      (∀ i : Fin n, next (trace i.castSucc) (trace i.succ)) →
+      ¬bad (trace ⟨n, by omega⟩) :=
+  bmc_finite_complete init next bad

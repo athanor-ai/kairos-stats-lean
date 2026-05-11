@@ -8,7 +8,7 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 1333 sorry-free theorems
+mathematics and computer science. It provides 1337 sorry-free theorems
 spanning probability theory, hardware verification, networking
 protocols, programming language semantics, actuarial science, numerical
 optimization, information theory, mechanism design, and distributed
@@ -18,7 +18,7 @@ systems. All proofs close under the standard Lean 4 axiom set
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 1882 theorem/lemma declarations in `Pythia/`
+- 1886 theorem/lemma declarations in `Pythia/`
 - 65 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
@@ -56,7 +56,7 @@ paired empirical verification.
 | `Pythia.LanguageSemantics` | 134 | Cedar policy-language type soundness and coverage completeness, Palamedes generator correctness (totality, support characterization, data-structure invariants for lists, trees, natural numbers, STLC types and terms, stacks) |
 | `Pythia.Hardware` | 416 | k-induction soundness, bit-vector modular arithmetic, Gray code single-bit adjacency, FIFO pointer conditions, Hamming distance metric and detection/correction capacity, Singleton bound, CDC synchronizer MTBF exponential growth |
 | `Pythia.Actuarial` | 21 | Pareto, Weibull, log-normal loss distributions; Cramér-Lundberg ruin, Sparre Andersen renewal-theory ruin, Bornhuetter-Ferguson reserving |
-| `Pythia.Numerical` | 258 | KKT necessary/sufficient conditions (Slater, Lagrangian sandwich), Picard-Lindelof, Lyapunov stability, Kahan compensated summation, Forward Euler truncation, IEEE-754 round-to-nearest, QR factorization, Weyl/Bauer-Fike eigenvalue bounds, gradient descent convergence, MatMul/Softmax/LayerNorm/Attention numerical error bounds (Higham Thm 3.1), NKI accelerator reduction-tree error, tiled matmul composition, FP16→FP32 quantized reduction |
+| `Pythia.Numerical` | 262 | KKT necessary/sufficient conditions (Slater, Lagrangian sandwich), Picard-Lindelof, Lyapunov stability, Kahan compensated summation, Forward Euler truncation, IEEE-754 round-to-nearest, QR factorization, Weyl/Bauer-Fike eigenvalue bounds, gradient descent convergence, MatMul/Softmax/LayerNorm/Attention numerical error bounds (Higham Thm 3.1), NKI accelerator reduction-tree error, tiled matmul composition, FP16→FP32 quantized reduction |
 | `Pythia.Bio` | 20 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold + Kermack-McKendrick final size, Wright-Fisher, Michaelis-Menten + Hill Emax saturation, PK/PD AUC + half-life + Bateman positivity, Hardy-Weinberg invariance, Kimura neutral fixation, SEIR R0 threshold, RCT identifiability |
 | `Pythia.Networking` | 20 | Reno (AIMD) + New Reno fast retransmit recovery + CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness + BDP cap (from the FMCAD 2026 starvation paper), SACK pairwise disjointness, DCTCP + RED marking monotonicity, AIMD additive-increase rate, Bellman-Ford non-negativity, QUIC packet-number-space disjointness + 0-RTT replay-resistance, CoDel sojourn-time bound, split-horizon termination |
 | `Pythia.MechanismDesign` | 12 | VCG efficiency + truthfulness (DSIC), second-price allocation, Vickrey individual rationality + truthfulness (2-bidder), Bulow-Klemperer corollary, VCG budget-balance counter-example, Myerson optimal reserve price (regular distributions), Condorcet winner uniqueness, first-price symmetric BNE bid |
@@ -137,7 +137,7 @@ Each domain pairs formal proofs with a computational verification layer:
 
 ## Theorem retrieval
 
-The repository includes a full-text search index over all 1333
+The repository includes a full-text search index over all 1337
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the

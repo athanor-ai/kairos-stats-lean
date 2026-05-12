@@ -6,8 +6,20 @@ name: Lean Build + Axiom Audit
 on:
   push:
     branches: ['**']
+    paths:
+      - '**.lean'
+      - 'lakefile.lean'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
+      - '.github/workflows/lean-build.yml'
   pull_request:
     branches: [main]
+    paths:
+      - '**.lean'
+      - 'lakefile.lean'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
+      - '.github/workflows/lean-build.yml'
   workflow_dispatch:
 
 permissions:

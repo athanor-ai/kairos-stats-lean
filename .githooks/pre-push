@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "pre-push: running lake build (local gate)..."
+if ! lake build 2>&1; then
+  echo ""
+  echo "ERROR: lake build failed. Push blocked."
+  echo "Fix the Lean errors above, then push again."
+  exit 1
+fi
+echo "pre-push: lake build passed."

@@ -12,7 +12,7 @@ the `gated_on_temporal_verifier` slot in the verdict mix and
 will be discharged by a separate temporal-property checker
 when that vertical lands.
 
-Reference: 2026-05-04 SEC pivot, ATH-XXX ([customer]). ***REMOVED***'s
+Reference: 2026-05-04 SEC pivot, ATH-XXX. the customer's
 "EBMC fine for now" reads as accepting the safety form for
 this iteration.
 -/

@@ -4,7 +4,7 @@ set_option autoImplicit true
 
 -- SEC-DED (Single Error Correction, Double Error Detection)
 -- ECC correctness. Relevant for memory controller verification
--- in [customer] designs.
+-- in production SoC designs.
 
 -- Population count (number of set bits)
 noncomputable def Nat.popcount : ℕ → ℕ

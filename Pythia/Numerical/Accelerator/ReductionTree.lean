@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 # Reduction-Tree Floating-Point Accumulation Error
 
-NKI kernels on Trainium/Inferentia use tree-structured reductions
+Hardware accelerator kernels use tree-structured reductions
 (binary tree, not left-to-right) to accumulate partial sums. The
 tree structure gives O(log n · u) error vs O(n · u) for naive
 sequential accumulation — a real advantage for large reductions.
@@ -25,19 +25,19 @@ the tree reduction replaces n with ⌈log₂ n⌉ — exponentially better.
 * `tree_vs_sequential` — tree depth ≤ sequential length (log n ≤ n)
 * `tree_reduce_error_le_sequential` — tree error ≤ sequential error
 
-## Application to NKI kernels
+## Application to accelerator kernels
 
-A 512-element reduction (typical NKI tile) has:
+A 512-element reduction (typical accelerator tile) has:
 - Sequential: γ₅₁₂ ≈ 512u (terrible)
 - Tree: γ₉ ≈ 9u (since ⌈log₂ 512⌉ = 9)
 
-This factor-of-57x improvement is why NKI kernels use tree reductions.
+This factor-of-57x improvement is why accelerator kernels use tree reductions.
 
 ## References
 
 * Higham, N. J. "Accuracy and Stability of Numerical Algorithms."
   2nd ed. SIAM (2002). §4.2 (summation methods).
-* Neuron SDK: NKI reduction primitives documentation.
+* Accelerator SDK: reduction primitives documentation.
 -/
 import Mathlib
 import Pythia.Numerical.IEEE754
@@ -101,7 +101,7 @@ The key insight: each value passes through at most tree_depth n
 additions, so the error accumulates as γ_{tree_depth n} instead
 of γ_n.
 
-This is the NKI-relevant bound: a 512-element tile reduction
+This is the accelerator-relevant bound: a 512-element tile reduction
 has error ≤ γ₉ · Σ|aᵢ| instead of γ₅₁₂ · Σ|aᵢ|. -/
 theorem tree_reduce_error
     (n : ℕ) (a : Fin n → ℝ) (fl_sum : ℝ)

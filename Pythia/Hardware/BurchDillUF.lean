@@ -4,7 +4,7 @@ import Mathlib
 -- UF abstraction replaces concrete ALU operations with
 -- abstract function symbols, reducing state space while
 -- preserving the refinement property.
--- Directly answers [customer]'s question about EBMC UF support.
+-- Addresses EBMC UF support for processor verification.
 
 variable {ArchState PipeState Instr Result : Type*}
 

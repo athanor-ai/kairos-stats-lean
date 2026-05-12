@@ -2,7 +2,7 @@
 Pythia.Hardware.RefinementComposition — compositional refinement
 proof for CPU verification via NCS (numerical computation skipping).
 
-Reference: [customer]'s NCS methodology. If two CPU implementations agree
+Reference: the NCS methodology. If two CPU implementations agree
 on all control decisions under arithmetic abstraction (XORMATH), and
 the arithmetic units are deterministic functions of their inputs,
 then the implementations produce identical architectural state.
@@ -72,7 +72,7 @@ theorem ncs_composition {n : ℕ}
   h_arith
 
 /-- The full 3-way refinement: given SI==PIPE and PIPE==OOO,
-conclude SI==OOO. Applies directly to [customer]'s 3-CPU package. -/
+conclude SI==OOO. Applies directly to a 3-CPU package. -/
 theorem three_way_refinement {n : ℕ}
     {si pipe ooo : List ℤ → ArchState n}
     (h_si_pipe : refines n si pipe)

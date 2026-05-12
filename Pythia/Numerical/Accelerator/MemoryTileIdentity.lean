@@ -2,9 +2,9 @@
 Copyright (c) 2026 Pythia contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-# Memory Tile Identity — SBUF Reuse Soundness (NKI Kernel Optimization)
+# Memory Tile Identity — SBUF Reuse Soundness (Accelerator Kernel Optimization)
 
-NKI kernels can eliminate redundant HBM loads by caching tiles in the
+Accelerator kernels can eliminate redundant HBM loads by caching tiles in the
 scratchpad buffer (SBUF). This module proves that reusing a cached tile
 is sound: if no write to HBM or SBUF has occurred since the original
 load, the cached tile equals the HBM tile.
@@ -18,7 +18,7 @@ structure SBUFState (n : ℕ) (α : Type*) where
 ```
 
 Operations:
-* `sbufLoad`  — copies HBM[i] into SBUF[i] (models an NKI `nl.load`)
+* `sbufLoad`  — copies HBM[i] into SBUF[i] (models an accelerator `nl.load`)
 * `sbufReuse` — reads SBUF[i] without a load (models reuse)
 * `hbmWrite`  — writes a new value to HBM[i] (models an HBM update)
 * `sbufWrite` — writes a new value to SBUF[i] (models an explicit SBUF update)

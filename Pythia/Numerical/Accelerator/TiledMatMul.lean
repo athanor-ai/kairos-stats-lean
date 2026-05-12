@@ -2,9 +2,9 @@
 Copyright (c) 2026 Pythia contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-# Tiled Matrix Multiplication Error Bound (NKI Kernel Pattern)
+# Tiled Matrix Multiplication Error Bound (Accelerator Kernel Pattern)
 
-NKI kernels compute matmul by tiling: split the k-dimension into
+Accelerator kernels compute matmul by tiling: split the k-dimension into
 tiles of size T, compute partial products per tile, then accumulate
 across tiles via tree reduction. This module proves the end-to-end
 error bound for this pattern.
@@ -23,11 +23,11 @@ Combined via error composition: γ_{T + depth} ≤ γ_{T} + γ_{depth} + γ_{T}�
 
 * `tiled_matmul_error` — end-to-end error for tiled matmul
 * `tiling_exact` — tiling preserves the exact sum (no error from partitioning)
-* `tile_count_512_128` — 512/128 = 4 tiles (concrete NKI example)
+* `tile_count_512_128` — 512/128 = 4 tiles (concrete accelerator example)
 
 ## Application
 
-NKI matmul_512_f32 kernel: k=512, T=128, num_tiles=4.
+accelerator matmul_512_f32 kernel: k=512, T=128, num_tiles=4.
 - Per-tile error: γ₁₂₈
 - Tree accumulation: γ₂ (since ⌈log₂ 4⌉ = 2)
 - Total: γ₁₃₀ vs γ₅₁₂ for naive sequential — 4x improvement.
@@ -100,9 +100,9 @@ theorem tiled_matmul_error
           ∑ l, |A i l| * |B l j| :=
   h_bound
 
-/-- **NKI matmul_512 concrete bound.**
+/-- **accelerator matmul_512 concrete bound.**
 
-For the NKI 512x512 matmul kernel with tile size 128:
+For the accelerator 512x512 matmul kernel with tile size 128:
 - 4 tiles (512/128)
 - tree depth 2 (⌈log₂ 4⌉)
 - total error factor: γ₁₃₀

@@ -14,7 +14,7 @@ discharges via `FifoContract.implements` against this abstract
 spec. The composition lemma in `ChainComposition.lean` chains
 multiple FIFO contracts into a top-level block-graph claim.
 
-Reference: 2026-05-04 SEC pivot driven by [customer]/***REMOVED***
+Reference: 2026-05-04 SEC pivot driven by customer
 roadmap — proper SEC harness with EBMC, defer ACL2, fix
 uninitialized-flops handling.
 -/
@@ -102,7 +102,7 @@ for every input sequence starting from a reset state.
 gold and gate enter after `rst_n` is asserted then deasserted.
 The SEC harness in `kairos.sec` constrains the SAT solver to
 this basis via the assumption `non_reset_regs(gold) =
-non_reset_regs(gate)` (matching [customer]'s 2026-05-04 SEC roadmap).
+non_reset_regs(gate)` (matching the SEC roadmap).
 -/
 def implements {cap w : ℕ}
     (impl : FifoState cap w → FifoInput w → FifoState cap w × FifoOutput w)

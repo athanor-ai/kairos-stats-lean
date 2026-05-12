@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Pythia Hardware Verification Team
 
 Pythia.Hardware.ArithmeticSharing — formal verification of the arithmetic
-sharing equivalences used in the [customer] DEMO_ALU_US gate-synthesis
+sharing equivalences used in the production ALU gate-synthesis
 optimization (-15.2% area reduction).
 
 Gate synthesis rewrites SUB(a, b) as ADD(a, NOT(b) + 1), collapsing the

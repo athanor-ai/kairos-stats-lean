@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 # Tile-Loop Reordering Preserves Tiled-Computation Output
 
-NKI kernel optimizers reorder tile loops to improve HBM locality
+Accelerator kernel optimizers reorder tile loops to improve HBM locality
 (e.g. swapping the outer/inner tile-index order so that reads are
 coalesced). This module proves that such reorderings are *exact*
 for any commutative-associative reduction (FP32 accumulation) and
@@ -35,9 +35,9 @@ result.
 * `tile_reorder_preserves_result` — top-level: two tile schedules
   that are permutations of each other produce the same exact result.
 
-## Application to NKI
+## Application to accelerator kernels
 
-The NKI matmul_512 kernel can freely reorder its 4 outer tile loops
+The accelerator matmul_512 kernel can freely reorder its 4 outer tile loops
 (over the k-dimension) for HBM coalescing without changing the
 mathematical answer, and the error bound γ₁₃₀ is unchanged.
 -/
@@ -166,7 +166,7 @@ orderings of the tile indices such that `schedule₂` is a permutation
 `σ` composed with `schedule₁`. Then the total accumulated value is
 identical under both schedules.
 
-In the concrete NKI setting: the two schedules correspond to two loop
+In the concrete accelerator setting: the two schedules correspond to two loop
 orderings of the tile indices. The exact partial sums are the same
 objects; only the visit order changes. -/
 theorem tile_reorder_preserves_result

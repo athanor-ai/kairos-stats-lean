@@ -10,7 +10,7 @@ when their function-of-input matches the spec function. EBMC
 discharges the per-cycle equality check; Lean records the witnessed
 refinement.
 
-Reference: 2026-05-04 SEC pivot, ATH-XXX ([customer] engagement).
+Reference: 2026-05-04 SEC pivot, ATH-XXX.
 -/
 import Mathlib
 

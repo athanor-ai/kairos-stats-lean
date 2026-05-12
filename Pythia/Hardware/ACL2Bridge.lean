@@ -48,7 +48,7 @@ def composeWitnessed {n : ℕ}
         transcript_hash := wAB.certificate.transcript_hash ++ ":" ++
                           wBC.certificate.transcript_hash } }
 
-/-- The three-way composition for [customer]'s CPU package:
+/-- The three-way composition for a multi-core CPU package:
 EBMC certificate (SI==PIPE) + ACL2 certificate (PIPE==OOO)
 = Lean-composed certificate (SI==OOO). -/
 def threeWayComposition {n : ℕ}

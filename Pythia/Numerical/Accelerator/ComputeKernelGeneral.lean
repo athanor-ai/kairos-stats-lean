@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 # General Accelerator Compute Kernel Verification
 
-This module extends Pythia beyond NKI (Trainium/Inferentia) to cover
+This module extends Pythia beyond specific accelerators to cover
 CUDA and Pallas (Google TPU) kernel verification patterns.  The
 theorems are abstract enough to apply to any GPU/TPU/NPU accelerator
 and are intended to make Pythia the reference substrate for

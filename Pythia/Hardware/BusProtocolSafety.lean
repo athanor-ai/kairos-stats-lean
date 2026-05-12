@@ -1,7 +1,7 @@
 import Mathlib
 
 -- AXI-like bus protocol safety properties.
--- Relevant for Annapurna interconnect verification.
+-- Relevant for SoC interconnect verification.
 
 inductive BusState | idle | addr | data | resp
   deriving DecidableEq

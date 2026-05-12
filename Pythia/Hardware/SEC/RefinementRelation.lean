@@ -3,7 +3,7 @@ Pythia.Hardware.SEC.RefinementRelation — typed cross-structure
 refinement relations for SEC bundles where the optimization
 changes flop counts, state encoding, or algorithmic approach.
 
-Customer use (per ATH-992, Annapurna LLM-orchestrated RTL area
+Customer use (per ATH-992, LLM-orchestrated RTL area
 optimization closed loop):
 
 When an optimization swaps a block's implementation (e.g. FIFO
@@ -140,7 +140,7 @@ theorem refines_under_trans {S₁ S₂ S₃ I O : Type*}
 /-! ## Worked example: FIFO flop-array → memory-array refinement
 
 Concrete illustration of the cross-structure refinement shape
-on the canonical Annapurna optimization (FIFO implemented as
+on the canonical FIFO optimization (FIFO implemented as
 flop array vs memory array).
 
 This is intentionally small (1-bit width, depth 2) to keep the

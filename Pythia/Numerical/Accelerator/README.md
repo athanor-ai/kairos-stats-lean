@@ -1,7 +1,7 @@
 # Pythia.Numerical.Accelerator
 
 Formally verified error bounds for hardware accelerator compute patterns.
-Built for AWS Trainium / Inferentia NKI kernel developers.
+Built for hardware accelerator kernel developers.
 
 ## What's here
 
@@ -13,7 +13,7 @@ Built for AWS Trainium / Inferentia NKI kernel developers.
 
 ## Concrete numbers
 
-A 512-element NKI tile reduction:
+A 512-element accelerator tile reduction:
 - **Tree reduction**: γ₉ · Σ|aᵢ| (depth 9, proved via `native_decide`)
 - **Naive sequential**: γ₅₁₂ · Σ|aᵢ|
 - **Improvement**: 57× tighter error bound
@@ -36,7 +36,7 @@ import Pythia.Numerical.Accelerator.QuantizedReduction
 
 open Pythia.Numerical
 
--- Your NKI kernel has 512-element reductions with tree depth 9:
+-- Your accelerator kernel has 512-element reductions with tree depth 9:
 #check ReductionTree.tree_depth_512  -- : tree_depth 512 = 9
 
 -- Your tiled matmul uses T=128 tiles:

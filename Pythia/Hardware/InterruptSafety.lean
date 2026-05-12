@@ -2,7 +2,7 @@ import Mathlib
 
 -- Interrupt controller safety: no interrupt is lost,
 -- priorities are respected, and masking works correctly.
--- Common in SoC verification for Annapurna-class designs.
+-- Common in SoC verification for production SoC designs.
 
 variable {n : ℕ}
 

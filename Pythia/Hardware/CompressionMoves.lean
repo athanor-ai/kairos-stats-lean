@@ -3,7 +3,7 @@ Copyright (c) 2026 Pythia Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Pythia Hardware Verification Team
 
-Pythia.Hardware.CompressionMoves — spec compression moves for Todd's
+Pythia.Hardware.CompressionMoves — spec compression moves for the customer's
 spec refinement methodology (kairos.spec.refine_spec compression_moves).
 
 Two canonical compression moves are established:

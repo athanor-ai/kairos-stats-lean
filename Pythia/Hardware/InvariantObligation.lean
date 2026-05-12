@@ -3,7 +3,7 @@ Pythia.Hardware.InvariantObligation — CEGAR invariant verification
 obligations for hardware refinement proofs.
 
 When a CEGAR loop proposes an assume-property hypothesis to close
-a bounded model check, that assumption is unverified. Todd's PORT
+a bounded model check, that assumption is unverified. the PORT
 methodology (Section 6.8) requires every assumption to be
 independently verified. This module provides the Lean-side
 verification interface: each SVA assumption becomes a theorem

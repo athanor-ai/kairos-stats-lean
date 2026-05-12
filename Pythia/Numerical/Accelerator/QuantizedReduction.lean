@@ -2,9 +2,9 @@
 Copyright (c) 2026 Pythia contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-# Quantized Reduction Error Bounds (INT8/FP16 NKI Kernels)
+# Quantized Reduction Error Bounds (INT8/FP16 Accelerator Kernels)
 
-NKI kernels on Trainium use mixed-precision: inputs in INT8 or FP16,
+Hardware accelerator kernels use mixed-precision: inputs in INT8 or FP16,
 accumulation in FP32. The quantization error compounds with the
 floating-point accumulation error from tree reduction.
 
@@ -23,9 +23,9 @@ where:
 * `fp16_quantization_scale` — FP16 effective scale (s = 10 mantissa bits)
 * `mixed_precision_bound` — FP16 inputs + FP32 accumulator bound
 
-## Application to NKI
+## Application to hardware accelerators
 
-Trainium matmul: FP16 inputs (10-bit mantissa), FP32 accumulator,
+Accelerator matmul: FP16 inputs (10-bit mantissa), FP32 accumulator,
 512-element k-dimension, 128-tile size, tree reduction.
 Total error ≤ 2^{-10} · ‖A‖·‖B‖ + γ₁₃₀ · |A|·|B|.
 -/
@@ -86,7 +86,7 @@ theorem quantized_inner_product_error
 
 /-- **Mixed-precision matmul bound (FP16 input, FP32 accumulator).**
 
-The NKI pattern: quantize inputs to FP16 (10-bit mantissa),
+The accelerator pattern: quantize inputs to FP16 (10-bit mantissa),
 accumulate partial products in FP32 (24-bit mantissa).
 
 Total per-entry error:

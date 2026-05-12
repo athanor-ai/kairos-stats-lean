@@ -2,10 +2,10 @@
 Copyright (c) 2026 Pythia contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-# NKI Kernel Fusion Error Bounds
+# Kernel Fusion Error Bounds
 
 Fusing two numerical operations (e.g. RMSNorm followed by attention) into a
-single NKI kernel does not magnify the per-operation error bounds.  This file
+single accelerator kernel does not magnify the per-operation error bounds.  This file
 formalises the composition rule for absolute-error bounds on real-valued
 functions and proves that fused-kernel error grows at most linearly.
 
@@ -45,7 +45,7 @@ the first-order bound `(L · ε_A + ε_B) · |x|` applies.
 
 * Higham, N. J. "Accuracy and Stability of Numerical Algorithms."
   2nd ed. SIAM (2002). Chapter 3 (error analysis of composed operations).
-* AWS NKI documentation: kernel fusion for RMSNorm + attention.
+* Accelerator SDK documentation: kernel fusion for RMSNorm + attention.
 -/
 import Mathlib
 
@@ -268,7 +268,7 @@ theorem lipschitz_composition_error
 
       |g_fp(f_fp(x)) − g(f(x))| ≤ (L₂·ε_f + ε_g·C + ε_g·ε_f) · |x|
 
-    **NKI application**: for RMSNorm→attention fusion, C = 1 (RMSNorm is
+    **Accelerator application**: for RMSNorm→attention fusion, C = 1 (RMSNorm is
     contractive in L₂), L₂ = attention Lipschitz constant, giving
 
       fused error ≤ (L_attn · ε_RMSNorm + ε_attn + ε_RMSNorm · ε_attn) · |x| -/

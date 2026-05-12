@@ -1,9 +1,9 @@
 /-
 Pythia.Hardware.GatedClockEquivalence — functional equivalence of
-clock-gated registers under Annapurna RTL power-optimization.
+clock-gated registers under RTL power-optimization.
 
 Clock gating is the most common power-reduction technique in
-Annapurna RTL: a clock gate disables the clock to a register when
+Production RTL: a clock gate disables the clock to a register when
 its value will not change, avoiding a spurious flip-flop toggle and
 the associated dynamic power.  This module provides a machine-checked
 proof that a gated design is functionally identical to a gold

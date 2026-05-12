@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 # GELU Activation: Lipschitz Continuity
 
-The tanh-approximate GELU activation used in NKI kernels is
+The tanh-approximate GELU activation used in accelerator kernels is
 
   gelu_approx(x) = (1/2) · x · (1 + tanh(√(2/π) · (x + 0.044715 · x³)))
 

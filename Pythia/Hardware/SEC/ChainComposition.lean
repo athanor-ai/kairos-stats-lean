@@ -14,7 +14,7 @@ This module provides:
 - The reuse adapter to lift `Pythia.Hardware.refines_trans` into
   the SEC.WitnessedRefinement world
 
-Reference: 2026-05-04 SEC pivot, ATH-983 (Annapurna toy_fifo_chain
+Reference: 2026-05-04 SEC pivot, ATH-983 (toy_fifo_chain
 top-level composition).
 -/
 import Mathlib

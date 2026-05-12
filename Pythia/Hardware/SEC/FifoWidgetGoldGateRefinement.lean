@@ -58,7 +58,7 @@ Reference: ATH-1042 v2.6 epic; ATH-1045 (this); ATH-1018
 cert-vs-engine cross-check (consumes the proved bridges from
 this file via the `proves_obligation` field on the
 `invariant_gen_result` event); `examples/customer/
-toy_fifo_chain_v2.5_sec/inputs/{gold.sv,gate.v}` (athanor-sdk
+toy_fifo_chain_v2.5_sec/inputs/{gold.sv,gate.v}` (repo
 qa/v2.5-toy-fifo-chain-cert-placeholder branch HEAD c73cd23).
 -/
 import Mathlib

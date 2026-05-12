@@ -144,8 +144,7 @@ The repository includes a full-text search index over all 1337
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the
-required imports. The [Athanor SDK](https://github.com/athanor-ai/athanor-sdk)
-exposes this as a programmatic API for automated proof agents.
+required imports.
 
 ## References
 

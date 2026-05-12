@@ -1,6 +1,6 @@
 -- Pythia.LanguageSemantics: type soundness, PBT generator correctness,
 -- and data structure invariant proofs.
--- Ported from kairos-cedar (cedar-micro + Palamedes).
+-- Cedar policy language + Palamedes generator framework.
 import Pythia.LanguageSemantics.Cedar.Soundness
 import Pythia.LanguageSemantics.Cedar.Coverage
 import Pythia.LanguageSemantics.Palamedes.Data.List

@@ -219,3 +219,11 @@ import Pythia.MechanismDesign
 -- ATH-940 distributed systems theorem library (Paxos, Lamport, 2PC).
 -- Basic.lean (paxos_quorum_intersection) added when Aristotle starter returns.
 import Pythia.Distributed
+
+-- ATH-1178 Phase 0 — public Verification/Foundations namespace.
+-- The 4+1 universal invariant set the customer-facing `flow_guard`
+-- preflight gate cites. The +1 trusted-base receipt is `Pythia.AxiomAudit`.
+import Pythia.Verification.Foundations.Decomposition
+import Pythia.Verification.Foundations.Refinement
+import Pythia.Verification.Foundations.Induction
+import Pythia.Verification.Foundations.Composition

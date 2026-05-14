@@ -96,4 +96,23 @@ theorem realisedVolatility_sq {n : ℕ} (r : Fin n → ℝ) :
   unfold realisedVolatility
   exact Real.sq_sqrt (realisedVariance_nonneg r)
 
+/-- **Realised variance bound by `n · max-squared-return`.** For any
+upper bound `M` on the squared per-step return (i.e., `r(i)² ≤ M`
+for every `i`), the realised variance is at most `n · M`. This is
+the algebraic counterpart to the Bernstein-style bounded-increments
+hypothesis used in microstructure-noise robust estimators. -/
+@[stat_lemma]
+theorem realisedVariance_le_n_mul_bound {n : ℕ} (r : Fin n → ℝ)
+    (M : ℝ) (hM : ∀ i, (r i)^2 ≤ M) :
+    realisedVariance r ≤ n * M := by
+  unfold realisedVariance
+  calc (Finset.univ.sum fun i => (r i)^2)
+      ≤ Finset.univ.sum (fun _ : Fin n => M) := by
+        apply Finset.sum_le_sum
+        intros i _
+        exact hM i
+    _ = n * M := by
+        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+        ring
+
 end Pythia.Finance

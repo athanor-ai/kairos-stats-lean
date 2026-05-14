@@ -553,6 +553,17 @@ MANIFEST: tuple[TheoremEntry, ...] = (
         summary="Forward price under zero dividend yield reduces to S * exp(r*T).",
         references=["Hull, J.C. Options Futures and Other Derivatives, 10th ed. §5.5 (2017)"],
     ),
+    TheoremEntry(
+        domain="finance",
+        name="gordon_growth_zero_growth",
+        lean_path="Pythia/Finance/GordonGrowth.lean",
+        lean_theorem="Pythia.Finance.gordonGrowthPrice_zero_growth",
+        sim_path="tools/sim/finance_gordon_growth.py",
+        sim_test="test_gordon_zero_growth",
+        mathlib_status="novel",
+        summary="Gordon-growth price at g=0 reduces to the simple perpetuity D₁/r.",
+        references=["Gordon, M.J. and Shapiro, E. Management Science 3(1):102-110 (1956)"],
+    ),
 )
 
 

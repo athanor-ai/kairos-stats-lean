@@ -31,6 +31,7 @@ chore.
 -/
 import Pythia.SubGaussianMG
 import Pythia.VilleSupermartingale
+import Pythia.GaussianRandomWalk
 import Pythia.HowardRamdasCS
 import Pythia.BettingCS
 import Pythia.VectorSharpness
@@ -59,20 +60,45 @@ namespace Pythia.AxiomAudit
 
 open Pythia
 
-/-! ## Ville's inequality — marquee infinite-horizon + finite-horizon -/
+/-! ## Ville's inequality — marquee infinite-horizon + finite-horizon
+Customer-facing critical: every customer bundle that claims axiom-clean
+Lean proofs depends on these. Blast-radius: all downstream CS families
+(Howard-Ramdas, Betting, Vector, Asymptotic). -/
 
 #print axioms ville_supermartingale
 #print axioms ville_supermartingale_unit_initial
 #print axioms ville_bound_pos
 #print axioms ville_supermartingale_finite
 
+-- VilleSupermartingale.lean helper chain (ATH-1257 Tier 1 uplift)
+#print axioms supermartingale_expected_stoppedValue_le
+#print axioms stoppedValue_ge_of_hitting
+#print axioms exists_ge_eq_iUnion_range
+#print axioms monotone_exists_range
+#print axioms ville_finite_horizon
+
+/-! ## SubGaussianMG — sub-Gaussian martingale concentration
+Customer-facing critical: foundation for all anytime-valid CS families.
+Blast-radius: BettingCS, HowardRamdasCS, GaussianRandomWalk. -/
+
+#print axioms SubGaussianMG.martingale
+#print axioms exp_process_is_supermartingale
+#print axioms supermartingale_stopped_le_initial
+#print axioms measurableSet_exists_le_and_le
+#print axioms ville_ineq
+
 /-! ## HowardRamdasCS -/
 
 #print axioms hrStoppingRule_admissible
 
-/-! ## BettingCS -/
+/-! ## BettingCS
+Customer-facing critical: betting-martingale CS family.
+Blast-radius: all betting-based customer pipelines. -/
 
 #print axioms bettingStoppingRule_admissible
+#print axioms ville_supermartingale_infinite
+#print axioms betting_event_subset_wealth
+#print axioms wealthProcess_integral_zero
 
 /-! ## VectorSharpness -/
 
@@ -96,9 +122,13 @@ open Pythia
 #print axioms c_HR_sharp
 #print axioms c_betting_sharp
 
-/-! ## EquivalenceBreak -/
+/-! ## EquivalenceBreak
+Customer-facing critical: quantization-inequivalence result.
+Blast-radius: paper §5 equivalence-break claim. -/
 
 #print axioms equivalence_break_at_finite_precision_generic
+#print axioms quantizeReal_ge_iff
+#print axioms exists_in_exactly_one_halfline
 
 /-! ## Quantization (slack-rate / transport) -/
 
@@ -110,11 +140,39 @@ open Pythia
 #print axioms ranking_four_way
 #print axioms etaHR_derivation_from_ville_boundary
 
-/-! ## Sharpness witnesses -/
+/-! ## Sharpness witnesses
+Customer-facing critical: rate-sharpness claims for all 4 CS families.
+Blast-radius: paper §4 sharpness table, NeurIPS dataset paper Table 1. -/
 
 #print axioms etaHR_sharpness_witness
 #print axioms etaBetting_sharpness_witness
+#print axioms etaVector_sharpness_witness_open
+#print axioms etaAsymptotic_sharpness_witness_open
 
+
+/-! ## GaussianRandomWalk — sub-Gaussian martingale construction
+Customer-facing critical: canonical example of the sub-Gaussian
+martingale framework. Proves the Gaussian random walk satisfies the
+sub-Gaussian increment condition. Blast-radius: NeurIPS theorem paper
+§3 construction, all downstream CS applications via SubGaussianMG. -/
+
+#print axioms gaussianProductMeasure_eq_infinitePi
+#print axioms gaussianProductMeasure_iIndepFun
+#print axioms gaussianProductMeasure_map_coord
+#print axioms coord_integrable
+#print axioms coord_integrable_exp
+#print axioms gaussianWalk_increment
+#print axioms coord_indep_filtration
+#print axioms coord_integral_zero
+#print axioms gaussianWalk_adapted
+#print axioms gaussianWalk_integrable
+#print axioms gaussianWalk_integrable_exp
+#print axioms coord_mgf_val
+#print axioms condExpKernel_mgf_coord_eq
+#print axioms gaussianWalk_increments_subG
+#print axioms gaussianWalk_increments_zero_mean
+#print axioms gaussianWalk_isSubGaussianMG
+#print axioms gaussianWalk_subGaussianMG
 
 /-! ## Burkholder-Davis-Gundy (Aristotle import 2026-04-26, project ff404663) -/
 

@@ -265,6 +265,7 @@ import Pythia.Finance.SortinoRatio
 import Pythia.Finance.TrackingError
 import Pythia.Finance.TreynorRatio
 import Pythia.Finance.ValueAtRisk
+import Pythia.Finance.VasicekShortRate
 import Pythia.Finance.VolatilityScaling
 import Pythia.Finance.YieldFromPrice
 import Pythia.Finance.Z3AuxiliaryDemo

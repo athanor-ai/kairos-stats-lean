@@ -34,4 +34,53 @@ if [ -n "$PYTHIA_TOUCHED" ]; then
   fi
   echo "pre-push: README stats fresh."
 fi
+
+# Umbrella-import gate. The CI Lean Build per-file sweep fails if a
+# Pythia/**/*.lean file is not reachable from the Pythia.lean umbrella.
+# Check that every NEWLY-ADDED Pythia file in this push has an import
+# line in Pythia.lean. Existing orphans (51 known, pre-date this gate)
+# are not flagged here.
+PYTHIA_ADDED=$(git diff --name-only --diff-filter=A "$PUSH_RANGE" -- 'Pythia/**/*.lean' 2>/dev/null \
+  | grep -vE '/Tactic/.*Test\.lean$|/Pythia/Scratch/|VilleMathlibPR\.lean$|AxiomAudit\.lean$' \
+  || true)
+if [ -n "$PYTHIA_ADDED" ]; then
+  echo "pre-push: new Pythia/*.lean file(s) added — checking umbrella imports..."
+  MISSING=""
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    MOD=$(echo "$f" | sed 's|/|.|g; s|\.lean$||')
+    if ! grep -qE "^import $MOD\$" Pythia.lean; then
+      MISSING="${MISSING}  import $MOD    # $f"$'\n'
+    fi
+  done <<< "$PYTHIA_ADDED"
+  if [ -n "$MISSING" ]; then
+    echo ""
+    echo "ERROR: this push adds new Pythia/*.lean files NOT imported by Pythia.lean."
+    echo "The CI per-file Lean sweep will fail. Add these to Pythia.lean:"
+    echo ""
+    echo "$MISSING"
+    exit 1
+  fi
+  echo "pre-push: umbrella imports clean for added files."
+fi
+
+# Fast CI-parity checks: catch sim-sweep failures locally (Aidan
+# 2026-05-14 "main must never be red"). The slower coverage gate
+# (pytest tools/ --cov-fail-under=60, ~15s) stays in CI; these two
+# run in ~2s combined.
+RELEVANT_FOR_CI_PARITY=$(git diff --name-only "$PUSH_RANGE" -- 'README.md' 'tools/sim/theorem_manifest.py' 'tools/sim/test_theorem_manifest.py' 2>/dev/null || true)
+if [ -n "$PYTHIA_TOUCHED" ] || [ -n "$RELEVANT_FOR_CI_PARITY" ]; then
+  echo "pre-push: running CI-parity checks (manifest + README numbers)..."
+  if ! python3 -m pytest tools/sim/test_theorem_manifest.py -q --no-header > /tmp/pre-push-pytest.log 2>&1; then
+    echo "ERROR: tools/sim/test_theorem_manifest.py failed locally. The sim sweep will go red on push."
+    tail -20 /tmp/pre-push-pytest.log
+    exit 1
+  fi
+  if ! python3 tools/check_readme_numbers.py > /tmp/pre-push-readme.log 2>&1; then
+    echo "ERROR: tools/check_readme_numbers.py drift detected. The README numbers gate will fail on push."
+    cat /tmp/pre-push-readme.log
+    exit 1
+  fi
+  echo "pre-push: CI-parity checks clean."
+fi
 echo "pre-push: all gates passed."

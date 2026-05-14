@@ -27,7 +27,13 @@ theorem supermartingale_expected_stoppedValue_le
     (hsup : Supermartingale f 𝓕 μ)
     {τ : Ω → ℕ∞} (hτ : IsStoppingTime 𝓕 τ) {N : ℕ} (hτN : ∀ ω, τ ω ≤ ↑N) :
     ∫ ω, stoppedValue f τ ω ∂μ ≤ ∫ ω, f 0 ω ∂μ := by
-  sorry  -- ATH-1257 mutation receipt: introduces sorry to prove the AxiomAudit CI gate fires red. Revert in next commit.
+  -- Apply the submartingale version of the optional stopping theorem to -f with stopping times τ₁ = fun _ => (0 : ℕ∞) and τ₂ = τ.
+  have h_sub : ∫ ω, stoppedValue (-f) (fun _ => 0) ω ∂μ ≤ ∫ ω, stoppedValue (-f) τ ω ∂μ := by
+    apply_rules [ Submartingale.expected_stoppedValue_mono ];
+    · exact Supermartingale.neg hsup;
+    · exact isStoppingTime_const 𝓕 0;
+    · exact fun _ => zero_le _;
+  simp_all +decide [ MeasureTheory.integral_neg, stoppedValue ]
 
 /-! ### Helper: Markov-type bound for the stopped process -/
 

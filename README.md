@@ -21,8 +21,8 @@ remain in `Pythia/Frontier/` (frontier matrix analysis, not on the CI gate).
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 1369 theorem/lemma declarations in `Pythia/`
-- 220 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
+- 1372 theorem/lemma declarations in `Pythia/`
+- 223 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 42 cross-domain theorems with Lean proof + Python sim runner across 16 domains (biology, chemistry, control, economics, engineering, finance, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
 Auto-tracked from [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py) and the `Pythia/` source tree; regenerate via `python3 tools/refresh_readme_stats.py`.
@@ -139,7 +139,7 @@ Each domain pairs formal proofs with a computational verification layer:
 
 ## Theorem retrieval
 
-The repository includes a full-text search index over all 891
+The repository includes a full-text search index over all 894
 declarations ([`tools/theorem_index.py`](tools/theorem_index.py)).
 Given a natural-language query, the index returns ranked theorem
 matches and generates a minimal `.lean` scaffold with only the

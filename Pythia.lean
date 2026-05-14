@@ -225,6 +225,7 @@ import Pythia.Distributed
 import Pythia.Finance.AlmgrenChrissExecution
 import Pythia.Finance.AnnuityFactor
 import Pythia.Finance.BachelierTerminal
+import Pythia.Finance.BlackFuturesOption
 import Pythia.Finance.BetaFromCorrelation
 import Pythia.Finance.BlackScholesGreeks
 import Pythia.Finance.BlackScholesIntrinsicLower

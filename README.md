@@ -8,22 +8,22 @@
 [![Axiom-clean](https://img.shields.io/badge/axioms-propext%20%2B%20Classical.choice%20%2B%20Quot.sound-success.svg)](Pythia/AxiomAudit.lean)
 
 Pythia is a Lean 4 library of formally verified results in applied
-mathematics and computer science. It provides 735 sorry-free theorems
+mathematics and computer science. It provides 830+ sorry-free theorems
 spanning probability theory, hardware verification, networking
 protocols, programming language semantics, actuarial science, numerical
-optimization, information theory, mechanism design, and distributed
-systems. All proofs close under the standard Lean 4 axiom set
-`{propext, Classical.choice, Quot.sound}`.
+optimization, information theory, mechanism design, distributed
+systems, and quantitative finance. All proofs close under the standard
+Lean 4 axiom set `{propext, Classical.choice, Quot.sound}`.
 
 
-**735 sorry-free theorems** across 10 domains. 5 open conjectures
+**830+ sorry-free theorems** across 11 domains. 5 open conjectures
 remain in `Pythia/Frontier/` (frontier matrix analysis, not on the CI gate).
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 1213 theorem/lemma declarations in `Pythia/`
-- 65 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
-- 32 cross-domain theorems with Lean proof + Python sim runner across 15 domains (biology, chemistry, control, economics, engineering, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
+- 1309 theorem/lemma declarations in `Pythia/`
+- 160 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
+- 41 cross-domain theorems with Lean proof + Python sim runner across 16 domains (biology, chemistry, control, economics, engineering, finance, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
 Auto-tracked from [`tools/sim/theorem_manifest.py`](tools/sim/theorem_manifest.py) and the `Pythia/` source tree; regenerate via `python3 tools/refresh_readme_stats.py`.
 <!-- pythia-stats-auto-end -->

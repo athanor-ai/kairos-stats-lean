@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-var"
+version = "0.1.0"
+edition = "2021"
+description = "Verified Value-at-Risk: normal closed form, ADEH axioms, sigma monotonicity. Lean spec: Pythia.Finance.ValueAtRisk"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

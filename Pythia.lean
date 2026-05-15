@@ -373,6 +373,7 @@ import Pythia.Finance.Stochastic.ItoDiscrete
 import Pythia.Finance.Stochastic.MertonJumpDiffusion
 import Pythia.Finance.Stochastic.MonteCarloBounds
 import Pythia.Finance.Stochastic.OrnsteinUhlenbeck
+import Pythia.Finance.Stochastic.RegimeDetection
 import Pythia.Finance.Stochastic.RiskNeutralMeasure
 import Pythia.Finance.Stochastic.StochasticDiscount
 import Pythia.Finance.Stochastic.VarianceSwap

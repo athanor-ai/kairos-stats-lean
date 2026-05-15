@@ -232,6 +232,7 @@ import Pythia.Finance.BetaFromCorrelation
 import Pythia.Finance.BlackScholesGreeks
 import Pythia.Finance.BlackScholesCallClosedForm
 import Pythia.Finance.BlackScholesIntrinsicLower
+import Pythia.Finance.BlackScholesPDE
 import Pythia.Finance.BondPriceYield
 import Pythia.Finance.BondZeroCoupon
 import Pythia.Finance.CRRBinomialStep

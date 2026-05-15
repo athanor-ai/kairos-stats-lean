@@ -45,3 +45,4 @@ import Pythia.Finance.RiskAdjustedReturn
 import Pythia.Finance.RiskReturnTradeoff
 import Pythia.Finance.SharpeBridge
 import Pythia.Finance.MertonPortfolioInsurance
+import Pythia.Finance.PortfolioOptimality

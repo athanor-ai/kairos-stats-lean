@@ -24,3 +24,4 @@ import Pythia.Finance.MarketImpact
 import Pythia.Finance.TransactionCost
 import Pythia.Finance.CurrencyHedging
 import Pythia.Finance.ImpermanentLoss
+import Pythia.Finance.AlmgrenChrissOptimal

@@ -38,3 +38,5 @@ import Pythia.Finance.HFT.Checksum
 import Pythia.Finance.HFT.SPSCQueue
 import Pythia.Finance.HFT.MatchingEngine
 import Pythia.Finance.HFT.Microstructure
+import Pythia.Finance.FixedPointEMA
+import Pythia.Finance.OrderBookInvariant

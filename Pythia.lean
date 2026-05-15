@@ -282,6 +282,7 @@ import Pythia.Finance.MertonCredit
 import Pythia.Finance.MertonPortfolioInsurance
 import Pythia.Finance.ModiglianiMiller
 import Pythia.Finance.NetPresentValue
+import Pythia.Finance.NoArbitrageBounds
 import Pythia.Finance.OptionPayoff
 import Pythia.Finance.OptionTimePremium
 import Pythia.Finance.OrderBookInvariant

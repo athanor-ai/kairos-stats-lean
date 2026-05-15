@@ -1,0 +1,9 @@
+[package]
+name = "pythia-execution-split"
+version = "0.1.0"
+edition = "2021"
+description = "Verified optimal order splitting: equal split via Cauchy-Schwarz, iceberg orders. Lean spec: Pythia.Finance.Execution.OptimalSplit"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

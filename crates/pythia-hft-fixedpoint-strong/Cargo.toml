@@ -1,0 +1,16 @@
+[package]
+name = "pythia-hft-fixedpoint-strong"
+version = "0.1.0"
+edition = "2021"
+description = "Fixed-point error accumulation tracking for FPGA/HFT. Lean spec: Pythia.Finance.HFT.FixedPointStrong"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "fp_strong_bench"
+harness = false

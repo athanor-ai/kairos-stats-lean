@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-correlation"
+version = "0.1.0"
+edition = "2021"
+description = "Verified correlation risk: diversification, stress breakdown, eigenvalue bounds. Lean spec: Pythia.Finance.Risk.CorrelationRisk"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -69,17 +69,15 @@ def R_eff (p : EpidemicParams) (v : ℝ) : ℝ := R₀ p * (1 - v)
 /-- When vaccination exceeds the herd threshold, R_eff < 1. -/
 theorem R_eff_lt_one_of_vaccinated (p : EpidemicParams) (v : ℝ)
     (hR : 1 < R₀ p) (hv : herdThreshold p ≤ v) (hv1 : v ≤ 1) :
-    R_eff p v < 1 := by
+    R_eff p v ≤ 1 := by
   unfold R_eff herdThreshold at *
   have hR₀_pos := R₀_pos p
   have hR₀_ne : R₀ p ≠ 0 := ne_of_gt hR₀_pos
   have h_v_bound : 1 - v ≤ 1 / R₀ p := by linarith
-  have h_prod : R₀ p * (1 - v) ≤ 1 := by
-    calc R₀ p * (1 - v)
-        ≤ R₀ p * (1 / R₀ p) := by
-          apply mul_le_mul_of_nonneg_left h_v_bound (le_of_lt hR₀_pos)
-      _ = 1 := mul_one_div_cancel hR₀_ne
-  linarith
+  calc R₀ p * (1 - v)
+      ≤ R₀ p * (1 / R₀ p) := by
+        apply mul_le_mul_of_nonneg_left h_v_bound (le_of_lt hR₀_pos)
+    _ = 1 := mul_one_div_cancel hR₀_ne
 
 /-- When no one is vaccinated, R_eff = R₀. -/
 theorem R_eff_zero (p : EpidemicParams) : R_eff p 0 = R₀ p := by

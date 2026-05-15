@@ -42,6 +42,6 @@ theorem convergenceBound_antitone (p : FWParams) :
 
 theorem convergenceBound_tendsto_zero (p : FWParams) :
     Filter.Tendsto (convergenceBound p) Filter.atTop (nhds 0) := by
-  sorry
+  exact tendsto_const_nhds.div_atTop (Filter.tendsto_atTop_add_const_right _ 2 tendsto_natCast_atTop_atTop)
 
 end Pythia.Optimization.FrankWolfe

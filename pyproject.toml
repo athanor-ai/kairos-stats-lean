@@ -35,6 +35,7 @@ omit = [
   "tools/sim/control_*.py",
   "tools/sim/economics_*.py",
   "tools/sim/engineering_*.py",
+  "tools/sim/epidemiology_*.py",
   "tools/sim/finance_*.py",
   "tools/sim/gametheory_*.py",
   "tools/sim/hardware_*.py",
@@ -44,17 +45,15 @@ omit = [
   "tools/sim/mechanical_*.py",
   "tools/sim/numerical_*.py",
   "tools/sim/optimaltransport_*.py",
+  "tools/sim/optimization_*.py",
   "tools/sim/or_*.py",
   "tools/sim/quantum_*.py",
-  "tools/sim/stochastic_*.py",
-  "tools/sim/thermodynamics_*.py",
-  # ATH-1267 expansion (incoming PR #118 GPU-VM domains).
-  "tools/sim/epidemiology_*.py",
-  "tools/sim/optimization_*.py",
   "tools/sim/signal_processing_*.py",
   "tools/sim/signalprocessing_*.py",
+  "tools/sim/stochastic_*.py",
+  "tools/sim/thermodynamics_*.py",
   "tools/sim/verification_*.py",
-  # Wrapper that subprocess-invokes the runners, same rationale.
+  # Wrapper that subprocess-invokes the runners.
   "tools/run_pythia_sim.py",
   # Test files themselves are excluded by default; spell it out.
   "tools/sim/test_*.py",
@@ -64,6 +63,10 @@ omit = [
   # lean_race_guide requires kairos + external API keys (Gemini);
   # cannot run in CI. Dogfood tool, not library code.
   "tools/lean_race_guide.py",
+  # Markdown doctest and theorem index are standalone CLI tools.
+  "tools/markdown_doctest/*",
+  "tools/theorem_index.py",
+  "tools/test_check_readme_numbers.py",
 ]
 
 [tool.coverage.report]
@@ -101,13 +104,22 @@ do_not_mutate = [
   "tools/sim/control_*.py",
   "tools/sim/economics_*.py",
   "tools/sim/engineering_*.py",
+  "tools/sim/epidemiology_*.py",
+  "tools/sim/finance_*.py",
+  "tools/sim/gametheory_*.py",
   "tools/sim/info_theory_*.py",
   "tools/sim/infotheory_*.py",
   "tools/sim/mathlib_tags_*.py",
   "tools/sim/mechanical_*.py",
   "tools/sim/numerical_*.py",
+  "tools/sim/optimaltransport_*.py",
+  "tools/sim/optimization_*.py",
   "tools/sim/or_*.py",
+  "tools/sim/quantum_*.py",
+  "tools/sim/signal_processing_*.py",
+  "tools/sim/stochastic_*.py",
   "tools/sim/thermodynamics_*.py",
+  "tools/sim/verification_*.py",
   "tools/run_pythia_sim.py",
   "tools/sim/test_*.py",
   "tools/sim/*_template*.py",

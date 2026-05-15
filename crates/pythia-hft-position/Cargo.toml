@@ -1,0 +1,11 @@
+[package]
+name = "pythia-hft-position"
+version = "0.1.0"
+edition = "2021"
+description = "Verified position tracker with limit enforcement and PnL attribution. Lean spec: Pythia.Finance.HFT.PositionTracker"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

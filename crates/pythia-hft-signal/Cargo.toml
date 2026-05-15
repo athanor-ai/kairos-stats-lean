@@ -1,0 +1,11 @@
+[package]
+name = "pythia-hft-signal"
+version = "0.1.0"
+edition = "2021"
+description = "Verified alpha signal combination with proven bounds. Lean spec: Pythia.Finance.HFT.SignalCombination"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

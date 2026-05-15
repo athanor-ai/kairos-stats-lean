@@ -241,6 +241,7 @@ import Pythia.Finance.CointegrationResidual
 import Pythia.Finance.CompoundInterest
 import Pythia.Finance.ConvexityDuration
 import Pythia.Finance.ContinuousDividendForward
+import Pythia.Finance.CreditSpread
 import Pythia.Finance.DividendDiscountModel
 import Pythia.Finance.DiscountFactor
 import Pythia.Finance.EfficientFrontier
@@ -353,6 +354,7 @@ import Pythia.Numerical.InnerProductError
 import Pythia.Numerical.NewtonQuadraticIterPos
 import Pythia.Numerical.PicardLindelofHelpers
 -- Optimization
+import Pythia.Optimization.BarrierFunction
 import Pythia.Optimization.ConjugateFunction
 import Pythia.Optimization.GradientDescentRate
 import Pythia.Optimization.LagrangianDuality

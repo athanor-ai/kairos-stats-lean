@@ -50,14 +50,17 @@ theorem herdThreshold_nonneg (p : EpidemicParams) (hR : 1 < R₀ p) :
     0 ≤ herdThreshold p := by
   unfold herdThreshold
   have hR₀_pos := R₀_pos p
-  rw [sub_nonneg]
-  rw [div_le_iff hR₀_pos]
+  have h : 1 / R₀ p ≤ 1 := by
+    rw [one_div]
+    exact inv_le_one_of_one_le₀ (le_of_lt hR)
   linarith
 
 theorem herdThreshold_lt_one (p : EpidemicParams) (hR : 1 < R₀ p) :
     herdThreshold p < 1 := by
   unfold herdThreshold
-  linarith [div_pos one_pos (R₀_pos p)]
+  have hR₀_pos := R₀_pos p
+  have h : 0 < 1 / R₀ p := by positivity
+  linarith
 
 /-- **Effective reproduction number** under vaccination: R_eff = R₀ · (1 - v)
 where v is the vaccination fraction. -/
@@ -69,14 +72,13 @@ theorem R_eff_lt_one_of_vaccinated (p : EpidemicParams) (v : ℝ)
     R_eff p v < 1 := by
   unfold R_eff herdThreshold at *
   have hR₀_pos := R₀_pos p
-  rw [← sub_pos]
-  have h1 : R₀ p * (1 - v) - 1 < 0 := by
-    have : 1 - 1 / R₀ p ≤ v := hv
-    have : 1 - v ≤ 1 / R₀ p := by linarith
-    have : R₀ p * (1 - v) ≤ R₀ p * (1 / R₀ p) := by
-      apply mul_le_mul_of_nonneg_left this (le_of_lt hR₀_pos)
-    rw [mul_one_div_cancel (ne_of_gt hR₀_pos)] at this
-    linarith
+  have hR₀_ne : R₀ p ≠ 0 := ne_of_gt hR₀_pos
+  have h_v_bound : 1 - v ≤ 1 / R₀ p := by linarith
+  have h_prod : R₀ p * (1 - v) ≤ 1 := by
+    calc R₀ p * (1 - v)
+        ≤ R₀ p * (1 / R₀ p) := by
+          apply mul_le_mul_of_nonneg_left h_v_bound (le_of_lt hR₀_pos)
+      _ = 1 := mul_one_div_cancel hR₀_ne
   linarith
 
 /-- When no one is vaccinated, R_eff = R₀. -/

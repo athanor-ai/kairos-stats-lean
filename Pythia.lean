@@ -223,6 +223,7 @@ import Pythia.Distributed
 -- ATH-1267 quant-finance sprint (no-arb, derivatives, risk, capital
 -- structure, CAPM, term structure). All sorry-free.
 import Pythia.Finance.AlmgrenChrissExecution
+import Pythia.Finance.AlmgrenChrissOptimal
 import Pythia.Finance.AnnuityFactor
 import Pythia.Finance.FactorModel
 import Pythia.Finance.AutocorrelationReturn

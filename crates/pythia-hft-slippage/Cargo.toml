@@ -1,0 +1,9 @@
+[package]
+name = "pythia-hft-slippage"
+version = "0.1.0"
+edition = "2021"
+description = "Verified execution slippage bounds and implementation shortfall. Lean spec: Pythia.Finance.HFT.SlippageModel"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

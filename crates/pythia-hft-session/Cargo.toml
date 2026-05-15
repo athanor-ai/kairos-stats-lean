@@ -1,0 +1,9 @@
+[package]
+name = "pythia-hft-session"
+version = "0.1.0"
+edition = "2021"
+description = "Verified trading session state machine. Lean spec: Pythia.Finance.HFT.TradingSession"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

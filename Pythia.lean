@@ -251,6 +251,7 @@ import Pythia.Finance.DiscountFactor
 import Pythia.Finance.EfficientFrontier
 import Pythia.Finance.ExpectedShortfall
 import Pythia.Finance.ForwardPrice
+import Pythia.Finance.FixedPointEMA
 import Pythia.Finance.FTAP
 import Pythia.Finance.ForwardRateParity
 import Pythia.Finance.FxForward

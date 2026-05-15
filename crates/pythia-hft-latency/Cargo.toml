@@ -1,0 +1,16 @@
+[package]
+name = "pythia-hft-latency"
+version = "0.1.0"
+edition = "2021"
+description = "Pipeline latency bounding and jitter analysis with formal guarantees. Lean spec: Pythia.Finance.HFT.LatencyBound + Pythia.Finance.HFT.Latency"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "latency_bench"
+harness = false

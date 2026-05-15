@@ -366,6 +366,7 @@ import Pythia.Finance.Stochastic.HestonLongRunVariance
 import Pythia.Finance.Stochastic.HestonProperties
 import Pythia.Finance.Stochastic.ItoDiscrete
 import Pythia.Finance.Stochastic.MertonJumpDiffusion
+import Pythia.Finance.Stochastic.MonteCarloBounds
 import Pythia.Finance.Stochastic.OrnsteinUhlenbeck
 import Pythia.Finance.Stochastic.RiskNeutralMeasure
 import Pythia.Finance.Stochastic.StochasticDiscount

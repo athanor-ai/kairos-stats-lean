@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-es"
+version = "0.1.0"
+edition = "2021"
+description = "Verified Expected Shortfall: ADEH axioms, ES ≥ VaR dominance, normal closed form. Lean spec: Pythia.Finance.ExpectedShortfall"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -286,6 +286,7 @@ import Pythia.Finance.SharpeBridge
 import Pythia.Finance.SharpeRatio
 import Pythia.Finance.SortinoRatio
 import Pythia.Finance.TrackingError
+import Pythia.Finance.TransactionCost
 import Pythia.Finance.TreynorRatio
 import Pythia.Finance.ValueAtRisk
 import Pythia.Finance.VasicekBondPrice

@@ -310,6 +310,7 @@ import Pythia.Finance.Portfolio.CalmarRatio
 import Pythia.Finance.Portfolio.ConcentrationRisk
 import Pythia.Finance.Portfolio.EfficientFrontier
 import Pythia.Finance.Portfolio.FactorModel
+import Pythia.Finance.Portfolio.FactorRiskModel
 import Pythia.Finance.Portfolio.HedgeRatioMinVar
 import Pythia.Finance.Portfolio.InformationRatio
 import Pythia.Finance.Portfolio.JensenAlpha

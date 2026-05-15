@@ -287,6 +287,7 @@ import Pythia.Finance.RiskAdjustedReturn
 import Pythia.Finance.RiskParity
 import Pythia.Finance.RiskReturnTradeoff
 import Pythia.Finance.SharpeBridge
+import Pythia.Finance.StochasticDiscount
 import Pythia.Finance.SharpeRatio
 import Pythia.Finance.SortinoRatio
 import Pythia.Finance.TrackingError

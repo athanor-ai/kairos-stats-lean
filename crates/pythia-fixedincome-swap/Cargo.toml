@@ -1,0 +1,9 @@
+[package]
+name = "pythia-fixedincome-swap"
+version = "0.1.0"
+edition = "2021"
+description = "Verified IRS pricing: par rate, floating leg, DV01, payer/receiver decomposition. Lean spec: Pythia.Finance.FixedIncome.SwapPricing"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -1,0 +1,16 @@
+[package]
+name = "pythia-hft-orderbook"
+version = "0.1.0"
+edition = "2021"
+description = "Verified limit order book with price-time priority. Lean specs: Pythia.Finance.HFT.OrderBook + OrderBookStrong"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "orderbook_bench"
+harness = false

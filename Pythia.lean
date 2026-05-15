@@ -230,6 +230,7 @@ import Pythia.Finance.BetaFromCorrelation
 import Pythia.Finance.BlackScholesGreeks
 import Pythia.Finance.BlackScholesCallClosedForm
 import Pythia.Finance.BlackScholesIntrinsicLower
+import Pythia.Finance.BondPriceYield
 import Pythia.Finance.BondZeroCoupon
 import Pythia.Finance.CRRBinomialStep
 import Pythia.Finance.CallPriceBounds
@@ -264,6 +265,7 @@ import Pythia.Finance.MeanVarianceUtility
 import Pythia.Finance.MertonPortfolioInsurance
 import Pythia.Finance.ModiglianiMiller
 import Pythia.Finance.NetPresentValue
+import Pythia.Finance.OptionTimePremium
 import Pythia.Finance.OrnsteinUhlenbeck
 import Pythia.Finance.Perpetuity
 import Pythia.Finance.PortfolioVariance
@@ -349,6 +351,7 @@ import Pythia.Numerical.PicardLindelofHelpers
 import Pythia.Optimization.GradientDescentRate
 import Pythia.Optimization.LagrangianDuality
 import Pythia.Optimization.ProximalOperator
+import Pythia.Optimization.StrongConvexity
 -- Operations research
 import Pythia.OR.LittlesLaw
 -- Optimal transport

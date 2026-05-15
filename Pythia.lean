@@ -275,6 +275,7 @@ import Pythia.Finance.HFT.OrderBook
 import Pythia.Finance.HFT.OrderBookStrong
 import Pythia.Finance.HFT.PositionTracker
 import Pythia.Finance.HFT.SignalCombination
+import Pythia.Finance.HFT.TradingSession
 import Pythia.Finance.HFT.OrderBookInvariant
 import Pythia.Finance.HFT.RiskGate
 import Pythia.Finance.HFT.SPSCQueue

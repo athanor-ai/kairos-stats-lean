@@ -1,0 +1,9 @@
+[package]
+name = "pythia-finance-backtest"
+version = "0.1.0"
+edition = "2021"
+description = "Verified backtest validity: Bonferroni correction, deflated Sharpe, overfit detection. Lean spec: Pythia.Finance.Portfolio.BacktestValidity"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

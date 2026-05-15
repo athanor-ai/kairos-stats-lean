@@ -379,5 +379,7 @@ import Pythia.OptimalTransport.WassersteinDistanceNonneg
 import Pythia.Quantum.VonNeumannEntropyNonnegTwoState
 -- Stochastic
 import Pythia.Stochastic.ItoIsometryFiniteDim
+-- Security (Cedar policy Lean shadows)
+import Pythia.Security.EnvAllowlistSpec
 -- Thermodynamics
 import Pythia.Thermodynamics.CarnotEfficiencyUpperBound

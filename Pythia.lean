@@ -224,6 +224,7 @@ import Pythia.Distributed
 -- structure, CAPM, term structure). All sorry-free.
 import Pythia.Finance.AlmgrenChrissExecution
 import Pythia.Finance.AnnuityFactor
+import Pythia.Finance.FactorModel
 import Pythia.Finance.AutocorrelationReturn
 import Pythia.Finance.BachelierTerminal
 import Pythia.Finance.BlackFuturesOption

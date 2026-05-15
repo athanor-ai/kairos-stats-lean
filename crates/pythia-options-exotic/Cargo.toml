@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-exotic"
+version = "0.1.0"
+edition = "2021"
+description = "Model-free exotic option pricing bounds: barrier, Asian, lookback, digital, straddle. Lean spec: Pythia.Finance.Options.ExoticBounds"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

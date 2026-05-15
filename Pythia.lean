@@ -265,6 +265,7 @@ import Pythia.Finance.MacaulayDuration
 import Pythia.Finance.MarketImpact
 import Pythia.Finance.MarkowitzFrontier
 import Pythia.Finance.MaxDrawdown
+import Pythia.Finance.MovingAverage
 import Pythia.Finance.MeanVarianceUtility
 import Pythia.Finance.MertonPortfolioInsurance
 import Pythia.Finance.ModiglianiMiller

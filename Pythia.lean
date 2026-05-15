@@ -242,6 +242,7 @@ import Pythia.Finance.ConvexityDuration
 import Pythia.Finance.ContinuousDividendForward
 import Pythia.Finance.DividendDiscountModel
 import Pythia.Finance.DiscountFactor
+import Pythia.Finance.EfficientFrontier
 import Pythia.Finance.ExpectedShortfall
 import Pythia.Finance.ForwardPrice
 import Pythia.Finance.ForwardRateParity
@@ -272,6 +273,7 @@ import Pythia.Finance.PortfolioVariance
 import Pythia.Finance.PutCallParity
 import Pythia.Finance.PutCallParityDividend
 import Pythia.Finance.RealisedVolatility
+import Pythia.Finance.RiskAdjustedReturn
 import Pythia.Finance.RiskParity
 import Pythia.Finance.SharpeBridge
 import Pythia.Finance.SharpeRatio

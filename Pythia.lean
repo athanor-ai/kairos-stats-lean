@@ -322,6 +322,7 @@ import Pythia.Finance.Portfolio.MarkowitzFrontier
 import Pythia.Finance.Portfolio.MeanVarianceUtility
 import Pythia.Finance.Portfolio.MertonPortfolioInsurance
 import Pythia.Finance.Portfolio.PortfolioOptimality
+import Pythia.Finance.Portfolio.PortfolioConstruction
 import Pythia.Finance.Portfolio.PortfolioRebalancing
 import Pythia.Finance.Portfolio.PortfolioVariance
 import Pythia.Finance.Portfolio.ReturnAttribution

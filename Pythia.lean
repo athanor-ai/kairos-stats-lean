@@ -244,6 +244,7 @@ import Pythia.Finance.CointegrationResidual
 import Pythia.Finance.CompoundInterest
 import Pythia.Finance.ConvexityDuration
 import Pythia.Finance.ContinuousDividendForward
+import Pythia.Finance.DeltaHedging
 import Pythia.Finance.CreditSpread
 import Pythia.Finance.CurrencyHedging
 import Pythia.Finance.DividendDiscountModel

@@ -1,0 +1,9 @@
+[package]
+name = "pythia-finance-execution"
+version = "0.1.0"
+edition = "2021"
+description = "Almgren-Chriss optimal execution: TWAP optimality via Cauchy-Schwarz. Lean spec: Pythia.Finance.AlmgrenChrissOptimal"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

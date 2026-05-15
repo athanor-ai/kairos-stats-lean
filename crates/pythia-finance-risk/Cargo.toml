@@ -1,0 +1,9 @@
+[package]
+name = "pythia-finance-risk"
+version = "0.1.0"
+edition = "2021"
+description = "ADEH coherent risk measure axioms: VaR non-subadditivity, CVaR coherence, Basel compliance. Lean spec: Pythia.Finance.Risk.CoherentAxioms"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -81,4 +81,35 @@ theorem netPresentValue_additive {n : ℕ} (cf₁ cf₂ t : Fin n → ℝ) (r : 
   intros i _
   ring
 
+/-- **NPV is antitone in the discount rate (under non-negative cashflows
+on non-negative dated periods).** For two discount rates `r₁ ≤ r₂`, if
+every cashflow is non-negative (`0 ≤ cf(i)`) and every payment date is
+non-negative (`0 ≤ t(i)`), then NPV is non-increasing in the rate:
+    `NPV(cf, t, r₂) ≤ NPV(cf, t, r₁)`.
+
+Intuition: a higher discount rate makes every future cashflow less
+valuable today (more discounting). The proof composes (a) `Real.exp`
+antitonicity in the argument applied to `−r·t(i)` (lower `r` gives
+larger `exp(−r·t(i))` when `t(i) ≥ 0`), with (b) `Finset.sum_le_sum`
+lifting the pointwise inequality on each cashflow term to the sum.
+
+This is the algebraic shadow of "high rate environments depress
+present values" — the foundational sensitivity used in DCF and capital-
+budgeting analyses. -/
+@[stat_lemma]
+theorem netPresentValue_antitone_rate {n : ℕ} (cf t : Fin n → ℝ)
+    (h_cf_nonneg : ∀ i, 0 ≤ cf i) (h_t_nonneg : ∀ i, 0 ≤ t i)
+    {r₁ r₂ : ℝ} (h_rate : r₁ ≤ r₂) :
+    netPresentValue cf t r₂ ≤ netPresentValue cf t r₁ := by
+  unfold netPresentValue
+  apply Finset.sum_le_sum
+  intros i _
+  -- cf(i) * exp(-r₂*t(i)) ≤ cf(i) * exp(-r₁*t(i))
+  have h_arg : -(r₂ * t i) ≤ -(r₁ * t i) := by
+    have h_mul : r₁ * t i ≤ r₂ * t i := mul_le_mul_of_nonneg_right h_rate (h_t_nonneg i)
+    linarith
+  have h_exp_le : Real.exp (-(r₂ * t i)) ≤ Real.exp (-(r₁ * t i)) :=
+    Real.exp_le_exp.mpr h_arg
+  exact mul_le_mul_of_nonneg_left h_exp_le (h_cf_nonneg i)
+
 end Pythia.Finance

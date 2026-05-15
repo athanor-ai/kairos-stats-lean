@@ -264,6 +264,7 @@ import Pythia.Finance.Fundamentals.AutocorrelationReturn
 import Pythia.Finance.Fundamentals.CointegrationResidual
 import Pythia.Finance.Fundamentals.DividendDiscountModel
 import Pythia.Finance.Fundamentals.DCFValuation
+import Pythia.Finance.Fundamentals.CapitalStructure
 import Pythia.Finance.Fundamentals.GordonGrowth
 import Pythia.Finance.Fundamentals.ModiglianiMiller
 import Pythia.Finance.Fundamentals.NetPresentValue

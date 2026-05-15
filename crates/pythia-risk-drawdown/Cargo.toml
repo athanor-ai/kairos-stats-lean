@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-drawdown"
+version = "0.1.0"
+edition = "2021"
+description = "Verified maximum drawdown identities. Lean spec: Pythia.Finance.Risk.MaxDrawdown"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

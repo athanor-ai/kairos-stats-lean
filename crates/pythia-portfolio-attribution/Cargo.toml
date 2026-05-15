@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-attribution"
+version = "0.1.0"
+edition = "2021"
+description = "Verified multi-period Brinson performance attribution. Lean spec: Pythia.Finance.Portfolio.PerformanceAttribution"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -353,6 +353,7 @@ import Pythia.Finance.Risk.MaxDrawdown
 import Pythia.Finance.Risk.MovingAverage
 import Pythia.Finance.Risk.RealisedVolatility
 import Pythia.Finance.Risk.TrackingError
+import Pythia.Finance.Risk.VolForecasting
 import Pythia.Finance.Risk.ValueAtRisk
 import Pythia.Finance.Risk.VolatilityScaling
 import Pythia.Finance.Risk.VolatilitySmile

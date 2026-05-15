@@ -236,6 +236,7 @@ import Pythia.Finance.CallPriceUpperBound
 import Pythia.Finance.CalmarRatio
 import Pythia.Finance.CointegrationResidual
 import Pythia.Finance.CompoundInterest
+import Pythia.Finance.ConvexityDuration
 import Pythia.Finance.ContinuousDividendForward
 import Pythia.Finance.DiscountFactor
 import Pythia.Finance.ExpectedShortfall

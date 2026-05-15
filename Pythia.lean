@@ -351,6 +351,7 @@ import Pythia.Finance.Risk.ExpectedShortfall
 import Pythia.Finance.Risk.GARCHUpdate
 import Pythia.Finance.Risk.GarmanKlassVolatility
 import Pythia.Finance.Risk.KurtosisRisk
+import Pythia.Finance.Risk.LiquidityRisk
 import Pythia.Finance.Risk.LeverageDecay
 import Pythia.Finance.Risk.LogReturnInequality
 import Pythia.Finance.Risk.MaxDrawdown

@@ -115,4 +115,30 @@ theorem realisedVariance_le_n_mul_bound {n : ℕ} (r : Fin n → ℝ)
         rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin]
         ring
 
+/-- **Cauchy-Schwarz / QM-AM bound for realised returns.** For any
+return vector `r : Fin n → ℝ`, the squared sum of returns is at most
+`n` times the sum of squared returns:
+    `(Σ r(i))² ≤ n · Σ r(i)²`.
+
+This is the practitioner-relevant power-mean inequality: the squared
+total-period return is bounded by `n` times the realised variance.
+The proof uses Mathlib's `Finset.sum_mul_sq_le_sq_mul_sq` (Cauchy-
+Schwarz for finsets, squared form) specialised to the constant-1
+weighting vector, then simplifies via `Finset.sum_const`. -/
+@[stat_lemma]
+theorem realisedReturns_sq_sum_le_n_mul_sq_sum {n : ℕ} (r : Fin n → ℝ) :
+    (Finset.univ.sum r) ^ 2 ≤ n * Finset.univ.sum (fun i => (r i) ^ 2) := by
+  -- Cauchy-Schwarz: (∑ f_i · g_i)² ≤ (∑ f_i²) · (∑ g_i²); set f = 1, g = r.
+  have hCS := Finset.sum_mul_sq_le_sq_mul_sq
+    (R := ℝ) Finset.univ (fun _ : Fin n => (1 : ℝ)) r
+  -- (∑ 1 · r_i)² ≤ (∑ 1²) · (∑ r_i²)
+  -- Simplify the LHS sum (1 · r_i = r_i) and the (∑ 1²) factor (= n).
+  have h_LHS : Finset.univ.sum (fun i : Fin n => (1 : ℝ) * r i)
+                = Finset.univ.sum r := by
+    apply Finset.sum_congr rfl; intros; ring
+  have h_const_one_sq : Finset.univ.sum (fun _ : Fin n => (1 : ℝ) ^ 2) = (n : ℝ) := by
+    simp [Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+  rw [h_LHS, h_const_one_sq] at hCS
+  exact hCS
+
 end Pythia.Finance

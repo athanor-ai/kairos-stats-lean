@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-american"
+version = "0.1.0"
+edition = "2021"
+description = "Verified American vs European option bounds: early exercise premium, no-div call equality. Lean spec: Pythia.Finance.Options.EarlyExercise"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

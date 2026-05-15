@@ -298,6 +298,7 @@ import Pythia.Finance.Options.BlackScholesPDE
 import Pythia.Finance.Options.CRRBinomialStep
 import Pythia.Finance.Options.CallPriceBounds
 import Pythia.Finance.Options.CallPriceUpperBound
+import Pythia.Finance.Options.ExoticBounds
 import Pythia.Finance.Options.DeltaHedging
 import Pythia.Finance.Options.LookbackOption
 import Pythia.Finance.Options.NoArbitrageBounds

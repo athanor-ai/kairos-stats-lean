@@ -1,0 +1,10 @@
+[package]
+name = "pythia-finance-rnpricing"
+version = "0.1.0"
+edition = "2021"
+description = "Risk-neutral pricing — Lean spec: Pythia.Finance.RiskNeutralMeasure"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

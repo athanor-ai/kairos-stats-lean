@@ -1,0 +1,10 @@
+[package]
+name = "pythia-finance-portfolio"
+version = "0.1.0"
+edition = "2021"
+description = "Mean-variance portfolio optimality — Lean spec: Pythia.Finance.PortfolioOptimality"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

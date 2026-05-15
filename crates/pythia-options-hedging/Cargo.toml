@@ -1,0 +1,10 @@
+[package]
+name = "pythia-options-hedging"
+version = "0.1.0"
+edition = "2021"
+description = "Delta hedging decomposition — Lean spec: Pythia.Finance.DeltaHedging"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

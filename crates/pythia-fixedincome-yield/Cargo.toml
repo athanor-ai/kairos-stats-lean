@@ -1,0 +1,9 @@
+[package]
+name = "pythia-fixedincome-yield"
+version = "0.1.0"
+edition = "2021"
+description = "Verified yield curve constraints: discount monotonicity, forward rates, duration-convexity. Lean spec: Pythia.Finance.FixedIncome.YieldCurveConstraints"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

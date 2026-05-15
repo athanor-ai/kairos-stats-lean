@@ -1,0 +1,9 @@
+[package]
+name = "pythia-credit-cds"
+version = "0.1.0"
+edition = "2021"
+description = "Verified CDS pricing: spread-hazard-recovery, survival probability, break-even. Lean spec: Pythia.Finance.CreditDefaultSwap"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -27,7 +27,7 @@ import Pythia.Finance.FixedIncome.BootstrapYieldCurve
 import Pythia.Finance.FixedIncome.DiscountFactor
 import Pythia.Finance.FixedIncome.MacaulayDuration
 import Pythia.Finance.FixedIncome.ConvexityDuration
-import Pythia.Finance.Fundamentals.CompoundInterest
+import Pythia.Finance.FixedIncome.CompoundInterest
 import Pythia.Finance.FixedIncome.AnnuityFactor
 import Pythia.Finance.FixedIncome.Perpetuity
 import Pythia.Finance.FixedIncome.VasicekShortRate

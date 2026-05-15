@@ -1,0 +1,10 @@
+[package]
+name = "pythia-portfolio-construction"
+version = "0.1.0"
+edition = "2021"
+description = "Portfolio construction constraints — Lean spec: Pythia.Finance.Portfolio.PortfolioConstruction"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

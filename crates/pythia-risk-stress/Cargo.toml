@@ -1,0 +1,10 @@
+[package]
+name = "pythia-risk-stress"
+version = "0.1.0"
+edition = "2021"
+description = "Stress testing properties — Lean spec: Pythia.Finance.Risk.StressTest"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

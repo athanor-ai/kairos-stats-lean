@@ -1,0 +1,10 @@
+[package]
+name = "pythia-portfolio-sharpe"
+version = "0.1.0"
+edition = "2021"
+description = "Sharpe ratio (algebraic form) — Rust port of Pythia.Finance.Portfolio.SharpeRatio"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

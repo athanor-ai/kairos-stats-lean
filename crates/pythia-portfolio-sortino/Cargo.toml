@@ -1,0 +1,10 @@
+[package]
+name = "pythia-portfolio-sortino"
+version = "0.1.0"
+edition = "2021"
+description = "Sortino ratio (algebraic form) — Rust port of Pythia.Finance.Portfolio.SortinoRatio"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

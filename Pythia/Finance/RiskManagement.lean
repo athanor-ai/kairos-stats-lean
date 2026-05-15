@@ -36,3 +36,4 @@ import Pythia.Finance.MaxDrawdown
 import Pythia.Finance.TrackingError
 import Pythia.Finance.LogReturnInequality
 import Pythia.Finance.LeverageDecay
+import Pythia.Finance.ConcentrationRisk

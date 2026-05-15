@@ -381,5 +381,6 @@ import Pythia.Quantum.VonNeumannEntropyNonnegTwoState
 import Pythia.Stochastic.ItoIsometryFiniteDim
 -- Security (Cedar policy Lean shadows)
 import Pythia.Security.EnvAllowlistSpec
+import Pythia.Security.HaltReasonSpec
 -- Thermodynamics
 import Pythia.Thermodynamics.CarnotEfficiencyUpperBound

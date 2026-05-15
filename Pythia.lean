@@ -236,6 +236,7 @@ import Pythia.Finance.Execution.CurrencyHedging
 import Pythia.Finance.Execution.ImpermanentLoss
 import Pythia.Finance.Execution.MarketImpact
 import Pythia.Finance.Execution.TransactionCost
+import Pythia.Finance.Execution.TWAPSchedule
 import Pythia.Finance.FixedIncome
 import Pythia.Finance.FixedIncome.AnnuityFactor
 import Pythia.Finance.FixedIncome.BondPriceYield

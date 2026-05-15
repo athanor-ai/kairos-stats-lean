@@ -303,6 +303,7 @@ import Pythia.Finance.Options.CallPriceBounds
 import Pythia.Finance.Options.CallPriceUpperBound
 import Pythia.Finance.Options.ExoticBounds
 import Pythia.Finance.Options.DeltaHedging
+import Pythia.Finance.Options.EarlyExercise
 import Pythia.Finance.Options.LookbackOption
 import Pythia.Finance.Options.NoArbitrageBounds
 import Pythia.Finance.Options.OptionPayoff

@@ -27,7 +27,7 @@ risk gate implementation.
 import Mathlib
 import Pythia.Tactic.Pythia
 
-namespace Pythia.HFT.RiskGate
+namespace Pythia.Finance.HFT.RiskGate
 
 /-- A trade order: signed quantity (positive = buy, negative = sell). -/
 structure TradeOrder where
@@ -108,4 +108,4 @@ theorem net_position_bound {pos_final pos_initial sum_qty : ℤ}
     rcases abs_cases pos_initial with ⟨h2, _⟩ | ⟨h2, _⟩ <;>
     rcases abs_cases pos_final with ⟨h3, _⟩ | ⟨h3, _⟩ <;> linarith
 
-end Pythia.HFT.RiskGate
+end Pythia.Finance.HFT.RiskGate

@@ -24,7 +24,7 @@ exceed order quantity, and the engine respects price-time priority.
 import Mathlib
 import Pythia.Tactic.Pythia
 
-namespace Pythia.HFT.MatchingEngine
+namespace Pythia.Finance.HFT.MatchingEngine
 
 /-- A fill: price, quantity, and the two counterparties. -/
 structure Fill where
@@ -116,4 +116,4 @@ theorem auction_clearing {supply demand : ℤ}
     (h_clear : supply ≥ demand) (h_excess : supply - demand ≥ 0) :
     0 ≤ supply - demand := by linarith
 
-end Pythia.HFT.MatchingEngine
+end Pythia.Finance.HFT.MatchingEngine

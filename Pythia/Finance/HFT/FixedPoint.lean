@@ -26,7 +26,7 @@ rational value `raw / 2^scale`.
 import Mathlib
 import Pythia.Tactic.Pythia
 
-namespace Pythia.HFT.FixedPoint
+namespace Pythia.Finance.HFT.FixedPoint
 
 /-- A fixed-point value: raw integer with implicit scale 2^s. -/
 structure FP (s : ℕ) where
@@ -106,4 +106,4 @@ theorem no_overflow_add {a b : ℤ} {bound : ℤ}
     _ = 2 * bound := by ring
     _ ≤ 2 ^ 63 := hbound
 
-end Pythia.HFT.FixedPoint
+end Pythia.Finance.HFT.FixedPoint

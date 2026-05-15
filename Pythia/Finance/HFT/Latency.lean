@@ -23,7 +23,7 @@ latency: O(1) lookup, O(log n) sorted insert, and O(1) risk checks.
 import Mathlib
 import Pythia.Tactic.Pythia
 
-namespace Pythia.HFT.Latency
+namespace Pythia.Finance.HFT.Latency
 
 /-- **O(1) hash lookup:** if the hash function has no collisions
 in the working set, lookup is exactly 1 probe. -/
@@ -86,4 +86,4 @@ theorem jitter_chebyshev {prob k : ℝ}
     nlinarith
   linarith
 
-end Pythia.HFT.Latency
+end Pythia.Finance.HFT.Latency

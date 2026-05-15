@@ -28,7 +28,7 @@ import Pythia.Tactic.Pythia
 
 open Finset
 
-namespace Pythia.HFT.Checksum
+namespace Pythia.Finance.HFT.Checksum
 
 /-- Internet checksum: one's complement sum of 16-bit words. -/
 def internetChecksum (words : List (Fin 65536)) : ℕ :=
@@ -87,4 +87,4 @@ theorem xor_detects_single_change {old_xor new_word old_word : ℕ}
     old_xor ^^^ old_word ^^^ new_word ≠ old_xor := by
   sorry
 
-end Pythia.HFT.Checksum
+end Pythia.Finance.HFT.Checksum

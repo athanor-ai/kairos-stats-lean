@@ -26,7 +26,7 @@ import Pythia.Tactic.Pythia
 
 open Real
 
-namespace Pythia.HFT.FastMath
+namespace Pythia.Finance.HFT.FastMath
 
 /-- **Linear approximation to exp near zero:**
 |exp(x) - (1 + x)| <= x^2/2 for |x| <= 1.
@@ -91,4 +91,4 @@ theorem popcount_bound {popcount width : ℕ}
     (h : popcount ≤ width) :
     popcount ≤ width := h
 
-end Pythia.HFT.FastMath
+end Pythia.Finance.HFT.FastMath

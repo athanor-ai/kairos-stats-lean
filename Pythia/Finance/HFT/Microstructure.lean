@@ -48,7 +48,7 @@ import Pythia.Tactic.Pythia
 
 open Finset BigOperators
 
-namespace Pythia.HFT.Microstructure
+namespace Pythia.Finance.HFT.Microstructure
 
 /-! ## Section 1 — Spread Decomposition
 
@@ -483,4 +483,4 @@ theorem tick_trade_ratio_pos {T N : ℝ}
     (hT : 0 < T) (hN : 0 < N) :
     0 < T / N := div_pos hT hN
 
-end Pythia.HFT.Microstructure
+end Pythia.Finance.HFT.Microstructure

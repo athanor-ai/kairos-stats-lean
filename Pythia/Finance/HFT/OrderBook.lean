@@ -32,7 +32,7 @@ import Pythia.Tactic.Pythia
 
 open List
 
-namespace Pythia.HFT.OrderBook
+namespace Pythia.Finance.HFT.OrderBook
 
 /-- An order: price (in ticks) and arrival time (sequence number). -/
 structure Order where
@@ -131,4 +131,4 @@ theorem tick_size_gap {p1 p2 tick : ℤ}
   have : k1 + 1 ≤ k2 := Int.add_one_le_of_lt this
   linarith [Int.mul_le_mul_of_nonneg_left this (le_of_lt htick)]
 
-end Pythia.HFT.OrderBook
+end Pythia.Finance.HFT.OrderBook

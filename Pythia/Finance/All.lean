@@ -29,3 +29,12 @@ import Pythia.Finance.Execution
 import Pythia.Finance.Fundamentals
 import Pythia.Finance.MovingAverage
 import Pythia.Finance.Z3AuxiliaryDemo
+import Pythia.Finance.HFT.FixedPoint
+import Pythia.Finance.HFT.OrderBook
+import Pythia.Finance.HFT.RiskGate
+import Pythia.Finance.HFT.FastMath
+import Pythia.Finance.HFT.Latency
+import Pythia.Finance.HFT.Checksum
+import Pythia.Finance.HFT.SPSCQueue
+import Pythia.Finance.HFT.MatchingEngine
+import Pythia.Finance.HFT.Microstructure

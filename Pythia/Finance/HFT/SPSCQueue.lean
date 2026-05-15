@@ -16,7 +16,7 @@ empty/full detection, and FIFO ordering.
 import Mathlib
 import Pythia.Tactic.Pythia
 
-namespace Pythia.HFT.SPSCQueue
+namespace Pythia.Finance.HFT.SPSCQueue
 
 structure QueueState (C : ℕ) where
   write_pos : ℕ
@@ -65,4 +65,4 @@ theorem wrap_index_bounded {pos C : ℕ} (hC : 0 < C) :
 theorem consecutive_wrap {pos C : ℕ} (hC : 0 < C) :
     (pos + 1) % C = ((pos % C) + 1) % C := by sorry
 
-end Pythia.HFT.SPSCQueue
+end Pythia.Finance.HFT.SPSCQueue

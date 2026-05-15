@@ -1,0 +1,16 @@
+[package]
+name = "pythia-hft-riskgate"
+version = "0.1.0"
+edition = "2021"
+description = "Pre-trade risk gate with formally verified soundness + completeness. Lean spec: Pythia.Finance.HFT.RiskGate"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "riskgate_bench"
+harness = false

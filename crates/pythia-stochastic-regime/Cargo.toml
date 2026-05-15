@@ -1,0 +1,9 @@
+[package]
+name = "pythia-stochastic-regime"
+version = "0.1.0"
+edition = "2021"
+description = "Verified Markov regime switching: stationary dist, persistence, regime-weighted variance. Lean spec: Pythia.Finance.Stochastic.RegimeDetection"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

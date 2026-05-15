@@ -1,0 +1,9 @@
+[package]
+name = "pythia-execution-vwap"
+version = "0.1.0"
+edition = "2021"
+description = "Verified VWAP execution bounds: min/max price, slippage, participation matching. Lean spec: Pythia.Finance.Execution.VWAPBounds"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

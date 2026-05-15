@@ -343,6 +343,10 @@ import Pythia.Numerical.GradientAccumulation
 import Pythia.Numerical.InnerProductError
 import Pythia.Numerical.NewtonQuadraticIterPos
 import Pythia.Numerical.PicardLindelofHelpers
+-- Optimization
+import Pythia.Optimization.GradientDescentRate
+import Pythia.Optimization.LagrangianDuality
+import Pythia.Optimization.ProximalOperator
 -- Operations research
 import Pythia.OR.LittlesLaw
 -- Optimal transport

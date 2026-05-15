@@ -59,8 +59,9 @@ theorem iterations_for_epsilon (p : GDParams) (ε : ℝ) (hε : 0 < ε) :
       convergenceBound p k ≤ ε := by
   intro k hk hk_bound
   unfold convergenceBound
-  rw [div_le_iff (by positivity : (0 : ℝ) < 2 * ↑k)]
   have hk_pos : (0 : ℝ) < k := Nat.cast_pos.mpr hk
+  have h2k_pos : (0 : ℝ) < 2 * ↑k := by positivity
+  rw [div_le_iff₀ h2k_pos]
   nlinarith [sq_nonneg p.D, p.hL, p.hD]
 
 /-- The optimal step size for L-smooth convex GD is 1/L. -/

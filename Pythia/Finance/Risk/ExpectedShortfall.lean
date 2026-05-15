@@ -49,7 +49,7 @@ close ES-vs-VaR comparisons + capital-adequacy goals.
   Value-at-Risk." *Journal of Risk* 2(3): 21-41 (2000).
 -/
 import Mathlib
-import Pythia.Finance.ValueAtRisk
+import Pythia.Finance.Risk.ValueAtRisk
 import Pythia.Tactic.Pythia
 
 namespace Pythia.Finance

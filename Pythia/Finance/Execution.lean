@@ -19,9 +19,9 @@ costs, and currency hedging.
 * **Currency:** FX hedging, impermanent loss (DeFi)
 -/
 
-import Pythia.Finance.AlmgrenChrissExecution
-import Pythia.Finance.MarketImpact
-import Pythia.Finance.TransactionCost
-import Pythia.Finance.CurrencyHedging
-import Pythia.Finance.ImpermanentLoss
-import Pythia.Finance.AlmgrenChrissOptimal
+import Pythia.Finance.Execution.AlmgrenChrissExecution
+import Pythia.Finance.Execution.MarketImpact
+import Pythia.Finance.Execution.TransactionCost
+import Pythia.Finance.Execution.CurrencyHedging
+import Pythia.Finance.Execution.ImpermanentLoss
+import Pythia.Finance.Execution.AlmgrenChrissOptimal

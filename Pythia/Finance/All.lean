@@ -27,7 +27,7 @@ import Pythia.Finance.StochasticModels
 import Pythia.Finance.CreditRisk
 import Pythia.Finance.Execution
 import Pythia.Finance.Fundamentals
-import Pythia.Finance.MovingAverage
+import Pythia.Finance.Risk.MovingAverage
 import Pythia.Finance.Z3AuxiliaryDemo
 import Pythia.Finance.HFT.FixedPoint
 import Pythia.Finance.HFT.OrderBook
@@ -38,5 +38,5 @@ import Pythia.Finance.HFT.Checksum
 import Pythia.Finance.HFT.SPSCQueue
 import Pythia.Finance.HFT.MatchingEngine
 import Pythia.Finance.HFT.Microstructure
-import Pythia.Finance.FixedPointEMA
-import Pythia.Finance.OrderBookInvariant
+import Pythia.Finance.HFT.FixedPointEMA
+import Pythia.Finance.HFT.OrderBookInvariant

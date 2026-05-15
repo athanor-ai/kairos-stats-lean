@@ -32,7 +32,7 @@ sanity checks) without re-deriving them.
   Pearson (2017), §11.2 (option-price bounds).
 -/
 import Mathlib
-import Pythia.Finance.PutCallParity
+import Pythia.Finance.Options.PutCallParity
 import Pythia.Tactic.Pythia
 
 open Real

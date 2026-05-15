@@ -51,7 +51,7 @@ closure target for portfolio-construction sign/value goals.
   1851-1872 (1972).
 -/
 import Mathlib
-import Pythia.Finance.PortfolioVariance
+import Pythia.Finance.Portfolio.PortfolioVariance
 import Pythia.Tactic.Pythia
 
 namespace Pythia.Finance

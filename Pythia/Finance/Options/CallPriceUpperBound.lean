@@ -35,7 +35,7 @@ the two factors yields the bound.
   Pearson (2017), §11.2 (option-price upper bounds — `c ≤ S`).
 -/
 import Mathlib
-import Pythia.Finance.PutCallParity
+import Pythia.Finance.Options.PutCallParity
 import Pythia.Tactic.Pythia
 
 open Real

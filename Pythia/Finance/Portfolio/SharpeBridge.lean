@@ -50,7 +50,7 @@ sub-Gaussian / sub-gamma derivation.
   *Journal of Business* 39(S1): 119-138 (1966).  (Sharpe ratio.)
 -/
 import Mathlib
-import Pythia.Finance.SharpeRatio
+import Pythia.Finance.Portfolio.SharpeRatio
 import Pythia.Tactic.Pythia
 
 namespace Pythia.Finance

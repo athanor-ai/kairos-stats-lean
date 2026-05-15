@@ -17,10 +17,10 @@ valuation models, capital structure, and cointegration.
 * **Econometrics:** cointegration residual, autocorrelation
 -/
 
-import Pythia.Finance.CompoundInterest
-import Pythia.Finance.NetPresentValue
-import Pythia.Finance.GordonGrowth
-import Pythia.Finance.DividendDiscountModel
-import Pythia.Finance.ModiglianiMiller
-import Pythia.Finance.CointegrationResidual
-import Pythia.Finance.AutocorrelationReturn
+import Pythia.Finance.FixedIncome.CompoundInterest
+import Pythia.Finance.Fundamentals.NetPresentValue
+import Pythia.Finance.Fundamentals.GordonGrowth
+import Pythia.Finance.Fundamentals.DividendDiscountModel
+import Pythia.Finance.Fundamentals.ModiglianiMiller
+import Pythia.Finance.Fundamentals.CointegrationResidual
+import Pythia.Finance.Fundamentals.AutocorrelationReturn

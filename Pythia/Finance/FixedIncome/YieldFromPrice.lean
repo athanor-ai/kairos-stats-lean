@@ -34,7 +34,7 @@ bootstrap / implied-rate goals without re-deriving the log inversion.
   Pearson (2017), §4.3 (zero-coupon yields from bond prices).
 -/
 import Mathlib
-import Pythia.Finance.BondZeroCoupon
+import Pythia.Finance.FixedIncome.BondZeroCoupon
 import Pythia.Tactic.Pythia
 
 open Real

@@ -25,7 +25,7 @@ practice: a trader can price complex payoffs by decomposition.
   *Journal of Economic Theory* 20(3): 381-408 (1979).
 -/
 import Mathlib
-import Pythia.Finance.FTAP
+import Pythia.Finance.Stochastic.FTAP
 import Pythia.Tactic.Pythia
 
 open Finset

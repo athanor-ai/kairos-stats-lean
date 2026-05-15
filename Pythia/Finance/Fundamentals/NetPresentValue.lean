@@ -38,7 +38,7 @@ goals.
   Finance*, 13th ed. McGraw-Hill (2019), Ch. 5.
 -/
 import Mathlib
-import Pythia.Finance.DiscountFactor
+import Pythia.Finance.FixedIncome.DiscountFactor
 import Pythia.Tactic.Pythia
 
 open Real

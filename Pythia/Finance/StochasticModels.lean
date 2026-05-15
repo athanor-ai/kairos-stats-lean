@@ -20,12 +20,12 @@ jump-diffusion, Ornstein-Uhlenbeck, and FTAP.
 * **Stochastic discount:** pricing kernel, risk-neutral valuation
 -/
 
-import Pythia.Finance.GeometricBrownianMotion
-import Pythia.Finance.HestonLongRunVariance
-import Pythia.Finance.MertonJumpDiffusion
-import Pythia.Finance.OrnsteinUhlenbeck
-import Pythia.Finance.FTAP
-import Pythia.Finance.StochasticDiscount
-import Pythia.Finance.ItoDiscrete
-import Pythia.Finance.VarianceSwap
-import Pythia.Finance.RiskNeutralMeasure
+import Pythia.Finance.Stochastic.GeometricBrownianMotion
+import Pythia.Finance.Stochastic.HestonLongRunVariance
+import Pythia.Finance.Stochastic.MertonJumpDiffusion
+import Pythia.Finance.Stochastic.OrnsteinUhlenbeck
+import Pythia.Finance.Stochastic.FTAP
+import Pythia.Finance.Stochastic.StochasticDiscount
+import Pythia.Finance.Stochastic.ItoDiscrete
+import Pythia.Finance.Stochastic.VarianceSwap
+import Pythia.Finance.Stochastic.RiskNeutralMeasure

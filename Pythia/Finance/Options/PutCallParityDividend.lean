@@ -51,7 +51,7 @@ equity-derivatives sanity checks.
 -/
 import Mathlib
 import Pythia.Tactic.Pythia
-import Pythia.Finance.PutCallParity
+import Pythia.Finance.Options.PutCallParity
 
 open Real
 

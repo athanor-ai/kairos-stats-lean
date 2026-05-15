@@ -17,6 +17,6 @@ credit spreads, Merton structural model, and default probability.
 * **Default probability:** survival probability, hazard rate calibration
 -/
 
-import Pythia.Finance.CreditDefaultSwap
-import Pythia.Finance.CreditSpread
-import Pythia.Finance.MertonCredit
+import Pythia.Finance.Credit.CreditDefaultSwap
+import Pythia.Finance.Credit.CreditSpread
+import Pythia.Finance.Credit.MertonCredit

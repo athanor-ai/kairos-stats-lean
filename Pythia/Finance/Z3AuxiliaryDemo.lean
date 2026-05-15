@@ -45,7 +45,7 @@ showcases for SMT-coupled proof assistants.
 import Mathlib
 import Pythia.Tactic.Pythia
 import Pythia.Tactic.Z3Check
-import Pythia.Finance.SharpeRatio
+import Pythia.Finance.Portfolio.SharpeRatio
 
 namespace Pythia.Finance
 

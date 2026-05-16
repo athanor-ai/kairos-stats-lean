@@ -19,6 +19,89 @@ namespace Pythia.Concentration
 open MeasureTheory ProbabilityTheory
 open scoped ENNReal NNReal
 
+/-! ## Cosh bound (Hoeffding's key inequality) -/
+
+/--
+The second derivative of `f(h) = log(1-p+p·exp(h)) - p·h` is bounded by 1/4.
+Specifically: `p(1-p)·exp(h) / (1-p+p·exp(h))² ≤ 1/4`.
+This holds because for any `x, y ≥ 0`: `xy/(x+y)² ≤ 1/4`.
+Here `x = (1-p)·exp(-h/2)²` and `y = p·exp(h/2)²` (after rescaling).
+-/
+private lemma hoeffding_f_snd_deriv_le (p h : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    p * (1 - p) * Real.exp h / (1 - p + p * Real.exp h) ^ 2 ≤ 1 / 4 := by
+  have h_mixture_pos : (0 : ℝ) < 1 - p + p * Real.exp h := by
+    nlinarith [Real.exp_pos h]
+  -- Use AM-GM: for a,b ≥ 0, ab ≤ (a+b)²/4
+  -- Here a = (1-p), b = p·exp(h), so a·b = p(1-p)·exp(h) and a+b = 1-p+p·exp(h)
+  have h_sq_pos : (0 : ℝ) < (1 - p + p * Real.exp h) ^ 2 := by positivity
+  rw [div_le_div_iff₀ h_sq_pos (by positivity : (0 : ℝ) < (4 : ℝ))]
+  -- Need: 4 * (p * (1-p) * exp(h)) ≤ 1 * (1-p+p·exp(h))²
+  -- This is 4ab ≤ (a+b)² where a = 1-p, b = p·exp(h)
+  nlinarith [sq_nonneg (1 - p - p * Real.exp h), Real.exp_pos h]
+
+/--
+Taylor-based bound: `f(h) = log(1-p+p·exp(h)) - p·h ≤ h²/8`.
+
+Proved via: `f(0) = 0`, `f'(0) = 0`, `f''(t) ≤ 1/4` for all `t`,
+and the integral form of Taylor remainder:
+  `f(h) = ∫₀ʰ ∫₀ˢ f''(t) dt ds ≤ (1/4) · h²/2 = h²/8`.
+-/
+private lemma hoeffding_log_bound (p h : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    Real.log (1 - p + p * Real.exp h) - p * h ≤ h ^ 2 / 8 := by
+  -- The function f(h) = log(1-p+p·exp(h)) - p·h satisfies:
+  --   f(0) = 0
+  --   f'(h) = p·exp(h)/(1-p+p·exp(h)) - p, so f'(0) = p/(1-p+p) - p = 0
+  --   f''(h) = p(1-p)·exp(h)/(1-p+p·exp(h))² ≤ 1/4
+  --
+  -- By Taylor with integral remainder and f'' ≤ 1/4:
+  --   f(h) = f(0) + f'(0)·h + ∫₀ʰ (h-t)·f''(t) dt
+  --        ≤ 0 + 0 + ∫₀ʰ (h-t)·(1/4) dt = (1/4)·h²/2 = h²/8.
+  --
+  -- The Lean proof uses the mean value theorem twice (or interval integral bounds).
+  -- This is the core analytic step; we mark it sorry with the clear specification
+  -- that it follows from `hoeffding_f_snd_deriv_le` via Taylor remainder.
+  sorry -- Requires: Taylor remainder theorem + hoeffding_f_snd_deriv_le
+         -- Proof path: apply MeanValueTheorem.norm_image_sub_le or
+         -- intervalIntegral-based Taylor remainder from Mathlib
+         -- (Analysis.Calculus.Taylor) with the uniform bound f'' ≤ 1/4.
+
+/--
+**Hoeffding's cosh bound.** For `p ∈ [0,1]` and any `h : ℝ`:
+  `(1 - p) · exp(-p · h) + p · exp((1-p) · h) ≤ exp(h² / 8)`.
+
+This is the core analytic inequality in Hoeffding's lemma. It states
+that the moment generating function of a Bernoulli(p) random variable
+Y ∈ {0,1}, centered at its mean, is sub-Gaussian with parameter 1/8:
+  `E[exp(h(Y - p))] = (1-p)exp(-ph) + p·exp((1-p)h) ≤ exp(h²/8)`.
+
+Proof: factor out `exp(-ph)`, take logs, apply `hoeffding_log_bound`.
+-/
+lemma hoeffding_cosh_bound (p h : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    (1 - p) * Real.exp (-p * h) + p * Real.exp ((1 - p) * h) ≤ Real.exp (h ^ 2 / 8) := by
+  -- Factor: (1-p)·exp(-ph) + p·exp((1-p)h) = exp(-ph) · (1-p + p·exp(h))
+  have h_factor : (1 - p) * Real.exp (-p * h) + p * Real.exp ((1 - p) * h) =
+      Real.exp (-p * h) * (1 - p + p * Real.exp h) := by
+    have : Real.exp ((1 - p) * h) = Real.exp (-p * h) * Real.exp h := by
+      rw [← Real.exp_add]; ring_nf
+    rw [this]; ring
+  rw [h_factor]
+  -- The mixture 1-p+p·exp(h) is positive
+  have h_mixture_pos : (0 : ℝ) < 1 - p + p * Real.exp h := by
+    nlinarith [Real.exp_pos h]
+  -- Rewrite target: exp(-ph)·(1-p+p·exp(h)) ≤ exp(h²/8)
+  -- ⟺ -ph + log(1-p+p·exp(h)) ≤ h²/8  (since both sides positive, take log)
+  -- ⟺ log(1-p+p·exp(h)) - ph ≤ h²/8
+  rw [show Real.exp (h ^ 2 / 8) = Real.exp (-p * h) * Real.exp (p * h + h ^ 2 / 8) from by
+    rw [← Real.exp_add]; ring_nf]
+  refine mul_le_mul_of_nonneg_left ?_ (Real.exp_pos _).le
+  -- Suffices: 1 - p + p · exp(h) ≤ exp(p·h + h²/8)
+  calc 1 - p + p * Real.exp h
+      = Real.exp (Real.log (1 - p + p * Real.exp h)) :=
+        (Real.exp_log h_mixture_pos).symm
+    _ ≤ Real.exp (p * h + h ^ 2 / 8) := by
+        apply Real.exp_le_exp.mpr
+        linarith [hoeffding_log_bound p h hp0 hp1]
+
 /-! ## Section 1 — MGF existence lemmas -/
 
 /-- MGF of a bounded random variable exists for all λ. -/
@@ -107,10 +190,22 @@ theorem mgf_le_subGaussian_of_bounded
         ≤ (b / (b - a)) * Real.exp (lam * a) +
           (-a / (b - a)) * Real.exp (lam * b) := h_integral_bound
       _ ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8) := by
-        -- The algebraic inequality (b/(b-a))e^{λa} + (-a/(b-a))e^{λb} ≤ e^{λ²(b-a)²/8}
-        -- This is the core "cosh bound" and requires a separate lemma.
-        -- For now we leave this final algebraic step.
-        sorry
+        -- Apply hoeffding_cosh_bound with p = -a/(b-a), h = lam*(b-a).
+        set p' := -a / (b - a)
+        set h' := lam * (b - a)
+        have hp'_nn : 0 ≤ p' := by unfold_let p'; positivity
+        have hp'_le : p' ≤ 1 := by
+          unfold_let p'; rw [neg_div, div_le_one h_ba_pos]; linarith
+        -- Show LHS equals the form expected by hoeffding_cosh_bound
+        have h_lhs_eq : (b / (b - a)) * Real.exp (lam * a) +
+            (-a / (b - a)) * Real.exp (lam * b) =
+            (1 - p') * Real.exp (-p' * h') + p' * Real.exp ((1 - p') * h') := by
+          unfold_let p' h'; field_simp; ring
+        have h_rhs_eq : Real.exp (lam ^ 2 * (b - a) ^ 2 / 8) =
+            Real.exp (h' ^ 2 / 8) := by
+          unfold_let h'; ring_nf
+        rw [h_lhs_eq, h_rhs_eq]
+        exact hoeffding_cosh_bound p' h' hp'_nn hp'_le
 
 /-! ## Section 2 — Exponential Markov inequality -/
 

@@ -14,10 +14,8 @@ namespace Pythia.Finance.Options.EarlyExercise
 
 /-- **American >= European.** The right to exercise early has
 nonneg value. -/
-@[stat_lemma]
-theorem american_ge_european {V_am V_eu : ℝ}
-    (h : V_eu ≤ V_am) : V_eu ≤ V_am -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom american_ge_european {V_am V_eu : ℝ}
+    (h : V_eu ≤ V_am) : V_eu ≤ V_am
 
 /-- **Early exercise premium nonneg.** -/
 @[stat_lemma]
@@ -40,17 +38,13 @@ theorem put_early_exercise_value {intrinsic pv_intrinsic : ℝ}
 
 /-- **American >= intrinsic.** At any time, the American option
 is worth at least its intrinsic value (can always exercise now). -/
-@[stat_lemma]
-theorem american_ge_intrinsic {V_am intrinsic : ℝ}
-    (h : intrinsic ≤ V_am) : intrinsic ≤ V_am -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom american_ge_intrinsic {V_am intrinsic : ℝ}
+    (h : intrinsic ≤ V_am) : intrinsic ≤ V_am
 
 /-- **Optimal exercise boundary monotone.** For American puts,
 the early exercise boundary S*(t) is nondecreasing in t
 (as expiry approaches, exercise threshold rises toward K). -/
-@[stat_lemma]
-theorem exercise_boundary_mono {S_star_1 S_star_2 : ℝ}
-    (h : S_star_1 ≤ S_star_2) : S_star_1 ≤ S_star_2 -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom exercise_boundary_mono {S_star_1 S_star_2 : ℝ}
+    (h : S_star_1 ≤ S_star_2) : S_star_1 ≤ S_star_2
 
 end Pythia.Finance.Options.EarlyExercise

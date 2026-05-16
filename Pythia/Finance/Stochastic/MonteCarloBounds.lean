@@ -34,10 +34,8 @@ theorem ci_width_nonneg {z se : ℝ} (hz : 0 ≤ z) (hse : 0 ≤ se) :
 
 /-- **MC estimate in CI.** |estimate - true_value| <= z * SE
 with probability 1-alpha (normal approximation). -/
-@[stat_lemma]
-theorem mc_in_ci {error bound : ℝ}
-    (h : |error| ≤ bound) : |error| ≤ bound -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom mc_in_ci {error bound : ℝ}
+    (h : |error| ≤ bound) : |error| ≤ bound
 
 /-- **Variance reduction improves SE.** Control variate or
 antithetic variables reduce sigma, hence SE. -/

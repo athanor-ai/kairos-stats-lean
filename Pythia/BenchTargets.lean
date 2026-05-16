@@ -110,21 +110,6 @@ theorem bench_slack_nonneg :
       mul_nonneg hσ (Real.sqrt_nonneg _)
     linarith
 
-/-
-DISPROVED: The original statement is false because `slack` depends on
-   both `scale` (monotone decreasing via `2^{-scale}`) and `bits`
-   (monotone increasing via `log(2^bits)`), and the two `BitPrecision`
-   values may have different `bits`.
-   Counterexample: bp₁ = (bits=1,scale=1), bp₂ = (bits=2,scale=1);
-   same scale but slack increases because of larger bits.
-
-theorem bench_slack_antitone_in_scale :
-(σ : ℝ) → (bp₁ bp₂ : BitPrecision) → bp₁.scale ≤ bp₂.scale →
-slack σ bp₂ ≤ slack σ bp₁ := by sorry
-
-Corrected version: slack is antitone in scale when bits are held
-    equal and σ ≥ 0 (so only the `2^{-scale}` factor changes).
--/
 theorem bench_slack_antitone_in_scale_corrected :
     (σ : ℝ) → (bp₁ bp₂ : BitPrecision) → 0 ≤ σ → bp₁.bits = bp₂.bits →
     bp₁.scale ≤ bp₂.scale → slack σ bp₂ ≤ slack σ bp₁ := by
@@ -336,12 +321,6 @@ theorem bench_real_add_sq_le_sq_add_sq :
     (a b x y : ℝ) → a^2 + b^2 ≤ x^2 + y^2 →
     Real.sqrt (a^2 + b^2) ≤ Real.sqrt (x^2 + y^2) := by
   exact fun _ _ _ _ h => Real.sqrt_le_sqrt h
-
-/- DISPROVED: The original statement is false. Counterexample:
-   a=1, b=2, c=3: 0 < 3, 0 ≤ 1, 1 ≤ 2, but 1/2 > 1/3.
-   The correct version requires c ≤ b (not a ≤ b). -/
--- theorem bench_div_le_div_of_nonneg_left :
---     (a b c : ℝ) → 0 < c → 0 ≤ a → a ≤ b → a / b ≤ a / c := by sorry
 
 /-- Corrected version: `a/b ≤ a/c` when `0 ≤ a`, `0 < c`, `c ≤ b`. -/
 theorem bench_div_le_div_of_nonneg_left_corrected :

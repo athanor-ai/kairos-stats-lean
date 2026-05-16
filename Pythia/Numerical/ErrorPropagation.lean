@@ -56,18 +56,6 @@ theorem pipeline_error_mono (stages : List ErrorStage) (s : ErrorStage) :
   have h2 := s.h_nonneg
   linarith [mul_nonneg h1 h2]
 
-/-
-The original theorem statement below is FALSE:
-A counterexample: 3 stages with bound = 1 gives pipelineError = 7 > 6 = 2 * sum.
-theorem pipeline_error_first_order (stages : List ErrorStage)
-(h_small : ∀ s ∈ stages, s.bound ≤ 1) :
-pipelineError stages ≤ 2 * (stages.map ErrorStage.bound).sum := by sorry
-
-Corrected first-order approximation: pipeline error ≤ 2^n * sum of stage errors
-when individual errors are at most 1. The original `2 * sum` bound is false for ≥ 3 stages
-(counterexample: three stages with bound 1 give pipeline error 7 > 6 = 2 × 3).
-The proof uses induction, bounding `acc * s.bound ≤ acc` (since `s.bound ≤ 1`).
--/
 theorem pipeline_error_first_order (stages : List ErrorStage)
     (h_small : ∀ s ∈ stages, s.bound ≤ 1) :
     pipelineError stages ≤ 2 ^ stages.length * (stages.map ErrorStage.bound).sum := by

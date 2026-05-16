@@ -90,20 +90,6 @@ The statement below is false as written. See the module docstring
 for a concrete counterexample and discussion of possible fixes.
 -/
 
-/- COMMENTED OUT: FALSE STATEMENT
-theorem equivalence_break_at_finite_precision
-    (b : ℕ) (hb : 2 ≤ b) (s : ℕ) (hs : 1 ≤ s)
-    (sigma : ℝ) (hσ : 0 < sigma)
-    (alpha : ℝ) (halpha : 0 < alpha ∧ alpha < 1) :
-    ∃ (tstar : ℕ) (m_tstar : ℝ),
-      tstar ≤ 2^b ∧
-      1 ≤ tstar ∧
-      (decide (quantizeReal s m_tstar ≥
-               sigma * Real.sqrt (2 * tstar * Real.log (tstar / alpha)))
-       ≠ decide (quantizeReal s (m_tstar - sigma^2 * tstar / 2) ≥
-                 Real.log (1 / alpha))) := by
-  sorry
--/
 
 /-! ## Corrected statement: generic (non-integer shift) case
 

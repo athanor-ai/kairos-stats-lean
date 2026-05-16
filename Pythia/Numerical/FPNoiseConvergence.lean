@@ -42,25 +42,6 @@ theorem fp_noise_variance_bounded (fp : FPComputation)
       _ ≤ fp.eps * M := by apply mul_le_mul_of_nonneg_left h2 (le_of_lt fp.h_eps_pos)
   exact sq_le_sq' (by linarith [abs_nonneg (fpNoise fp n)]) this
 
-/-
-The original statement of `fp_sgd_converges` (below, commented out) is false:
-a counterexample is `exact n = 1`, `eps = 0.5`,
-`approx n = 1 + 0.5 * (-1)^n`. The bound `|approx n - exact n| ≤ eps * |exact n|` holds,
-and `exact` converges to `1`, but `approx` oscillates between `0.5` and `1.5`.
-
-The issue is that `|fpNoise n| ≤ eps * |exact n|` with fixed `eps` does NOT imply
-`fpNoise n → 0` unless `exact n → 0`. The corrected version below adds the hypothesis
-`h_noise_vanish` stating that the FP noise vanishes in the limit.
-
--- Original (false) statement:
-theorem fp_sgd_converges (fp : FPComputation) (step : RMStepSize)
-    (M : ℝ) (h_bdd : ∀ n, |fp.exact n| ≤ M)
-    (h_exact_converges : ∃ x_star, Filter.Tendsto fp.exact Filter.atTop (nhds x_star)) :
-    ∃ x_star, Filter.Tendsto fp.approx Filter.atTop (nhds x_star) := by
-  sorry
-
-Corrected convergence theorem: SGD with FP noise converges provided the noise vanishes.
--/
 theorem fp_sgd_converges (fp : FPComputation) (step : RMStepSize)
     (M : ℝ) (h_bdd : ∀ n, |fp.exact n| ≤ M)
     (h_exact_converges : ∃ x_star, Filter.Tendsto fp.exact Filter.atTop (nhds x_star))

@@ -1,0 +1,10 @@
+[package]
+name = "pythia-options-binomial"
+version = "0.1.0"
+edition = "2021"
+description = "Cox-Ross-Rubinstein one-step binomial option pricing (from Lean spec)"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

@@ -1,0 +1,10 @@
+[package]
+name = "pythia-execution-il"
+version = "0.1.0"
+edition = "2021"
+description = "Impermanent Loss in a Constant-Product AMM (from Lean spec)"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

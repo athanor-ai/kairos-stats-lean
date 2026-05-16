@@ -1,0 +1,10 @@
+[package]
+name = "pythia-execution-impact"
+version = "0.1.0"
+edition = "2021"
+description = "Square-root market impact (Kyle-Obizhaeva) algebraic identities (from Lean spec)"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

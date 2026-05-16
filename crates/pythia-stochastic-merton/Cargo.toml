@@ -1,0 +1,10 @@
+[package]
+name = "pythia-stochastic-merton"
+version = "0.1.0"
+edition = "2021"
+description = "Merton Jump-Diffusion Model algebraic identities (from Lean spec)"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

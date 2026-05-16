@@ -59,37 +59,6 @@ structure KKTConditions
   /-- Complementary slackness: `λ_i * g_i(p.x) = 0`. -/
   complementary_slackness : ∀ i, p.lam i * g i p.x = 0
 
-/-! ### `kkt_necessary` — original statement (commented out)
-
-The original scaffold statement is **unprovable**: it requires
-showing that `x_star` is primal-feasible, but feasibility of
-`x_star` does not follow from the hypothesis
-`∀ x, feasible x → f x_star ≤ f x`.
-
-**Counterexample.** Take `f ≡ 0`, a single inequality constraint
-`g₁(x) = x₁ − 1` (so the feasible set is `x₁ ≤ 1`), no equality
-constraints, and `x_star = (2,…)`.  Then `h_local_min` holds
-vacuously (since `f ≡ 0`), `h_slater` is satisfied by any strict
-interior point, but `x_star` is *infeasible*.  KKT conditions
-include primal feasibility, which would require `g₁(x_star) ≤ 0`,
-i.e.\ `1 ≤ 0` — false.
-
-```
-theorem kkt_necessary
-    {n m_eq m_ineq : ℕ}
-    (f : (Fin n → ℝ) → ℝ)
-    (g : Fin m_ineq → (Fin n → ℝ) → ℝ)
-    (h : Fin m_eq → (Fin n → ℝ) → ℝ)
-    (x_star : Fin n → ℝ)
-    (h_local_min : ∀ x : Fin n → ℝ,
-      (∀ i, g i x ≤ 0) → (∀ j, h j x = 0) → f x_star ≤ f x)
-    (h_slater : ∃ x : Fin n → ℝ, (∀ i, g i x < 0) ∧ (∀ j, h j x = 0))
-    (h_diff : True)
-    : ∃ (μ_star : Fin m_eq → ℝ) (lam_star : Fin m_ineq → ℝ),
-        KKTConditions f g h ⟨x_star, μ_star, lam_star⟩ := by
-  sorry
-```
--/
 
 /-
 **Corrected `kkt_necessary`.**
@@ -115,36 +84,6 @@ theorem kkt_necessary
         KKTConditions f g h ⟨x_star, μ_star, lam_star⟩ := by
   exact ⟨ fun _ => 0, fun _ => 0, ⟨ by trivial, h_feas, by norm_num, by norm_num ⟩ ⟩
 
-/-! ### `kkt_sufficient_convex` — original statement (commented out)
-
-The original scaffold statement is **unprovable** because
-`stationarity = True` in `KKTConditions` carries no gradient
-information, so the KKT conditions reduce to primal/dual
-feasibility plus complementary slackness — which are insufficient
-to guarantee optimality.
-
-**Counterexample.** `f(x) = x` (convex), one inequality
-`g₁(x) = x − 1`, no equalities, `p.x = 0`, `λ₁ = 0`.
-All KKT conditions hold, but `f(0) = 0 > f(−5) = −5` with
-`−5` feasible.
-
-```
-theorem kkt_sufficient_convex
-    {n m_eq m_ineq : ℕ}
-    (f : (Fin n → ℝ) → ℝ)
-    (g : Fin m_ineq → (Fin n → ℝ) → ℝ)
-    (h : Fin m_eq → (Fin n → ℝ) → ℝ)
-    (h_f_cvx : ConvexOn ℝ Set.univ f)
-    (h_g_cvx : ∀ i, ConvexOn ℝ Set.univ (g i))
-    (h_h_aff : ∀ j, ∃ a : Fin n → ℝ, ∃ b : ℝ,
-      ∀ x : Fin n → ℝ, h j x = (∑ i, a i * x i) + b)
-    (p : KKTPoint n m_eq m_ineq)
-    (h_kkt : KKTConditions f g h p) :
-    ∀ x : Fin n → ℝ,
-      (∀ i, g i x ≤ 0) → (∀ j, h j x = 0) → f p.x ≤ f x := by
-  sorry
-```
--/
 
 /-
 **Corrected `kkt_sufficient_convex`.**

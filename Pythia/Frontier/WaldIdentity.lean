@@ -328,56 +328,6 @@ private lemma mart_trunc_integral_eq
 
 /-! ## Main theorems -/
 
-/-
-**ORIGINAL `wald_identity` — FALSE as stated.**
-
-The original statement required only:
-  (1) `∀ i, Integrable (X i) μ`
-  (2) `∀ i, ∫ X i = m`
-  (3) `Martingale (S_n − m·n) 𝓕 μ`
-  (4) `IsStoppingTime 𝓕 τ`
-  (5) `Integrable τ`
-and concluded `E[S_τ] = m · E[τ]`.
-
-This is false without uniform integrability of the stopped centred
-process. **Counter-example (doubling martingale):** set m = 0, define
-  X₁ = ±1 (fair coin),
-  X_{n+1} = ±2ⁿ if all prior flips were +, else 0,
-  τ = first n with Xₙ non-doubling.
-Then S_n is a martingale (each Xᵢ has mean 0), E[τ] = 2, but
-S_τ = −1 a.s., so E[S_τ] = −1 ≠ 0 = 0 · E[τ].
-The stopped process S_{τ∧N} is not uniformly integrable (it reaches
-2ᴺ − 1 with probability 2⁻ᴺ).
-
-See the corrected version `wald_identity` below, which adds the
-uniform-integrability hypothesis.
-
-theorem wald_identity_ORIGINAL_FALSE
-    [IsProbabilityMeasure μ]
-    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
-    (X : ℕ → Ω → ℝ) (m : ℝ)
-    (_hX_int : ∀ i, Integrable (X i) μ)
-    (_hX_mean : ∀ i, ∫ ω, X i ω ∂μ = m)
-    (_hX_mart_centered :
-      Martingale (fun n ω => partialSum X n ω - m * (n : ℝ)) 𝓕 μ)
-    (τ : Ω → ℕ)
-    (_hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
-    (_hτ_int : Integrable (fun ω => (τ ω : ℝ)) μ) :
-    ∫ ω, partialSum X (τ ω) ω ∂μ = m * ∫ ω, (τ ω : ℝ) ∂μ := by
-  sorry
-
-**Wald's identity** (first moment, m-parameterized, corrected).
-
-For an integrable sequence `X_i` with `E[X_i] = m` whose centred
-partial-sum process `S_n − m·n` is a martingale, and a stopping time
-`τ` with `E[τ] < ∞` **and uniform integrability of the stopped
-centred process** `(S_{τ∧n} − m·(τ∧n))_n`, we have
-
-  E[S_τ] = m · E[τ].
-
-The additional UI hypothesis (compared to the commented-out original)
-is necessary: see the doubling-martingale counter-example above.
--/
 theorem wald_identity
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ) [SigmaFiniteFiltration μ 𝓕]
@@ -460,42 +410,6 @@ theorem wald_identity_centered_via_optional_stopping
   rw [hOS]
   simp [partialSum_zero]
 
-/-
-**ORIGINAL `wald_identity_squared` — FALSE as stated.**
-
-Same issue as `wald_identity`: the original hypotheses omit uniform
-integrability of the stopped quadratic-variation martingale process
-`((S_{τ∧n} − m·(τ∧n))² − σ²·(τ∧n))_n`. The doubling-martingale
-counter-example applies here as well (the second moment diverges).
-
-theorem wald_identity_squared_ORIGINAL_FALSE
-    [IsProbabilityMeasure μ]
-    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
-    (X : ℕ → Ω → ℝ) (m σSq : ℝ)
-    (_hX_sq_int : ∀ i, Integrable (fun ω => (X i ω) ^ 2) μ)
-    (_hX_mean : ∀ i, ∫ ω, X i ω ∂μ = m)
-    (_hX_var : ∀ i, ∫ ω, (X i ω - m) ^ 2 ∂μ = σSq)
-    (_hQuadVar_mart :
-      Martingale
-        (fun n ω => (partialSum X n ω - m * (n : ℝ)) ^ 2 - σSq * (n : ℝ))
-        𝓕 μ)
-    (τ : Ω → ℕ)
-    (_hτ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime τ))
-    (_hτ_sq_int : Integrable (fun ω => (τ ω : ℝ) ^ 2) μ) :
-    ∫ ω, (partialSum X (τ ω) ω - m * (τ ω : ℝ)) ^ 2 ∂μ
-      = σSq * ∫ ω, (τ ω : ℝ) ∂μ := by
-  sorry
-
-**Wald's identity, second moment** (corrected).
-
-For an integrable-square sequence `X_i` with `E[X_i] = m`,
-`Var(X_i) = σ²`, whose quadratic-variation process
-`(S_n − m·n)² − σ²·n` is a martingale, a stopping time `τ` with
-`E[τ²] < ∞`, **and uniform integrability of the stopped
-quadratic-variation process**, we have
-
-  E[(S_τ − m·τ)²] = σ² · E[τ].
--/
 theorem wald_identity_squared
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ) [SigmaFiniteFiltration μ 𝓕]

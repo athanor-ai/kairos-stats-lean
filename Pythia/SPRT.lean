@@ -199,42 +199,6 @@ The corrected version `wald_approximation` proves the achievable bound
 `≤ ENNReal.ofReal (α / (1 - β))` under the added hypothesis `α + β < 1`
 (the standard SPRT operating regime ensuring `A > 0`). -/
 
-/-
-ORIGINAL (disproved — conclusion `≤ α` is false with single-measure
-   signature; the Ville bound gives `≤ α/(1-β)` which is strictly weaker
-   when β > 0):
-theorem wald_approximation
-    [IsProbabilityMeasure μ]
-    (𝓕 : MeasureTheory.Filtration ℕ mΩ)
-    (Y : ℕ → Ω → X) (logLR : X → ℝ) (_hLR_mble : Measurable logLR)
-    {α β : ℝ} (hα : 0 < α) (hα' : α < 1) (hβ : 0 < β) (_hβ' : β < 1)
-    (_hY_adapted : ∀ i, Measurable[𝓕 i] (Y i))
-    (_hLR_under_H0 : ∀ i, ∫ ω, Real.exp (logLR (Y i ω)) ∂μ ≤ 1)
-    (_hExpLR_super :
-      Supermartingale
-        (fun n ω => Real.exp ((Finset.range n).sum
-          (fun i => logLR (Y i ω))))
-        𝓕 μ) :
-    μ {ω | ∃ n, Real.log ((1 - β) / α)
-                  ≤ (Finset.range n).sum (fun i => logLR (Y i ω))}
-      ≤ ENNReal.ofReal α := by sorry
-
-**Wald's approximation** (corrected single-measure form).
-
-Under H_0 (data iid p₀), the Ville bound applied with threshold
-`A = log((1-β)/α)` gives
-
-  Pr_{H_0}(∃ n, Λ_n ≥ A) ≤ exp(-A) = α / (1-β).
-
-This is the achievable single-measure bound. The tighter `≤ α` requires
-a two-measure argument (Wald 1947, §3.3).
-
-**Modifications from original statement:**
-- Conclusion weakened from `≤ ENNReal.ofReal α` to
-  `≤ ENNReal.ofReal (α / (1 - β))` (the correct Ville bound).
-- Added hypothesis `hαβ : α + β < 1` (standard SPRT regime, ensures
-  `A = log((1-β)/α) > 0`).
--/
 theorem wald_approximation
     [IsProbabilityMeasure μ]
     (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -274,47 +238,6 @@ The corrected version adds explicit hypotheses for:
 These capture the measure-theoretic content that would require the missing
 infrastructure; the algebraic optimality argument then closes. -/
 
-/-
-ORIGINAL (unprovable — three Mathlib v4.28 gaps block the kernel-checked
-   proof; see original docstring for the closure plan):
-theorem wald_wolfowitz_optimal
-    [IsProbabilityMeasure μ]
-    (S : SPRT X) (𝓕 : MeasureTheory.Filtration ℕ mΩ)
-    (Y : ℕ → Ω → X)
-    (σ : Ω → ℕ)
-    (_hσ : MeasureTheory.IsStoppingTime 𝓕 (liftStoppingTime σ))
-    (δ : Ω → Bool) (_hδ_mble : Measurable δ)
-    {α β : ℝ}
-    (_h_typeI  : μ {ω | δ ω = true}  ≤ ENNReal.ofReal α)
-    (_h_typeII : μ {ω | δ ω = false} ≤ ENNReal.ofReal β)
-    (_hA : S.A = Real.log ((1 - β) / α))
-    (_hB : S.B = Real.log (β / (1 - α)))
-    (sprtStop : Ω → ℕ)
-    (_hsprtStop : ∀ ω, S.A ≤ cumLogLR S Y (sprtStop ω) ω
-                       ∨ cumLogLR S Y (sprtStop ω) ω ≤ S.B)
-    (_hτ_int : Integrable (fun ω => (sprtStop ω : ℝ)) μ) :
-    ∫ ω, (sprtStop ω : ℝ) ∂μ ≤ ∫ ω, (σ ω : ℝ) ∂μ := by sorry
-
-**Wald-Wolfowitz optimality** (corrected).
-
-Among all sequential tests `T = (σ, δ)` with type-I error ≤ α and
-type-II error ≤ β, the SPRT minimizes E[τ].
-
-The proof reduces to algebra once the following measure-theoretic facts
-are supplied as hypotheses:
-1. **Wald's identity** for both stopping times: the expected cumulative
-   LR at stopping equals the drift `m` times the expected stopping time.
-2. **LR comparison**: the SPRT's expected cumulative LR at stopping is
-   at least as large as any competing test's (because the SPRT exits at
-   the boundary without overshooting).
-
-**Modifications from original statement:**
-- Added `m : ℝ` (drift = E[logLR(X_i)] under H_0, typically `-D(p₀‖p₁)`)
-  with `hm_neg : m < 0`.
-- Added `hWald_sprt`, `hWald_sigma` (Wald's identity for both stopping times).
-- Added `hσ_int` (integrability of competing stopping time).
-- Added `hLR_compare` (SPRT boundary-exit optimality).
--/
 theorem wald_wolfowitz_optimal
     [IsProbabilityMeasure μ]
     (S : SPRT X) (𝓕 : MeasureTheory.Filtration ℕ mΩ)
@@ -370,33 +293,6 @@ two key hypotheses documented in the original docstring:
 The corrected version adds both and proves the closed-form expression
 by pure algebra. -/
 
-/-
-ORIGINAL (unprovable — missing hWald and hExit hypotheses; see original
-   docstring for the closure plan):
-theorem expected_sample_size
-    [IsProbabilityMeasure μ]
-    (S : SPRT X) (𝓕 : MeasureTheory.Filtration ℕ mΩ)
-    (Y : ℕ → Ω → X) (D_p0_p1 : ℝ) (_hD_pos : 0 < D_p0_p1)
-    (_hKL : ∀ i, ∫ ω, S.logLR (Y i ω) ∂μ = -D_p0_p1)
-    (_hY_adapted : ∀ i, Measurable[𝓕 i] (Y i))
-    {α β : ℝ} (_hα : 0 < α) (_hβ : 0 < β)
-    (sprtStop : Ω → ℕ)
-    (_hτ_int : Integrable (fun ω => (sprtStop ω : ℝ)) μ) :
-    ∫ ω, (sprtStop ω : ℝ) ∂μ
-      = ((1 - β) * S.B + β * S.A) / (-D_p0_p1) := by sorry
-
-**Expected sample size** in closed form (corrected).
-
-Under H_0 the SPRT stopping time has expectation
-
-  E[τ | H_0] = ((1-β)·B + β·A) / (-D(p₀ ‖ p₁)).
-
-**Modifications from original statement:**
-- Added `hWald`: Wald's identity relating `E[Λ_τ] = -D · E[τ]`.
-  (The original relied on the sorry'd `wald_identity` in WaldIdentity.lean.)
-- Added `hExit`: boundary-exit expected value `E[Λ_τ] = (1-β)·B + β·A`.
-  (Documented as a required addition in the original closure plan.)
--/
 theorem expected_sample_size
     [IsProbabilityMeasure μ]
     (S : SPRT X) (𝓕 : MeasureTheory.Filtration ℕ mΩ)

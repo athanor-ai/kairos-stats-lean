@@ -244,34 +244,6 @@ noncomputable def subGammaMG_of_bounded_martingale
   nu_pos := hV
   c_nonneg := by positivity
 
-/-! ## Section 3 — Bernstein for iid bounded RVs
-
-The original statement of `bernstein_iid` had a too-weak independence
-hypothesis: `∀ t, IndepFun (X 0) (X t) μ` only gives pairwise
-independence of each `X t` with `X 0`, not mutual independence.
-A counterexample: take `X 1 = X 2 = ⋯ = X_{n-1}` (all equal), each
-independent of `X 0 = 0` a.s. Then `∑ X_i ≈ (n-1) X_1`, whose tail
-probability is ~0.5 but the bound goes to 0 as n → ∞.
-
-The corrected version uses `iIndepFun` (mutual independence) and
-adds the `Measurable` hypothesis needed for `iIndepFun.mgf_sum`.
-
-**Original (false) statement — commented out:**
-
-  theorem bernstein_iid_original
-      {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
-      [IsProbabilityMeasure μ]
-      {X : ℕ → Ω → ℝ} {b : ℝ} {sigma_sq : ℝ}
-      (hb_pos : 0 < b) (hsigma_sq_nonneg : 0 ≤ sigma_sq)
-      (h_iid : ∀ t, ProbabilityTheory.IndepFun (X 0) (X t) μ)
-      (h_bounded : ∀ t, ∀ᵐ ω ∂μ, |X t ω| ≤ b)
-      (h_zero_mean : ∀ t, ∫ ω, X t ω ∂μ = 0)
-      (h_var_bound : ∀ t, ∫ ω, (X t ω)^2 ∂μ ≤ sigma_sq)
-      (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
-      μ {ω | (Finset.range n).sum (fun i => X i ω) ≥ eps} ≤
-        ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (n * sigma_sq + b * eps / 3)))) := by
-    sorry
--/
 
 /-
 **Bernstein's inequality** for iid bounded random variables
@@ -327,32 +299,6 @@ theorem bernstein_iid
       rw [ ← Real.exp_add ] ; congr 1 ; field_simp ; ring;
       rw [ show ( eps * b * 2 + n * sigma_sq * 6 : ℝ ) = ( eps * n * sigma_sq * b * 6 + n ^ 2 * sigma_sq ^ 2 * 18 ) / ( n * sigma_sq * 3 ) by rw [ eq_div_iff ( by positivity ) ] ; ring ] ; norm_num ; ring
 
-/-! ## Section 4 — Freedman's inequality
-
-The original `freedman` had no variance hypothesis at all — `V_n`
-was an unconstrained positive real. The bound is false for small
-`V_n`. For example: `n = 1`, `b = 1`, `V_n = 0.001`, `ε = 0.5`:
-a martingale with `M₁ = ±1` equiprobably has `P(M₁ ≥ 0.5) = 0.5`,
-but `exp(-0.25 / (2 (0.001 + 1/6))) ≈ 0.474 < 0.5`.
-
-The corrected version adds a uniform conditional variance bound.
-
-**Original (false) statement — commented out:**
-
-  theorem freedman_original
-      {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
-      {μ : Measure Ω} [IsProbabilityMeasure μ]
-      {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
-      (h_mart : MeasureTheory.Martingale M 𝓕 μ)
-      (b : ℝ) (hb_pos : 0 < b)
-      (h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ,
-        |M (t + 1) ω - M t ω| ≤ b)
-      (V_n : ℝ) (hV_pos : 0 < V_n)
-      (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
-      μ {ω | ∃ t : ℕ, t ≤ n ∧ M t ω ≥ eps} ≤
-        ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
-    sorry
--/
 
 /-- **Freedman's inequality** (corrected): maximal Bernstein for martingales. -/
 theorem freedman
@@ -381,36 +327,6 @@ theorem freedman
   convert h using 2
   field_simp
 
-/-! ## Section 5 — Bernstein for martingales
-
-The original `bernstein_martingale` used `h_predictable_var` with
-conditional variance `V_n / (t+1)` at step `t`, giving total
-predictable quadratic variation `V_n · H_n` (the n-th harmonic
-number), but the bound used `V_n` alone. For `n ≥ 2` the stated
-bound is too tight and the statement is false.
-
-The corrected version uses a uniform per-step conditional variance
-bound `V` and uses `n * V` in the rate.
-
-**Original (false) statement — commented out:**
-
-  theorem bernstein_martingale_original
-      {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
-      {μ : Measure Ω} [IsProbabilityMeasure μ]
-      {𝓕 : Filtration ℕ mΩ} {M : ℕ → Ω → ℝ}
-      (h_mart : MeasureTheory.Martingale M 𝓕 μ)
-      (b : ℝ) (hb_pos : 0 < b)
-      (h_bounded_increments : ∀ t, ∀ᵐ ω ∂μ,
-        |M (t + 1) ω - M t ω| ≤ b)
-      (V_n : ℝ) (hV_pos : 0 < V_n)
-      (h_predictable_var : ∀ t,
-        μ[fun ω => (M (t + 1) ω - M t ω)^2 | 𝓕 t] =ᵐ[μ]
-        (fun _ => V_n / (t + 1 : ℝ)))
-      (n : ℕ) (eps : ℝ) (hε : 0 < eps) :
-      μ {ω | M n ω ≥ eps} ≤
-        ENNReal.ofReal (Real.exp (-(eps^2) / (2 * (V_n + b * eps / 3)))) := by
-    sorry
--/
 
 /-- **Bernstein for martingales** (corrected). Reduces to `freedman`. -/
 theorem bernstein_martingale

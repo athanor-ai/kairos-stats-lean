@@ -60,6 +60,8 @@ jobs:
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=60
+        env:
+          LD_LIBRARY_PATH: ${{ env.pythonLocation }}/lib
       - name: Upload coverage to Codecov
         # Codecov action is no-token for public repos. Best-effort —
         # tolerate Codecov outages without failing the sweep.
@@ -69,3 +71,4 @@ jobs:
           files: ./coverage.xml
           flags: tools
           fail_ci_if_error: false
+

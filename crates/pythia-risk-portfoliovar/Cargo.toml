@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-portfoliovar"
+version = "0.1.0"
+edition = "2021"
+description = "Verified portfolio variance decomposition: PSD nonneg, quadratic scaling, single-asset. Lean spec: Pythia.Finance.Risk.PortfolioVarDecomp (zero tautological)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

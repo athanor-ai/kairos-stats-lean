@@ -27,7 +27,7 @@ theorem vwap_ge_min {n : ℕ} (prices volumes : Fin n → ℝ)
   unfold vwap
   rw [le_div_iff₀ h_total]
   calc p_min * ∑ i, volumes i
-      = ∑ i, p_min * volumes i := (Finset.mul_sum ..).symm
+      = ∑ i, p_min * volumes i := by rw [Finset.mul_sum]
     _ ≤ ∑ i, prices i * volumes i := Finset.sum_le_sum fun i _ =>
         mul_le_mul_of_nonneg_right (h_min i) (h_vol i)
 
@@ -45,9 +45,12 @@ theorem participation_matches_vwap {n : ℕ}
     (prices volumes : Fin n → ℝ) (alpha : ℝ) (h_alpha : alpha ≠ 0)
     (h_vol : 0 < ∑ i, volumes i) :
     vwap prices (fun i => alpha * volumes i) = vwap prices volumes := by
-  unfold vwap
-  simp_rw [mul_left_comm alpha]
-  rw [← Finset.mul_sum, ← Finset.mul_sum]
-  rw [mul_div_mul_left _ _ h_alpha]
+  simp only [vwap]
+  have h1 : ∑ i : Fin n, prices i * (alpha * volumes i)
+      = alpha * ∑ i, prices i * volumes i := by
+    rw [Finset.mul_sum]; apply Finset.sum_congr rfl; intros; ring
+  have h2 : ∑ i : Fin n, alpha * volumes i = alpha * ∑ i, volumes i := by
+    rw [Finset.mul_sum]
+  rw [h1, h2, mul_div_mul_left _ _ h_alpha]
 
 end Pythia.Finance.Execution.VWAPBounds

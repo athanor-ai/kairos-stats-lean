@@ -34,14 +34,14 @@ theorem bonferroni_antitone {alpha : ℝ} (h_alpha : 0 < alpha)
     (Nat.cast_pos (α := ℝ) |>.mpr h_n1)
     (Nat.cast_le (α := ℝ) |>.mpr h)
 
-/-- **Minimum track record length.** The minimum number of
-observations needed to distinguish skill from luck at
-significance alpha with Sharpe ratio S is approximately
-(z_alpha / S)^2. We prove: if n >= (z/S)^2, then z/S <= sqrt(n). -/
+/-- **Minimum track record length.** If n >= (z/S)^2, then
+|z/S| <= sqrt(n). This connects sample size to statistical power.
+Real proof via Real.le_sqrt + sq_abs. -/
 @[stat_lemma]
-theorem min_track_record {z S : ℝ} (hS : 0 < S)
-    {n : ℝ} (hn : (z / S) ^ 2 ≤ n) :
-    (z / S) ^ 2 ≤ n := hn
+theorem min_track_record {z S n : ℝ} (hn : (z / S) ^ 2 ≤ n) :
+    |z / S| ≤ Real.sqrt n := by
+  rw [← Real.sqrt_sq_eq_abs]
+  exact Real.sqrt_le_sqrt hn
 
 /-- **Deflated Sharpe ratio.** The probability that the best of
 n backtested strategies has Sharpe > S by luck alone increases
@@ -49,13 +49,9 @@ with n. Adjusting for this: DSR = S - sqrt(2 * log(n)) * vol_S.
 We prove: the adjustment is nonneg when n >= 1. -/
 @[stat_lemma]
 theorem deflation_adjustment_nonneg {log_n vol_S : ℝ}
-    (h_log : 0 ≤ log_n) (h_vol : 0 ≤ vol_S) :
+    (h_vol : 0 ≤ vol_S) :
     0 ≤ Real.sqrt (2 * log_n) * vol_S :=
   mul_nonneg (Real.sqrt_nonneg _) h_vol
-
-/-- **Overfitting probability increases with trials.** -/
-axiom overfit_prob_mono {p₁ p₂ : ℝ}
-    (h : p₁ ≤ p₂) : p₁ ≤ p₂
 
 /-- **Out-of-sample validation.** In-sample Sharpe minus
 out-of-sample Sharpe is the overfitting penalty. Nonneg

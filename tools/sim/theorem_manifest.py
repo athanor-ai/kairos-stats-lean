@@ -457,7 +457,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="put_call_parity_discounted",
-        lean_path="Pythia/Finance/PutCallParity.lean",
+        lean_path="Pythia/Finance/Options/PutCallParity.lean",
         lean_theorem="Pythia.Finance.put_call_parity_discounted",
         sim_path="tools/sim/finance_put_call_parity.py",
         sim_test="test_put_call_parity_discounted",
@@ -468,7 +468,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="impermanent_loss_nonpos",
-        lean_path="Pythia/Finance/ImpermanentLoss.lean",
+        lean_path="Pythia/Finance/Execution/ImpermanentLoss.lean",
         lean_theorem="Pythia.Finance.impermanentLoss_nonpos",
         sim_path="tools/sim/finance_impermanent_loss.py",
         sim_test="test_impermanent_loss_nonpos",
@@ -479,7 +479,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="log_gbm_terminal",
-        lean_path="Pythia/Finance/GeometricBrownianMotion.lean",
+        lean_path="Pythia/Finance/Stochastic/GeometricBrownianMotion.lean",
         lean_theorem="Pythia.Finance.log_gbmTerminal",
         sim_path="tools/sim/finance_gbm_terminal.py",
         sim_test="test_log_gbm_terminal",
@@ -490,7 +490,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="hedged_variance_at_optimum",
-        lean_path="Pythia/Finance/HedgeRatioMinVar.lean",
+        lean_path="Pythia/Finance/Portfolio/HedgeRatioMinVar.lean",
         lean_theorem="Pythia.Finance.hedgedVariance_at_optimum",
         sim_path="tools/sim/finance_hedge_ratio_min_var.py",
         sim_test="test_hedged_variance_at_optimum",
@@ -501,7 +501,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="sharpe_diff_eq_excess_over_sigma",
-        lean_path="Pythia/Finance/SharpeBridge.lean",
+        lean_path="Pythia/Finance/Portfolio/SharpeBridge.lean",
         lean_theorem="Pythia.Finance.sharpe_diff_eq_excess_over_sigma",
         sim_path="tools/sim/finance_sharpe_ratio.py",
         sim_test="test_sharpe_diff",
@@ -512,7 +512,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="volatility_scale_squared",
-        lean_path="Pythia/Finance/VolatilityScaling.lean",
+        lean_path="Pythia/Finance/Risk/VolatilityScaling.lean",
         lean_theorem="Pythia.Finance.volatilityScale_squared",
         sim_path="tools/sim/finance_volatility_scaling.py",
         sim_test="test_volatility_scale_squared",
@@ -523,7 +523,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="continuous_annuity_lt_perpetuity",
-        lean_path="Pythia/Finance/AnnuityFactor.lean",
+        lean_path="Pythia/Finance/FixedIncome/AnnuityFactor.lean",
         lean_theorem="Pythia.Finance.continuousAnnuity_lt_perpetuity",
         sim_path="tools/sim/finance_annuity_factor.py",
         sim_test="test_continuous_annuity_lt_perpetuity",
@@ -534,7 +534,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="discount_factor_le_one",
-        lean_path="Pythia/Finance/DiscountFactor.lean",
+        lean_path="Pythia/Finance/FixedIncome/DiscountFactor.lean",
         lean_theorem="Pythia.Finance.discountFactor_le_one",
         sim_path="tools/sim/finance_discount_factor.py",
         sim_test="test_discount_factor_le_one",
@@ -545,7 +545,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="forward_price_zero_dividend",
-        lean_path="Pythia/Finance/ForwardPrice.lean",
+        lean_path="Pythia/Finance/FixedIncome/ForwardPrice.lean",
         lean_theorem="Pythia.Finance.forwardPrice_zero_dividend",
         sim_path="tools/sim/finance_forward_price.py",
         sim_test="test_forward_price_zero_dividend",
@@ -556,7 +556,7 @@ MANIFEST: tuple[TheoremEntry, ...] = (
     TheoremEntry(
         domain="finance",
         name="gordon_growth_zero_growth",
-        lean_path="Pythia/Finance/GordonGrowth.lean",
+        lean_path="Pythia/Finance/Fundamentals/GordonGrowth.lean",
         lean_theorem="Pythia.Finance.gordonGrowthPrice_zero_growth",
         sim_path="tools/sim/finance_gordon_growth.py",
         sim_test="test_gordon_zero_growth",

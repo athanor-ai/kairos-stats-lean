@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-marginmodel"
+version = "0.1.0"
+edition = "2021"
+description = "Verified portfolio margin model: subadditivity, netting, liquidation. Lean spec: Pythia.Finance.Risk.MarginModel (zero tautological, all real proofs)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

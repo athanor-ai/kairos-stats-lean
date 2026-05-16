@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-markowitz"
+version = "0.1.0"
+edition = "2021"
+description = "Markowitz two-asset minimum-variance frontier: optimal weight, min variance, zero-corr specialization. Lean spec: Pythia.Finance.Portfolio.MarkowitzFrontier"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

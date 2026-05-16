@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-efficient-frontier"
+version = "0.1.0"
+edition = "2021"
+description = "Two-asset efficient frontier: portfolio return/variance, boundary cases, non-negativity. Lean spec: Pythia.Finance.Portfolio.EfficientFrontier"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

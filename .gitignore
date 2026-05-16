@@ -36,3 +36,7 @@ coverage.xml
 # (SwarmDogfood/, SDKFleetDemo/) are NOT covered by this rule.
 Pythia/Scratch/MdDoctest/
 .pythia/
+
+# Rust build artifacts
+target/
+

@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-margin"
+version = "0.1.0"
+edition = "2021"
+description = "Verified margin call mechanics: breach detection, liquidation, cascade risk. Lean spec: Pythia.Finance.Risk.MarginCallMechanics"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

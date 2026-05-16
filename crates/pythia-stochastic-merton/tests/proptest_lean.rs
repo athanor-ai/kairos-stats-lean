@@ -2,17 +2,19 @@ use proptest::prelude::*;
 use pythia_stochastic_merton::*;
 
 proptest! {
-    /// Lean: compensated_drift — the compensation equals lam*kappa.
-    /// Property: compensation is nonneg when lam >= 0 and kappa >= 0.
+    /// compensated_drift is a trivial helper (returns lam*kappa by construction).
+    /// Honest: this test only verifies the impl matches independent computation.
+    /// NOT a meaningful safety property — it's an algebraic identity check.
     #[test]
-    fn prop_compensated_drift_nonneg(
+    fn prop_compensated_drift_identity(
         mu in -100.0_f64..100.0,
-        lam in 0.0_f64..10.0,
-        kappa in 0.0_f64..5.0,
+        lam in -10.0_f64..10.0,
+        kappa in -5.0_f64..5.0,
     ) {
         let result = compensated_drift(mu, lam, kappa);
-        prop_assert!(result >= -1e-12,
-            "compensated_drift({mu}, {lam}, {kappa}) = {result} < 0 for nonneg lam*kappa");
+        let expected = lam * kappa;
+        prop_assert!((result - expected).abs() < 1e-12,
+            "compensated_drift({mu}, {lam}, {kappa}) = {result}, expected {expected}");
     }
 
     /// Lean: total_variance proves result >= 0 when all inputs >= 0.

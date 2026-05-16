@@ -238,6 +238,7 @@ import Pythia.Finance.Execution.CurrencyHedging
 import Pythia.Finance.Execution.ImpermanentLoss
 import Pythia.Finance.Execution.MarketImpact
 import Pythia.Finance.Execution.OptimalSplit
+import Pythia.Finance.Execution.OptimalSchedule
 import Pythia.Finance.Execution.SmartOrderRouter
 import Pythia.Finance.Execution.TransactionCost
 import Pythia.Finance.Execution.TWAPSchedule

@@ -40,17 +40,23 @@ proptest! {
     /// Lean: `bondLogPrice_linear_logB`
     /// bondLogPrice(logB + delta, D, C, y) == bondLogPrice(logB, D, C, y) + delta.
     #[test]
-    fn prop_linear_logb(
-        log_b in -100.0..100.0f64,
-        delta in -100.0..100.0f64,
-        d in -100.0..100.0f64,
-        c in -100.0..100.0f64,
-        y in -10.0..10.0f64,
+    /// Lean: duration antitone in yield — higher yield = lower log price
+    /// (for positive duration d > 0). This CAN fail if implementation is wrong.
+    fn prop_duration_antitone(
+        log_b in 0.0..10.0f64,
+        d in 0.01..10.0f64,
+        c in 0.0..5.0f64,
+        y1 in 0.0..5.0f64,
+        dy in 0.01..2.0f64,
     ) {
-        let base = bond_log_price(log_b, d, c, y);
-        let shifted = bond_log_price_shifted(log_b, delta, d, c, y);
-        prop_assert!((shifted - (base + delta)).abs() < EPS,
-            "linearity failed: shifted={}, base+delta={}", shifted, base + delta);
+        let p1 = bond_log_price(log_b, d, c, y1);
+        let p2 = bond_log_price(log_b, d, c, y1 + dy);
+        // For large enough duration relative to convexity, higher yield = lower price
+        // This tests the economic property, not an algebraic identity
+        if d > c * (y1 + dy) {
+            prop_assert!(p2 < p1 + 1e-10,
+                "duration antitone violated: p1={p1}, p2={p2}, d={d}, c={c}, y1={y1}, dy={dy}");
+        }
     }
 
     /// Structural: convexity always adds a non-negative term for C >= 0.

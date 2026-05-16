@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-leverage"
+version = "0.1.0"
+edition = "2021"
+description = "Verified leverage constraints: gross/net exposure, margin, leverage ratio. Lean spec: Pythia.Finance.Portfolio.LeverageConstraints"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

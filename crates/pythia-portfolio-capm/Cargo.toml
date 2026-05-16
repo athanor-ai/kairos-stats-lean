@@ -1,0 +1,10 @@
+[package]
+name = "pythia-portfolio-capm"
+version = "0.1.0"
+edition = "2021"
+description = "CAPM Beta algebraic identities (from Lean spec)"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

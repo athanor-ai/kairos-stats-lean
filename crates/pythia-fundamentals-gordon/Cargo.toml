@@ -1,0 +1,9 @@
+[package]
+name = "pythia-fundamentals-gordon"
+version = "0.1.0"
+edition = "2021"
+description = "Verified Gordon growth model: zero-growth specialisation, linearity, scale-invariance. Lean spec: Pythia.Finance.Fundamentals.GordonGrowth"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

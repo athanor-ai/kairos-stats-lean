@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-leverage"
+version = "0.1.0"
+edition = "2021"
+description = "Verified leverage decay (volatility drag) for daily-rebalanced leveraged ETFs. Lean spec: Pythia.Finance.Risk.LeverageDecay"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

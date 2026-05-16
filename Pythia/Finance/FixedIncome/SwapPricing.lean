@@ -54,6 +54,7 @@ theorem payer_antitone_rate {annuity c₁ c₂ pv_float : ℝ}
 in the fixed rate is approximately the annuity factor. -/
 @[stat_lemma]
 theorem swap_dv01_nonneg {annuity : ℝ} (h : 0 ≤ annuity) :
-    0 ≤ annuity := h
+    0 ≤ annuity -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.FixedIncome.SwapPricing

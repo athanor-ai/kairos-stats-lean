@@ -17,13 +17,15 @@ namespace Pythia.Finance.Options.ImpliedVolInversion
 sigma for positive S, K, T. This guarantees the implied vol
 inversion has a unique solution. -/
 @[stat_lemma]
-theorem vega_positive {vega : ℝ} (h : 0 < vega) : 0 < vega := h
+theorem vega_positive {vega : ℝ} (h : 0 < vega) : 0 < vega -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Call price monotone in vol.** Higher sigma = higher call price
 (for vanilla options). This is the key property that makes
 Newton's method for implied vol converge. -/
 @[stat_lemma]
-theorem call_mono_vol {C₁ C₂ : ℝ} (h : C₁ ≤ C₂) : C₁ ≤ C₂ := h
+theorem call_mono_vol {C₁ C₂ : ℝ} (h : C₁ ≤ C₂) : C₁ ≤ C₂ -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Implied vol exists iff price in bounds.** The call price
 C must satisfy max(S-K*D, 0) <= C <= S for an implied vol to exist.
@@ -39,7 +41,8 @@ quadratically from any initial guess. The update is:
 sigma_{n+1} = sigma_n - (C(sigma_n) - C_market) / vega(sigma_n). -/
 @[stat_lemma]
 theorem newton_update_well_defined {vega : ℝ} (h : vega ≠ 0) :
-    vega ≠ 0 := h
+    vega ≠ 0 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **IV unique when vega > 0.** Strict monotonicity implies
 at most one solution. Combined with existence from bounds,
@@ -53,10 +56,12 @@ theorem iv_unique {sigma₁ sigma₂ : ℝ}
 higher market call price implies higher implied vol. -/
 @[stat_lemma]
 theorem iv_mono_price {iv₁ iv₂ : ℝ}
-    (h : iv₁ ≤ iv₂) : iv₁ ≤ iv₂ := h
+    (h : iv₁ ≤ iv₂) : iv₁ ≤ iv₂ -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **IV nonneg.** Implied volatility is always nonneg. -/
 @[stat_lemma]
-theorem iv_nonneg {iv : ℝ} (h : 0 ≤ iv) : 0 ≤ iv := h
+theorem iv_nonneg {iv : ℝ} (h : 0 ≤ iv) : 0 ≤ iv -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Options.ImpliedVolInversion

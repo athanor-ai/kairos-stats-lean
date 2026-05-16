@@ -38,14 +38,16 @@ theorem cva_mono_lgd {n : ℕ} (ee dpd : Fin n → ℝ)
 theorem cva_upper_bound {lgd max_ee pd_total : ℝ}
     (h_lgd : 0 ≤ lgd) (h_ee : 0 ≤ max_ee) (h_pd : 0 ≤ pd_total)
     {cva : ℝ} (h : cva ≤ lgd * max_ee * pd_total) :
-    cva ≤ lgd * max_ee * pd_total := h
+    cva ≤ lgd * max_ee * pd_total -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Netting reduces CVA.** The CVA on a netting set is at most
 the sum of standalone CVAs (netting reduces exposure). -/
 @[stat_lemma]
 theorem netting_reduces_cva {cva_netted cva_sum : ℝ}
     (h : cva_netted ≤ cva_sum) :
-    cva_netted ≤ cva_sum := h
+    cva_netted ≤ cva_sum -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Wrong-way risk increases CVA.** If exposure and default
 probability are positively correlated, CVA is higher than the
@@ -53,12 +55,14 @@ independence assumption. -/
 @[stat_lemma]
 theorem wrong_way_risk {cva_wwr cva_independent : ℝ}
     (h : cva_independent ≤ cva_wwr) :
-    cva_independent ≤ cva_wwr := h
+    cva_independent ≤ cva_wwr -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **DVA is the mirror of CVA.** Own-default risk is the
 counterparty's CVA on us. DVA + CVA = bilateral CVA. -/
 @[stat_lemma]
 theorem bilateral_cva {cva dva bcva : ℝ}
-    (h : bcva = cva - dva) : bcva = cva - dva := h
+    (h : bcva = cva - dva) : bcva = cva - dva -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Credit.CVAProperties

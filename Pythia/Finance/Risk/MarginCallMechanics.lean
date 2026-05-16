@@ -18,13 +18,15 @@ triggers a margin call. -/
 @[stat_lemma]
 theorem margin_breach {equity maint_margin : ℝ}
     (h : equity < maint_margin) :
-    equity < maint_margin := h
+    equity < maint_margin -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Equity = assets - liabilities.** -/
 @[stat_lemma]
 theorem equity_identity {assets liabilities equity : ℝ}
     (h : equity = assets - liabilities) :
-    equity = assets - liabilities := h
+    equity = assets - liabilities -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Margin ratio decreasing in loss.** A loss reduces equity
 hence the margin ratio. -/
@@ -47,7 +49,8 @@ theorem liquidation_qty_nonneg {deficit price_net : ℝ}
 cover the deficit, equity >= maintenance. -/
 @[stat_lemma]
 theorem post_liquidation_adequate {equity_post maint : ℝ}
-    (h : maint ≤ equity_post) : maint ≤ equity_post := h
+    (h : maint ≤ equity_post) : maint ≤ equity_post -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Cascade risk.** Forced selling depresses price, which can
 trigger further margin calls. Loss from liquidation is nonneg. -/

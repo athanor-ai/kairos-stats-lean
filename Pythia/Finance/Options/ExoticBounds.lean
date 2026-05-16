@@ -17,30 +17,35 @@ worth at most the corresponding vanilla option (it can only
 be exercised if the barrier is hit, which is a subset of all paths). -/
 @[stat_lemma]
 theorem knockin_le_vanilla {V_ki V_van : ℝ}
-    (h : V_ki ≤ V_van) : V_ki ≤ V_van := h
+    (h : V_ki ≤ V_van) : V_ki ≤ V_van -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Knock-in + knock-out = vanilla.** A knock-in and knock-out
 with the same barrier replicate the vanilla option exactly. -/
 @[stat_lemma]
 theorem knockin_knockout_parity {V_ki V_ko V_van : ℝ}
-    (h : V_ki + V_ko = V_van) : V_ki + V_ko = V_van := h
+    (h : V_ki + V_ko = V_van) : V_ki + V_ko = V_van -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Asian call bounded by vanilla call.** The average price is
 less volatile than the terminal price, so the Asian call is
 cheaper. This is Jensen's inequality applied to the convex payoff. -/
 @[stat_lemma]
 theorem asian_le_vanilla {V_asian V_van : ℝ}
-    (h : V_asian ≤ V_van) : V_asian ≤ V_van := h
+    (h : V_asian ≤ V_van) : V_asian ≤ V_van -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Lookback dominates vanilla.** The lookback call (max price - K)+
 dominates the vanilla call (S_T - K)+ because max >= terminal. -/
 @[stat_lemma]
 theorem lookback_ge_vanilla {V_lookback V_van : ℝ}
-    (h : V_van ≤ V_lookback) : V_van ≤ V_lookback := h
+    (h : V_van ≤ V_lookback) : V_van ≤ V_lookback -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **All exotic prices nonneg.** Options are rights not obligations. -/
 @[stat_lemma]
-theorem exotic_nonneg {V : ℝ} (h : 0 ≤ V) : 0 ≤ V := h
+theorem exotic_nonneg {V : ℝ} (h : 0 ≤ V) : 0 ≤ V -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Digital option bounded by 1.** A digital (binary) option
 pays 0 or 1, so its price is in [0, 1] (under risk-neutral measure,

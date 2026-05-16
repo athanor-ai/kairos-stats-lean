@@ -72,6 +72,7 @@ discrete_min >= continuous_min, so discrete payoff <= continuous. -/
 @[stat_lemma]
 theorem discrete_lookback_le_continuous {payoff_disc payoff_cont : ℝ}
     (h : payoff_disc ≤ payoff_cont) :
-    payoff_disc ≤ payoff_cont := h
+    payoff_disc ≤ payoff_cont -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.LookbackOption

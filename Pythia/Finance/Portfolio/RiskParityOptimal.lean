@@ -23,7 +23,8 @@ theorem inverseVolWeights_sum {sigma1 sigma2 : ℝ}
     (h : sigma1 + sigma2 ≠ 0) :
     inverseVolWeight sigma1 sigma2 + inverseVolWeight sigma2 sigma1 = 1 := by
   unfold inverseVolWeight
-  have h_ne := h
+  have h_ne -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
   field_simp [h_ne, show sigma2 + sigma1 ≠ 0 from by rwa [add_comm]]
   ring
 

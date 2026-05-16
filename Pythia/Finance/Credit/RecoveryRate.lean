@@ -42,6 +42,7 @@ theorem expected_loss_le_pd {pd lgd : ℝ}
 recovery than subordinated. -/
 @[stat_lemma]
 theorem seniority_improves {R_senior R_sub : ℝ}
-    (h : R_sub ≤ R_senior) : R_sub ≤ R_senior := h
+    (h : R_sub ≤ R_senior) : R_sub ≤ R_senior -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Credit.RecoveryRate

@@ -37,12 +37,14 @@ theorem mid_between_bid_ask (b : BookState) :
 @[stat_lemma]
 theorem insert_bid_preserves {b : BookState} {newBid : ℝ}
     (h : newBid ≤ b.bestAsk) :
-    newBid ≤ b.bestAsk := h
+    newBid ≤ b.bestAsk -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 @[stat_lemma]
 theorem insert_ask_preserves {b : BookState} {newAsk : ℝ}
     (h : b.bestBid ≤ newAsk) :
-    b.bestBid ≤ newAsk := h
+    b.bestBid ≤ newAsk -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 @[stat_lemma]
 theorem fill_price_bounded {b : BookState} {fillPrice : ℝ}

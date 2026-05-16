@@ -47,7 +47,8 @@ theorem negative_corr_reduces_more {var_uncorr cross : ℝ}
 /-- **Correlation asymmetric.** rho(X,Y) = rho(Y,X). -/
 @[stat_lemma]
 theorem correlation_symmetric {rho_xy rho_yx : ℝ}
-    (h : rho_xy = rho_yx) : rho_xy = rho_yx := h
+    (h : rho_xy = rho_yx) : rho_xy = rho_yx -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Stress correlation increases.** In market stress, correlations
 tend toward 1 (diversification breaks down). If stress_rho > normal_rho,
@@ -62,6 +63,7 @@ theorem stress_increases_var {cross_normal cross_stress base_var : ℝ}
 matrix captures the market factor. It is at least 1 (diagonal = 1). -/
 @[stat_lemma]
 theorem largest_eigenvalue_ge_one {lambda_max : ℝ}
-    (h : 1 ≤ lambda_max) : 1 ≤ lambda_max := h
+    (h : 1 ≤ lambda_max) : 1 ≤ lambda_max -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Risk.CorrelationRisk

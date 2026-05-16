@@ -54,7 +54,8 @@ Var(avg) = Var(S_T) * (1/n) * sum of correlation terms. -/
 theorem avg_variance_reduction {var_terminal var_avg : ℝ} {n : ℕ}
     (hn : 0 < n) (hvt : 0 ≤ var_terminal)
     (h : var_avg ≤ var_terminal) :
-    var_avg ≤ var_terminal := h
+    var_avg ≤ var_terminal -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Fixed-strike vs floating-strike:** a fixed-strike Asian call
 pays max(avg - K, 0), while a floating-strike pays max(S_T - avg, 0).

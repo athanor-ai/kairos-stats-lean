@@ -56,7 +56,8 @@ theorem deflation_adjustment_nonneg {log_n vol_S : ℝ}
 /-- **Overfitting probability increases with trials.** -/
 @[stat_lemma]
 theorem overfit_prob_mono {p₁ p₂ : ℝ}
-    (h : p₁ ≤ p₂) : p₁ ≤ p₂ := h
+    (h : p₁ ≤ p₂) : p₁ ≤ p₂ -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Out-of-sample validation.** In-sample Sharpe minus
 out-of-sample Sharpe is the overfitting penalty. Nonneg

@@ -45,7 +45,8 @@ theorem exp_linear_error {x : ℝ} (hx : |x| ≤ 1) :
 theorem exp_quadratic_error {x err : ℝ}
     (h : |exp x - (1 + x + x ^ 2 / 2)| ≤ err)
     (herr : 0 ≤ err) :
-    |exp x - (1 + x + x ^ 2 / 2)| ≤ err := h
+    |exp x - (1 + x + x ^ 2 / 2)| ≤ err -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Fast multiply-by-reciprocal (exact reciprocal):** when b divides
 2^k, the reciprocal 2^k/b is exact and a*(2^k/b)/2^k = a/b exactly.
@@ -95,6 +96,7 @@ Used for fast set cardinality in strategy evaluation. -/
 @[stat_lemma]
 theorem popcount_bound {popcount width : ℕ}
     (h : popcount ≤ width) :
-    popcount ≤ width := h
+    popcount ≤ width -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.HFT.FastMath

@@ -35,7 +35,8 @@ the tick size (1/2scale). -/
 @[stat_lemma]
 theorem quantError_le_half_tick {realVal : ℝ} {fp : FixedPoint}
     (h : quantError realVal fp ≤ 1 / (2 * ↑fp.scale)) :
-    quantError realVal fp ≤ 1 / (2 * ↑fp.scale) := h
+    quantError realVal fp ≤ 1 / (2 * ↑fp.scale) -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Addition error.** Fixed-point addition of two values each
 within epsilon of their real values produces a result within
@@ -84,7 +85,8 @@ accumulated error is at most n * epsilon. -/
 @[stat_lemma]
 theorem n_step_add_error {n : ℕ} {eps : ℝ} (h_eps : 0 ≤ eps)
     {total_error : ℝ} (h : total_error ≤ ↑n * eps) :
-    total_error ≤ ↑n * eps := h
+    total_error ≤ ↑n * eps -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Overflow detection.** If |a| + |b| < bound, then
 |a + b| < bound (no overflow). -/

@@ -25,7 +25,8 @@ theorem single_bit_detection {checksum1 checksum2 : ℕ}
 checksum over message + checksum field; result is 0 iff no errors. -/
 @[stat_lemma]
 theorem valid_message_zero_checksum {computed : ℕ}
-    (h : computed = 0) : computed = 0 := h
+    (h : computed = 0) : computed = 0 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Checksum additive (mod arithmetic).** Checksum of concatenated
 messages is the sum of individual checksums (mod 2^16 for internet
@@ -33,7 +34,8 @@ checksum). We prove the real-valued analogue. -/
 @[stat_lemma]
 theorem checksum_additive {n : ℕ} (segments : Fin n → ℕ)
     (total : ℕ) (h : total = ∑ i, segments i) :
-    total = ∑ i, segments i := h
+    total = ∑ i, segments i -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Sequence number monotone.** Market data sequence numbers
 are strictly increasing. If seq_a < seq_b, then message a was
@@ -49,18 +51,21 @@ the connection is considered dead. -/
 @[stat_lemma]
 theorem heartbeat_timeout {last_hb timeout now : ℕ}
     (h : last_hb + timeout < now) :
-    last_hb + timeout < now := h
+    last_hb + timeout < now -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Message ordering preserved.** If messages arrive in sequence
 number order, they are processed in send order. -/
 @[stat_lemma]
 theorem ordering_from_sequence {seq₁ seq₂ : ℕ}
-    (h : seq₁ < seq₂) : seq₁ < seq₂ := h
+    (h : seq₁ < seq₂) : seq₁ < seq₂ -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Duplicate detection.** If we have seen sequence number s,
 and receive s again, it is a duplicate. -/
 @[stat_lemma]
 theorem duplicate_iff_seen {seen received : ℕ}
-    (h : seen = received) : seen = received := h
+    (h : seen = received) : seen = received -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.HFT.ChecksumSpec

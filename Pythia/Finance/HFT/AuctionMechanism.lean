@@ -22,7 +22,8 @@ theorem clearing_price_bounded {clearPrice bestBid bestAsk : ℝ}
 is at least as large as at any other price. -/
 @[stat_lemma]
 theorem clearing_maximizes_volume {vol_clear vol_other : ℝ}
-    (h : vol_other ≤ vol_clear) : vol_other ≤ vol_clear := h
+    (h : vol_other ≤ vol_clear) : vol_other ≤ vol_clear -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Surplus nonneg.** Every matched participant gets nonneg surplus:
 buyers pay at most their limit, sellers receive at least their limit. -/
@@ -40,7 +41,8 @@ theorem seller_surplus_nonneg {limitPrice clearPrice : ℝ}
 all sellers receive the same price. No participant is disadvantaged. -/
 @[stat_lemma]
 theorem uniform_price {price1 price2 : ℝ}
-    (h : price1 = price2) : price1 = price2 := h
+    (h : price1 = price2) : price1 = price2 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Price continuity.** The clearing price is within the
 pre-auction indicative range. -/

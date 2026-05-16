@@ -19,7 +19,8 @@ best price. For buys, this is the minimum ask across venues. -/
 @[stat_lemma]
 theorem best_price_le_all {n : ℕ} (asks : Fin n → ℝ)
     (best : ℝ) (h : ∀ i, best ≤ asks i) (j : Fin n) :
-    best ≤ asks j := h j
+    best ≤ asks j -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h j
 
 /-- **Price improvement nonneg.** Execution at best venue price
 is at least as good as the NBBO. -/
@@ -32,19 +33,22 @@ across venues equals parent order quantity. -/
 @[stat_lemma]
 theorem routing_preserves_qty {n : ℕ} (fills : Fin n → ℝ)
     (total : ℝ) (h : ∑ i, fills i = total) :
-    ∑ i, fills i = total := h
+    ∑ i, fills i = total -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Venue cost comparison.** Route to venue with lower total
 cost (price + fees). -/
 @[stat_lemma]
 theorem lower_cost_venue {cost₁ cost₂ : ℝ}
-    (h : cost₁ ≤ cost₂) : cost₁ ≤ cost₂ := h
+    (h : cost₁ ≤ cost₂) : cost₁ ≤ cost₂ -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Fill rate bounded.** Each venue fills at most its displayed
 quantity. -/
 @[stat_lemma]
 theorem fill_le_displayed {fill displayed : ℝ}
-    (h : fill ≤ displayed) : fill ≤ displayed := h
+    (h : fill ≤ displayed) : fill ≤ displayed -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Weighted average fill price.** WAFP across venues is
 between the best and worst venue prices. -/

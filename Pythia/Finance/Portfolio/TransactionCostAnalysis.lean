@@ -23,7 +23,8 @@ Each component is identifiable. -/
 @[stat_lemma]
 theorem is_decomposition {delay impact timing total : ℝ}
     (h : total = delay + impact + timing) :
-    total = delay + impact + timing := h
+    total = delay + impact + timing -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Market impact dominates for large orders.** Impact grows
 with order size; delay and timing are bounded. -/

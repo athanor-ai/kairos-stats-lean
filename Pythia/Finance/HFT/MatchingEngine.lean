@@ -49,7 +49,8 @@ theorem mid_fill_best_execution {bid ask : ℤ}
 @[stat_lemma]
 theorem fill_qty_le_order {fill_qty order_qty : ℕ}
     (h : fill_qty ≤ order_qty) :
-    fill_qty ≤ order_qty := h
+    fill_qty ≤ order_qty -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Partial fill leaves correct residual.** -/
 @[stat_lemma]
@@ -63,7 +64,8 @@ for a fully filled order.** -/
 @[stat_lemma]
 theorem total_fill_complete {fills_total order_qty : ℕ}
     (h : fills_total = order_qty) :
-    fills_total = order_qty := h
+    fills_total = order_qty -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Price improvement: fill price is strictly better than the
 national best bid/offer for the incoming order.** -/
@@ -82,7 +84,8 @@ theorem price_improvement_sell {fill_price nbbo_bid : ℤ}
 @[stat_lemma]
 theorem no_self_trade {buyer seller : ℕ}
     (h : buyer ≠ seller) :
-    buyer ≠ seller := h
+    buyer ≠ seller -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Aggressor pays the spread:** the incoming (aggressive) order
 crosses the spread and fills at the passive order's price.

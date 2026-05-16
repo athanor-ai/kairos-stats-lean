@@ -17,27 +17,31 @@ binary search on a sorted array of size n is at most ceil(log2(n))+1.
 We prove the weaker but useful bound: comparisons <= n for all n. -/
 @[stat_lemma]
 theorem linear_bound_trivial {comparisons n : ℕ}
-    (h : comparisons ≤ n) : comparisons ≤ n := h
+    (h : comparisons ≤ n) : comparisons ≤ n -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Sorted insert is O(n) worst case.** Inserting into a sorted
 list of length n requires at most n comparisons (scan to find
 position) + 1 shift. Total operations <= n + 1. -/
 @[stat_lemma]
 theorem sorted_insert_bound {ops n : ℕ}
-    (h : ops ≤ n + 1) : ops ≤ n + 1 := h
+    (h : ops ≤ n + 1) : ops ≤ n + 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Cancel is O(1) with index.** If the order's position is
 known (via order-id lookup), cancel is constant time. -/
 @[stat_lemma]
 theorem cancel_with_index_constant {ops : ℕ}
-    (h : ops ≤ 1) : ops ≤ 1 := h
+    (h : ops ≤ 1) : ops ≤ 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Match is O(k) in number of fills.** Matching an aggressive
 order produces at most k fills where k is the number of resting
 orders at the best price level. -/
 @[stat_lemma]
 theorem match_linear_in_fills {ops fills : ℕ}
-    (h : ops ≤ fills) : ops ≤ fills := h
+    (h : ops ≤ fills) : ops ≤ fills -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Pipeline latency additive.** Total latency of a sequential
 pipeline is the sum of stage latencies. -/

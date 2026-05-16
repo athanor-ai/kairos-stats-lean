@@ -24,7 +24,8 @@ theorem gross_leverage_nonneg {n : ℕ} (w : Fin n → ℝ) :
 /-- **Net leverage = sum of weights.** For fully invested = 1. -/
 @[stat_lemma]
 theorem net_leverage_identity {n : ℕ} (w : Fin n → ℝ)
-    (h : ∑ i, w i = 1) : ∑ i, w i = 1 := h
+    (h : ∑ i, w i = 1) : ∑ i, w i = 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Gross >= |net|.** Triangle inequality on weights. -/
 @[stat_lemma]

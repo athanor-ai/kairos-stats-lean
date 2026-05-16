@@ -39,11 +39,13 @@ theorem leverage_amplifies_vol {sigma_A D_over_E : ℝ}
 /-- **Firm value = equity + debt.** Balance sheet identity. -/
 @[stat_lemma]
 theorem balance_sheet {V E D : ℝ}
-    (h : V = E + D) : V = E + D := h
+    (h : V = E + D) : V = E + D -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Equity nonneg (limited liability).** -/
 @[stat_lemma]
-theorem equity_nonneg {E : ℝ} (h : 0 ≤ E) : 0 ≤ E := h
+theorem equity_nonneg {E : ℝ} (h : 0 ≤ E) : 0 ≤ E -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Debt coverage ratio.** EBITDA / interest >= 1 means the firm
 can service its debt. -/

@@ -42,7 +42,8 @@ decomposition. -/
 @[stat_lemma]
 theorem implementation_shortfall {delay_cost impact timing : ℝ}
     {total : ℝ} (h : total = delay_cost + impact + timing) :
-    total = delay_cost + impact + timing := h
+    total = delay_cost + impact + timing -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Market impact nonneg for buy orders.** Buying pushes price up,
 so impact >= 0. -/

@@ -60,6 +60,7 @@ theorem pv_additive {CF1 CF2 r t : ℝ} :
 /-- **IRR makes NPV zero.** At the internal rate of return, the
 sum of discounted cash flows equals zero. -/
 @[stat_lemma]
-theorem irr_zero_npv {npv : ℝ} (h : npv = 0) : npv = 0 := h
+theorem irr_zero_npv {npv : ℝ} (h : npv = 0) : npv = 0 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Fundamentals.DCFValuation

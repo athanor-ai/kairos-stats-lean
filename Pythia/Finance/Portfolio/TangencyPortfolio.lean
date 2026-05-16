@@ -69,7 +69,8 @@ has Sharpe ratio S_T and any other portfolio has Sharpe ratio S,
 then S <= S_T. (This is the definition of tangency, stated as a
 hypothesis for use in downstream proofs.) -/
 @[stat_lemma]
-theorem tangency_dominates {S S_T : ℝ} (h : S ≤ S_T) : S ≤ S_T := h
+theorem tangency_dominates {S S_T : ℝ} (h : S ≤ S_T) : S ≤ S_T -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Two-fund separation.** Any efficient portfolio is a convex
 combination of the risk-free asset and the tangency portfolio.

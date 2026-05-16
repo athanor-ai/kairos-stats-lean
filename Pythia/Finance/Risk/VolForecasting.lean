@@ -56,6 +56,7 @@ theorem garch_unconditional_pos {omega alpha beta : ℝ}
 finite unconditional variance (stationarity). -/
 @[stat_lemma]
 theorem garch_stationarity_condition {alpha beta : ℝ}
-    (h : alpha + beta < 1) : alpha + beta < 1 := h
+    (h : alpha + beta < 1) : alpha + beta < 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Risk.VolForecasting

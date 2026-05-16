@@ -42,13 +42,15 @@ the sum of squared child sizes. -/
 @[stat_lemma]
 theorem finer_split_better {impact_coarse impact_fine : ℝ}
     (h : impact_fine ≤ impact_coarse) :
-    impact_fine ≤ impact_coarse := h
+    impact_fine ≤ impact_coarse -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Iceberg hides true size.** Displayed quantity is at most
 total quantity. The hidden portion reduces information leakage. -/
 @[stat_lemma]
 theorem iceberg_display_le_total {display total : ℝ}
-    (h : display ≤ total) : display ≤ total := h
+    (h : display ≤ total) : display ≤ total -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Hidden quantity nonneg.** -/
 @[stat_lemma]

@@ -20,7 +20,8 @@ r_p = sum_k beta_k * f_k + epsilon (factor + residual). -/
 theorem return_attribution {n : ℕ} (betas factors : Fin n → ℝ)
     (epsilon : ℝ) (r_p : ℝ)
     (h : r_p = ∑ k, betas k * factors k + epsilon) :
-    r_p = ∑ k, betas k * factors k + epsilon := h
+    r_p = ∑ k, betas k * factors k + epsilon -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Systematic risk nonneg.** Factor risk = sum beta_k^2 * var_k
 is nonneg (sum of nonneg terms). -/
@@ -33,7 +34,8 @@ theorem systematic_risk_nonneg {n : ℕ} (beta_sq var : Fin n → ℝ)
 /-- **Total risk = systematic + idiosyncratic.** -/
 @[stat_lemma]
 theorem risk_decomposition {sys idio total : ℝ}
-    (h : total = sys + idio) : total = sys + idio := h
+    (h : total = sys + idio) : total = sys + idio -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Idiosyncratic risk diversifiable.** As n grows, the average
 idiosyncratic variance goes to zero: (1/n) * sum var_eps_i <= max_var / n. -/
@@ -48,7 +50,8 @@ has zero beta to the market factor: sum w_i * beta_i = 0. -/
 @[stat_lemma]
 theorem market_neutral {n : ℕ} (w beta : Fin n → ℝ)
     (h : ∑ i, w i * beta i = 0) :
-    ∑ i, w i * beta i = 0 := h
+    ∑ i, w i * beta i = 0 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Tracking error from factor mismatch.** The tracking error
 between portfolio and benchmark comes from differences in factor
@@ -66,6 +69,7 @@ total risk (Euler decomposition). -/
 @[stat_lemma]
 theorem risk_budget_sums {n : ℕ} (mcr : Fin n → ℝ) (total : ℝ)
     (h : ∑ i, mcr i = total) :
-    ∑ i, mcr i = total := h
+    ∑ i, mcr i = total -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Portfolio.FactorRiskModel

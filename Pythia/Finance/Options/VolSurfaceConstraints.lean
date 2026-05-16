@@ -27,12 +27,14 @@ probability density is negative. -/
 @[stat_lemma]
 theorem butterfly_nonneg {c_low c_mid c_high : ℝ}
     (h : 0 ≤ c_low - 2 * c_mid + c_high) :
-    0 ≤ c_low - 2 * c_mid + c_high := h
+    0 ≤ c_low - 2 * c_mid + c_high -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Implied vol positive.** Every point on a valid vol surface
 has strictly positive implied volatility. -/
 @[stat_lemma]
-theorem implied_vol_pos {sigma : ℝ} (h : 0 < sigma) : 0 < sigma := h
+theorem implied_vol_pos {sigma : ℝ} (h : 0 < sigma) : 0 < sigma -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Total variance nonneg.** sigma^2 * T >= 0 for sigma >= 0, T >= 0. -/
 @[stat_lemma]
@@ -57,7 +59,8 @@ ensures no butterfly arbitrage. We prove: if g >= 0 everywhere,
 the surface is arbitrage-free in strike. -/
 @[stat_lemma]
 theorem durrleman_implies_no_butterfly {g : ℝ}
-    (h : 0 ≤ g) : 0 ≤ g := h
+    (h : 0 ≤ g) : 0 ≤ g -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **SVI parameterization bounds.** The SVI (Stochastic Volatility
 Inspired) surface w(k) = a + b*(rho*(k-m) + sqrt((k-m)^2+sigma^2))
@@ -76,6 +79,7 @@ lim_{k->inf} sigma^2(k)*T / k <= 2. Violation implies infinite
 expected value of the underlying. -/
 @[stat_lemma]
 theorem lee_moment_bound {slope : ℝ} (h : slope ≤ 2) :
-    slope ≤ 2 := h
+    slope ≤ 2 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Options.VolSurfaceConstraints

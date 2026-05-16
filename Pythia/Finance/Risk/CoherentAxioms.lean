@@ -20,27 +20,31 @@ namespace Pythia.Finance.Risk.CoherentAxioms
 Worse outcomes have higher risk. -/
 @[stat_lemma]
 theorem monotonicity {rho_X rho_Y : ℝ}
-    (h : rho_X ≤ rho_Y) : rho_X ≤ rho_Y := h
+    (h : rho_X ≤ rho_Y) : rho_X ≤ rho_Y -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Translation invariance.** Adding cash c reduces risk by c:
 rho(X + c) = rho(X) - c. -/
 @[stat_lemma]
 theorem translation_invariance {rho_X rho_Xc c : ℝ}
-    (h : rho_Xc = rho_X - c) : rho_Xc = rho_X - c := h
+    (h : rho_Xc = rho_X - c) : rho_Xc = rho_X - c -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Positive homogeneity.** Scaling position by lambda > 0
 scales risk by lambda: rho(lambda*X) = lambda*rho(X). -/
 @[stat_lemma]
 theorem positive_homogeneity {rho_X rho_lX lambda : ℝ}
     (h : rho_lX = lambda * rho_X) :
-    rho_lX = lambda * rho_X := h
+    rho_lX = lambda * rho_X -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Subadditivity.** Diversification reduces risk:
 rho(X + Y) <= rho(X) + rho(Y). -/
 @[stat_lemma]
 theorem subadditivity {rho_XY rho_X rho_Y : ℝ}
     (h : rho_XY ≤ rho_X + rho_Y) :
-    rho_XY ≤ rho_X + rho_Y := h
+    rho_XY ≤ rho_X + rho_Y -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Diversification benefit from subadditivity.** -/
 @[stat_lemma]
@@ -61,7 +65,8 @@ axioms. We state: CVaR is subadditive (the key property VaR lacks). -/
 @[stat_lemma]
 theorem cvar_subadditive {cvar_XY cvar_X cvar_Y : ℝ}
     (h : cvar_XY ≤ cvar_X + cvar_Y) :
-    cvar_XY ≤ cvar_X + cvar_Y := h
+    cvar_XY ≤ cvar_X + cvar_Y -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Risk capital from coherent measure.** Required capital = rho(L)
 where L is the loss distribution. Translation invariance means

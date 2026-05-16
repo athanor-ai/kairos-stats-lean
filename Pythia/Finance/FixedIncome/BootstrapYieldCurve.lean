@@ -43,7 +43,8 @@ D(0,T2) = D(0,T1) * D(T1,T2). -/
 @[stat_lemma]
 theorem discount_chain {D02 D01 D12 : ℝ}
     (h : D02 = D01 * D12) :
-    D02 = D01 * D12 := h
+    D02 = D01 * D12 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- Continuously compounded spot rate from discount factor:
 r = -ln(D) / T. -/

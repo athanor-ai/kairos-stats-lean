@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-bounds"
+version = "0.1.0"
+edition = "2021"
+description = "Verified model-free option pricing bounds: intrinsic, spread, parity. Lean spec: Pythia.Finance.Options.PricingBounds (zero tautological)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

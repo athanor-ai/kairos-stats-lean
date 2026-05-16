@@ -1,0 +1,11 @@
+[package]
+name = "pythia-risk-vol-smile"
+version = "0.1.0"
+edition = "2021"
+description = "Quadratic implied-volatility smile parametrisation — Rust port of Pythia.Finance.Risk.VolatilitySmile"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

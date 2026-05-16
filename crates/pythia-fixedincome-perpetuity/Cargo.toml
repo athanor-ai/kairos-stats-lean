@@ -1,0 +1,11 @@
+[package]
+name = "pythia-fixedincome-perpetuity"
+version = "0.1.0"
+edition = "2021"
+description = "Perpetuity present value — Rust port of Pythia.Finance.FixedIncome.Perpetuity"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

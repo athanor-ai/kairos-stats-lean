@@ -1,0 +1,9 @@
+[package]
+name = "pythia-credit-spread"
+version = "0.1.0"
+edition = "2021"
+description = "Verified credit spread decomposition: spread, expected loss, risk premium. Lean spec: Pythia.Finance.Credit.CreditSpread"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

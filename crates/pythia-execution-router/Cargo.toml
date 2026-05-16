@@ -1,0 +1,9 @@
+[package]
+name = "pythia-execution-router"
+version = "0.1.0"
+edition = "2021"
+description = "Verified smart order routing: best-ex, price improvement, WAFP bounds. Lean spec: Pythia.Finance.Execution.SmartOrderRouter"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

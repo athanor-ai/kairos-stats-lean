@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-tailrisk"
+version = "0.1.0"
+edition = "2021"
+description = "Tail risk Euler decomposition for Expected Shortfall. Lean spec: Pythia.Finance.Risk.TailRiskDecomp"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -1,0 +1,10 @@
+[package]
+name = "pythia-fixedincome-duration"
+version = "0.1.0"
+edition = "2021"
+description = "Bond Convexity and Modified Duration (price-yield sensitivity) — Rust port of Pythia.Finance.FixedIncome.ConvexityDuration"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

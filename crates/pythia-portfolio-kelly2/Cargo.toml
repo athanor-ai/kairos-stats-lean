@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-kelly2"
+version = "0.1.0"
+edition = "2021"
+description = "Kelly criterion with concavity proof and optimality. Lean spec: Pythia.Finance.KellyOptimal"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

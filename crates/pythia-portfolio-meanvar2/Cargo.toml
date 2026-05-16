@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-meanvar2"
+version = "0.1.0"
+edition = "2021"
+description = "Mean-variance utility with diversification and monotonicity proofs. Lean spec: Pythia.Finance.MeanVarianceUtility"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

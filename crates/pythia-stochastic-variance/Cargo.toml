@@ -1,0 +1,9 @@
+[package]
+name = "pythia-stochastic-variance"
+version = "0.1.0"
+edition = "2021"
+description = "Verified variance swap pricing: fair strike, payoff monotonicity, convexity adjustment. Lean spec: Pythia.Finance.Stochastic.VarianceSwap"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

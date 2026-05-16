@@ -16,11 +16,6 @@ namespace Pythia.Finance.Options.ImpliedVolInversion
 
 variable {f : ℝ → ℝ}
 
-/-- BSM call price is strictly monotone in sigma on (0, infty).
-    This is the foundational modeling assumption: vega > 0. -/
-axiom bsm_strict_mono (hf : StrictMono f) :
-    ∀ σ₁ σ₂ : ℝ, σ₁ < σ₂ → f σ₁ < f σ₂
-
 /-- **IV unique from strict monotonicity.** If f is strictly
 monotone, then f(σ₁) = f(σ₂) implies σ₁ = σ₂.
 Real proof via StrictMono.injective. -/

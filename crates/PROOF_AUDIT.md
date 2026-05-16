@@ -1,16 +1,29 @@
 # Proof Audit — Lean Theorem Quality Classification
 
-Generated 2026-05-15 by cross-review (maurice reviewing ronald's Lean specs).
+Updated 2026-05-15 after PR #119 (provenance headers) + PR #120 (axiom conversions).
 
 Each crate's proptest properties are derived from Lean theorems. This audit
 classifies whether those theorems contain real mathematical proof content
-or are tautological (hypothesis restated as conclusion, `:= h`).
+or are honest axioms (modeling assumptions, marked with `axiom` keyword).
+
+**Current state after cleanup:**
+- 815 theorems with real proofs
+- 82 axioms (modeling assumptions, honestly labeled)
+- 64 Rust crates with provenance headers (21 VERIFIED, 41 SCAFFOLDING)
+- Cross-review process active: all PRs require review before merge
 
 ## Legend
 
-- **REAL**: Non-trivial Lean proof (induction, contradiction, Cauchy-Schwarz, nlinarith on meaningful goals, etc.)
-- **MIXED**: Some theorems real, some tautological
-- **SCAFFOLDING**: All or most theorems are tautological (`:= h`)
+- **VERIFIED**: Non-trivial Lean proof (induction, contradiction, Cauchy-Schwarz, nlinarith on meaningful goals, etc.)
+- **MIXED**: Some theorems real, some now `axiom` (modeling assumptions)
+- **SCAFFOLDING**: Proptest exercises Rust impl; Lean side is mostly `axiom` (assumptions, not proofs)
+
+## Status after PR #120
+
+Tautological theorems (`:= h`) have been converted to `axiom` keyword,
+making the Lean code honest about what is proved vs assumed. The proptest
+files carry VERIFIED or SCAFFOLDING headers (PR #119) so Rust readers
+also know the provenance.
 
 ## Crates with REAL proof content (proptest backed by genuine theorems)
 

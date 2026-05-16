@@ -21,7 +21,7 @@ remain in `Pythia/Frontier/` (frontier matrix analysis, not on the CI gate).
 
 <!-- pythia-stats-auto-begin -->
 **Coverage**:
-- 2170 theorem/lemma declarations in `Pythia/`
+- 2164 theorem/lemma declarations in `Pythia/`
 - 1014 `@[stat_lemma]`-tagged theorems in the `pythia` tactic cascade
 - 42 cross-domain theorems with Lean proof + Python sim runner across 16 domains (biology, chemistry, control, economics, engineering, finance, game_theory, info_theory, mathlib_tags, mechanical, numerical, optimal_transport, or, quantum, stochastic, thermodynamics)
 
@@ -55,10 +55,10 @@ paired empirical verification.
 
 | Module | Theorems | Coverage |
 |--------|----------|----------|
-| `Pythia.Probability` | 350 | Anytime-valid confidence sequences (Howard-Ramdas, betting), Ville's inequality, sub-Gaussian and sub-gamma concentration, Bernstein and Bennett inequalities, optional stopping, e-detectors, Robbins-Monro and Dvoretzky stochastic approximation |
+| `Pythia.Probability` | 346 | Anytime-valid confidence sequences (Howard-Ramdas, betting), Ville's inequality, sub-Gaussian and sub-gamma concentration, Bernstein and Bennett inequalities, optional stopping, e-detectors, Robbins-Monro and Dvoretzky stochastic approximation |
 | `Pythia.LanguageSemantics` | 134 | Cedar policy-language type soundness and coverage completeness, Palamedes generator correctness (totality, support characterization, data-structure invariants for lists, trees, natural numbers, STLC types and terms, stacks) |
 | `Pythia.Actuarial` | 21 | Pareto, Weibull, log-normal loss distributions; Cramér-Lundberg ruin, Sparre Andersen renewal-theory ruin, Bornhuetter-Ferguson reserving |
-| `Pythia.Numerical` | 76 | KKT necessary/sufficient conditions (Slater, Lagrangian sandwich), Picard-Lindelof, Lyapunov stability, Kahan compensated summation, Forward Euler truncation, IEEE-754 round-to-nearest, QR factorization, Weyl/Bauer-Fike eigenvalue bounds, gradient descent convergence, MatMul/Softmax/LayerNorm/Attention numerical error bounds (Higham Thm 3.1) |
+| `Pythia.Numerical` | 73 | KKT necessary/sufficient conditions (Slater, Lagrangian sandwich), Picard-Lindelof, Lyapunov stability, Kahan compensated summation, Forward Euler truncation, IEEE-754 round-to-nearest, QR factorization, Weyl/Bauer-Fike eigenvalue bounds, gradient descent convergence, MatMul/Softmax/LayerNorm/Attention numerical error bounds (Higham Thm 3.1) |
 | `Pythia.Bio` | 20 | Mass-action CRN conservation, phylogenetic likelihood, Lotka-Volterra, SIR threshold + Kermack-McKendrick final size, Wright-Fisher, Michaelis-Menten + Hill Emax saturation, PK/PD AUC + half-life + Bateman positivity, Hardy-Weinberg invariance, Kimura neutral fixation, SEIR R0 threshold, RCT identifiability |
 | `Pythia.Networking` | 20 | Reno (AIMD) + New Reno fast retransmit recovery + CUBIC starvation-freedom under bounded acknowledgment, BBRv3 trace wellformedness + BDP cap, SACK pairwise disjointness, DCTCP + RED marking monotonicity, AIMD additive-increase rate, Bellman-Ford non-negativity, QUIC packet-number-space disjointness + 0-RTT replay-resistance, CoDel sojourn-time bound, split-horizon termination |
 | `Pythia.MechanismDesign` | 12 | VCG efficiency + truthfulness (DSIC), second-price allocation, Vickrey individual rationality + truthfulness (2-bidder), Bulow-Klemperer corollary, VCG budget-balance counter-example, Myerson optimal reserve price (regular distributions), Condorcet winner uniqueness, first-price symmetric BNE bid |

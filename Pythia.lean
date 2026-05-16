@@ -229,6 +229,7 @@ import Pythia.Finance.Credit.CreditSpread
 import Pythia.Finance.Credit.CVAProperties
 import Pythia.Finance.Credit.HazardRate
 import Pythia.Finance.Credit.MertonCredit
+import Pythia.Finance.Credit.RecoveryRate
 import Pythia.Finance.CreditRisk
 import Pythia.Finance.Execution
 import Pythia.Finance.Execution.AlmgrenChrissExecution

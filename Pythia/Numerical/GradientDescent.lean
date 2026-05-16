@@ -42,25 +42,6 @@ Claimed bound with `2k`: `((3−1)/(3+1))^{2·1} = (1/2)² = 1/4 = 0.25`.
 Since `4/9 > 1/4`, the `^{2k}` bound **fails**.
 The correct bound `((L−m)/(L+m))^k = (1/2)^1 = 0.5 ≥ 4/9` **holds**. -/
 
-/- ---- commented-out FALSE statement ----
-/-- **FALSE** — exponent should be `k`, not `2k`, for step `1/L`.
-    See counter-example above. -/
-theorem gradient_descent_geometric_convergence_FALSE
-    {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F] [CompleteSpace F]
-    (f : F → ℝ) (gradf : F → F) (x₀ x_star : F) (m L : ℝ)
-    (hm : 0 < m) (hmL : m ≤ L)
-    (_hsc : StrongConvexOn Set.univ m f)
-    (_hLip : LipschitzWith ⟨L, le_of_lt (lt_of_lt_of_le hm hmL)⟩ gradf)
-    (_hgrad : ∀ x, HasGradientAt f (gradf x) x)
-    (_hmin : IsMinOn f Set.univ x_star)
-    (hcoco : ∀ x, ⟪gradf x, x - x_star⟫_ℝ ≥
-      m * L / (m + L) * ‖x - x_star‖ ^ 2 +
-        1 / (m + L) * ‖gradf x‖ ^ 2)
-    (k : ℕ) :
-    ‖gdIter gradf (1 / L) x₀ k - x_star‖ ^ 2 ≤
-      ((L - m) / (L + m)) ^ (2 * k) * ‖x₀ - x_star‖ ^ 2 := by
-  sorry
----- end commented-out FALSE statement ---- -/
 
 /-- Gradient descent iteration: `x_{k+1} = x_k − η • ∇f(x_k)`. -/
 noncomputable def gdIter {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]

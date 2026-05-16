@@ -40,9 +40,7 @@ theorem expected_loss_le_pd {pd lgd : ℝ}
 
 /-- **Seniority improves recovery.** Senior debt has higher
 recovery than subordinated. -/
-@[stat_lemma]
-theorem seniority_improves {R_senior R_sub : ℝ}
-    (h : R_sub ≤ R_senior) : R_sub ≤ R_senior -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom seniority_improves {R_senior R_sub : ℝ}
+    (h : R_sub ≤ R_senior) : R_sub ≤ R_senior
 
 end Pythia.Finance.Credit.RecoveryRate

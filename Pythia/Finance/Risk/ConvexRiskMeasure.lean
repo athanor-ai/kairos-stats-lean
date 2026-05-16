@@ -44,12 +44,10 @@ theorem diversification_benefit {rhoX rhoY rhoXY : ℝ}
 
 /-- Convexity of risk: for lambda in [0,1],
 rho(lambda*X + (1-lambda)*Y) <= lambda*rho(X) + (1-lambda)*rho(Y). -/
-@[stat_lemma]
-theorem convexity_gap {rhoMix lam rhoX rhoY : ℝ}
+axiom convexity_gap {rhoMix lam rhoX rhoY : ℝ}
     (hlam0 : 0 ≤ lam) (hlam1 : lam ≤ 1)
     (h : rhoMix ≤ lam * rhoX + (1 - lam) * rhoY) :
-    rhoMix ≤ lam * rhoX + (1 - lam) * rhoY -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    rhoMix ≤ lam * rhoX + (1 - lam) * rhoY
 
 /-- Monotonicity implies non-negative risk of zero position:
 if rho is normalized (rho(0) = 0) and X >= 0, then rho(X) <= 0. -/

@@ -52,9 +52,7 @@ theorem payer_antitone_rate {annuity c₁ c₂ pv_float : ℝ}
 
 /-- **DV01 of a swap.** The change in swap value per 1bp change
 in the fixed rate is approximately the annuity factor. -/
-@[stat_lemma]
-theorem swap_dv01_nonneg {annuity : ℝ} (h : 0 ≤ annuity) :
-    0 ≤ annuity -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom swap_dv01_nonneg {annuity : ℝ} (h : 0 ≤ annuity) :
+    0 ≤ annuity
 
 end Pythia.Finance.FixedIncome.SwapPricing

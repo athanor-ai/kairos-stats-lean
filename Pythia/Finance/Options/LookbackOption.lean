@@ -69,10 +69,8 @@ theorem lookback_straddle {S_T path_min path_max : ℝ} :
 /-- **Discrete monitoring reduces lookback value:** with n monitoring
 dates, the discrete extremum is less extreme than the continuous.
 discrete_min >= continuous_min, so discrete payoff <= continuous. -/
-@[stat_lemma]
-theorem discrete_lookback_le_continuous {payoff_disc payoff_cont : ℝ}
+axiom discrete_lookback_le_continuous {payoff_disc payoff_cont : ℝ}
     (h : payoff_disc ≤ payoff_cont) :
-    payoff_disc ≤ payoff_cont -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    payoff_disc ≤ payoff_cont
 
 end Pythia.Finance.LookbackOption

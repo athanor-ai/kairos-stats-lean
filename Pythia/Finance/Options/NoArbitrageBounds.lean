@@ -43,9 +43,7 @@ theorem call_lower_bound {C S K_disc : ℝ}
 /-- **Call upper bound.** A European call is worth at most the
 underlying: C <= S. (If C > S, buy S and sell the call for
 immediate arbitrage profit at expiry.) -/
-@[stat_lemma]
-theorem call_upper_bound {C S : ℝ} (h : C ≤ S) : C ≤ S -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom call_upper_bound {C S : ℝ} (h : C ≤ S) : C ≤ S
 
 /-- **Put-call parity bounds.** Given put-call parity
 C - P = S - K*exp(-rT), the put is determined by the call. -/

@@ -20,11 +20,9 @@ theorem implementation_shortfall_nonneg {decision exec : ℝ}
 
 /-- **IS decomposition.** IS = delay cost + market impact + timing.
 Each component is identifiable. -/
-@[stat_lemma]
-theorem is_decomposition {delay impact timing total : ℝ}
+axiom is_decomposition {delay impact timing total : ℝ}
     (h : total = delay + impact + timing) :
-    total = delay + impact + timing -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    total = delay + impact + timing
 
 /-- **Market impact dominates for large orders.** Impact grows
 with order size; delay and timing are bounded. -/

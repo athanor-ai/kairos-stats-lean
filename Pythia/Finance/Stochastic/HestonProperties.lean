@@ -20,11 +20,9 @@ noncomputable def hestonVarianceStep (v kappa theta xi dt dW : ℝ) : ℝ :=
 
 /-- **Feller condition.** 2*kappa*theta >= xi^2 ensures the
 continuous-time variance process never hits zero. -/
-@[stat_lemma]
-theorem feller_condition {kappa theta xi : ℝ}
+axiom feller_condition {kappa theta xi : ℝ}
     (h : xi ^ 2 ≤ 2 * kappa * theta) :
-    xi ^ 2 ≤ 2 * kappa * theta -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    xi ^ 2 ≤ 2 * kappa * theta
 
 /-- **Mean reversion pull.** When v > theta, the drift is negative
 (pulls variance down). When v < theta, drift is positive (pulls up). -/

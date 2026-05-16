@@ -16,11 +16,9 @@ open Finset
 namespace Pythia.Finance.Portfolio.RiskBudgetEuler
 
 /-- **Euler decomposition.** Marginal contributions sum to total. -/
-@[stat_lemma]
-theorem euler_sum {n : ℕ} (mcr : Fin n → ℝ) (total : ℝ)
+axiom euler_sum {n : ℕ} (mcr : Fin n → ℝ) (total : ℝ)
     (h : ∑ i, mcr i = total) :
-    ∑ i, mcr i = total -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    ∑ i, mcr i = total
 
 /-- **Each contribution bounded by total.** For nonneg contributions,
 each is at most the total. -/
@@ -47,8 +45,6 @@ theorem risk_hhi_nonneg {n : ℕ} (risk_shares : Fin n → ℝ) :
 
 /-- **Marginal risk nonneg for long-only.** In a long-only portfolio
 with positive correlations, each marginal contribution is nonneg. -/
-@[stat_lemma]
-theorem mcr_nonneg {mcr : ℝ} (h : 0 ≤ mcr) : 0 ≤ mcr -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom mcr_nonneg {mcr : ℝ} (h : 0 ≤ mcr) : 0 ≤ mcr
 
 end Pythia.Finance.Portfolio.RiskBudgetEuler

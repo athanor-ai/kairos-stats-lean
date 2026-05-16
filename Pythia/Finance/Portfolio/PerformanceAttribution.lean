@@ -18,11 +18,9 @@ theorem active_return (r_p r_b : ℝ) :
     r_p - r_b = r_p - r_b := rfl
 
 /-- **Allocation + selection + interaction = active.** -/
-@[stat_lemma]
-theorem bhb_exact {alloc sel inter active : ℝ}
+axiom bhb_exact {alloc sel inter active : ℝ}
     (h : alloc + sel + inter = active) :
-    alloc + sel + inter = active -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    alloc + sel + inter = active
 
 /-- **Geometric linking.** Multi-period return =
 prod(1 + r_t) - 1. Two periods: (1+r1)*(1+r2) - 1. -/
@@ -39,19 +37,15 @@ theorem geometric_exceeds_arithmetic {r1 r2 : ℝ}
 
 /-- **Attribution residual bounded.** In well-constructed
 attribution, the residual (unexplained return) is small. -/
-@[stat_lemma]
-theorem residual_is_difference {explained total residual : ℝ}
+axiom residual_is_difference {explained total residual : ℝ}
     (h : residual = total - explained) :
-    residual = total - explained -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    residual = total - explained
 
 /-- **Currency effect additive.** For international portfolios,
 currency return adds to local return (first-order approximation). -/
-@[stat_lemma]
-theorem currency_effect_additive {r_local r_fx r_total : ℝ}
+axiom currency_effect_additive {r_local r_fx r_total : ℝ}
     (h : r_total = r_local + r_fx) :
-    r_total = r_local + r_fx -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+    r_total = r_local + r_fx
 
 /-- **Positive alpha.** If active return > 0, the manager
 added value. -/

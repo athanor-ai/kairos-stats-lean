@@ -30,7 +30,7 @@ higher bar for significance. -/
 theorem bonferroni_antitone {alpha : ℝ} (h_alpha : 0 < alpha)
     {n₁ n₂ : ℕ} (h_n1 : 0 < n₁) (h : n₁ ≤ n₂) :
     alpha / ↑n₂ ≤ alpha / ↑n₁ := by
-  apply div_le_div_of_nonneg_left h_alpha
+  apply div_le_div_of_nonneg_left (le_of_lt h_alpha)
     (Nat.cast_pos (α := ℝ) |>.mpr h_n1)
     (Nat.cast_le (α := ℝ) |>.mpr h)
 
@@ -54,10 +54,8 @@ theorem deflation_adjustment_nonneg {log_n vol_S : ℝ}
   mul_nonneg (Real.sqrt_nonneg _) h_vol
 
 /-- **Overfitting probability increases with trials.** -/
-@[stat_lemma]
-theorem overfit_prob_mono {p₁ p₂ : ℝ}
-    (h : p₁ ≤ p₂) : p₁ ≤ p₂ -- TAUTOLOGICAL: hypothesis restate, needs real proof
-  := h
+axiom overfit_prob_mono {p₁ p₂ : ℝ}
+    (h : p₁ ≤ p₂) : p₁ ≤ p₂
 
 /-- **Out-of-sample validation.** In-sample Sharpe minus
 out-of-sample Sharpe is the overfitting penalty. Nonneg

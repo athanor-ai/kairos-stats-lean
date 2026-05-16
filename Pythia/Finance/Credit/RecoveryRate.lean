@@ -38,9 +38,4 @@ theorem expected_loss_le_pd {pd lgd : ℝ}
     (hp : 0 ≤ pd) (hl : lgd ≤ 1) :
     pd * lgd ≤ pd := mul_le_of_le_one_right hp hl
 
-/-- **Seniority improves recovery.** Senior debt has higher
-recovery than subordinated. -/
-axiom seniority_improves {R_senior R_sub : ℝ}
-    (h : R_sub ≤ R_senior) : R_sub ≤ R_senior
-
 end Pythia.Finance.Credit.RecoveryRate

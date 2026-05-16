@@ -18,12 +18,6 @@ v_{t+1} = v_t + kappa*(theta - v_t)*dt + xi*sqrt(v_t)*dW. -/
 noncomputable def hestonVarianceStep (v kappa theta xi dt dW : ℝ) : ℝ :=
   v + kappa * (theta - v) * dt + xi * Real.sqrt v * dW
 
-/-- **Feller condition.** 2*kappa*theta >= xi^2 ensures the
-continuous-time variance process never hits zero. -/
-axiom feller_condition {kappa theta xi : ℝ}
-    (h : xi ^ 2 ≤ 2 * kappa * theta) :
-    xi ^ 2 ≤ 2 * kappa * theta
-
 /-- **Mean reversion pull.** When v > theta, the drift is negative
 (pulls variance down). When v < theta, drift is positive (pulls up). -/
 @[stat_lemma]

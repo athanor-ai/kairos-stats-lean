@@ -57,8 +57,4 @@ theorem pv_additive {CF1 CF2 r t : ℝ} :
     pvCashFlow (CF1 + CF2) r t = pvCashFlow CF1 r t + pvCashFlow CF2 r t := by
   unfold pvCashFlow; ring
 
-/-- **IRR makes NPV zero.** At the internal rate of return, the
-sum of discounted cash flows equals zero. -/
-axiom irr_zero_npv {npv : ℝ} (h : npv = 0) : npv = 0
-
 end Pythia.Finance.Fundamentals.DCFValuation

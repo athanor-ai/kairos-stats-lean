@@ -50,9 +50,4 @@ theorem payer_antitone_rate {annuity c₁ c₂ pv_float : ℝ}
     pv_float - c₂ * annuity ≤ pv_float - c₁ * annuity := by
   linarith [mul_le_mul_of_nonneg_right h (le_of_lt h_ann)]
 
-/-- **DV01 of a swap.** The change in swap value per 1bp change
-in the fixed rate is approximately the annuity factor. -/
-axiom swap_dv01_nonneg {annuity : ℝ} (h : 0 ≤ annuity) :
-    0 ≤ annuity
-
 end Pythia.Finance.FixedIncome.SwapPricing

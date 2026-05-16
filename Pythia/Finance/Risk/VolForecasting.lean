@@ -52,9 +52,4 @@ theorem garch_unconditional_pos {omega alpha beta : ℝ}
     0 < omega / (1 - alpha - beta) :=
   div_pos h_omega (by linarith)
 
-/-- **GARCH persistence < 1 required.** alpha + beta < 1 ensures
-finite unconditional variance (stationarity). -/
-axiom garch_stationarity_condition {alpha beta : ℝ}
-    (h : alpha + beta < 1) : alpha + beta < 1
-
 end Pythia.Finance.Risk.VolForecasting

@@ -18,12 +18,6 @@ IS = decision_price - execution_price (for buys). -/
 theorem implementation_shortfall_nonneg {decision exec : ℝ}
     (h : decision ≤ exec) : 0 ≤ exec - decision := by linarith
 
-/-- **IS decomposition.** IS = delay cost + market impact + timing.
-Each component is identifiable. -/
-axiom is_decomposition {delay impact timing total : ℝ}
-    (h : total = delay + impact + timing) :
-    total = delay + impact + timing
-
 /-- **Market impact dominates for large orders.** Impact grows
 with order size; delay and timing are bounded. -/
 @[stat_lemma]

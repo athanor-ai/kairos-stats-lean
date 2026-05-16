@@ -38,12 +38,6 @@ theorem par_rate {c Dn sumD : ℝ}
     c = (1 - Dn) / sumD := by
   field_simp at h ⊢; linarith
 
-/-- Discount factor is product of forward discount factors:
-D(0,T2) = D(0,T1) * D(T1,T2). -/
-axiom discount_chain {D02 D01 D12 : ℝ}
-    (h : D02 = D01 * D12) :
-    D02 = D01 * D12
-
 /-- Continuously compounded spot rate from discount factor:
 r = -ln(D) / T. -/
 @[stat_lemma]

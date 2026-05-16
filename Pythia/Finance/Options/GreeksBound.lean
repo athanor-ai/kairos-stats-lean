@@ -26,37 +26,12 @@ theorem put_delta_bounded {delta : ℝ}
     (h_lo : -1 ≤ delta) (h_hi : delta ≤ 0) :
     -1 ≤ delta ∧ delta ≤ 0 := ⟨h_lo, h_hi⟩
 
-/-- **Gamma nonneg for vanilla options.** Gamma = d²C/dS² >= 0
-because the call payoff is convex in S. -/
-axiom gamma_nonneg {gamma : ℝ} (h : 0 ≤ gamma) : 0 ≤ gamma
-
-/-- **Vega nonneg for vanilla options.** Higher vol always
-increases vanilla option value (call or put). -/
-axiom vega_nonneg {vega : ℝ} (h : 0 ≤ vega) : 0 ≤ vega
-
 /-- **Put-call delta parity.** Delta_call - Delta_put = 1
 (from differentiating put-call parity). -/
 @[stat_lemma]
 theorem delta_parity {delta_call delta_put : ℝ}
     (h : delta_call - delta_put = 1) :
     delta_put = delta_call - 1 := by linarith
-
-/-- **Gamma equal for call and put.** Same strike, same expiry
-means same gamma (from differentiating put-call parity twice). -/
-axiom gamma_parity {gamma_call gamma_put : ℝ}
-    (h : gamma_call = gamma_put) :
-    gamma_call = gamma_put
-
-/-- **Vega equal for call and put.** -/
-axiom vega_parity {vega_call vega_put : ℝ}
-    (h : vega_call = vega_put) :
-    vega_call = vega_put
-
-/-- **Theta bounded by rK.** For a European call, theta >= -rK
-(the maximum time value lost per unit time is the discount on
-the strike). -/
-axiom theta_lower_bound {theta rK : ℝ}
-    (h : -rK ≤ theta) : -rK ≤ theta
 
 /-- **Greeks consistency check.** The BS PDE gives
 theta + (1/2)*sigma^2*S^2*gamma + r*S*delta - r*C = 0.

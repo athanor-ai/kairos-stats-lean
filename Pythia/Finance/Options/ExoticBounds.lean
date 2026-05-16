@@ -12,31 +12,6 @@ import Pythia.Tactic.Pythia
 
 namespace Pythia.Finance.Options.ExoticBounds
 
-/-- **Barrier dominates vanilla.** A knock-in barrier option is
-worth at most the corresponding vanilla option (it can only
-be exercised if the barrier is hit, which is a subset of all paths). -/
-axiom knockin_le_vanilla {V_ki V_van : ℝ}
-    (h : V_ki ≤ V_van) : V_ki ≤ V_van
-
-/-- **Knock-in + knock-out = vanilla.** A knock-in and knock-out
-with the same barrier replicate the vanilla option exactly. -/
-axiom knockin_knockout_parity {V_ki V_ko V_van : ℝ}
-    (h : V_ki + V_ko = V_van) : V_ki + V_ko = V_van
-
-/-- **Asian call bounded by vanilla call.** The average price is
-less volatile than the terminal price, so the Asian call is
-cheaper. This is Jensen's inequality applied to the convex payoff. -/
-axiom asian_le_vanilla {V_asian V_van : ℝ}
-    (h : V_asian ≤ V_van) : V_asian ≤ V_van
-
-/-- **Lookback dominates vanilla.** The lookback call (max price - K)+
-dominates the vanilla call (S_T - K)+ because max >= terminal. -/
-axiom lookback_ge_vanilla {V_lookback V_van : ℝ}
-    (h : V_van ≤ V_lookback) : V_van ≤ V_lookback
-
-/-- **All exotic prices nonneg.** Options are rights not obligations. -/
-axiom exotic_nonneg {V : ℝ} (h : 0 ≤ V) : 0 ≤ V
-
 /-- **Digital option bounded by 1.** A digital (binary) option
 pays 0 or 1, so its price is in [0, 1] (under risk-neutral measure,
 it is the probability of finishing in-the-money). -/

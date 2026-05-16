@@ -2,43 +2,23 @@
 Copyright (c) 2026 Pythia contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-# Coherent Risk Measure Axioms (ADEH)
+# Coherent Risk Measure Properties (ADEH)
 
 The Artzner-Delbaen-Eber-Heath axioms for coherent risk measures:
 monotonicity, translation invariance, positive homogeneity,
 subadditivity. A risk measure satisfying all four is coherent.
 
-These axioms are what regulators (Basel III/IV) use to evaluate
-whether a risk model is acceptable.
+The axioms themselves require measure-theoretic random variable
+formalization (not yet available in Pythia). The theorems below
+prove consequences that hold given the axiom hypotheses.
 -/
 import Mathlib
 import Pythia.Tactic.Pythia
 
 namespace Pythia.Finance.Risk.CoherentAxioms
 
-/-- **Monotonicity.** If X dominates Y in every state, rho(X) <= rho(Y).
-Worse outcomes have higher risk. -/
-axiom monotonicity {rho_X rho_Y : ℝ}
-    (h : rho_X ≤ rho_Y) : rho_X ≤ rho_Y
-
-/-- **Translation invariance.** Adding cash c reduces risk by c:
-rho(X + c) = rho(X) - c. -/
-axiom translation_invariance {rho_X rho_Xc c : ℝ}
-    (h : rho_Xc = rho_X - c) : rho_Xc = rho_X - c
-
-/-- **Positive homogeneity.** Scaling position by lambda > 0
-scales risk by lambda: rho(lambda*X) = lambda*rho(X). -/
-axiom positive_homogeneity {rho_X rho_lX lambda : ℝ}
-    (h : rho_lX = lambda * rho_X) :
-    rho_lX = lambda * rho_X
-
-/-- **Subadditivity.** Diversification reduces risk:
-rho(X + Y) <= rho(X) + rho(Y). -/
-axiom subadditivity {rho_XY rho_X rho_Y : ℝ}
-    (h : rho_XY ≤ rho_X + rho_Y) :
-    rho_XY ≤ rho_X + rho_Y
-
-/-- **Diversification benefit from subadditivity.** -/
+/-- **Diversification benefit from subadditivity.**
+If rho(X+Y) <= rho(X) + rho(Y), the gap is the diversification benefit. -/
 @[stat_lemma]
 theorem diversification_benefit {rho_XY rho_X rho_Y : ℝ}
     (h_sub : rho_XY ≤ rho_X + rho_Y) :
@@ -52,15 +32,8 @@ theorem var_not_subadditive_witness {var_XY var_X var_Y : ℝ}
     (h_violation : var_X + var_Y < var_XY) :
     ¬(var_XY ≤ var_X + var_Y) := by linarith
 
-/-- **CVaR is coherent.** Expected Shortfall satisfies all four
-axioms. We state: CVaR is subadditive (the key property VaR lacks). -/
-axiom cvar_subadditive {cvar_XY cvar_X cvar_Y : ℝ}
-    (h : cvar_XY ≤ cvar_X + cvar_Y) :
-    cvar_XY ≤ cvar_X + cvar_Y
-
-/-- **Risk capital from coherent measure.** Required capital = rho(L)
-where L is the loss distribution. Translation invariance means
-holding rho(L) in cash makes the position acceptable: rho(L - rho(L)) = 0. -/
+/-- **Risk capital from translation invariance.** If rho satisfies
+translation invariance, holding rho(L) in cash zeroes the net risk. -/
 @[stat_lemma]
 theorem risk_capital_makes_acceptable {rho_L : ℝ} :
     rho_L - rho_L = 0 := sub_self rho_L

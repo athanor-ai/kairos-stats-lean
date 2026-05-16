@@ -21,17 +21,6 @@ theorem total_variance_mono {w1 w2 T1 T2 : ℝ}
     (hT : T1 ≤ T2) (h_mono : w1 ≤ w2) :
     w1 ≤ w2 := h_mono
 
-/-- **Butterfly constraint.** The call price must be convex in
-strike: C(K-dK) - 2*C(K) + C(K+dK) >= 0. Violation means the
-probability density is negative. -/
-axiom butterfly_nonneg {c_low c_mid c_high : ℝ}
-    (h : 0 ≤ c_low - 2 * c_mid + c_high) :
-    0 ≤ c_low - 2 * c_mid + c_high
-
-/-- **Implied vol positive.** Every point on a valid vol surface
-has strictly positive implied volatility. -/
-axiom implied_vol_pos {sigma : ℝ} (h : 0 < sigma) : 0 < sigma
-
 /-- **Total variance nonneg.** sigma^2 * T >= 0 for sigma >= 0, T >= 0. -/
 @[stat_lemma]
 theorem total_variance_nonneg {sigma T : ℝ}
@@ -49,13 +38,6 @@ theorem var_swap_strike_nonneg {n : ℕ} (weights prices : Fin n → ℝ)
     0 ≤ ∑ i, weights i * prices i :=
   Finset.sum_nonneg fun i _ => mul_nonneg (h_w i) (h_p i)
 
-/-- **Durrleman condition.** The local variance g(y,T) =
-(1 - y*w'/(2w))^2 - w'^2/4*(1/w + 1/4) + w''/2 >= 0
-ensures no butterfly arbitrage. We prove: if g >= 0 everywhere,
-the surface is arbitrage-free in strike. -/
-axiom durrleman_implies_no_butterfly {g : ℝ}
-    (h : 0 ≤ g) : 0 ≤ g
-
 /-- **SVI parameterization bounds.** The SVI (Stochastic Volatility
 Inspired) surface w(k) = a + b*(rho*(k-m) + sqrt((k-m)^2+sigma^2))
 has total variance w(k) >= a + b*sigma*(1-|rho|) at the minimum.
@@ -66,12 +48,5 @@ theorem svi_minimum_nonneg {a b sigma rho_abs : ℝ}
     (h_rho : 0 ≤ rho_abs) (h_rho1 : rho_abs ≤ 1)
     (h_min : 0 ≤ a + b * sigma * (1 - rho_abs)) :
     0 ≤ a + b * sigma * (1 - rho_abs) := h_min
-
-/-- **Wing extrapolation bounded.** The Lee moment formula gives
-the maximum rate of growth of implied vol in the wings:
-lim_{k->inf} sigma^2(k)*T / k <= 2. Violation implies infinite
-expected value of the underlying. -/
-axiom lee_moment_bound {slope : ℝ} (h : slope ≤ 2) :
-    slope ≤ 2
 
 end Pythia.Finance.Options.VolSurfaceConstraints

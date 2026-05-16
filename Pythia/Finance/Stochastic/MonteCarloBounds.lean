@@ -32,11 +32,6 @@ theorem ci_width_nonneg {z se : ℝ} (hz : 0 ≤ z) (hse : 0 ≤ se) :
     0 ≤ 2 * z * se :=
   mul_nonneg (mul_nonneg (by norm_num) hz) hse
 
-/-- **MC estimate in CI.** |estimate - true_value| <= z * SE
-with probability 1-alpha (normal approximation). -/
-axiom mc_in_ci {error bound : ℝ}
-    (h : |error| ≤ bound) : |error| ≤ bound
-
 /-- **Variance reduction improves SE.** Control variate or
 antithetic variables reduce sigma, hence SE. -/
 @[stat_lemma]

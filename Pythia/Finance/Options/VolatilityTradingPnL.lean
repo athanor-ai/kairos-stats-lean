@@ -20,11 +20,6 @@ theorem daily_gamma_pnl_pos {gamma S_sq dt vol_diff : ℝ}
     0 ≤ gamma / 2 * S_sq * vol_diff * dt :=
   mul_nonneg (mul_nonneg (mul_nonneg (div_nonneg hg (by norm_num)) hS) hv) hdt
 
-/-- **Theta offsets gamma.** Under BS, daily theta = -(1/2)*gamma*S^2*implied^2.
-Net daily PnL = (1/2)*gamma*S^2*(realized^2 - implied^2). -/
-axiom theta_gamma_offset {gamma_pnl theta net : ℝ}
-    (h : net = gamma_pnl + theta) : net = gamma_pnl + theta
-
 /-- **Cumulative vol PnL.** Sum of daily gamma PnLs over T days
 = total variance swap payoff (continuous limit). -/
 @[stat_lemma]

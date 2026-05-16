@@ -64,12 +64,6 @@ mu_p = rf + Sharpe_tangency * sigma_p. -/
 theorem cml_from_sharpe (rf sharpe_t sigma_p : ℝ) :
     rf + sharpe_t * sigma_p - rf = sharpe_t * sigma_p := by ring
 
-/-- **Tangency dominates any portfolio.** If the tangency portfolio
-has Sharpe ratio S_T and any other portfolio has Sharpe ratio S,
-then S <= S_T. (This is the definition of tangency, stated as a
-hypothesis for use in downstream proofs.) -/
-axiom tangency_dominates {S S_T : ℝ} (h : S ≤ S_T) : S ≤ S_T
-
 /-- **Two-fund separation.** Any efficient portfolio is a convex
 combination of the risk-free asset and the tangency portfolio.
 At weight w on the tangency portfolio:

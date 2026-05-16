@@ -15,13 +15,6 @@ open Real Finset
 
 namespace Pythia.Finance.FixedIncome.CreditCurve
 
-/-- **Cumulative PD monotone in time.** More time = higher default prob. -/
-axiom cum_pd_mono {pd₁ pd₂ : ℝ} (h : pd₁ ≤ pd₂) : pd₁ ≤ pd₂
-
-/-- **Survival curve decreasing.** S(T) = 1 - PD(T) is decreasing. -/
-axiom survival_antitone {s₁ s₂ : ℝ}
-    (h : s₂ ≤ s₁) : s₂ ≤ s₁
-
 /-- **Marginal PD nonneg.** The probability of defaulting between
 T1 and T2 is nonneg: PD(T2) - PD(T1) >= 0 for T1 <= T2. -/
 @[stat_lemma]

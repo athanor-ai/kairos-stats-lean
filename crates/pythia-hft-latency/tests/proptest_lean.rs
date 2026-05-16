@@ -1,3 +1,7 @@
+//! Provenance: VERIFIED — proptest properties backed by non-trivial Lean proofs.
+//! Each property below corresponds to a Lean theorem with real mathematical content
+//! (induction, contradiction, Cauchy-Schwarz, Finset reasoning, etc.)
+
 use proptest::prelude::*;
 use pythia_hft_latency::{Pipeline, Stage, batch_rounds};
 

@@ -1,3 +1,8 @@
+//! Provenance: SCAFFOLDING — proptest exercises the Rust implementation but the
+//! corresponding Lean "theorem" is tautological (`:= h`, hypothesis restated as
+//! conclusion). These tests are useful as implementation tests but are NOT formally
+//! verified in the strong sense. Will be upgraded when Lean proofs are upgraded.
+
 use proptest::prelude::*;
 use pythia_portfolio_kelly::*;
 

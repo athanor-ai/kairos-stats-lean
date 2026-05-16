@@ -292,6 +292,7 @@ import Pythia.Finance.HFT.SignalCombination
 import Pythia.Finance.HFT.SlippageModel
 import Pythia.Finance.HFT.TradingSession
 import Pythia.Finance.HFT.OrderBookInvariant
+import Pythia.Finance.HFT.OrderBookProperties
 import Pythia.Finance.HFT.RiskGate
 import Pythia.Finance.HFT.SPSCQueue
 import Pythia.Finance.OptionPricing
@@ -329,10 +330,12 @@ import Pythia.Finance.Portfolio.InformationRatio
 import Pythia.Finance.Portfolio.JensenAlpha
 import Pythia.Finance.Portfolio.Kelly
 import Pythia.Finance.Portfolio.KellyOptimal
+import Pythia.Finance.Portfolio.KellyCriterion
 import Pythia.Finance.Portfolio.LeverageConstraints
 import Pythia.Finance.Portfolio.MarginalRisk
 import Pythia.Finance.Portfolio.MarkowitzFrontier
 import Pythia.Finance.Portfolio.MeanVarianceUtility
+import Pythia.Finance.Portfolio.MeanVariance
 import Pythia.Finance.Portfolio.MertonPortfolioInsurance
 import Pythia.Finance.Portfolio.PortfolioOptimality
 import Pythia.Finance.Portfolio.PerformanceAttribution
@@ -369,6 +372,7 @@ import Pythia.Finance.Risk.RealisedVolatility
 import Pythia.Finance.Risk.TrackingError
 import Pythia.Finance.Risk.VolForecasting
 import Pythia.Finance.Risk.ValueAtRisk
+import Pythia.Finance.Risk.TailRiskDecomp
 import Pythia.Finance.Risk.VolatilityScaling
 import Pythia.Finance.Risk.VolatilitySmile
 import Pythia.Finance.RiskManagement

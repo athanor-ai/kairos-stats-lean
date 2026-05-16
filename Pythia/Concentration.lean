@@ -52,11 +52,65 @@ theorem mgf_le_subGaussian_of_bounded
   -- E[exp(λX)] ≤ exp(λ²(b-a)²/8).
   -- Proof via convexity of exp on [a,b] + Jensen optimality.
   have h_int := mgf_exists_of_bounded hX hab.le h_bounded lam
-  -- The standard proof uses convexity of exp:
-  -- exp(λx) ≤ ((x-a)/(b-a))·exp(λb) + ((b-x)/(b-a))·exp(λa)
-  -- then takes expectation using E[X]=0 ⟹ E[(X-a)/(b-a)] = -a/(b-a).
-  -- Finally optimize the quadratic form.
-  sorry
+  have h_ba_pos : (0 : ℝ) < b - a := sub_pos.mpr hab
+  by_cases hlam : lam = 0
+  · simp [hlam]
+  · -- By convexity of exp on [a,b]:
+    -- For x ∈ [a,b]: exp(λx) ≤ ((b-x)/(b-a))·exp(λa) + ((x-a)/(b-a))·exp(λb)
+    have h_convex_bound : ∀ᵐ ω ∂μ,
+        Real.exp (lam * X ω) ≤
+          ((b - X ω) / (b - a)) * Real.exp (lam * a) +
+          ((X ω - a) / (b - a)) * Real.exp (lam * b) := by
+      filter_upwards [h_bounded] with ω ⟨ha_ω, hb_ω⟩
+      have h_convex := Real.convexOn_exp.2 (Set.mem_Icc.mpr ⟨le_refl a, hab.le⟩)
+        (Set.mem_Icc.mpr ⟨hab.le, le_refl b⟩)
+        (show (b - X ω) / (b - a) ≥ 0 by positivity)
+        (show (X ω - a) / (b - a) ≥ 0 by positivity)
+        (show (b - X ω) / (b - a) + (X ω - a) / (b - a) = 1 by field_simp)
+      convert h_convex using 1
+      · congr 1; field_simp; ring
+      · congr 1 <;> (congr 1; ring)
+    -- Take expectation of the convex bound
+    have h_integral_bound :
+        ∫ ω, Real.exp (lam * X ω) ∂μ ≤
+          (b / (b - a)) * Real.exp (lam * a) +
+          (-a / (b - a)) * Real.exp (lam * b) := by
+      calc ∫ ω, Real.exp (lam * X ω) ∂μ
+          ≤ ∫ ω, (((b - X ω) / (b - a)) * Real.exp (lam * a) +
+                   ((X ω - a) / (b - a)) * Real.exp (lam * b)) ∂μ :=
+            MeasureTheory.integral_mono_ae h_int
+              (by exact Integrable.add (Integrable.const_mul (integrable_const _) _)
+                                       (Integrable.const_mul h_int _) |>.mono_ae
+                (by filter_upwards [h_bounded] with ω ⟨ha_ω, hb_ω⟩; positivity))
+              h_convex_bound
+        _ = (b / (b - a)) * Real.exp (lam * a) +
+            (-a / (b - a)) * Real.exp (lam * b) := by
+          simp_rw [MeasureTheory.integral_add
+            (Integrable.const_mul (integrable_const _) _)
+            (Integrable.const_mul h_int _)]
+          simp_rw [MeasureTheory.integral_mul_right, MeasureTheory.integral_div]
+          rw [show ∫ ω, (b - X ω) ∂μ = b - ∫ ω, X ω ∂μ from by
+            simp [MeasureTheory.integral_sub (integrable_const _) (h_int.mono_ae (by
+              filter_upwards [h_bounded] with ω ⟨ha_ω, hb_ω⟩; exact ⟨_, _⟩ <;> nlinarith)),
+              MeasureTheory.integral_const, MeasureTheory.IsProbabilityMeasure.measure_univ]]
+          rw [show ∫ ω, (X ω - a) ∂μ = (∫ ω, X ω ∂μ) - a from by
+            simp [MeasureTheory.integral_sub (h_int.mono_ae (by
+              filter_upwards [h_bounded] with ω ⟨ha_ω, hb_ω⟩; exact ⟨_, _⟩ <;> nlinarith))
+              (integrable_const _),
+              MeasureTheory.integral_const, MeasureTheory.IsProbabilityMeasure.measure_univ]]
+          rw [h_mean]; ring_nf
+    -- Now use the cosh bound: (b/(b-a))e^{λa} + (-a/(b-a))e^{λb} ≤ e^{λ²(b-a)²/8}
+    -- This follows from: let p = -a/(b-a), h = λ(b-a), then
+    -- (1-p)e^{λa} + pe^{λb} = e^{λa}(1-p+pe^h) and
+    -- log(1-p+pe^h) - ph ≤ h²/8 (proved by Taylor with f''≤1/4)
+    calc ∫ ω, Real.exp (lam * X ω) ∂μ
+        ≤ (b / (b - a)) * Real.exp (lam * a) +
+          (-a / (b - a)) * Real.exp (lam * b) := h_integral_bound
+      _ ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8) := by
+        -- The algebraic inequality (b/(b-a))e^{λa} + (-a/(b-a))e^{λb} ≤ e^{λ²(b-a)²/8}
+        -- This is the core "cosh bound" and requires a separate lemma.
+        -- For now we leave this final algebraic step.
+        sorry
 
 /-! ## Section 2 — Exponential Markov inequality -/
 

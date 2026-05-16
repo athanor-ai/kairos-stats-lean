@@ -486,5 +486,6 @@ import Pythia.Stochastic.ItoIsometryFiniteDim
 import Pythia.Security.EnvAllowlistSpec
 import Pythia.Security.HaltReasonSpec
 import Pythia.Security.TransformationClassSpec
+import Pythia.Security.ProposerRoutingSpec
 -- Thermodynamics
 import Pythia.Thermodynamics.CarnotEfficiencyUpperBound

@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-treynor"
+version = "0.1.0"
+edition = "2021"
+description = "Verified Treynor ratio properties: zero-excess, linearity, translation invariance. Lean spec: Pythia.Finance.Portfolio.TreynorRatio"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

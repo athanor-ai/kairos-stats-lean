@@ -313,6 +313,7 @@ import Pythia.Finance.Options.LookbackOption
 import Pythia.Finance.Options.NoArbitrageBounds
 import Pythia.Finance.Options.OptionPayoff
 import Pythia.Finance.Options.OptionTimePremium
+import Pythia.Finance.Options.PricingBounds
 import Pythia.Finance.Options.PutCallParity
 import Pythia.Finance.Options.PutCallParityDividend
 import Pythia.Finance.Portfolio.BetaFromCorrelation

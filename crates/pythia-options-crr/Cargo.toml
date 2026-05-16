@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-crr"
+version = "0.1.0"
+edition = "2021"
+description = "Verified CRR binomial step pricing: risk-neutral prob, discounted expectation, no-arb bounds. Lean spec: Pythia.Finance.Options.CRRBinomialStep"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

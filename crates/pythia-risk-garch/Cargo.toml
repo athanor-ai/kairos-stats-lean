@@ -1,0 +1,10 @@
+[package]
+name = "pythia-risk-garch"
+version = "0.1.0"
+edition = "2021"
+description = "GARCH(1,1) variance update and stationarity — Rust port of Pythia.Finance.Risk.GARCHUpdate"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

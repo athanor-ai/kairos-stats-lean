@@ -1,0 +1,10 @@
+[package]
+name = "pythia-portfolio-info-ratio"
+version = "0.1.0"
+edition = "2021"
+description = "Information Ratio (algebraic form) — Rust port of Pythia.Finance.Portfolio.InformationRatio"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

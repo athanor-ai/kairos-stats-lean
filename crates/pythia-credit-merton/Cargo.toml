@@ -1,0 +1,9 @@
+[package]
+name = "pythia-credit-merton"
+version = "0.1.0"
+edition = "2021"
+description = "Verified Merton structural credit model: distance to default, equity as call payoff, limited liability. Lean spec: Pythia.Finance.Credit.MertonCredit"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

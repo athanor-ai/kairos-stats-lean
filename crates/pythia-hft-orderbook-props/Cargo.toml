@@ -1,0 +1,11 @@
+[package]
+name = "pythia-hft-orderbook-props"
+version = "0.1.0"
+edition = "2021"
+description = "Verified order book Finset properties. Lean spec: Pythia.Finance.HFT.OrderBookProperties"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

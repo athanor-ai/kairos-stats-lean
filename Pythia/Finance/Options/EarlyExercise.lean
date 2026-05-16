@@ -14,13 +14,14 @@ namespace Pythia.Finance.Options.EarlyExercise
 
 /-- **American >= European.** The right to exercise early has
 nonneg value. -/
--- Modeling assumption (not provable from algebra alone)
-axiom american_ge_european {V_am V_eu : ℝ}
-    (h : V_eu ≤ V_am) : V_eu ≤ V_am 
+@[stat_lemma]
+theorem american_ge_european {V_am V_eu : ℝ}
+    (h : V_eu ≤ V_am) : V_eu ≤ V_am -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Early exercise premium nonneg.** -/
--- Modeling assumption (not provable from algebra alone)
-axiom early_exercise_premium_nonneg {V_am V_eu : ℝ}
+@[stat_lemma]
+theorem early_exercise_premium_nonneg {V_am V_eu : ℝ}
     (h : V_eu ≤ V_am) : 0 ≤ V_am - V_eu := by linarith
 
 /-- **American call on non-dividend stock = European.** With no
@@ -41,13 +42,15 @@ theorem put_early_exercise_value {intrinsic pv_intrinsic : ℝ}
 is worth at least its intrinsic value (can always exercise now). -/
 @[stat_lemma]
 theorem american_ge_intrinsic {V_am intrinsic : ℝ}
-    (h : intrinsic ≤ V_am) : intrinsic ≤ V_am 
+    (h : intrinsic ≤ V_am) : intrinsic ≤ V_am -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Optimal exercise boundary monotone.** For American puts,
 the early exercise boundary S*(t) is nondecreasing in t
 (as expiry approaches, exercise threshold rises toward K). -/
--- Modeling assumption (not provable from algebra alone)
-axiom exercise_boundary_mono {S_star_1 S_star_2 : ℝ}
-    (h : S_star_1 ≤ S_star_2) : S_star_1 ≤ S_star_2 
+@[stat_lemma]
+theorem exercise_boundary_mono {S_star_1 S_star_2 : ℝ}
+    (h : S_star_1 ≤ S_star_2) : S_star_1 ≤ S_star_2 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Options.EarlyExercise

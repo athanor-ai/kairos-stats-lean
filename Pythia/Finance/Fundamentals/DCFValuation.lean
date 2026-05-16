@@ -20,8 +20,8 @@ noncomputable def pvCashFlow (CF r t : ℝ) : ℝ :=
   CF * Real.exp (-(r * t))
 
 /-- **PV positive for positive CF.** -/
--- Modeling assumption (not provable from algebra alone)
-axiom pv_pos {CF : ℝ} (hCF : 0 < CF) (r t : ℝ) :
+@[stat_lemma]
+theorem pv_pos {CF : ℝ} (hCF : 0 < CF) (r t : ℝ) :
     0 < pvCashFlow CF r t :=
   mul_pos hCF (Real.exp_pos _)
 
@@ -60,6 +60,7 @@ theorem pv_additive {CF1 CF2 r t : ℝ} :
 /-- **IRR makes NPV zero.** At the internal rate of return, the
 sum of discounted cash flows equals zero. -/
 @[stat_lemma]
-theorem irr_zero_npv {npv : ℝ} (h : npv = 0) : npv = 0 
+theorem irr_zero_npv {npv : ℝ} (h : npv = 0) : npv = 0 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Fundamentals.DCFValuation

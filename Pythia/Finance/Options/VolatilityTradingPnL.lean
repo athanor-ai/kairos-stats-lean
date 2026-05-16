@@ -14,8 +14,8 @@ namespace Pythia.Finance.Options.VolatilityTradingPnL
 
 /-- **Daily gamma PnL.** PnL = (1/2)*gamma*S^2*(realized^2 - implied^2)*dt.
 Positive when realized > implied (long gamma profits). -/
--- Modeling assumption (not provable from algebra alone)
-axiom daily_gamma_pnl_pos {gamma S_sq dt vol_diff : ℝ}
+@[stat_lemma]
+theorem daily_gamma_pnl_pos {gamma S_sq dt vol_diff : ℝ}
     (hg : 0 ≤ gamma) (hS : 0 ≤ S_sq) (hdt : 0 ≤ dt) (hv : 0 ≤ vol_diff) :
     0 ≤ gamma / 2 * S_sq * vol_diff * dt :=
   mul_nonneg (mul_nonneg (mul_nonneg (div_nonneg hg (by norm_num)) hS) hv) hdt
@@ -24,7 +24,8 @@ axiom daily_gamma_pnl_pos {gamma S_sq dt vol_diff : ℝ}
 Net daily PnL = (1/2)*gamma*S^2*(realized^2 - implied^2). -/
 @[stat_lemma]
 theorem theta_gamma_offset {gamma_pnl theta net : ℝ}
-    (h : net = gamma_pnl + theta) : net = gamma_pnl + theta 
+    (h : net = gamma_pnl + theta) : net = gamma_pnl + theta -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Cumulative vol PnL.** Sum of daily gamma PnLs over T days
 = total variance swap payoff (continuous limit). -/

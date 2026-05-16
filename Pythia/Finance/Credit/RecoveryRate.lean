@@ -12,8 +12,8 @@ import Pythia.Tactic.Pythia
 namespace Pythia.Finance.Credit.RecoveryRate
 
 /-- **Recovery in [0, 1].** -/
--- Modeling assumption (not provable from algebra alone)
-axiom recovery_bounded {R : ℝ} (h0 : 0 ≤ R) (h1 : R ≤ 1) :
+@[stat_lemma]
+theorem recovery_bounded {R : ℝ} (h0 : 0 ≤ R) (h1 : R ≤ 1) :
     0 ≤ R ∧ R ≤ 1 := ⟨h0, h1⟩
 
 /-- **LGD = 1 - R.** Loss given default is the complement. -/
@@ -42,6 +42,7 @@ theorem expected_loss_le_pd {pd lgd : ℝ}
 recovery than subordinated. -/
 @[stat_lemma]
 theorem seniority_improves {R_senior R_sub : ℝ}
-    (h : R_sub ≤ R_senior) : R_sub ≤ R_senior 
+    (h : R_sub ≤ R_senior) : R_sub ≤ R_senior -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Credit.RecoveryRate

@@ -18,8 +18,8 @@ noncomputable def ewmaVariance (lam sigma_sq r_sq : ℝ) : ℝ :=
 
 /-- **EWMA is convex combination.** For lambda in [0,1], EWMA is
 between sigma_sq and r_sq. -/
--- Modeling assumption (not provable from algebra alone)
-axiom ewma_between {lam sigma_sq r_sq : ℝ}
+@[stat_lemma]
+theorem ewma_between {lam sigma_sq r_sq : ℝ}
     (hl0 : 0 ≤ lam) (hl1 : lam ≤ 1) (h : sigma_sq ≤ r_sq) :
     sigma_sq ≤ ewmaVariance lam sigma_sq r_sq := by
   unfold ewmaVariance
@@ -56,6 +56,7 @@ theorem garch_unconditional_pos {omega alpha beta : ℝ}
 finite unconditional variance (stationarity). -/
 @[stat_lemma]
 theorem garch_stationarity_condition {alpha beta : ℝ}
-    (h : alpha + beta < 1) : alpha + beta < 1 
+    (h : alpha + beta < 1) : alpha + beta < 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Risk.VolForecasting

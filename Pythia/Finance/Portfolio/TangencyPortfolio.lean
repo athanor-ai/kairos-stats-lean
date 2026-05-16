@@ -38,8 +38,8 @@ noncomputable def portfolioSharpe (mu_p rf sigma_p : ℝ) : ℝ :=
   (mu_p - rf) / sigma_p
 
 /-- **Sharpe nonneg when return exceeds risk-free.** -/
--- Modeling assumption (not provable from algebra alone)
-axiom portfolioSharpe_nonneg {mu_p rf sigma_p : ℝ}
+@[stat_lemma]
+theorem portfolioSharpe_nonneg {mu_p rf sigma_p : ℝ}
     (h_excess : rf ≤ mu_p) (h_vol : 0 < sigma_p) :
     0 ≤ portfolioSharpe mu_p rf sigma_p := by
   unfold portfolioSharpe
@@ -69,7 +69,8 @@ has Sharpe ratio S_T and any other portfolio has Sharpe ratio S,
 then S <= S_T. (This is the definition of tangency, stated as a
 hypothesis for use in downstream proofs.) -/
 @[stat_lemma]
-theorem tangency_dominates {S S_T : ℝ} (h : S ≤ S_T) : S ≤ S_T 
+theorem tangency_dominates {S S_T : ℝ} (h : S ≤ S_T) : S ≤ S_T -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Two-fund separation.** Any efficient portfolio is a convex
 combination of the risk-free asset and the tangency portfolio.

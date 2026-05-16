@@ -16,8 +16,8 @@ namespace Pythia.Finance.FixedIncome.YieldCurveConstraints
 
 /-- **Discount factor in (0, 1].** D(0) = 1, D(T) decreasing
 for positive rates. -/
--- Modeling assumption (not provable from algebra alone)
-axiom discount_factor_bounded {D : ℝ}
+@[stat_lemma]
+theorem discount_factor_bounded {D : ℝ}
     (h_pos : 0 < D) (h_le : D ≤ 1) :
     0 < D ∧ D ≤ 1 := ⟨h_pos, h_le⟩
 
@@ -25,18 +25,20 @@ axiom discount_factor_bounded {D : ℝ}
 for T1 <= T2 (money today is worth more than money tomorrow). -/
 @[stat_lemma]
 theorem discount_monotone {D1 D2 : ℝ}
-    (h : D2 ≤ D1) : D2 ≤ D1 
+    (h : D2 ≤ D1) : D2 ≤ D1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Forward rate nonneg.** The instantaneous forward rate
 f(T) = -D'(T)/D(T) >= 0 iff discount factors are decreasing. -/
--- Modeling assumption (not provable from algebra alone)
-axiom forward_rate_nonneg {f : ℝ} (h : 0 ≤ f) : 0 ≤ f 
+@[stat_lemma]
+theorem forward_rate_nonneg {f : ℝ} (h : 0 ≤ f) : 0 ≤ f -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Forward rate from discount factors.** The discrete forward
 rate between T1 and T2 is (D1/D2 - 1) / (T2 - T1). Nonneg when
 D1 >= D2. -/
--- Modeling assumption (not provable from algebra alone)
-axiom discrete_forward_nonneg {D1 D2 dT : ℝ}
+@[stat_lemma]
+theorem discrete_forward_nonneg {D1 D2 dT : ℝ}
     (h_D : D2 ≤ D1) (h_D2 : 0 < D2) (h_dT : 0 < dT) :
     0 ≤ (D1 / D2 - 1) / dT := by
   apply div_nonneg _ (le_of_lt h_dT)
@@ -47,13 +49,14 @@ axiom discrete_forward_nonneg {D1 D2 dT : ℝ}
 at T=0 is 0 (no discounting for immediate cash). -/
 @[stat_lemma]
 theorem zero_rate_at_zero {D_zero : ℝ} (h : D_zero = 1) :
-    D_zero = 1 
+    D_zero = 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Par rate bounded.** The par rate (coupon that makes a bond
 price equal to par) is between the shortest and longest zero rates
 on the curve. -/
--- Modeling assumption (not provable from algebra alone)
-axiom par_rate_between {par_rate r_short r_long : ℝ}
+@[stat_lemma]
+theorem par_rate_between {par_rate r_short r_long : ℝ}
     (h_lo : r_short ≤ par_rate) (h_hi : par_rate ≤ r_long) :
     r_short ≤ par_rate ∧ par_rate ≤ r_long := ⟨h_lo, h_hi⟩
 
@@ -61,20 +64,22 @@ axiom par_rate_between {par_rate r_short r_long : ℝ}
 all positive cash flows has positive Macaulay duration. -/
 @[stat_lemma]
 theorem duration_pos_of_pos_cashflows {duration : ℝ}
-    (h : 0 < duration) : 0 < duration 
+    (h : 0 < duration) : 0 < duration -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Convexity nonneg.** The second derivative of price w.r.t.
 yield is nonneg (price is convex in yield). -/
--- Modeling assumption (not provable from algebra alone)
-axiom convexity_nonneg {convexity : ℝ}
-    (h : 0 ≤ convexity) : 0 ≤ convexity 
+@[stat_lemma]
+theorem convexity_nonneg {convexity : ℝ}
+    (h : 0 ≤ convexity) : 0 ≤ convexity -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Duration-convexity price approximation.** For a small yield
 change dy: dP/P ≈ -D*dy + (1/2)*C*dy^2. The convexity term is
 always nonneg, so the approximation underestimates the true price
 for large moves (convexity benefit). -/
--- Modeling assumption (not provable from algebra alone)
-axiom convexity_benefit {C dy : ℝ} (hC : 0 ≤ C) :
+@[stat_lemma]
+theorem convexity_benefit {C dy : ℝ} (hC : 0 ≤ C) :
     0 ≤ C / 2 * dy ^ 2 :=
   mul_nonneg (div_nonneg hC (by norm_num)) (sq_nonneg dy)
 
@@ -82,6 +87,7 @@ axiom convexity_benefit {C dy : ℝ} (hC : 0 ≤ C) :
 @[stat_lemma]
 theorem key_rate_sum {n : ℕ} (krd : Fin n → ℝ) (total_dur : ℝ)
     (h : ∑ i, krd i = total_dur) :
-    ∑ i, krd i = total_dur 
+    ∑ i, krd i = total_dur -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.FixedIncome.YieldCurveConstraints

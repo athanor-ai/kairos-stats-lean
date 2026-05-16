@@ -16,8 +16,8 @@ namespace Pythia.Finance.FixedIncome.SwapPricing
 
 /-- **Fixed leg PV.** Sum of discounted fixed coupons:
 PV_fixed = c * sum_i D(T_i) * delta_i. -/
--- Modeling assumption (not provable from algebra alone)
-axiom fixed_leg_nonneg {n : ℕ} (coupon : ℝ) (disc_deltas : Fin n → ℝ)
+@[stat_lemma]
+theorem fixed_leg_nonneg {n : ℕ} (coupon : ℝ) (disc_deltas : Fin n → ℝ)
     (hc : 0 ≤ coupon) (hd : ∀ i, 0 ≤ disc_deltas i) :
     0 ≤ coupon * ∑ i, disc_deltas i :=
   mul_nonneg hc (Finset.sum_nonneg fun i _ => hd i)
@@ -54,6 +54,7 @@ theorem payer_antitone_rate {annuity c₁ c₂ pv_float : ℝ}
 in the fixed rate is approximately the annuity factor. -/
 @[stat_lemma]
 theorem swap_dv01_nonneg {annuity : ℝ} (h : 0 ≤ annuity) :
-    0 ≤ annuity 
+    0 ≤ annuity -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.FixedIncome.SwapPricing

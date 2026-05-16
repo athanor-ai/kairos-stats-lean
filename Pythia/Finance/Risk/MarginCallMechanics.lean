@@ -15,21 +15,23 @@ namespace Pythia.Finance.Risk.MarginCallMechanics
 
 /-- **Margin breach detection.** Account equity < maintenance margin
 triggers a margin call. -/
--- Modeling assumption (not provable from algebra alone)
-axiom margin_breach {equity maint_margin : ℝ}
+@[stat_lemma]
+theorem margin_breach {equity maint_margin : ℝ}
     (h : equity < maint_margin) :
-    equity < maint_margin 
+    equity < maint_margin -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Equity = assets - liabilities.** -/
--- Modeling assumption (not provable from algebra alone)
-axiom equity_identity {assets liabilities equity : ℝ}
+@[stat_lemma]
+theorem equity_identity {assets liabilities equity : ℝ}
     (h : equity = assets - liabilities) :
-    equity = assets - liabilities 
+    equity = assets - liabilities -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Margin ratio decreasing in loss.** A loss reduces equity
 hence the margin ratio. -/
--- Modeling assumption (not provable from algebra alone)
-axiom margin_ratio_decreases {equity loss position : ℝ}
+@[stat_lemma]
+theorem margin_ratio_decreases {equity loss position : ℝ}
     (h_loss : 0 < loss) (h_pos : 0 < position) :
     (equity - loss) / position < equity / position := by
   apply div_lt_div_of_pos_right _ h_pos
@@ -47,7 +49,8 @@ theorem liquidation_qty_nonneg {deficit price_net : ℝ}
 cover the deficit, equity >= maintenance. -/
 @[stat_lemma]
 theorem post_liquidation_adequate {equity_post maint : ℝ}
-    (h : maint ≤ equity_post) : maint ≤ equity_post 
+    (h : maint ≤ equity_post) : maint ≤ equity_post -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Cascade risk.** Forced selling depresses price, which can
 trigger further margin calls. Loss from liquidation is nonneg. -/

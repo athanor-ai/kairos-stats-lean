@@ -21,8 +21,8 @@ open Real
 namespace Pythia.Finance.BootstrapYieldCurve
 
 /-- Forward rate consistency: D(0,T2) = D(0,T1) * exp(-f*(T2-T1)). -/
--- Modeling assumption (not provable from algebra alone)
-axiom forward_rate_consistency {D1 D2 f T1 T2 : ℝ}
+@[stat_lemma]
+theorem forward_rate_consistency {D1 D2 f T1 T2 : ℝ}
     (h : D2 = D1 * exp (-(f * (T2 - T1)))) :
     D2 / D1 = exp (-(f * (T2 - T1))) ∨ D1 = 0 := by
   by_cases hD1 : D1 = 0
@@ -43,7 +43,8 @@ D(0,T2) = D(0,T1) * D(T1,T2). -/
 @[stat_lemma]
 theorem discount_chain {D02 D01 D12 : ℝ}
     (h : D02 = D01 * D12) :
-    D02 = D01 * D12 
+    D02 = D01 * D12 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- Continuously compounded spot rate from discount factor:
 r = -ln(D) / T. -/

@@ -18,8 +18,8 @@ namespace Pythia.Finance.Portfolio.BacktestValidity
 
 /-- **Bonferroni correction.** If testing n strategies at
 significance alpha, the per-test threshold is alpha/n. -/
--- Modeling assumption (not provable from algebra alone)
-axiom bonferroni_threshold_pos {alpha : ℝ} {n : ℕ}
+@[stat_lemma]
+theorem bonferroni_threshold_pos {alpha : ℝ} {n : ℕ}
     (h_alpha : 0 < alpha) (h_n : 0 < n) :
     0 < alpha / ↑n :=
   div_pos h_alpha (Nat.cast_pos (α := ℝ) |>.mpr h_n)
@@ -56,7 +56,8 @@ theorem deflation_adjustment_nonneg {log_n vol_S : ℝ}
 /-- **Overfitting probability increases with trials.** -/
 @[stat_lemma]
 theorem overfit_prob_mono {p₁ p₂ : ℝ}
-    (h : p₁ ≤ p₂) : p₁ ≤ p₂ 
+    (h : p₁ ≤ p₂) : p₁ ≤ p₂ -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Out-of-sample validation.** In-sample Sharpe minus
 out-of-sample Sharpe is the overfitting penalty. Nonneg

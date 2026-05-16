@@ -14,8 +14,8 @@ import Pythia.Tactic.Pythia
 namespace Pythia.Finance.Risk.CorrelationRisk
 
 /-- **Correlation bounded.** -1 <= rho <= 1. -/
--- Modeling assumption (not provable from algebra alone)
-axiom correlation_bounded {rho : ℝ}
+@[stat_lemma]
+theorem correlation_bounded {rho : ℝ}
     (h_lo : -1 ≤ rho) (h_hi : rho ≤ 1) :
     -1 ≤ rho ∧ rho ≤ 1 := ⟨h_lo, h_hi⟩
 
@@ -47,13 +47,14 @@ theorem negative_corr_reduces_more {var_uncorr cross : ℝ}
 /-- **Correlation asymmetric.** rho(X,Y) = rho(Y,X). -/
 @[stat_lemma]
 theorem correlation_symmetric {rho_xy rho_yx : ℝ}
-    (h : rho_xy = rho_yx) : rho_xy = rho_yx 
+    (h : rho_xy = rho_yx) : rho_xy = rho_yx -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Stress correlation increases.** In market stress, correlations
 tend toward 1 (diversification breaks down). If stress_rho > normal_rho,
 stress portfolio variance exceeds normal. -/
--- Modeling assumption (not provable from algebra alone)
-axiom stress_increases_var {cross_normal cross_stress base_var : ℝ}
+@[stat_lemma]
+theorem stress_increases_var {cross_normal cross_stress base_var : ℝ}
     (h : cross_normal ≤ cross_stress) :
     base_var + cross_normal ≤ base_var + cross_stress :=
   by linarith
@@ -62,6 +63,7 @@ axiom stress_increases_var {cross_normal cross_stress base_var : ℝ}
 matrix captures the market factor. It is at least 1 (diagonal = 1). -/
 @[stat_lemma]
 theorem largest_eigenvalue_ge_one {lambda_max : ℝ}
-    (h : 1 ≤ lambda_max) : 1 ≤ lambda_max 
+    (h : 1 ≤ lambda_max) : 1 ≤ lambda_max -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.Risk.CorrelationRisk

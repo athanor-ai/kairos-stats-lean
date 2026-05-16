@@ -16,15 +16,16 @@ namespace Pythia.Finance.Portfolio.LeverageConstraints
 
 /-- **Gross leverage = sum of |weights|.** Always >= 1 for fully
 invested long-only, can exceed 1 for levered portfolios. -/
--- Modeling assumption (not provable from algebra alone)
-axiom gross_leverage_nonneg {n : ℕ} (w : Fin n → ℝ) :
+@[stat_lemma]
+theorem gross_leverage_nonneg {n : ℕ} (w : Fin n → ℝ) :
     0 ≤ ∑ i, |w i| :=
   Finset.sum_nonneg fun i _ => abs_nonneg _
 
 /-- **Net leverage = sum of weights.** For fully invested = 1. -/
 @[stat_lemma]
 theorem net_leverage_identity {n : ℕ} (w : Fin n → ℝ)
-    (h : ∑ i, w i = 1) : ∑ i, w i = 1 
+    (h : ∑ i, w i = 1) : ∑ i, w i = 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Gross >= |net|.** Triangle inequality on weights. -/
 @[stat_lemma]

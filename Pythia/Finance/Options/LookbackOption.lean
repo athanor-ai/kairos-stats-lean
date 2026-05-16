@@ -27,8 +27,8 @@ noncomputable def lookbackCallPayoff (S_T path_min : ℝ) : ℝ :=
 
 /-- **Lookback call payoff is non-negative** when S_T >= path_min
 (which always holds since path_min <= S_T by definition). -/
--- Modeling assumption (not provable from algebra alone)
-axiom lookback_call_nonneg {S_T path_min : ℝ}
+@[stat_lemma]
+theorem lookback_call_nonneg {S_T path_min : ℝ}
     (h : path_min ≤ S_T) :
     0 ≤ lookbackCallPayoff S_T path_min := by
   unfold lookbackCallPayoff; linarith
@@ -72,6 +72,7 @@ discrete_min >= continuous_min, so discrete payoff <= continuous. -/
 @[stat_lemma]
 theorem discrete_lookback_le_continuous {payoff_disc payoff_cont : ℝ}
     (h : payoff_disc ≤ payoff_cont) :
-    payoff_disc ≤ payoff_cont 
+    payoff_disc ≤ payoff_cont -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 end Pythia.Finance.LookbackOption

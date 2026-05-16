@@ -33,8 +33,8 @@ namespace Pythia.Finance.NoArbitrageBounds
 /-- **Call lower bound.** A European call is worth at least the
 discounted forward minus the strike, floored at zero:
 C >= max(S - K*exp(-rT), 0). -/
--- Modeling assumption (not provable from algebra alone)
-axiom call_lower_bound {C S K_disc : ℝ}
+@[stat_lemma]
+theorem call_lower_bound {C S K_disc : ℝ}
     (h_nonneg : 0 ≤ C)
     (h_arb : S - K_disc ≤ C) :
     max (S - K_disc) 0 ≤ C := by
@@ -44,7 +44,8 @@ axiom call_lower_bound {C S K_disc : ℝ}
 underlying: C <= S. (If C > S, buy S and sell the call for
 immediate arbitrage profit at expiry.) -/
 @[stat_lemma]
-theorem call_upper_bound {C S : ℝ} (h : C ≤ S) : C ≤ S 
+theorem call_upper_bound {C S : ℝ} (h : C ≤ S) : C ≤ S -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Put-call parity bounds.** Given put-call parity
 C - P = S - K*exp(-rT), the put is determined by the call. -/

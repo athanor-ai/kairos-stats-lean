@@ -15,19 +15,22 @@ open Finset
 namespace Pythia.Finance.Portfolio.PortfolioConstruction
 
 /-- **Weights sum to 1.** Fully invested portfolio. -/
--- Modeling assumption (not provable from algebra alone)
-axiom weights_sum_one {n : ℕ} (w : Fin n → ℝ)
-    (h : ∑ i, w i = 1) : ∑ i, w i = 1 
+@[stat_lemma]
+theorem weights_sum_one {n : ℕ} (w : Fin n → ℝ)
+    (h : ∑ i, w i = 1) : ∑ i, w i = 1 -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h
 
 /-- **Long-only constraint.** All weights nonneg. -/
--- Modeling assumption (not provable from algebra alone)
-axiom long_only {n : ℕ} (w : Fin n → ℝ)
-    (h : ∀ i, 0 ≤ w i) (i : Fin n) : 0 ≤ w i 
+@[stat_lemma]
+theorem long_only {n : ℕ} (w : Fin n → ℝ)
+    (h : ∀ i, 0 ≤ w i) (i : Fin n) : 0 ≤ w i -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h i
 
 /-- **Max position constraint.** No single weight exceeds limit. -/
--- Modeling assumption (not provable from algebra alone)
-axiom max_position {n : ℕ} (w : Fin n → ℝ) (limit : ℝ)
-    (h : ∀ i, w i ≤ limit) (i : Fin n) : w i ≤ limit 
+@[stat_lemma]
+theorem max_position {n : ℕ} (w : Fin n → ℝ) (limit : ℝ)
+    (h : ∀ i, w i ≤ limit) (i : Fin n) : w i ≤ limit -- TAUTOLOGICAL: hypothesis restate, needs real proof
+  := h i
 
 /-- **Turnover = sum of absolute weight changes.** -/
 noncomputable def turnover {n : ℕ} (w_old w_new : Fin n → ℝ) : ℝ :=

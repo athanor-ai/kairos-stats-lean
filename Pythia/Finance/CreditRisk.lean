@@ -19,4 +19,5 @@ credit spreads, Merton structural model, and default probability.
 
 import Pythia.Finance.Credit.CreditDefaultSwap
 import Pythia.Finance.Credit.CreditSpread
+import Pythia.Finance.Credit.CreditSpreadModel
 import Pythia.Finance.Credit.MertonCredit

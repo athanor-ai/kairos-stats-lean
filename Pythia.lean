@@ -226,6 +226,7 @@ import Pythia.Distributed
 import Pythia.Finance.All
 import Pythia.Finance.Credit.CreditDefaultSwap
 import Pythia.Finance.Credit.CreditSpread
+import Pythia.Finance.Credit.CreditSpreadModel
 import Pythia.Finance.Credit.CVAProperties
 import Pythia.Finance.Credit.HazardRate
 import Pythia.Finance.Credit.MertonCredit
@@ -285,6 +286,7 @@ import Pythia.Finance.HFT.FixedPointEMA
 import Pythia.Finance.HFT.Latency
 import Pythia.Finance.HFT.MatchingEngine
 import Pythia.Finance.HFT.Microstructure
+import Pythia.Finance.HFT.MarketMicrostructure
 import Pythia.Finance.HFT.OrderBook
 import Pythia.Finance.HFT.OrderBookStrong
 import Pythia.Finance.HFT.PositionTracker
@@ -303,6 +305,7 @@ import Pythia.Finance.Options.BlackFuturesOption
 import Pythia.Finance.Options.BlackScholesCallClosedForm
 import Pythia.Finance.Options.BlackScholesGreeks
 import Pythia.Finance.Options.GreeksBound
+import Pythia.Finance.Options.GreeksBoundReal
 import Pythia.Finance.Options.BlackScholesIntrinsicLower
 import Pythia.Finance.Options.BlackScholesPDE
 import Pythia.Finance.Options.CRRBinomialStep
@@ -336,6 +339,7 @@ import Pythia.Finance.Portfolio.MarginalRisk
 import Pythia.Finance.Portfolio.MarkowitzFrontier
 import Pythia.Finance.Portfolio.MeanVarianceUtility
 import Pythia.Finance.Portfolio.MeanVariance
+import Pythia.Finance.Portfolio.InformationRatio
 import Pythia.Finance.Portfolio.MertonPortfolioInsurance
 import Pythia.Finance.Portfolio.PortfolioOptimality
 import Pythia.Finance.Portfolio.PerformanceAttribution
@@ -488,3 +492,4 @@ import Pythia.Quantum.VonNeumannEntropyNonnegTwoState
 import Pythia.Stochastic.ItoIsometryFiniteDim
 -- Thermodynamics
 import Pythia.Thermodynamics.CarnotEfficiencyUpperBound
+import Pythia.Finance.FixedIncome.DurationConvexity

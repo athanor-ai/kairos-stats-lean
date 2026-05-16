@@ -22,7 +22,8 @@ For the rate to be below a limit: Q/(T*V) <= limit. -/
 theorem participation_rate_bounded {Q T V limit : ℝ}
     (hT : 0 < T) (hV : 0 < V) (h : Q ≤ limit * T * V) :
     Q / (T * V) ≤ limit := by
-  rwa [div_le_iff₀ (mul_pos hT hV)]
+  rw [div_le_iff₀ (mul_pos hT hV)]
+  linarith [mul_assoc limit T V]
 
 /-- **Lower participation reduces impact.** Slower execution
 (longer T) means lower participation rate. -/

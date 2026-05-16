@@ -46,7 +46,7 @@ theorem add_error_bound {a_real b_real a_fp b_fp eps : ℝ}
     (ha : |a_real - a_fp| ≤ eps)
     (hb : |b_real - b_fp| ≤ eps) :
     |(a_real + b_real) - (a_fp + b_fp)| ≤ 2 * eps := by
-  have h := abs_add (a_real - a_fp) (b_real - b_fp)
+  have h := abs_add_le (a_real - a_fp) (b_real - b_fp)
   have : (a_real + b_real) - (a_fp + b_fp) = (a_real - a_fp) + (b_real - b_fp) := by ring
   rw [this]; linarith
 
@@ -61,7 +61,7 @@ theorem mul_error_first_order {a b a_fp b_fp eps_a eps_b : ℝ}
   have key : a * b - a_fp * b_fp = a * (b - b_fp) + b_fp * (a - a_fp) := by ring
   rw [key]
   calc |a * (b - b_fp) + b_fp * (a - a_fp)|
-      ≤ |a * (b - b_fp)| + |b_fp * (a - a_fp)| := abs_add _ _
+      ≤ |a * (b - b_fp)| + |b_fp * (a - a_fp)| := abs_add_le _ _
     _ = |a| * |b - b_fp| + |b_fp| * |a - a_fp| := by rw [abs_mul, abs_mul]
     _ ≤ |a| * eps_b + |b_fp| * eps_a := by
         linarith [mul_le_mul_of_nonneg_left hb (abs_nonneg a),
@@ -75,8 +75,10 @@ theorem compare_preserves_order {a_real b_real a_fp b_fp eps : ℝ}
     (ha : |a_real - a_fp| ≤ eps) (hb : |b_real - b_fp| ≤ eps)
     (h_sep : a_real + 2 * eps < b_real) :
     a_fp < b_fp := by
-  have ha' : a_fp ≥ a_real - eps := by linarith [abs_le.mp ha]
-  have hb' : b_fp ≤ b_real + eps := by linarith [abs_le.mp hb]
+  have ha1 := neg_abs_le (a_real - a_fp)
+  have ha2 := le_abs_self (a_real - a_fp)
+  have hb1 := neg_abs_le (b_real - b_fp)
+  have hb2 := le_abs_self (b_real - b_fp)
   linarith
 
 /-- **N-step error accumulation (addition chain).** After n
@@ -94,6 +96,6 @@ theorem n_step_add_error {n : ℕ} {eps : ℝ} (h_eps : 0 ≤ eps)
 theorem no_overflow_from_abs_bound {a b bound : ℝ}
     (h : |a| + |b| < bound) :
     |a + b| < bound := by
-  linarith [abs_add a b]
+  linarith [abs_add_le a b]
 
 end Pythia.Finance.HFT.FixedPointStrong

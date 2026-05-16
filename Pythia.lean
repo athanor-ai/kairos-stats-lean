@@ -390,7 +390,7 @@ import Pythia.Finance.Z3AuxiliaryDemo
 import Pythia.GameTheory.AuctionTheory
 import Pythia.GameTheory.CooperativeGame
 import Pythia.GameTheory.NashEquilibrium
-import Pythia.LanguageSemantics.Palamedes.Data.Tree
+-- Pythia.LanguageSemantics.Palamedes.Data.Tree excluded: Tree.noConfusion conflict
 import Pythia.Optimization.ADMM
 import Pythia.Optimization.AcceleratedGradient
 import Pythia.Optimization.CoordinateDescent

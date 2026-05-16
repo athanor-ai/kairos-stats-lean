@@ -64,12 +64,12 @@ theorem defaultProb_le_one (h T : ℝ) :
 /-- **Higher hazard means higher default probability.** -/
 @[stat_lemma]
 theorem defaultProb_mono_hazard {T : ℝ} (hT : 0 ≤ T)
-    {h₁ h₂ : ℝ} (hh : h₁ ≤ h₂) (hh1 : 0 ≤ h₁) :
+    {h₁ h₂ : ℝ} (hh : h₁ ≤ h₂) (_hh1 : 0 ≤ h₁) :
     defaultProb h₁ T ≤ defaultProb h₂ T := by
-  unfold defaultProb
-  linarith [survivalProb_antitone (by linarith : 0 ≤ h₁)
-    (show h₁ * T ≤ h₂ * T from mul_le_mul_of_nonneg_right hh hT) |>.symm ▸
-    survivalProb_antitone hh1 (le_refl T)]
+  unfold defaultProb survivalProb
+  have key : Real.exp (-(h₂ * T)) ≤ Real.exp (-(h₁ * T)) :=
+    Real.exp_le_exp.mpr (neg_le_neg (mul_le_mul_of_nonneg_right hh hT))
+  linarith
 
 /-- **CDS spread approximation.** For small default probability,
 the CDS spread is approximately h * (1 - R) where R is recovery. -/

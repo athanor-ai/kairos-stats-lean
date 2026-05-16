@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-risk-adjusted"
+version = "0.1.0"
+edition = "2021"
+description = "Risk-adjusted return measures: excess return, certainty equivalent, monotonicity. Lean spec: Pythia.Finance.Portfolio.RiskAdjustedReturn"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

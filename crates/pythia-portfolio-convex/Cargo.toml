@@ -1,0 +1,10 @@
+[package]
+name = "pythia-portfolio-convex"
+version = "0.1.0"
+edition = "2021"
+description = "Mean-variance portfolio optimality (convex objective, FOC, efficient frontier) — Rust port of Pythia.Finance.Portfolio.PortfolioOptimality"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

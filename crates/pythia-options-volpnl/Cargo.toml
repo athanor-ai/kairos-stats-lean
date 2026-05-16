@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-volpnl"
+version = "0.1.0"
+edition = "2021"
+description = "Verified vol trading PnL: gamma/theta tradeoff, vol arb breakeven, vega PnL. Lean spec: Pythia.Finance.Options.VolatilityTradingPnL"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

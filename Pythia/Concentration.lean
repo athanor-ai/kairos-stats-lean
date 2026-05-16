@@ -337,20 +337,45 @@ theorem exponential_markov
     μ {ω | X ω ≥ t} ≤
       ENNReal.ofReal (Real.exp (-lam * t) *
         ∫ ω, Real.exp (lam * X ω) ∂μ) := by
-  -- Standard: {X ≥ t} = {exp(λX) ≥ exp(λt)}, apply Markov.
-  have h_eq : {ω | X ω ≥ t} = {ω | Real.exp (lam * X ω) ≥ Real.exp (lam * t)} := by
-    ext ω; simp [Real.exp_le_exp, mul_le_mul_left hlam]
-  rw [h_eq]
-  have h_markov := @MeasureTheory.meas_ge_le_integral_div μ
-    (fun ω => Real.exp (lam * X ω)) (Real.exp (lam * t)) ?_ ?_ ?_
-  · convert ENNReal.ofReal_le_ofReal ?_ using 1
-    · simp [measureReal_def]
-    · rw [div_eq_mul_inv, ← Real.exp_neg, ← Real.exp_add]
-      ring_nf
-      exact le_refl _
-  · exact Real.exp_pos _
-  · exact h_int
-  · filter_upwards with ω; exact (Real.exp_pos _).le
+  -- Step 1: Rewrite the set {X ≥ t} as {ofReal(exp(λX)) ≥ ofReal(exp(λt))}
+  -- for the ENNReal-valued Markov inequality.
+  have h_exp_t_pos : (0 : ℝ) < Real.exp (lam * t) := Real.exp_pos _
+  have h_exp_pos : ∀ ω, (0 : ℝ) < Real.exp (lam * X ω) := fun ω => Real.exp_pos _
+  -- The ENNReal-valued function
+  set Y : Ω → ℝ≥0∞ := fun ω => ENNReal.ofReal (Real.exp (lam * X ω))
+  set c : ℝ≥0∞ := ENNReal.ofReal (Real.exp (lam * t))
+  -- Set equality: {X ≥ t} = {c ≤ Y}
+  have h_set_eq : {ω | X ω ≥ t} = {ω | c ≤ Y ω} := by
+    ext ω
+    simp only [Set.mem_setOf_eq, Y, c, ge_iff_le]
+    rw [ENNReal.ofReal_le_ofReal_iff (h_exp_pos ω).le, Real.exp_le_exp,
+        mul_le_mul_iff_of_pos_left hlam]
+  rw [h_set_eq]
+  -- Step 2: Apply Markov's inequality (ENNReal version)
+  have hc_ne_zero : c ≠ 0 := by
+    simp only [c]; exact ENNReal.ofReal_ne_zero_iff.mpr h_exp_t_pos
+  have hc_ne_top : c ≠ ⊤ := by simp only [c]; exact ENNReal.ofReal_ne_top
+  have hY_meas : AEMeasurable Y μ :=
+    ((hX.const_mul lam).exp.ennreal_ofReal).aemeasurable
+  -- meas_ge_le_lintegral_div: μ {x | c ≤ Y x} ≤ (∫⁻ a, Y a ∂μ) / c
+  have h_markov := MeasureTheory.meas_ge_le_lintegral_div hY_meas hc_ne_zero hc_ne_top
+  -- Step 3: Convert lintegral to Bochner integral and simplify
+  -- ∫⁻ ω, Y ω ∂μ = ENNReal.ofReal (∫ ω, exp(lam * X ω) ∂μ)
+  have h_nn : 0 ≤ᵐ[μ] (fun ω => Real.exp (lam * X ω)) :=
+    Eventually.of_forall (fun ω => (h_exp_pos ω).le)
+  have h_lintegral_eq : ∫⁻ ω, Y ω ∂μ = ENNReal.ofReal (∫ ω, Real.exp (lam * X ω) ∂μ) :=
+    (ofReal_integral_eq_lintegral_ofReal h_int h_nn).symm
+  -- Step 4: Combine and simplify
+  calc μ {ω | c ≤ Y ω}
+      ≤ (∫⁻ ω, Y ω ∂μ) / c := h_markov
+    _ = ENNReal.ofReal (∫ ω, Real.exp (lam * X ω) ∂μ) / c := by
+        rw [h_lintegral_eq]
+    _ = ENNReal.ofReal ((∫ ω, Real.exp (lam * X ω) ∂μ) / Real.exp (lam * t)) := by
+        simp only [c]
+        exact (ENNReal.ofReal_div_of_pos h_exp_t_pos).symm
+    _ = ENNReal.ofReal (Real.exp (-lam * t) * ∫ ω, Real.exp (lam * X ω) ∂μ) := by
+        congr 1
+        rw [neg_mul, Real.exp_neg, div_eq_inv_mul]
 
 /-! ## Section 3 — Hoeffding's inequality -/
 

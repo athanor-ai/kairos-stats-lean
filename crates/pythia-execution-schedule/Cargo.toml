@@ -1,0 +1,9 @@
+[package]
+name = "pythia-execution-schedule"
+version = "0.1.0"
+edition = "2021"
+description = "Verified optimal execution schedule: impact costs, Cauchy-Schwarz, patience pays. Lean spec: Pythia.Finance.Execution.OptimalSchedule (zero tautological)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

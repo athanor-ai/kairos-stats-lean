@@ -1,0 +1,11 @@
+[package]
+name = "pythia-portfolio-calmar"
+version = "0.1.0"
+edition = "2021"
+description = "Calmar ratio (algebraic form) — Rust port of Pythia.Finance.Portfolio.CalmarRatio"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

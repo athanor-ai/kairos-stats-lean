@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-beta"
+version = "0.1.0"
+edition = "2021"
+description = "Verified CAPM beta via correlation identity: beta = rho * sigma_p / sigma_m. Lean spec: Pythia.Finance.Portfolio.BetaFromCorrelation"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

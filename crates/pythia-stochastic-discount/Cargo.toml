@@ -1,0 +1,11 @@
+[package]
+name = "pythia-stochastic-discount"
+version = "0.1.0"
+edition = "2021"
+description = "Stochastic discount factor and Hansen-Jagannathan bound — Rust port of Pythia.Finance.Stochastic.StochasticDiscount"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"

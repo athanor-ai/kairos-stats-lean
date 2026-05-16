@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-time-premium"
+version = "0.1.0"
+edition = "2021"
+description = "Option time premium (extrinsic value): intrinsic nonneg, monotonicity, OTM decomposition. Lean spec: Pythia.Finance.Options.OptionTimePremium (VERIFIED)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

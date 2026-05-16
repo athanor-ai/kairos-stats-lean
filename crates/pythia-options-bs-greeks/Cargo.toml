@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-bs-greeks"
+version = "0.1.0"
+edition = "2021"
+description = "Black-Scholes Greeks (abstract-CDF form): delta bounded, gamma/vega/rho nonneg. Lean spec: Pythia.Finance.Options.BlackScholesGreeks (VERIFIED)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

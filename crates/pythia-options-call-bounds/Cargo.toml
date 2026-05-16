@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-call-bounds"
+version = "0.1.0"
+edition = "2021"
+description = "European option price bounds: call/put payoff nonneg, call dominates discounted intrinsic. Lean spec: Pythia.Finance.Options.CallPriceBounds (VERIFIED)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

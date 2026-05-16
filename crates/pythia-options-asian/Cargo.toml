@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-asian"
+version = "0.1.0"
+edition = "2021"
+description = "Asian option payoff bounds: arithmetic/geometric average, AM-GM dominance. Lean spec: Pythia.Finance.Options.AsianOption (VERIFIED)"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

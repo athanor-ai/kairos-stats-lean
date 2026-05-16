@@ -35,7 +35,7 @@ permissions:
 
 jobs:
   restock:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 15
     steps:
       # GitHub Actions does NOT expose `secrets` in job-level `if:`

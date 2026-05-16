@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   pr-template-check:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v6

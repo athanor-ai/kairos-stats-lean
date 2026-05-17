@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-entropy"
+version = "0.1.0"
+edition = "2021"
+description = "Verified entropic risk measure: rho(X) = (1/theta)*log(MGF). Lean spec: Pythia.Finance.EntropyRisk"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

@@ -1,0 +1,9 @@
+[package]
+name = "pythia-stochastic-ito"
+version = "0.1.0"
+edition = "2021"
+description = "Verified discrete Ito formula and delta-hedge PnL. Lean spec: Pythia.Finance.Stochastic.ItoDiscrete"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

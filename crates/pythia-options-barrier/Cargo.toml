@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-barrier"
+version = "0.1.0"
+edition = "2021"
+description = "Verified barrier option payoff bounds: dominance, knock-in/out parity, non-negativity. Lean spec: Pythia.Finance.Options.BarrierOption"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

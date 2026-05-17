@@ -1,0 +1,9 @@
+[package]
+name = "pythia-portfolio-rebalance"
+version = "0.1.0"
+edition = "2021"
+description = "Verified portfolio rebalancing algebra: trade fractions, drift, linearity. Lean spec: Pythia.Finance.Portfolio.PortfolioRebalancing"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

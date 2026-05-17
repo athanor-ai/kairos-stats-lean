@@ -1,0 +1,9 @@
+[package]
+name = "pythia-fixedincome-vasicek"
+version = "0.1.0"
+edition = "2021"
+description = "Verified Vasicek bond price properties: zero-r0, zero-B, linear-log identity. Lean spec: Pythia.Finance.FixedIncome.VasicekBondPrice"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

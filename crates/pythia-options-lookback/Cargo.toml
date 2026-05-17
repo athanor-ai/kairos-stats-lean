@@ -1,0 +1,9 @@
+[package]
+name = "pythia-options-lookback"
+version = "0.1.0"
+edition = "2021"
+description = "Verified lookback option payoff bounds: call/put non-negativity, vanilla dominance, straddle identity. Lean spec: Pythia.Finance.Options.LookbackOption"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"

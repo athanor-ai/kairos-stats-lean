@@ -1,0 +1,9 @@
+[package]
+name = "pythia-risk-tracking"
+version = "0.1.0"
+edition = "2021"
+description = "Verified tracking error properties: variance non-negativity, TE non-negativity, square link, zero-active-return. Lean spec: Pythia.Finance.Risk.TrackingError"
+license = "Apache-2.0"
+
+[dev-dependencies]
+proptest = "1"
